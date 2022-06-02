@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.5](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-wasm-tools@0.0.4...@mrgnlabs/marginfi-wasm-tools@0.0.5) (2022-06-02)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-wasm-tools
+
+
+
+
+
 ## [0.0.4](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-wasm-tools@0.0.3...@mrgnlabs/marginfi-wasm-tools@0.0.4) (2022-06-02)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-wasm-tools
