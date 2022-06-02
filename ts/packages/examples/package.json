@@ -1,0 +1,26 @@
+{
+  "name": "@mrgnlabs/examples",
+  "version": "0.0.1",
+  "description": "marginfi protocol SDK",
+  "author": "MRGN Labs",
+  "private": true,
+  "engines": {
+    "node": ">= 16.13"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "~16.11",
+    "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "@blockworks-foundation/mango-client": "^3.3.28",
+    "@drift-labs/sdk": "^0.1.30-master.1",
+    "@mrgnlabs/marginfi-client": "^0.0.8",
+    "@solana/spl-token": "^0.1.8",
+    "@solana/web3.js": "^1.37.0",
+    "dotenv": "^16.0.1"
+  }
+}
