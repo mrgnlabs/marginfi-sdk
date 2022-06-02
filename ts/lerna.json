@@ -7,7 +7,6 @@
   "command": {
     "publish": {
       "message": "chore(release): Publish",
-      "conventionalCommits": true,
       "allowBranch": "main",
       "ignoreChanges": [
         "*.md",

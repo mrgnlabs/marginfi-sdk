@@ -5,8 +5,8 @@
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
     "changed": "lerna changed",
-    "bump": "lerna version --conventional-graduate",
-    "publish": "lerna version from-git"
+    "bump": "lerna version --conventional-commits --conventional-graduate",
+    "release": "lerna publish from-git"
   },
   "devDependencies": {
     "lerna": "^5.0.0"
