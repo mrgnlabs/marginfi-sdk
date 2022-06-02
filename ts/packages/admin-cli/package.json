@@ -5,6 +5,9 @@
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
   "license": "MIT",
+  "bin": {
+    "mfi": "bin/mfi"
+  },
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
