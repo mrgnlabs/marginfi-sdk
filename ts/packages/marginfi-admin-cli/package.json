@@ -1,6 +1,6 @@
 {
-  "name": "@mrgnlabs/admin-cli",
-  "version": "1.1.2",
+  "name": "@mrgnlabs/marginfi-admin-cli",
+  "version": "0.0.1",
   "description": "marginfi admin CLI",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",

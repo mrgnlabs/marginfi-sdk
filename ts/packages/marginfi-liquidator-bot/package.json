@@ -1,6 +1,6 @@
 {
-  "name": "@mrgnlabs/liquidator-bot",
-  "version": "1.0.3",
+  "name": "@mrgnlabs/marginfi-liquidator-bot",
+  "version": "0.0.1",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
   "license": "Apache-2.0",

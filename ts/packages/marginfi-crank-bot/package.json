@@ -1,7 +1,7 @@
 {
-  "name": "@mrgnlabs/interest-rate-accumulator-bot",
-  "version": "1.0.3",
-  "description": "marginfi interest rate accumulator bot",
+  "name": "@mrgnlabs/marginfi-crank-bot",
+  "version": "0.0.1",
+  "description": "marginfi crank bot",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
   "license": "Apache-2.0",
