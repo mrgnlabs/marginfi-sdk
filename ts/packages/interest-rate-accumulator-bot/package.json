@@ -2,11 +2,12 @@
   "name": "@mrgnlabs/interest-rate-accumulator-bot",
   "version": "1.0.0",
   "description": "marginfi interest rate accumulator bot",
-  "repository": "https://github.com/mrgnlabs/marginfi",
+  "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
+    "clean": "rm -rf dist",
     "dev": "ts-node index.ts",
     "start": "node dist/index.js"
   },

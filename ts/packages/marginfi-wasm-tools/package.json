@@ -2,6 +2,9 @@
   "name": "@mrgnlabs/marginfi-wasm-tools",
   "description": "marginfi client wasm library",
   "version": "0.0.2",
+  "repository": "https://github.com/mrgnlabs/marginfi-sdk",
+  "author": "MRGN Labs",
+  "license": "MIT",
   "files": [
     "./marginfi_wasm_tools_bg.wasm",
     "./marginfi_wasm_tools.js",

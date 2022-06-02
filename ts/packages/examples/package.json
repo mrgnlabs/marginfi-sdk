@@ -1,15 +1,14 @@
 {
   "name": "@mrgnlabs/examples",
   "version": "0.0.1",
-  "description": "marginfi protocol SDK",
+  "description": "Examples usage for the marginfi protocol SDK",
+  "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
-  "private": true,
-  "engines": {
-    "node": ">= 16.13"
-  },
   "license": "MIT",
+  "private": true,
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "clean": "rm -rf dist"
   },
   "devDependencies": {
     "@types/node": "~16.11",

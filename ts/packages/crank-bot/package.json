@@ -2,11 +2,12 @@
   "name": "@mrgnlabs/crank-bot",
   "version": "1.0.0",
   "description": "marginfi crank bot",
-  "repository": "https://github.com/mrgnlabs/marginfi",
+  "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
+    "clean": "rm -rf dist",
     "dev": "ts-node index.ts",
     "start": "node dist/index.js"
   },

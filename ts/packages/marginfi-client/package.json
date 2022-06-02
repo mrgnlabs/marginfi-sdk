@@ -3,14 +3,14 @@
   "version": "0.0.8",
   "description": "marginfi protocol SDK",
   "main": "src/index.ts",
-  "repository": "https://github.com/mrgnlabs/marginfi",
+  "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
   "license": "MIT",
   "scripts": {
     "test": "ts-mocha -p ./tsconfig.json ./src/**/*.spec.ts",
     "build": "tsc",
-    "dev": "tsc -w",
     "clean": "rm -rf dist",
+    "dev": "tsc -w",
     "shell": "node -e \"$(< shell)\" -i --experimental-repl-await",
     "generate-docs": "typedoc --out docs --plugin none"
   },
