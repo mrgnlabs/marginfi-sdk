@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "marginfi protocol SDK",
   "author": "MRGN Labs",
+  "private": true,
   "engines": {
     "node": ">= 16.13"
   },
