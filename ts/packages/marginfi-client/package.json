@@ -2,7 +2,7 @@
   "name": "@mrgnlabs/marginfi-client",
   "version": "0.0.9",
   "description": "marginfi protocol SDK",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
   "license": "MIT",
