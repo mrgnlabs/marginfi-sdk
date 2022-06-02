@@ -1,0 +1,38 @@
+{
+  "name": "@mrgnlabs/marginfi-client",
+  "version": "0.0.8",
+  "description": "marginfi protocol SDK",
+  "main": "src/index.ts",
+  "repository": "https://github.com/mrgnlabs/marginfi",
+  "author": "MRGN Labs",
+  "license": "MIT",
+  "scripts": {
+    "test": "ts-mocha -p ./tsconfig.json ./src/**/*.spec.ts",
+    "build": "tsc",
+    "dev": "tsc -w",
+    "clean": "rm -rf dist",
+    "shell": "node -e \"$(< shell)\" -i --experimental-repl-await",
+    "generate-docs": "typedoc --out docs --plugin none"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.1",
+    "@types/chai-as-promised": "^7.1.5",
+    "@types/mocha": "^9.1.1",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^10.0.0",
+    "prettier": "^2.6.2",
+    "ts-mocha": "^9.0.2",
+    "typedoc": "^0.22.15",
+    "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "@blockworks-foundation/mango-client": "^3.3.28",
+    "@drift-labs/sdk": "^0.1.36-master.2",
+    "@mrgnlabs/marginfi-wasm-tools": "^0.0.2",
+    "@project-serum/anchor": "^0.23.0",
+    "@solana/web3.js": "^1.37.0",
+    "bigint-buffer": "^1.1.5",
+    "debug": "^4.3.4"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "@mrgnlabs/marginfi-wasm-tools",
+  "description": "marginfi client wasm library",
+  "version": "0.0.2",
+  "files": [
+    "./marginfi_wasm_tools_bg.wasm",
+    "./marginfi_wasm_tools.js",
+    "./marginfi_wasm_tools.d.ts"
+  ],
+  "scripts": {
+    "build": "echo \"Nothing to build\""
+  },
+  "main": "./marginfi_wasm_tools.js",
+  "types": "./marginfi_wasm_tools.d.ts"
+}

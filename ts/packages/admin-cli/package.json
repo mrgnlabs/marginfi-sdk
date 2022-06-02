@@ -1,0 +1,25 @@
+{
+  "name": "@mrgnlabs/admin-cli",
+  "version": "1.0.0",
+  "description": "marginfi admin CLI",
+  "repository": "https://github.com/mrgnlabs/marginfi",
+  "author": "MRGN Labs",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "dev": "tsc -w",
+    "mfi": "node dist/index.js",
+    "mfi-dev": "ts-node ./src/index.ts"
+  },
+  "dependencies": {
+    "@mrgnlabs/marginfi-client": "^0.0.8",
+    "@project-serum/anchor": "^0.23.0",
+    "@solana/web3.js": "^1.41.1",
+    "commander": "^9.2.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.4"
+  }
+}
