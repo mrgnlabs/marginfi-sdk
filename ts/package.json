@@ -3,9 +3,10 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build",
+    "buidl": "lerna run build",
     "changed": "lerna changed",
-    "bump": "lerna version --conventional-commits --conventional-graduate",
+    "bump": "lerna version --conventional-commits --conventional-graduate --create-release",
+    "bump-manual": "lerna version --conventional-graduate --create-release",
     "release": "lerna publish from-git"
   },
   "devDependencies": {
