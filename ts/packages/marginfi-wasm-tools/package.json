@@ -4,7 +4,7 @@
   "version": "0.0.4",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "main": "./src/marginfi_wasm_tools.js",
   "types": "./src/marginfi_wasm_tools.d.ts"
 }

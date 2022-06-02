@@ -4,7 +4,7 @@
   "description": "Examples usage for the marginfi protocol SDK",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "scripts": {
     "build": "tsc",
