@@ -1,6 +1,6 @@
 {
   "name": "@mrgnlabs/examples",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Examples usage for the marginfi protocol SDK",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
@@ -17,7 +17,7 @@
   "dependencies": {
     "@blockworks-foundation/mango-client": "^3.3.28",
     "@drift-labs/sdk": "^0.1.30-master.1",
-    "@mrgnlabs/marginfi-client": "^0.0.9",
+    "@mrgnlabs/marginfi-client": "^0.0.10",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.37.0",
     "dotenv": "^16.0.1"

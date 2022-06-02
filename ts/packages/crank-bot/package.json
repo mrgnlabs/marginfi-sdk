@@ -1,6 +1,6 @@
 {
   "name": "@mrgnlabs/crank-bot",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "marginfi crank bot",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
@@ -12,7 +12,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@mrgnlabs/marginfi-client": "^0.0.9",
+    "@mrgnlabs/marginfi-client": "^0.0.10",
     "@project-serum/anchor": "^0.23.0",
     "@solana/web3.js": "^1.37.0",
     "debug": "^4.3.4",
