@@ -3,5 +3,16 @@
     "packages/*"
   ],
   "version": "independent",
-  "npmClient": "yarn"
+  "npmClient": "yarn",
+  "command": {
+    "publish": {
+      "message": "chore(release): Publish",
+      "conventionalCommits": true,
+      "allowBranch": "main",
+      "ignoreChanges": [
+        "*.md",
+        ".*"
+      ]
+    }
+  }
 }
