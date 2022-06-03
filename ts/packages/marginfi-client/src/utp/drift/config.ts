@@ -1,5 +1,5 @@
-import { PublicKey } from '@solana/web3.js';
-import { Environment, UtpConfig } from '../../config';
+import { PublicKey } from "@solana/web3.js";
+import { Environment, UtpConfig } from "../../config";
 
 /**
  * Drift-specific config.
@@ -15,17 +15,14 @@ export interface DriftConfig extends UtpConfig {
  *
  * @internal
  */
-export async function getDriftConfig(
-  environment: Environment,
-  overrides?: Partial<DriftConfig>
-): Promise<DriftConfig> {
+export async function getDriftConfig(environment: Environment, overrides?: Partial<DriftConfig>): Promise<DriftConfig> {
   if (environment == Environment.DEVNET) {
     return {
       utpIndex: 0,
-      programId: new PublicKey('DrifGDj9SKzBoj9mvKwnmAWQqye9i4JmRchUcHFf7C4B'),
+      programId: new PublicKey("DrifGDj9SKzBoj9mvKwnmAWQqye9i4JmRchUcHFf7C4B"),
       ...overrides,
     };
   } else {
-    throw 'You were never meant to be here!!';
+    throw "You were never meant to be here!!";
   }
 }

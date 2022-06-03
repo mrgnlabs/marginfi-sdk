@@ -1,1 +1,1 @@
-export { Marginfi as MarginfiIdl, IDL as MARGINFI_IDL } from './marginfi';
+export { IDL as MARGINFI_IDL, Marginfi as MarginfiIdl } from "./marginfi";

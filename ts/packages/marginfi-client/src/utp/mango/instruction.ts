@@ -1,14 +1,9 @@
-import { ZERO_BN } from '@blockworks-foundation/mango-client';
-import { BN, Program } from '@project-serum/anchor';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { AccountMeta, PublicKey, SystemProgram } from '@solana/web3.js';
-import { MarginfiIdl } from '../../idl';
-import {
-  PerpOrderType,
-  Side,
-  toProgramPerpOrderType,
-  toProgramSide,
-} from './types';
+import { ZERO_BN } from "@blockworks-foundation/mango-client";
+import { BN, Program } from "@project-serum/anchor";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { AccountMeta, PublicKey, SystemProgram } from "@solana/web3.js";
+import { MarginfiIdl } from "../../idl";
+import { PerpOrderType, Side, toProgramPerpOrderType, toProgramSide } from "./types";
 
 export async function makeActivateIx(
   mfProgram: Program<MarginfiIdl>,
@@ -27,10 +22,7 @@ export async function makeActivateIx(
   }
 ) {
   return mfProgram.methods
-    .utpMangoActivate(
-      args.authoritySeed,
-      args.authorityBump,
-    )
+    .utpMangoActivate(args.authoritySeed, args.authorityBump)
     .accounts({
       marginGroup: accounts.marginfiGroupPk,
       marginAccount: accounts.marginAccountPk,

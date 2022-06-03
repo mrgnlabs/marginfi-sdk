@@ -1,11 +1,7 @@
+import { getMfiProgram, loadKeypair, processTransaction } from "@mrgnlabs/marginfi-client";
+import { makeConfigureMarginGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
 import { BN, Wallet } from "@project-serum/anchor";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
-import { makeConfigureMarginGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
-import {
-  getMfiProgram,
-  loadKeypair,
-  processTransaction,
-} from "@mrgnlabs/marginfi-client";
 import { OptionValues } from "commander";
 
 const program = getMfiProgram(
@@ -14,10 +10,7 @@ const program = getMfiProgram(
   new Wallet(loadKeypair(process.env.WALLET!))
 );
 
-export async function configureGroup(
-  marginGroupAddress: string,
-  options: OptionValues
-) {
+export async function configureGroup(marginGroupAddress: string, options: OptionValues) {
   const wallet = program.provider.wallet;
   const marginGroupPk = new PublicKey(marginGroupAddress);
   const args = {
@@ -57,7 +50,7 @@ function parsePaused(pausedString: string): boolean | undefined {
     return false;
   }
 
-  return undefined
+  return undefined;
 }
 
 function parseOption(option?: number): BN | undefined {

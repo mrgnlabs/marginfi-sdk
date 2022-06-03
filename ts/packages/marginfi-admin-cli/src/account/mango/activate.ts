@@ -1,13 +1,13 @@
-import { Connection, PublicKey } from "@solana/web3.js";
 import {
+  Environment,
   getConfig,
   getMfiProgram,
   loadKeypair,
-  MarginfiClient,
-  Environment,
-  Wallet,
   MarginAccount,
+  MarginfiClient,
+  Wallet,
 } from "@mrgnlabs/marginfi-client";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { OptionValues } from "commander";
 
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
@@ -27,5 +27,5 @@ export async function activateMango(accountPk: string, options: OptionValues) {
   const account = await MarginAccount.get(new PublicKey(accountPk), client);
 
   const sig = await account.mango.activate();
-  console.log('Mango account activated %s', sig)
+  console.log("Mango account activated %s", sig);
 }

@@ -1,10 +1,9 @@
-import { WasmObservation } from '@mrgnlabs/marginfi-wasm-tools';
-import { format } from 'util';
-import { BN } from '@project-serum/anchor';
-import { UTPObservationCache } from '../types';
-import { mDecimalToNative } from '../utils';
-import { get_utp_liquidator_price } from '@mrgnlabs/marginfi-wasm-tools';
-import { toBufferBE } from 'bigint-buffer';
+import { get_utp_liquidator_price, WasmObservation } from "@mrgnlabs/marginfi-wasm-tools";
+import { BN } from "@project-serum/anchor";
+import { toBufferBE } from "bigint-buffer";
+import { format } from "util";
+import { UTPObservationCache } from "../types";
+import { mDecimalToNative } from "../utils";
 
 export interface WasmObservationJson {
   total_collateral: string;
@@ -20,14 +19,7 @@ export interface WasmObservationJson {
  * Contains a UTP health metrics.
  */
 export class UtpObservation {
-  static EMPTY = new UtpObservation(
-    new BN(0),
-    new BN(0),
-    new BN(0),
-    new BN(0),
-    new BN(0),
-    false
-  );
+  static EMPTY = new UtpObservation(new BN(0), new BN(0), new BN(0), new BN(0), new BN(0), false);
 
   constructor(
     readonly totalCollateral: BN,
@@ -58,7 +50,7 @@ export class UtpObservation {
       new BN(o.margin_requirement_init.toString()),
       new BN(o.margin_requirement_maint.toString()),
       new BN(o.equity.toString()),
-      o.valid 
+      o.valid
     );
   }
 
@@ -86,7 +78,7 @@ export class UtpObservation {
 
   toString() {
     return format(
-      'Equity: %s\nFree Collateral: %s\nTotal Collateral: %s\nInit Margin Requirements: %s\nMaint Margin Requirements: %s\nvalid: %s',
+      "Equity: %s\nFree Collateral: %s\nTotal Collateral: %s\nInit Margin Requirements: %s\nMaint Margin Requirements: %s\nvalid: %s",
       this.equity.toNumber(),
       this.freeCollateral.toNumber(),
       this.totalCollateral.toNumber(),
@@ -97,6 +89,6 @@ export class UtpObservation {
 
   liquidatorPrice() {
     let price = get_utp_liquidator_price(this.toWasm()).valueOf();
-    return new BN(toBufferBE(price, 8), undefined, 'be');
+    return new BN(toBufferBE(price, 8), undefined, "be");
   }
 }

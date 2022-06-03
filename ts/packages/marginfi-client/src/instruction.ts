@@ -1,12 +1,8 @@
-import { BN, Program } from '@project-serum/anchor';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import {
-  AccountMeta,
-  PublicKey,
-  SystemProgram,
-} from '@solana/web3.js';
-import { MarginfiIdl } from './idl';
-import { GroupConfig } from './types';
+import { BN, Program } from "@project-serum/anchor";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { AccountMeta, PublicKey, SystemProgram } from "@solana/web3.js";
+import { MarginfiIdl } from "./idl";
+import { GroupConfig } from "./types";
 
 export async function makeInitMarginGroupIx(
   mfProgram: Program<MarginfiIdl>,
@@ -28,11 +24,7 @@ export async function makeInitMarginGroupIx(
   }
 ) {
   return mfProgram.methods
-    .initMarginGroup(
-      args.bankAuthorityPdaBump,
-      args.insuranceVaultAuthorityPdaBump,
-      args.feeVaultAuthorityPdaBump
-    )
+    .initMarginGroup(args.bankAuthorityPdaBump, args.insuranceVaultAuthorityPdaBump, args.feeVaultAuthorityPdaBump)
     .accounts({
       marginGroup: accounts.marginfiGroupPk,
       admin: accounts.adminPk,

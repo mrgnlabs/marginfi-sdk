@@ -1,4 +1,4 @@
-import * as mango from './mango';
-import * as drift from './drift';
+import * as drift from "./drift";
+import * as mango from "./mango";
 
 export { mango, drift };

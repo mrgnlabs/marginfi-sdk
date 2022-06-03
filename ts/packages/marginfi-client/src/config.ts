@@ -1,12 +1,12 @@
-import { Connection, PublicKey } from '@solana/web3.js';
-import { DriftConfig, getDriftConfig } from './utp/drift/config';
-import { MangoConfig, getMangoConfig } from './utp/mango/config';
+import { Connection, PublicKey } from "@solana/web3.js";
+import { DriftConfig, getDriftConfig } from "./utp/drift/config";
+import { getMangoConfig, MangoConfig } from "./utp/mango/config";
 
 /**
  * Supported config environments.
  */
 export enum Environment {
-  DEVNET = 'devnet',
+  DEVNET = "devnet",
 }
 
 /**
@@ -40,22 +40,14 @@ export interface UtpConfig {
  */
 export function getMarginfiConfig(
   environment: Environment,
-  overrides?: Partial<
-    Omit<MarginfiDedicatedConfig, 'environment' | 'drift' | 'mango'>
-  >
+  overrides?: Partial<Omit<MarginfiDedicatedConfig, "environment" | "drift" | "mango">>
 ): MarginfiDedicatedConfig {
   if (environment == Environment.DEVNET) {
     return {
       environment,
-      programId:
-        overrides?.programId ||
-        new PublicKey('2KY2AYv9XRfqdyFqzYUixdN6ZP1qFnwjF2dpw5qum47V'),
-      groupPk:
-        overrides?.groupPk ||
-        new PublicKey('7YChtFmc8DoU4ptvNqMNmh5MmZhWEw7oZ9BPmmyi3wXk'),
-      collateralMintPk:
-        overrides?.collateralMintPk ||
-        new PublicKey('8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN'),
+      programId: overrides?.programId || new PublicKey("2KY2AYv9XRfqdyFqzYUixdN6ZP1qFnwjF2dpw5qum47V"),
+      groupPk: overrides?.groupPk || new PublicKey("7YChtFmc8DoU4ptvNqMNmh5MmZhWEw7oZ9BPmmyi3wXk"),
+      collateralMintPk: overrides?.collateralMintPk || new PublicKey("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"),
     };
   } else {
     throw Error(`Unknown environment ${environment}`);
@@ -68,7 +60,7 @@ export function getMarginfiConfig(
 export async function getConfig(
   environment: Environment,
   connection: Connection,
-  overrides?: Partial<Omit<MarginfiConfig, 'environment'>>
+  overrides?: Partial<Omit<MarginfiConfig, "environment">>
 ): Promise<MarginfiConfig> {
   if (environment == Environment.DEVNET) {
     return {

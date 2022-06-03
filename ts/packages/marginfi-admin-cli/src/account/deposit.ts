@@ -1,14 +1,14 @@
-import { BN } from "@project-serum/anchor";
-import { Connection, PublicKey } from "@solana/web3.js";
 import {
+  Environment,
   getConfig,
   getMfiProgram,
   loadKeypair,
   MarginAccount,
-  Environment,
-  Wallet,
   MarginfiClient,
+  Wallet,
 } from "@mrgnlabs/marginfi-client";
+import { BN } from "@project-serum/anchor";
+import { Connection, PublicKey } from "@solana/web3.js";
 
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const program = getMfiProgram(

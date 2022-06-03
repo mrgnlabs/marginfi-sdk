@@ -1,8 +1,8 @@
 // Typescript port for rust decimal deserialization.
 
-import { WasmDecimal } from '@mrgnlabs/marginfi-wasm-tools';
-import { BN } from '@project-serum/anchor';
-import { MDecimalRaw } from '../types';
+import { WasmDecimal } from "@mrgnlabs/marginfi-wasm-tools";
+import { BN } from "@project-serum/anchor";
+import { MDecimalRaw } from "../types";
 
 const SCALE_SHIFT: number = 16;
 const SIGN_SHIFT: number = 31;
@@ -40,7 +40,7 @@ export class Decimal {
 
   public static fromBN(num: BN, scale: number): Decimal {
     if (scale > 28) {
-      throw Error('scale must be 28 or less');
+      throw Error("scale must be 28 or less");
     }
 
     let neg = false;
@@ -97,10 +97,7 @@ export class Decimal {
 
   public toBN(): BN {
     let nb = new BN(0);
-    nb = nb
-      .or(new BN(this.lo))
-      .or(new BN(this.mid).shln(32))
-      .or(new BN(this.hi).shln(64));
+    nb = nb.or(new BN(this.lo)).or(new BN(this.mid).shln(32)).or(new BN(this.hi).shln(64));
 
     if (this.isNegative()) {
       nb = nb.neg();
@@ -121,5 +118,5 @@ export const printHex = (num: number, padding: number = 32) => {
   const buffer = new BN(num).toBuffer();
   const buffer_padded = Buffer.alloc(padding);
   buffer.copy(buffer_padded);
-  console.log(buffer_padded.toString('hex'));
+  console.log(buffer_padded.toString("hex"));
 };

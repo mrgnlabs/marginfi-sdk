@@ -1,13 +1,8 @@
-import { BN, Program } from '@project-serum/anchor';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import {
-  AccountMeta,
-  PublicKey,
-  SystemProgram,
-  SYSVAR_RENT_PUBKEY,
-} from '@solana/web3.js';
-import { MarginfiIdl } from '../../idl';
-import { DriftClosePositionArgs, DriftOpenPositionArgs } from './types';
+import { BN, Program } from "@project-serum/anchor";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { AccountMeta, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
+import { MarginfiIdl } from "../../idl";
+import { DriftClosePositionArgs, DriftOpenPositionArgs } from "./types";
 
 export async function makeActivateIx(
   mfProgram: Program<MarginfiIdl>,

@@ -1,18 +1,8 @@
-import {
-  getMfiProgram,
-  loadKeypair,
-  processTransaction,
-  Wallet,
-} from "@mrgnlabs/marginfi-client";
+import { getMfiProgram, loadKeypair, processTransaction, Wallet } from "@mrgnlabs/marginfi-client";
 import { BN, Provider } from "@project-serum/anchor";
 import { ASSOCIATED_PROGRAM_ID } from "@project-serum/anchor/dist/cjs/utils/token";
 import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import {
-  Connection,
-  PublicKey,
-  Transaction,
-  TransactionInstruction,
-} from "@solana/web3.js";
+import { Connection, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { OptionValues } from "commander";
 
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
@@ -23,10 +13,7 @@ const program = getMfiProgram(
   wallet
 );
 
-export async function airdropCollateral(
-  amountDec: string,
-  options: OptionValues
-) {
+export async function airdropCollateral(amountDec: string, options: OptionValues) {
   const amount = Number.parseFloat(amountDec) * 10 ** 6;
 
   const faucet = new PublicKey(options.faucet);
@@ -36,10 +23,7 @@ export async function airdropCollateral(
 
   const tokenAccount = await getAtaOrCreate(provider, wallet.publicKey, mint);
 
-  const [faucetPda] = await PublicKey.findProgramAddress(
-    [Buffer.from("faucet")],
-    FAUCET_PROGRAM_ID
-  );
+  const [faucetPda] = await PublicKey.findProgramAddress([Buffer.from("faucet")], FAUCET_PROGRAM_ID);
 
   const keys = [
     { pubkey: faucetPda, isSigner: false, isWritable: false },
@@ -65,21 +49,10 @@ export async function airdropCollateral(
   console.log("Signature %s", sig);
 }
 
-const FAUCET_PROGRAM_ID = new PublicKey(
-  "4bXpkKSV8swHSnwqtzuboGPaPDeEgAn4Vt8GfarV5rZt"
-);
+const FAUCET_PROGRAM_ID = new PublicKey("4bXpkKSV8swHSnwqtzuboGPaPDeEgAn4Vt8GfarV5rZt");
 
-async function getAtaOrCreate(
-  provider: Provider,
-  payerPk: PublicKey,
-  mint: PublicKey
-): Promise<PublicKey> {
-  const ata = await Token.getAssociatedTokenAddress(
-    ASSOCIATED_PROGRAM_ID,
-    TOKEN_PROGRAM_ID,
-    mint,
-    payerPk
-  );
+async function getAtaOrCreate(provider: Provider, payerPk: PublicKey, mint: PublicKey): Promise<PublicKey> {
+  const ata = await Token.getAssociatedTokenAddress(ASSOCIATED_PROGRAM_ID, TOKEN_PROGRAM_ID, mint, payerPk);
 
   const ataAccountInfo = await connection.getAccountInfo(ata);
   if (!ataAccountInfo) {

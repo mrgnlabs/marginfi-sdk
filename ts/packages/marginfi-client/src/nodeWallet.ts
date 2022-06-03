@@ -1,9 +1,9 @@
-import AnchorNodeWallet from '@project-serum/anchor/dist/cjs/nodewallet';
-import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
-import { Wallet as IWallet } from '@project-serum/anchor/dist/cjs/provider';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
+import AnchorNodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import { Wallet as IWallet } from "@project-serum/anchor/dist/cjs/provider";
+import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import fs from "fs";
+import os from "os";
+import path from "path";
 
 /**
  * NodeWallet
@@ -21,17 +21,13 @@ export class NodeWallet implements IWallet {
    * Makes use of the `MARGINFI_WALLET` env var, with fallback to `$HOME/.config/solana/id.json`.
    */
   static local(): NodeWallet {
-    const process = require('process');
+    const process = require("process");
     const payer = Keypair.fromSecretKey(
       Buffer.from(
         JSON.parse(
-          fs.readFileSync(
-            process.env.MARGINFI_WALLET ||
-              path.join(os.homedir(), '.config/solana/id.json'),
-            {
-              encoding: 'utf-8',
-            }
-          )
+          fs.readFileSync(process.env.MARGINFI_WALLET || path.join(os.homedir(), ".config/solana/id.json"), {
+            encoding: "utf-8",
+          })
         )
       )
     );

@@ -1,16 +1,9 @@
 require("dotenv").config();
 
+import { Markets } from "@drift-labs/sdk";
+import { Environment, getConfig, loadKeypair, MarginfiClient, uiToNative, Wallet } from "@mrgnlabs/marginfi-client";
 import { BN } from "@project-serum/anchor";
 import { Connection, PublicKey } from "@solana/web3.js";
-import {
-  getConfig,
-  MarginfiClient,
-  Environment,
-  Wallet,
-  loadKeypair,
-  uiToNative,
-} from "@mrgnlabs/marginfi-client";
-import { Markets } from "@drift-labs/sdk";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!);
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
@@ -28,9 +21,7 @@ const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGIN_ACCOUNT!);
 
   // ---------------------------------------------------------------------
   // Open BTC SHORT on Drift
-  const driftBtcmarketInfo = Markets.find(
-    (market) => market.baseAssetSymbol === "BTC"
-  );
+  const driftBtcmarketInfo = Markets.find((market) => market.baseAssetSymbol === "BTC");
   await marginAccount.drift.openPosition({
     direction: { short: {} },
     quoteAssetAmount: new BN(uiToNative(500)),

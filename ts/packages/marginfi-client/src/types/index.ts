@@ -1,7 +1,7 @@
-import { BN } from '@project-serum/anchor';
-import { AccountMeta, PublicKey } from '@solana/web3.js';
-import { UtpObservation } from '../state';
-export * from './accounts';
+import { BN } from "@project-serum/anchor";
+import { AccountMeta, PublicKey } from "@solana/web3.js";
+import { UtpObservation } from "../state";
+export * from "./accounts";
 
 export interface GroupConfig {
   admin?: PublicKey;

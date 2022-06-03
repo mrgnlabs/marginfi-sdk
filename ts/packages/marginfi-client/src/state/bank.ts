@@ -1,7 +1,7 @@
-import { BN } from '@project-serum/anchor';
-import { PublicKey } from '@solana/web3.js';
-import { BankData } from '../types';
-import { Decimal } from '../utils/decimal';
+import { BN } from "@project-serum/anchor";
+import { PublicKey } from "@solana/web3.js";
+import { BankData } from "../types";
+import { Decimal } from "../utils/decimal";
 
 /**
  * Bank struct mirroring on-chain data

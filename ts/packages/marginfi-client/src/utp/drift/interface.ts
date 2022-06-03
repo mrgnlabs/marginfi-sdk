@@ -1,40 +1,18 @@
-import {
-  ClearingHouse,
-  ClearingHouseUser,
-  MarketsAccount,
-  StateAccount,
-  UserAccount,
-} from '@drift-labs/sdk';
-import { Idl, Program, BN } from '@project-serum/anchor';
-import {
-  AccountMeta,
-  Keypair,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-} from '@solana/web3.js';
-import { UTPAccountConfig, UtpData, UtpAccount } from '../../types';
-import {
-  getBankAuthority,
-  getUtpAuthority,
-  processTransaction,
-} from '../../utils';
-import {
-  makeActivateIx,
-  makeClosePositionIx,
-  makeDepositIx,
-  makeOpenPositionIx,
-  makeWithdrawIx,
-} from './instruction';
-import DriftIdl from '@drift-labs/sdk/src/idl/clearing_house.json';
-import * as DriftSDK from '@drift-labs/sdk';
-import { MarginAccount } from '../../marginAccount';
-import { AccountLayout, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { UtpObservation } from '../../state';
-import { DriftClosePositionArgs, DriftOpenPositionArgs } from './types';
+import * as DriftSDK from "@drift-labs/sdk";
+import { ClearingHouse, ClearingHouseUser, MarketsAccount, StateAccount, UserAccount } from "@drift-labs/sdk";
+import DriftIdl from "@drift-labs/sdk/src/idl/clearing_house.json";
+import { BN, Idl, Program } from "@project-serum/anchor";
+import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { AccountMeta, Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { MarginAccount } from "../../marginAccount";
+import { UtpObservation } from "../../state";
+import { UtpAccount, UTPAccountConfig, UtpData } from "../../types";
+import { getBankAuthority, getUtpAuthority, processTransaction } from "../../utils";
+import { makeActivateIx, makeClosePositionIx, makeDepositIx, makeOpenPositionIx, makeWithdrawIx } from "./instruction";
+import { DriftClosePositionArgs, DriftOpenPositionArgs } from "./types";
 
-import { observe_drift } from '@mrgnlabs/marginfi-wasm-tools';
-import { MarginfiClient } from '../..';
+import { observe_drift } from "@mrgnlabs/marginfi-wasm-tools";
+import { MarginfiClient } from "../..";
 
 /**
  * Class encapsulating Drift-specific interactions (internal)
@@ -48,18 +26,10 @@ export class UptDriftAccount implements UtpAccount {
   private _utpConfig: UTPAccountConfig;
 
   /** @internal */
-  constructor(
-    client: MarginfiClient,
-    mfAccount: MarginAccount,
-    accountData: UtpData
-  ) {
+  constructor(client: MarginfiClient, mfAccount: MarginAccount, accountData: UtpData) {
     this._client = client;
     this._marginAccount = mfAccount;
-    this._driftProgram = new Program(
-      DriftIdl as Idl,
-      this._config.drift.programId,
-      this._program.provider
-    );
+    this._driftProgram = new Program(DriftIdl as Idl, this._config.drift.programId, this._program.provider);
 
     this._isActive = accountData.isActive;
     this._utpConfig = accountData.accountConfig;
@@ -117,22 +87,14 @@ export class UptDriftAccount implements UtpAccount {
    *
    * @returns `ActivateUtp` transaction instruction
    */
-  async makeActivateIx(
-    authoritySeed: PublicKey,
-    driftUserPositionsPk: PublicKey
-  ) {
-    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(
-      this._config.drift.programId
-    );
+  async makeActivateIx(authoritySeed: PublicKey, driftUserPositionsPk: PublicKey) {
+    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(this._config.drift.programId);
     const [driftAuthorityPk, driftAuthorityBump] = await getUtpAuthority(
       this._config.drift.programId,
       authoritySeed,
       this._program.programId
     );
-    const driftUserPk = await DriftSDK.getUserAccountPublicKey(
-      this._config.drift.programId,
-      driftAuthorityPk
-    );
+    const driftUserPk = await DriftSDK.getUserAccountPublicKey(this._config.drift.programId, driftAuthorityPk);
 
     return makeActivateIx(
       this._program,
@@ -159,24 +121,17 @@ export class UptDriftAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async activate() {
-    const debug = require('debug')(
-      `mfi:margin-account:${this._marginAccount.publicKey}:utp:drift:activate`
-    );
-    debug('Activate Drift UTP');
+    const debug = require("debug")(`mfi:margin-account:${this._marginAccount.publicKey}:utp:drift:activate`);
+    debug("Activate Drift UTP");
     const authoritySeed = Keypair.generate();
     const userPositionsKey = Keypair.generate();
 
-    const activateIx = await this.makeActivateIx(
-      authoritySeed.publicKey,
-      userPositionsKey.publicKey
-    );
+    const activateIx = await this.makeActivateIx(authoritySeed.publicKey, userPositionsKey.publicKey);
 
     const tx = new Transaction().add(activateIx);
-    const sig = await processTransaction(this._program.provider, tx, [
-      userPositionsKey,
-    ]);
+    const sig = await processTransaction(this._program.provider, tx, [userPositionsKey]);
 
-    debug('Sig %s', sig);
+    debug("Sig %s", sig);
 
     await this._marginAccount.reload(); // Required to update the internal UTP address
     return sig;
@@ -192,9 +147,7 @@ export class UptDriftAccount implements UtpAccount {
   }
 
   private verifyActive() {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:drift:verify-active`
-    );
+    const debug = require("debug")(`mfi:utp:${this.config.address}:drift:verify-active`);
     if (!this.isActive) {
       debug("Utp isn't active");
       throw new Error("Utp isn't active");
@@ -207,14 +160,12 @@ export class UptDriftAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async deactivate() {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:drift:deactivate`
-    );
-    debug('Deactivating Drift');
+    const debug = require("debug")(`mfi:utp:${this.config.address}:drift:deactivate`);
+    debug("Deactivating Drift");
     this.verifyActive();
     const sig = await this._marginAccount.deactivateUtp(new BN(this.index));
 
-    debug('Sig %s', sig);
+    debug("Sig %s", sig);
 
     await this._marginAccount.reload();
     return sig;
@@ -228,26 +179,17 @@ export class UptDriftAccount implements UtpAccount {
    * @returns `DriftDepositCollateral` transaction instruction
    */
   async makeDepositIx(proxyTokenAccountPk: PublicKey, amount: BN) {
-    const [marginBankAuthorityPk] = await getBankAuthority(
-      this._config.groupPk,
-      this._program.programId
-    );
+    const [marginBankAuthorityPk] = await getBankAuthority(this._config.groupPk, this._program.programId);
     const [driftAuthorityPk] = await getUtpAuthority(
       this._config.drift.programId,
       this._utpConfig.authoritySeed,
       this._program.programId
     );
 
-    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(
-      this._config.drift.programId
-    );
-    const driftState: StateAccount =
-      (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
-    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(
-      this._utpConfig.address
-    )) as any;
-    const remainingAccounts =
-      await this._marginAccount.getObservationAccounts();
+    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(this._config.drift.programId);
+    const driftState: StateAccount = (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
+    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(this._utpConfig.address)) as any;
+    const remainingAccounts = await this._marginAccount.getObservationAccounts();
 
     return makeDepositIx(
       this._program,
@@ -280,10 +222,8 @@ export class UptDriftAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async deposit(amount: BN) {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:drift:deposit`
-    );
-    debug('Depositing %s into Drift', amount);
+    const debug = require("debug")(`mfi:utp:${this.config.address}:drift:deposit`);
+    debug("Depositing %s into Drift", amount);
 
     const proxyTokenAccountKey = Keypair.generate();
 
@@ -295,10 +235,7 @@ export class UptDriftAccount implements UtpAccount {
 
     const createProxyTokenAccountIx = SystemProgram.createAccount({
       fromPubkey: this._program.provider.wallet.publicKey,
-      lamports:
-        await this._program.provider.connection.getMinimumBalanceForRentExemption(
-          AccountLayout.span
-        ),
+      lamports: await this._program.provider.connection.getMinimumBalanceForRentExemption(AccountLayout.span),
       newAccountPubkey: proxyTokenAccountKey.publicKey,
       programId: TOKEN_PROGRAM_ID,
       space: AccountLayout.span,
@@ -309,17 +246,12 @@ export class UptDriftAccount implements UtpAccount {
       proxyTokenAccountKey.publicKey,
       driftAuthority
     );
-    const depositIx = await this.makeDepositIx(
-      proxyTokenAccountKey.publicKey,
-      amount
-    );
+    const depositIx = await this.makeDepositIx(proxyTokenAccountKey.publicKey, amount);
 
     const ixs = [createProxyTokenAccountIx, initProxyTokenAccountIx, depositIx];
     const tx = new Transaction().add(...ixs);
-    const sig = await processTransaction(this._program.provider, tx, [
-      proxyTokenAccountKey,
-    ]);
-    debug('Sig %s', sig);
+    const sig = await processTransaction(this._program.provider, tx, [proxyTokenAccountKey]);
+    debug("Sig %s", sig);
     return sig;
   }
 
@@ -331,26 +263,17 @@ export class UptDriftAccount implements UtpAccount {
    * @returns `DriftDepositCollateralCrank` transaction instruction
    */
   async makeDepositCrankIx(proxyTokenAccountPk: PublicKey, amount: BN) {
-    const [marginBankAuthorityPk] = await getBankAuthority(
-      this._config.groupPk,
-      this._program.programId
-    );
+    const [marginBankAuthorityPk] = await getBankAuthority(this._config.groupPk, this._program.programId);
     const [driftAuthorityPk] = await getUtpAuthority(
       this._config.drift.programId,
       this._utpConfig.authoritySeed,
       this._program.programId
     );
 
-    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(
-      this._config.drift.programId
-    );
-    const driftState: StateAccount =
-      (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
-    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(
-      this._utpConfig.address
-    )) as any;
-    const remainingAccounts =
-      await this._marginAccount.getObservationAccounts();
+    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(this._config.drift.programId);
+    const driftState: StateAccount = (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
+    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(this._utpConfig.address)) as any;
+    const remainingAccounts = await this._marginAccount.getObservationAccounts();
 
     return makeDepositIx(
       this._program,
@@ -439,14 +362,9 @@ export class UptDriftAccount implements UtpAccount {
       this._program.programId
     );
 
-    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(
-      this._config.drift.programId
-    );
-    const driftState: StateAccount =
-      (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
-    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(
-      this._utpConfig.address
-    )) as any;
+    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(this._config.drift.programId);
+    const driftState: StateAccount = (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
+    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(this._utpConfig.address)) as any;
 
     return makeWithdrawIx(
       this._program,
@@ -479,15 +397,13 @@ export class UptDriftAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async withdraw(amount: BN) {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:drift:withdraw`
-    );
-    debug('Withdrawing %s from Drift', amount);
+    const debug = require("debug")(`mfi:utp:${this.config.address}:drift:withdraw`);
+    debug("Withdrawing %s from Drift", amount);
 
     const withdrawIx = await this.makeWithdrawIx(amount);
     const tx = new Transaction().add(withdrawIx);
     const sig = await processTransaction(this._program.provider, tx);
-    debug('Sig %', sig);
+    debug("Sig %", sig);
 
     return sig;
   }
@@ -498,14 +414,9 @@ export class UptDriftAccount implements UtpAccount {
    * @returns `AccountMeta[]` list of account metas
    */
   async getObservationAccounts(): Promise<AccountMeta[]> {
-    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(
-      this._config.drift.programId
-    );
-    const driftState: StateAccount =
-      (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
-    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(
-      this._utpConfig.address
-    )) as any;
+    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(this._config.drift.programId);
+    const driftState: StateAccount = (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
+    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(this._utpConfig.address)) as any;
     return [
       {
         pubkey: this._utpConfig.address,
@@ -532,20 +443,11 @@ export class UptDriftAccount implements UtpAccount {
       this._utpConfig.authoritySeed,
       this._program.programId
     );
-    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(
-      this._config.drift.programId
-    );
-    const driftState: StateAccount =
-      (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
-    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(
-      this._utpConfig.address
-    )) as any;
-    const markets: MarketsAccount =
-      (await this._driftProgram.account.markets.fetch(
-        driftState.markets
-      )) as any;
-    const remainingAccounts =
-      await this._marginAccount.getObservationAccounts();
+    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(this._config.drift.programId);
+    const driftState: StateAccount = (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
+    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(this._utpConfig.address)) as any;
+    const markets: MarketsAccount = (await this._driftProgram.account.markets.fetch(driftState.markets)) as any;
+    const remainingAccounts = await this._marginAccount.getObservationAccounts();
 
     return makeOpenPositionIx(
       this._program,
@@ -575,15 +477,13 @@ export class UptDriftAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async openPosition(args: DriftOpenPositionArgs) {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:drift:open-position`
-    );
-    debug('Opening a drift positions %o', args);
+    const debug = require("debug")(`mfi:utp:${this.config.address}:drift:open-position`);
+    debug("Opening a drift positions %o", args);
 
     const openPositionIx = await this.makeOpenPositionIx(args);
     const tx = new Transaction().add(openPositionIx);
     const sig = await processTransaction(this._program.provider, tx);
-    debug('Sig %s', sig);
+    debug("Sig %s", sig);
     return sig;
   }
 
@@ -598,20 +498,11 @@ export class UptDriftAccount implements UtpAccount {
       this._utpConfig.authoritySeed,
       this._program.programId
     );
-    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(
-      this._config.drift.programId
-    );
-    const driftState: StateAccount =
-      (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
-    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(
-      this._utpConfig.address
-    )) as any;
-    const markets: MarketsAccount =
-      (await this._driftProgram.account.markets.fetch(
-        driftState.markets
-      )) as any;
-    const remainingAccounts =
-      await this._marginAccount.getObservationAccounts();
+    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(this._config.drift.programId);
+    const driftState: StateAccount = (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
+    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(this._utpConfig.address)) as any;
+    const markets: MarketsAccount = (await this._driftProgram.account.markets.fetch(driftState.markets)) as any;
+    const remainingAccounts = await this._marginAccount.getObservationAccounts();
 
     return makeClosePositionIx(
       this._program,
@@ -641,15 +532,13 @@ export class UptDriftAccount implements UtpAccount {
    * @returns `DriftClosePosition` transaction instruction
    */
   async closePosition(args: DriftClosePositionArgs) {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:drift:close-position`
-    );
-    debug('Closing Drift position %o', args);
+    const debug = require("debug")(`mfi:utp:${this.config.address}:drift:close-position`);
+    debug("Closing Drift position %o", args);
 
     const closePositionIx = await this.makeClosePositionIx(args);
     const tx = new Transaction().add(closePositionIx);
     const sig = await processTransaction(this._program.provider, tx);
-    debug('Sig %s', sig);
+    debug("Sig %s", sig);
     return sig;
   }
 
@@ -659,49 +548,32 @@ export class UptDriftAccount implements UtpAccount {
    * @returns Health cache for the Drift UTP
    */
   async localObserve(): Promise<UtpObservation> {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:drift:local-observe`
-    );
-    debug('Observing Locally');
+    const debug = require("debug")(`mfi:utp:${this.config.address}:drift:local-observe`);
+    debug("Observing Locally");
     let connection = this._program.provider.connection;
-    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(
-      this._config.drift.programId
-    );
-    const driftState: StateAccount =
-      (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
-    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(
-      this._utpConfig.address
-    )) as any;
+    const driftStatePk = await DriftSDK.getClearingHouseStateAccountPublicKey(this._config.drift.programId);
+    const driftState: StateAccount = (await this._driftProgram.account.state.fetch(driftStatePk)) as any;
+    const driftUser: UserAccount = (await this._driftProgram.account.user.fetch(this._utpConfig.address)) as any;
 
-    let [driftUserAi, driftUserPositionsAi, driftMarketsAi] =
-      await connection.getMultipleAccountsInfo([
-        this._utpConfig.address,
-        driftUser.positions,
-        driftState.markets,
-      ]);
+    let [driftUserAi, driftUserPositionsAi, driftMarketsAi] = await connection.getMultipleAccountsInfo([
+      this._utpConfig.address,
+      driftUser.positions,
+      driftState.markets,
+    ]);
 
-    if (!driftUserAi)
-      throw Error(`Drift user account not found: ${this._utpConfig.address}`);
-    if (!driftUserPositionsAi)
-      throw Error(
-        `Drift user positions account not found: ${driftUser.positions}`
-      );
-    if (!driftMarketsAi)
-      throw Error(`Drift markets account not found: ${driftState.markets}`);
+    if (!driftUserAi) throw Error(`Drift user account not found: ${this._utpConfig.address}`);
+    if (!driftUserPositionsAi) throw Error(`Drift user positions account not found: ${driftUser.positions}`);
+    if (!driftMarketsAi) throw Error(`Drift markets account not found: ${driftState.markets}`);
 
     return UtpObservation.fromWasm(
-      observe_drift(
-        driftUserAi.data as Buffer,
-        driftUserPositionsAi.data as Buffer,
-        driftMarketsAi.data as Buffer
-      )
+      observe_drift(driftUserAi.data as Buffer, driftUserPositionsAi.data as Buffer, driftMarketsAi.data as Buffer)
     );
   }
 
   async getClearingHouseAndUser(
     accountLoader: DriftSDK.BulkAccountLoader = new DriftSDK.BulkAccountLoader(
       this._client.program.provider.connection,
-      'confirmed',
+      "confirmed",
       5000
     )
   ): Promise<[ClearingHouse, ClearingHouseUser]> {
@@ -722,11 +594,7 @@ export class UptDriftAccount implements UtpAccount {
       this.config.authoritySeed,
       this._program.programId
     );
-    const chUserConfig = DriftSDK.getPollingClearingHouseUserConfig(
-      clearingHouse,
-      driftPda,
-      accountLoader
-    );
+    const chUserConfig = DriftSDK.getPollingClearingHouseUserConfig(clearingHouse, driftPda, accountLoader);
     const user = DriftSDK.getClearingHouseUser(chUserConfig);
     await user.subscribe();
 

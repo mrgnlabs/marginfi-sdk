@@ -1,12 +1,5 @@
+import { Environment, getConfig, getMfiProgram, loadKeypair, MarginfiClient, Wallet } from "@mrgnlabs/marginfi-client";
 import { Connection, PublicKey } from "@solana/web3.js";
-import {
-  getConfig,
-  getMfiProgram,
-  loadKeypair,
-  MarginfiClient,
-  Environment,
-  Wallet,
-} from "@mrgnlabs/marginfi-client";
 import { OptionValues } from "commander";
 
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));

@@ -1,32 +1,14 @@
-import {
-  PublicKey,
-  Transaction,
-  TransactionInstruction,
-} from "@solana/web3.js";
-import { Provider } from "@project-serum/anchor";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, Token } from "@solana/spl-token";
-import { BN } from "@project-serum/anchor";
 import { processTransaction } from "@mrgnlabs/marginfi-client";
+import { BN, Provider } from "@project-serum/anchor";
+import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 
-export const DEVNET_USDC_FAUCET = new PublicKey(
-  "B87AhxX6BkBsj3hnyHzcerX2WxPoACC7ZyDr8E7H9geN"
-);
+export const DEVNET_USDC_FAUCET = new PublicKey("B87AhxX6BkBsj3hnyHzcerX2WxPoACC7ZyDr8E7H9geN");
 
-export const FAUCET_PROGRAM_ID = new PublicKey(
-  "4bXpkKSV8swHSnwqtzuboGPaPDeEgAn4Vt8GfarV5rZt"
-);
+export const FAUCET_PROGRAM_ID = new PublicKey("4bXpkKSV8swHSnwqtzuboGPaPDeEgAn4Vt8GfarV5rZt");
 
-export async function getAtaOrCreate(
-  provider: Provider,
-  payerPk: PublicKey,
-  mint: PublicKey
-): Promise<PublicKey> {
-  const ata = await Token.getAssociatedTokenAddress(
-    ASSOCIATED_TOKEN_PROGRAM_ID,
-    TOKEN_PROGRAM_ID,
-    mint,
-    payerPk
-  );
+export async function getAtaOrCreate(provider: Provider, payerPk: PublicKey, mint: PublicKey): Promise<PublicKey> {
+  const ata = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint, payerPk);
 
   const ataAccountInfo = await provider.connection.getAccountInfo(ata);
   if (!ataAccountInfo) {
@@ -53,10 +35,7 @@ export async function airdropCollateral(
   mint: PublicKey,
   tokenAccount: PublicKey
 ): Promise<string> {
-  const [faucetPda] = await PublicKey.findProgramAddress(
-    [Buffer.from("faucet")],
-    FAUCET_PROGRAM_ID
-  );
+  const [faucetPda] = await PublicKey.findProgramAddress([Buffer.from("faucet")], FAUCET_PROGRAM_ID);
 
   const keys = [
     { pubkey: faucetPda, isSigner: false, isWritable: false },

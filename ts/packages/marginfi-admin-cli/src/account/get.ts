@@ -1,14 +1,14 @@
-import { Connection, PublicKey } from "@solana/web3.js";
 import {
+  Environment,
   getConfig,
   getMfiProgram,
   loadKeypair,
-  MarginfiClient,
-  Environment,
-  Wallet,
   MarginAccount,
+  MarginfiClient,
   MarginRequirementType,
+  Wallet,
 } from "@mrgnlabs/marginfi-client";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { OptionValues } from "commander";
 
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
@@ -29,9 +29,7 @@ export async function getAccount(accountPk: string, options: OptionValues) {
     const account = await MarginAccount.get(new PublicKey(accountPk), client);
 
     const balances = await account.getBalance();
-    const [equity, assets, liabilities] = balances.map(
-      (n) => n.toNumber() / 1_000_000
-    );
+    const [equity, assets, liabilities] = balances.map((n) => n.toNumber() / 1_000_000);
     const utps = account.allUtps();
     const observations = await account.localObserve();
 
@@ -43,12 +41,7 @@ export async function getAccount(accountPk: string, options: OptionValues) {
       liabilities
     );
     for (let utp of utps) {
-      console.log(
-        "Utp %s active: %s, address %s",
-        utp.index,
-        utp.isActive,
-        utp.address
-      );
+      console.log("Utp %s active: %s, address %s", utp.index, utp.isActive, utp.address);
     }
     for (let observation of observations) {
       console.log(
@@ -61,12 +54,8 @@ export async function getAccount(accountPk: string, options: OptionValues) {
       );
     }
 
-    const marginRequirementInit = await account.getMarginRequirement(
-      MarginRequirementType.Init
-    );
-    const marginRequirementMaint = await account.getMarginRequirement(
-      MarginRequirementType.Maint
-    );
+    const marginRequirementInit = await account.getMarginRequirement(MarginRequirementType.Init);
+    const marginRequirementMaint = await account.getMarginRequirement(MarginRequirementType.Maint);
 
     const initHealth = equity / marginRequirementInit.toNumber();
     const maintHealth = equity / marginRequirementMaint.toNumber();

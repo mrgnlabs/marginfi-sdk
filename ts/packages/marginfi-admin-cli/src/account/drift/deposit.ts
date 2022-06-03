@@ -1,15 +1,15 @@
-import { Connection, PublicKey } from "@solana/web3.js";
 import {
+  Environment,
   getConfig,
   getMfiProgram,
   loadKeypair,
-  MarginfiClient,
-  Environment,
-  Wallet,
   MarginAccount,
+  MarginfiClient,
+  Wallet,
 } from "@mrgnlabs/marginfi-client";
-import { OptionValues } from "commander";
 import { BN } from "@project-serum/anchor";
+import { Connection, PublicKey } from "@solana/web3.js";
+import { OptionValues } from "commander";
 
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const program = getMfiProgram(
@@ -28,5 +28,5 @@ export async function depositDrift(accountPk: string, amount: number, options: O
   const account = await MarginAccount.get(new PublicKey(accountPk), client);
 
   const sig = await account.drift.deposit(new BN(amount * 10 ** 6));
-  console.log('Mango deposit %s', sig)
+  console.log("Mango deposit %s", sig);
 }

@@ -1,12 +1,6 @@
-import { Connection, PublicKey } from '@solana/web3.js';
-import { Environment, UtpConfig } from '../../config';
-import {
-  Config,
-  GroupConfig,
-  IDS,
-  MangoClient,
-  MangoGroup,
-} from '@blockworks-foundation/mango-client';
+import { Config, GroupConfig, IDS, MangoClient, MangoGroup } from "@blockworks-foundation/mango-client";
+import { Connection, PublicKey } from "@solana/web3.js";
+import { Environment, UtpConfig } from "../../config";
 
 /**
  * Mango-specific config.
@@ -16,7 +10,7 @@ export interface MangoConfig extends UtpConfig {
   utpIndex: number;
   programId: PublicKey;
   group: MangoGroup;
-  groupConfig: GroupConfig,
+  groupConfig: GroupConfig;
 }
 
 /**
@@ -31,12 +25,10 @@ export async function getMangoConfig(
 ): Promise<MangoConfig> {
   if (environment == Environment.DEVNET) {
     const mangoConfig = new Config(IDS);
-    const groupConfig = mangoConfig.getGroup('devnet', 'devnet.2')!;
+    const groupConfig = mangoConfig.getGroup("devnet", "devnet.2")!;
     const programId = groupConfig.mangoProgramId;
     const mangoRPCClient = new MangoClient(connection, programId);
-    const mangoGroup = await mangoRPCClient.getMangoGroup(
-      groupConfig.publicKey
-    );
+    const mangoGroup = await mangoRPCClient.getMangoGroup(groupConfig.publicKey);
     return {
       utpIndex: 1,
       programId,
@@ -45,6 +37,6 @@ export async function getMangoConfig(
       ...overrides,
     };
   } else {
-    throw 'You were never meant to be here!!';
+    throw "You were never meant to be here!!";
   }
 }

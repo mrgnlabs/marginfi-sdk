@@ -2,14 +2,7 @@ require("dotenv").config();
 
 import { Connection, PublicKey } from "@solana/web3.js";
 
-import {
-  getConfig,
-  MarginfiClient,
-  Environment,
-  Wallet,
-  loadKeypair,
-  uiToNative,
-} from "@mrgnlabs/marginfi-client";
+import { Environment, getConfig, loadKeypair, MarginfiClient, uiToNative, Wallet } from "@mrgnlabs/marginfi-client";
 
 import {
   Config as MangoConfig,
@@ -36,21 +29,14 @@ const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGIN_ACCOUNT!);
   marginAccount.mango.deposit(uiToNative(500));
 
   // Open counterpart BTC LONG on Mango
-  const [mangoClient, mangoAccount] =
-    await marginAccount.mango.getMangoClientAndAccount();
+  const [mangoClient, mangoAccount] = await marginAccount.mango.getMangoClientAndAccount();
   const mangoConfig = new MangoConfig(IDS);
   const groupConfig = mangoConfig.getGroup("devnet", "devnet.2")!;
-  const perpMarketConfig = getMarketByBaseSymbolAndKind(
-    groupConfig,
-    "BTC",
-    "perp"
-  );
+  const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "BTC", "perp");
 
   const mangoGroup = await mangoClient.getMangoGroup(groupConfig.publicKey);
   const mangoCache = await mangoGroup.loadCache(connection);
-  const balance = mangoAccount
-    .getAvailableBalance(mangoGroup, mangoCache, QUOTE_INDEX)
-    .div(I80F48.fromNumber(10 ** 6));
+  const balance = mangoAccount.getAvailableBalance(mangoGroup, mangoCache, QUOTE_INDEX).div(I80F48.fromNumber(10 ** 6));
 
   const mangoBtcMarket = await mangoGroup.loadPerpMarket(
     connection,
@@ -62,20 +48,9 @@ const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGIN_ACCOUNT!);
   const price = mangoGroup.getPrice(perpMarketConfig.marketIndex, mangoCache);
   const baseAssetAmount = balance.div(price);
 
-  console.log(
-    "Balance %s, base asset amount %s, price %s",
-    balance,
-    baseAssetAmount,
-    price
-  );
+  console.log("Balance %s, base asset amount %s, price %s", balance, baseAssetAmount, price);
 
-  await marginAccount.mango.placePerpOrder(
-    mangoBtcMarket,
-    Side.Bid,
-    price.toNumber(),
-    baseAssetAmount.toNumber(),
-    {
-      orderType: PerpOrderType.Market,
-    }
-  );
+  await marginAccount.mango.placePerpOrder(mangoBtcMarket, Side.Bid, price.toNumber(), baseAssetAmount.toNumber(), {
+    orderType: PerpOrderType.Market,
+  });
 })();

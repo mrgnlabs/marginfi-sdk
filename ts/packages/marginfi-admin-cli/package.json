@@ -9,11 +9,13 @@
     "mfi": "bin/mfi"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -b",
+    "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
+    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check .",
     "clean": "rm -rf dist",
     "dev": "tsc -w",
     "mfi": "node dist/index.js",
-    "mfi-dev": "ts-node ./src/index.ts"
+    "mfi-dev": "ts-node index.ts"
   },
   "dependencies": {
     "@mrgnlabs/marginfi-client": "^0.0.12",
@@ -23,6 +25,17 @@
     "dotenv": "^16.0.0"
   },
   "devDependencies": {
+    "@types/node": "^17.0.38",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
+    "eslint": "^8.16.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "prettier": "^2.6.2",
+    "prettier-plugin-organize-imports": "^2.3.4",
     "typescript": "^4.6.4"
   }
 }

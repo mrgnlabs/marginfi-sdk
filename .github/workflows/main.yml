@@ -1,0 +1,42 @@
+name: main
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - "*"
+defaults:
+  run:
+    shell: bash
+    working-directory: .
+
+env:
+  NODE_VERSION: 17.0.1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ts
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install build tools
+        run: yarn install
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: yarn bootstrap
+
+      - name: Build
+        run: yarn buidl
+        shell: bash
+
+      - name: Lint
+        run: yarn lint
+        shell: bash

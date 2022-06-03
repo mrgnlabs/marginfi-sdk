@@ -2,15 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "src"
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "typedocOptions": {
-    "entryPoints": [
-      "src/index.ts"
-    ],
+    "entryPoints": ["src/index.ts"],
     "out": "docs"
   }
 }

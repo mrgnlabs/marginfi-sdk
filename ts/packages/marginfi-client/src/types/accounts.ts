@@ -1,10 +1,10 @@
-import { BN } from '@project-serum/anchor';
-import { PublicKey } from '@solana/web3.js';
-import { BankData, MDecimalRaw, UTPAccountConfig } from '.';
+import { BN } from "@project-serum/anchor";
+import { PublicKey } from "@solana/web3.js";
+import { BankData, MDecimalRaw, UTPAccountConfig } from ".";
 
 export enum AccountType {
-  MarginfiGroup = 'marginGroup',
-  MarginAccount = 'marginAccount',
+  MarginfiGroup = "marginGroup",
+  MarginAccount = "marginAccount",
 }
 
 export interface MarginfiGroupData {

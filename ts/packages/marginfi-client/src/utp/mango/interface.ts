@@ -1,37 +1,21 @@
-import {
-  I64_MAX_BN,
-  MangoAccount,
-  MangoClient,
-  PerpMarket,
-  ZERO_BN,
-} from '@blockworks-foundation/mango-client';
-import { observe_mango } from '@mrgnlabs/marginfi-wasm-tools';
-import { BN } from '@project-serum/anchor';
-import { AccountLayout, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import {
-  AccountMeta,
-  Keypair,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-} from '@solana/web3.js';
-import { MarginfiClient } from '../..';
-import { MarginAccount } from '../../marginAccount';
-import { UtpObservation } from '../../state';
-import { UtpAccount, UTPAccountConfig, UtpData } from '../../types';
-import {
-  getBankAuthority,
-  getUtpAuthority,
-  processTransaction,
-} from '../../utils';
+import { I64_MAX_BN, MangoAccount, MangoClient, PerpMarket, ZERO_BN } from "@blockworks-foundation/mango-client";
+import { observe_mango } from "@mrgnlabs/marginfi-wasm-tools";
+import { BN } from "@project-serum/anchor";
+import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { AccountMeta, Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { MarginfiClient } from "../..";
+import { MarginAccount } from "../../marginAccount";
+import { UtpObservation } from "../../state";
+import { UtpAccount, UTPAccountConfig, UtpData } from "../../types";
+import { getBankAuthority, getUtpAuthority, processTransaction } from "../../utils";
 import {
   makeActivateIx,
   makeCancelPerpOrderIx,
   makeDepositIx,
   makePlacePerpOrderIx,
   makeWithdrawIx,
-} from './instruction';
-import { PerpOrderType, Side, UtpMangoPlacePerpOrderOptions } from './types';
+} from "./instruction";
+import { PerpOrderType, Side, UtpMangoPlacePerpOrderOptions } from "./types";
 
 /**
  * Class encapsulating Mango-specific interactions (internal)
@@ -44,11 +28,7 @@ export class UtpMangoAccount implements UtpAccount {
   private _utpConfig: UTPAccountConfig;
 
   /** @internal */
-  constructor(
-    client: MarginfiClient,
-    mfAccount: MarginAccount,
-    accountData: UtpData
-  ) {
+  constructor(client: MarginfiClient, mfAccount: MarginAccount, accountData: UtpData) {
     this._client = client;
 
     this._marginAccount = mfAccount;
@@ -146,10 +126,8 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async activate(/* accountNumber: BN = new BN(0) */) {
-    const debug = require('debug')(
-      `mfi:margin-account:${this._marginAccount.publicKey}:utp:mango:activate`
-    );
-    debug('Activate Mango UTP');
+    const debug = require("debug")(`mfi:margin-account:${this._marginAccount.publicKey}:utp:mango:activate`);
+    debug("Activate Mango UTP");
     const activateIx = await this.makeActivateIx();
 
     const tx = new Transaction().add(activateIx);
@@ -174,11 +152,9 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async deactivate() {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:mango:deactivate`
-    );
+    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:deactivate`);
     this.verifyActive();
-    debug('Deactivating Mango UTP');
+    debug("Deactivating Mango UTP");
 
     const sig = await this._marginAccount.deactivateUtp(new BN(this.index));
 
@@ -194,32 +170,19 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns `MangoDepositCollateral` transaction instruction
    */
   async makeDepositIx(proxyTokenAccountPk: PublicKey, amount: BN) {
-    const [marginBankAuthorityPk] = await getBankAuthority(
-      this._config.groupPk,
-      this._program.programId
-    );
+    const [marginBankAuthorityPk] = await getBankAuthority(this._config.groupPk, this._program.programId);
     const [mangoAuthorityPk] = await getUtpAuthority(
       this._config.mango.programId,
       this._utpConfig.authoritySeed,
       this._program.programId
     );
-    const collateralMintIndex = this._config.mango.group.getTokenIndex(
-      this._config.collateralMintPk
-    );
+    const collateralMintIndex = this._config.mango.group.getTokenIndex(this._config.collateralMintPk);
 
-    await this._config.mango.group.loadRootBanks(
-      this._program.provider.connection
-    );
-    const rootBankPk =
-      this._config.mango.group.tokens[collateralMintIndex].rootBank;
-    const nodeBankPk =
-      this._config.mango.group.rootBankAccounts[collateralMintIndex]!
-        .nodeBankAccounts[0].publicKey;
-    const vaultPk =
-      this._config.mango.group.rootBankAccounts[collateralMintIndex]!
-        .nodeBankAccounts[0].vault;
-    const remainingAccounts =
-      await this._marginAccount.getObservationAccounts();
+    await this._config.mango.group.loadRootBanks(this._program.provider.connection);
+    const rootBankPk = this._config.mango.group.tokens[collateralMintIndex].rootBank;
+    const nodeBankPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].publicKey;
+    const vaultPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].vault;
+    const remainingAccounts = await this._marginAccount.getObservationAccounts();
 
     return makeDepositIx(
       this._program,
@@ -251,11 +214,9 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async deposit(amount: BN) {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:mango:deposit`
-    );
+    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:deposit`);
     this.verifyActive();
-    debug('Deposit %s into Mango', amount);
+    debug("Deposit %s into Mango", amount);
 
     const proxyTokenAccountKey = Keypair.generate();
 
@@ -267,10 +228,7 @@ export class UtpMangoAccount implements UtpAccount {
 
     const createProxyTokenAccountIx = SystemProgram.createAccount({
       fromPubkey: this._program.provider.wallet.publicKey,
-      lamports:
-        await this._program.provider.connection.getMinimumBalanceForRentExemption(
-          AccountLayout.span
-        ),
+      lamports: await this._program.provider.connection.getMinimumBalanceForRentExemption(AccountLayout.span),
       newAccountPubkey: proxyTokenAccountKey.publicKey,
       programId: TOKEN_PROGRAM_ID,
       space: AccountLayout.span,
@@ -281,16 +239,11 @@ export class UtpMangoAccount implements UtpAccount {
       proxyTokenAccountKey.publicKey,
       mangoAuthorityPk
     );
-    const depositIx = await this.makeDepositIx(
-      proxyTokenAccountKey.publicKey,
-      amount
-    );
+    const depositIx = await this.makeDepositIx(proxyTokenAccountKey.publicKey, amount);
 
     const ixs = [createProxyTokenAccountIx, initProxyTokenAccountIx, depositIx];
     const tx = new Transaction().add(...ixs);
-    const sig = await processTransaction(this._program.provider, tx, [
-      proxyTokenAccountKey,
-    ]);
+    const sig = await processTransaction(this._program.provider, tx, [proxyTokenAccountKey]);
     return sig;
   }
 
@@ -302,32 +255,19 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns `MangoDepositCollateralCrank` transaction instruction
    */
   async makeDepositCrankIx(proxyTokenAccountPk: PublicKey, amount: BN) {
-    const [marginBankAuthorityPk] = await getBankAuthority(
-      this._config.groupPk,
-      this._program.programId
-    );
+    const [marginBankAuthorityPk] = await getBankAuthority(this._config.groupPk, this._program.programId);
     const [mangoAuthorityPk] = await getUtpAuthority(
       this._config.mango.programId,
       this._utpConfig.authoritySeed,
       this._program.programId
     );
-    const collateralMintIndex = this._config.mango.group.getTokenIndex(
-      this._config.collateralMintPk
-    );
+    const collateralMintIndex = this._config.mango.group.getTokenIndex(this._config.collateralMintPk);
 
-    await this._config.mango.group.loadRootBanks(
-      this._program.provider.connection
-    );
-    const rootBankPk =
-      this._config.mango.group.tokens[collateralMintIndex].rootBank;
-    const nodeBankPk =
-      this._config.mango.group.rootBankAccounts[collateralMintIndex]!
-        .nodeBankAccounts[0].publicKey;
-    const vaultPk =
-      this._config.mango.group.rootBankAccounts[collateralMintIndex]!
-        .nodeBankAccounts[0].vault;
-    const remainingAccounts =
-      await this._marginAccount.getObservationAccounts();
+    await this._config.mango.group.loadRootBanks(this._program.provider.connection);
+    const rootBankPk = this._config.mango.group.tokens[collateralMintIndex].rootBank;
+    const nodeBankPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].publicKey;
+    const vaultPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].vault;
+    const remainingAccounts = await this._marginAccount.getObservationAccounts();
 
     return makeDepositIx(
       this._program,
@@ -414,21 +354,12 @@ export class UtpMangoAccount implements UtpAccount {
       this._utpConfig.authoritySeed,
       this._program.programId
     );
-    const collateralMintIndex = this._config.mango.group.getTokenIndex(
-      this._config.collateralMintPk
-    );
+    const collateralMintIndex = this._config.mango.group.getTokenIndex(this._config.collateralMintPk);
 
-    await this._config.mango.group.loadRootBanks(
-      this._program.provider.connection
-    );
-    const rootBankPk =
-      this._config.mango.group.tokens[collateralMintIndex].rootBank;
-    const nodeBankPk =
-      this._config.mango.group.rootBankAccounts[collateralMintIndex]!
-        .nodeBankAccounts[0].publicKey;
-    const vaultPk =
-      this._config.mango.group.rootBankAccounts[collateralMintIndex]!
-        .nodeBankAccounts[0].vault;
+    await this._config.mango.group.loadRootBanks(this._program.provider.connection);
+    const rootBankPk = this._config.mango.group.tokens[collateralMintIndex].rootBank;
+    const nodeBankPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].publicKey;
+    const vaultPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].vault;
 
     return makeWithdrawIx(
       this._program,
@@ -458,10 +389,8 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async withdraw(amount: BN) {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:mango:withdraw`
-    );
-    debug('Withdrawing %s from Mango', amount);
+    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:withdraw`);
+    debug("Withdrawing %s from Mango", amount);
     this.verifyActive();
 
     const depositIx = await this.makeWithdrawIx(amount);
@@ -510,33 +439,20 @@ export class UtpMangoAccount implements UtpAccount {
     options?: UtpMangoPlacePerpOrderOptions
   ) {
     options = options ? options : {};
-    let {
-      maxQuoteQuantity,
-      limit,
-      orderType,
-      clientOrderId,
-      reduceOnly,
-      expiryTimestamp,
-    } = options;
+    let { maxQuoteQuantity, limit, orderType, clientOrderId, reduceOnly, expiryTimestamp } = options;
     limit = limit || 20;
     clientOrderId = clientOrderId === undefined ? 0 : clientOrderId;
     orderType = orderType || PerpOrderType.ImmediateOrCancel;
 
-    const [nativePrice, nativeQuantity] = market.uiToNativePriceQuantity(
-      price,
-      quantity
-    );
-    const maxQuoteQuantityLots = maxQuoteQuantity
-      ? market.uiQuoteToLots(maxQuoteQuantity)
-      : I64_MAX_BN;
+    const [nativePrice, nativeQuantity] = market.uiToNativePriceQuantity(price, quantity);
+    const maxQuoteQuantityLots = maxQuoteQuantity ? market.uiQuoteToLots(maxQuoteQuantity) : I64_MAX_BN;
 
     const [mangoAuthorityPk] = await getUtpAuthority(
       this._config.mango.programId,
       this._utpConfig.authoritySeed,
       this._program.programId
     );
-    const remainingAccounts =
-      await this._marginAccount.getObservationAccounts();
+    const remainingAccounts = await this._marginAccount.getObservationAccounts();
 
     const args = {
       side,
@@ -546,9 +462,7 @@ export class UtpMangoAccount implements UtpAccount {
       clientOrderId: new BN(clientOrderId),
       orderType,
       reduceOnly,
-      expiryTimestamp: expiryTimestamp
-        ? new BN(Math.floor(expiryTimestamp))
-        : ZERO_BN,
+      expiryTimestamp: expiryTimestamp ? new BN(Math.floor(expiryTimestamp)) : ZERO_BN,
       limit: new BN(limit), // one byte; max 255
     };
 
@@ -575,9 +489,7 @@ export class UtpMangoAccount implements UtpAccount {
   }
 
   private verifyActive() {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:mango:verify-active`
-    );
+    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:verify-active`);
     if (!this.isActive) {
       debug("Utp isn't active");
       throw new Error("Utp isn't active");
@@ -596,30 +508,15 @@ export class UtpMangoAccount implements UtpAccount {
     quantity: number,
     options?: UtpMangoPlacePerpOrderOptions
   ) {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:mango:place-perp-order2`
-    );
-    debug(
-      'Placing a %s perp order for %s @ %s of %s, opt: %o',
-      side,
-      quantity,
-      price,
-      perpMarket.publicKey,
-      options
-    );
+    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:place-perp-order2`);
+    debug("Placing a %s perp order for %s @ %s of %s, opt: %o", side, quantity, price, perpMarket.publicKey, options);
     this.verifyActive();
 
-    const placePerpOrderIx = await this.makePlacePerpOrderIx(
-      perpMarket,
-      side,
-      price,
-      quantity,
-      options
-    );
+    const placePerpOrderIx = await this.makePlacePerpOrderIx(perpMarket, side, price, quantity, options);
     const tx = new Transaction();
     tx.add(placePerpOrderIx);
     const sig = await processTransaction(this._program.provider, tx);
-    debug('Signature %s', sig);
+    debug("Signature %s", sig);
     return sig;
   }
 
@@ -628,11 +525,7 @@ export class UtpMangoAccount implements UtpAccount {
    *
    * @returns `MangoCancelPerpOrder` transaction instruction
    */
-  async makeCancelPerpOrderIx(
-    market: PerpMarket,
-    orderId: BN,
-    invalidIdOk: boolean
-  ) {
+  async makeCancelPerpOrderIx(market: PerpMarket, orderId: BN, invalidIdOk: boolean) {
     const [mangoAuthorityPk] = await getUtpAuthority(
       this._config.mango.programId,
       this._utpConfig.authoritySeed,
@@ -661,26 +554,16 @@ export class UtpMangoAccount implements UtpAccount {
    *
    * @returns Transaction signature
    */
-  async cancelPerpOrder(
-    perpMarket: PerpMarket,
-    orderId: BN,
-    invalidIdOk: boolean
-  ) {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:mango:cancel-perp-order`
-    );
-    debug('Cancelling perp order %s', orderId);
+  async cancelPerpOrder(perpMarket: PerpMarket, orderId: BN, invalidIdOk: boolean) {
+    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:cancel-perp-order`);
+    debug("Cancelling perp order %s", orderId);
     this.verifyActive();
 
-    const cancelPerpOrderIx = await this.makeCancelPerpOrderIx(
-      perpMarket,
-      orderId,
-      invalidIdOk
-    );
+    const cancelPerpOrderIx = await this.makeCancelPerpOrderIx(perpMarket, orderId, invalidIdOk);
     const tx = new Transaction();
     tx.add(cancelPerpOrderIx);
     const sig = await processTransaction(this._program.provider, tx);
-    debug('Signature %s', sig);
+    debug("Signature %s", sig);
     return sig;
   }
   async getUtpAuthority() {
@@ -708,10 +591,8 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns Health cache for the Mango UTP
    */
   async localObserve(): Promise<UtpObservation> {
-    const debug = require('debug')(
-      `mfi:utp:${this.config.address}:mango:local-observe`
-    );
-    debug('Observing Locally');
+    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:local-observe`);
+    debug("Observing Locally");
     const [mangoGroupAi, mangoAccountAi, mangoCacheAi] =
       await this._program.provider.connection.getMultipleAccountsInfo([
         this._config.mango.group.publicKey,
@@ -719,16 +600,9 @@ export class UtpMangoAccount implements UtpAccount {
         this._config.mango.group.mangoCache,
       ]);
 
-    if (!mangoGroupAi)
-      throw Error(
-        `Mango group account not found: ${this._config.mango.group.publicKey}`
-      );
-    if (!mangoAccountAi)
-      throw Error(`Mango account not found: ${this._utpConfig.address}`);
-    if (!mangoCacheAi)
-      throw Error(
-        `Mango cache not found: ${this._config.mango.group.mangoCache}`
-      );
+    if (!mangoGroupAi) throw Error(`Mango group account not found: ${this._config.mango.group.publicKey}`);
+    if (!mangoAccountAi) throw Error(`Mango account not found: ${this._utpConfig.address}`);
+    if (!mangoCacheAi) throw Error(`Mango cache not found: ${this._config.mango.group.mangoCache}`);
 
     const timestamp = Math.round(new Date().getTime() / 1000);
     return UtpObservation.fromWasm(
@@ -742,10 +616,7 @@ export class UtpMangoAccount implements UtpAccount {
   }
 
   async getMangoClientAndAccount(): Promise<[MangoClient, MangoAccount]> {
-    const mangoClient = new MangoClient(
-      this._client.program.provider.connection,
-      this._client.config.mango.programId
-    );
+    const mangoClient = new MangoClient(this._client.program.provider.connection, this._client.config.mango.programId);
     const mangoAccount = await mangoClient.getMangoAccount(
       this._utpConfig.address,
       this._config.mango.group.dexProgramId
@@ -765,11 +636,7 @@ export async function getMangoAccount(
   programId: PublicKey
 ): Promise<[PublicKey, number]> {
   return PublicKey.findProgramAddress(
-    [
-      mangoGroupPk.toBytes(),
-      authority.toBytes(),
-      new BN(accountNumber).toBuffer('le', 8),
-    ],
+    [mangoGroupPk.toBytes(), authority.toBytes(), new BN(accountNumber).toBuffer("le", 8)],
     programId
   );
 }

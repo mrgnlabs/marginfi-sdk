@@ -1,2 +1,2 @@
-export * from './bank';
-export * from './utpCache';
+export * from "./bank";
+export * from "./utpCache";

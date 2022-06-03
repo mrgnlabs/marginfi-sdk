@@ -4,6 +4,8 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "buidl": "lerna run build",
+    "lint": "lerna run format:check",
+    "format": "lerna run format",
     "changed": "lerna changed",
     "bump": "lerna version --conventional-commits --conventional-graduate --create-release",
     "bump-manual": "lerna version --conventional-graduate --create-release",
@@ -11,5 +13,6 @@
   },
   "devDependencies": {
     "lerna": "^5.0.0"
-  }
+  },
+  "workspaces": ["packages/*"]
 }

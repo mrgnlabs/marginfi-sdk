@@ -1,4 +1,4 @@
-import { BN } from '@project-serum/anchor';
+import { BN } from "@project-serum/anchor";
 
 export interface DriftOpenPositionArgs {
   direction: any; // TODO: type
