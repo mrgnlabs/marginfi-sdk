@@ -9,6 +9,7 @@
   "scripts": {
     "test": "ts-mocha -p ./tsconfig.json ./src/**/*.spec.ts",
     "build": "tsc -b",
+    "watch": "tsc -w",
     "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
     "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check .",
     "clean": "rm -rf dist",

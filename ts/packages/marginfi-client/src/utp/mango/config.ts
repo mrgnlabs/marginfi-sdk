@@ -1,5 +1,5 @@
 import { Config, GroupConfig, IDS, MangoClient, MangoGroup } from "@blockworks-foundation/mango-client";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection } from "@solana/web3.js";
 import { Environment, UtpConfig } from "../../config";
 
 /**
@@ -7,8 +7,6 @@ import { Environment, UtpConfig } from "../../config";
  * Aggregated data required to conveniently interact with Mango
  */
 export interface MangoConfig extends UtpConfig {
-  utpIndex: number;
-  programId: PublicKey;
   group: MangoGroup;
   groupConfig: GroupConfig;
 }

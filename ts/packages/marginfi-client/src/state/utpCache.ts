@@ -83,7 +83,8 @@ export class UtpObservation {
       this.freeCollateral.toNumber(),
       this.totalCollateral.toNumber(),
       this.marginRequirementInit.toNumber(),
-      this.marginRequirementMaint.toNumber()
+      this.marginRequirementMaint.toNumber(),
+      this.valid
     );
   }
 

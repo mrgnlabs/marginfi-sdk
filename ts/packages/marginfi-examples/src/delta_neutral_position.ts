@@ -1,6 +1,5 @@
 require("dotenv").config();
 
-import { BN } from "@project-serum/anchor";
 import { Connection } from "@solana/web3.js";
 
 import {
@@ -20,7 +19,6 @@ import {
   IDS,
   QUOTE_INDEX,
 } from "@blockworks-foundation/mango-client";
-import { Markets } from "@drift-labs/sdk";
 import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { airdropCollateral } from "./utils";
 
@@ -47,29 +45,33 @@ const wallet = new Wallet(loadKeypair(process.env.WALLET!));
   await marginAccount.deposit(depositAmount);
 
   // Activate Drift and Mango UTPs
-  await marginAccount.drift.activate();
   await marginAccount.mango.activate();
+  await marginAccount.zo.activate();
   // Deposit collateral to Mango and Drift
-  await marginAccount.drift.deposit(uiToNative(100));
-
   await marginAccount.mango.deposit(uiToNative(50));
+  await marginAccount.zo.deposit(uiToNative(100));
 
   // ---------------------------------------------------------------------
   // Open BTC SHORT on Drift
 
-  const driftBtcmarketInfo = Markets.find((market) => market.baseAssetSymbol === "BTC")!;
-  const [_, driftUser] = await marginAccount.drift.getClearingHouseAndUser();
-  const driftQuoteAmount = driftUser.getBuyingPower(driftBtcmarketInfo.marketIndex);
-  await marginAccount.drift.openPosition({
-    direction: { short: {} },
-    quoteAssetAmount: driftQuoteAmount,
-    marketIndex: new BN(driftBtcmarketInfo.marketIndex),
-    limitPrice: new BN(0),
-    optionalAccounts: {
-      discountToken: false,
-      referrer: false,
-    },
-  });
+  // TODO: Update example w/ 01
+
+  // const driftBtcmarketInfo = Markets.find((market) => market.baseAssetSymbol === "BTC")!;
+  // const [_, driftUser] = await marginAccount.drift.getClearingHouseAndUser();
+  // const driftQuoteAmount = driftUser.getBuyingPower(driftBtcmarketInfo.marketIndex);
+  // await marginAccount.drift.openPosition({
+  //   direction: { short: {} },
+  //   quoteAssetAmount: driftQuoteAmount,
+  //   marketIndex: new BN(driftBtcmarketInfo.marketIndex),
+  //   limitPrice: new BN(0),
+  //   optionalAccounts: {
+  //     discountToken: false,
+  //     referrer: false,
+  //   },
+  // });
+
+  // ---------------------------------------------------------------------
+  // Open BTC LONG on Mango
 
   const [mangoClient, mangoAccount] = await marginAccount.mango.getMangoClientAndAccount();
   const mangoConfig = new MangoConfig(IDS);

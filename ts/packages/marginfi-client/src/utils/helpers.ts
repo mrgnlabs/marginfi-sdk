@@ -1,5 +1,6 @@
 import { WasmDecimal } from "@mrgnlabs/marginfi-wasm-tools";
 import { BN, BorshAccountsCoder, Program, Provider } from "@project-serum/anchor";
+import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
   ConfirmOptions,
   Connection,
@@ -7,7 +8,9 @@ import {
   PublicKey,
   sendAndConfirmRawTransaction,
   Signer,
+  SystemProgram,
   Transaction,
+  TransactionInstruction,
   TransactionSignature,
 } from "@solana/web3.js";
 import * as fs from "fs";
@@ -193,4 +196,22 @@ export function getMfiProgram(programAddress: PublicKey, connection: Connection,
   const program: Program<MarginfiIdl> = new Program(MARGINFI_IDL, programAddress, provider) as any;
 
   return program;
+}
+
+export async function createTempTransferAccounts(
+  provider: Provider,
+  mint: PublicKey,
+  authority: PublicKey
+): Promise<[Keypair, TransactionInstruction, TransactionInstruction]> {
+  const key = Keypair.generate();
+  const createTokenAccountIx = SystemProgram.createAccount({
+    fromPubkey: provider.wallet.publicKey,
+    lamports: await provider.connection.getMinimumBalanceForRentExemption(AccountLayout.span),
+    newAccountPubkey: key.publicKey,
+    programId: TOKEN_PROGRAM_ID,
+    space: AccountLayout.span,
+  });
+  const initTokenAccountIx = Token.createInitAccountInstruction(TOKEN_PROGRAM_ID, mint, key.publicKey, authority);
+
+  return [key, createTokenAccountIx, initTokenAccountIx];
 }

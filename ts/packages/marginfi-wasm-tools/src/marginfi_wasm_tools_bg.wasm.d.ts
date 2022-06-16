@@ -33,8 +33,8 @@ export function is_bankrupt(a: number, b: number, c: number, d: number, e: numbe
 export function rebalance_withdraw_valid(a: number, b: number, c: number, d: number, e: number, f: number): number;
 export function get_max_rebalance_deposit_amount(a: number, b: number, c: number, d: number, e: number, f: number, g: number): number;
 export function get_max_rebalance_withdraw_amount(a: number, b: number, c: number, d: number, e: number, f: number, g: number): number;
-export function observe_drift(a: number, b: number, c: number, d: number, e: number, f: number): number;
 export function observe_mango(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number): number;
+export function observe_zo(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number): number;
 export function liquidation_valid(a: number, b: number, c: number, d: number, e: number, f: number): number;
 export function get_quote_balance(a: number, b: number, c: number, d: number, e: number, f: number): void;
 export function get_margin_requirement(a: number, b: number, c: number, d: number, e: number): number;

@@ -17,7 +17,7 @@ const program = getMfiProgram(
   wallet
 );
 
-export async function activateDrift(accountPk: string, options: OptionValues) {
+export async function activateZo(accountPk: string, options: OptionValues) {
   const connection = program.provider.connection;
   const config = await getConfig(Environment.DEVNET, connection, {
     groupPk: new PublicKey(options.group),
@@ -26,6 +26,6 @@ export async function activateDrift(accountPk: string, options: OptionValues) {
   const client = await MarginfiClient.get(config, wallet, connection);
   const account = await MarginAccount.get(new PublicKey(accountPk), client);
 
-  const sig = await account.drift.activate();
-  console.log("Mango account activated %s", sig);
+  const sig = await account.zo.activate();
+  console.log("01 account activated %s", sig);
 }

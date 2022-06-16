@@ -46,7 +46,7 @@ export class UtpMangoAccount implements UtpAccount {
   }
 
   public get address(): PublicKey {
-    return this.config.address;
+    return this._utpConfig.address;
   }
 
   // --- Getters and setters
@@ -69,7 +69,7 @@ export class UtpMangoAccount implements UtpAccount {
    * UTP-specific config
    */
   public get config() {
-    return this._utpConfig;
+    return this._config.mango;
   }
 
   // --- Others
@@ -152,7 +152,7 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async deactivate() {
-    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:deactivate`);
+    const debug = require("debug")(`mfi:utp:${this.address}:mango:deactivate`);
     this.verifyActive();
     debug("Deactivating Mango UTP");
 
@@ -214,7 +214,7 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async deposit(amount: BN) {
-    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:deposit`);
+    const debug = require("debug")(`mfi:utp:${this.address}:mango:deposit`);
     this.verifyActive();
     debug("Deposit %s into Mango", amount);
 
@@ -292,56 +292,6 @@ export class UtpMangoAccount implements UtpAccount {
     );
   }
 
-  // /**
-  //  * Perform a crank deposit into the Mango account (if margin requirements allow).
-  //  *
-  //  * @param amount Amount to deposit (mint native unit)
-  //  * @returns Transaction signature
-  //  */
-  // async deposit(amount: BN) {
-  //   const debug = require('debug')(
-  //     `mfi:utp:${this.config.address}:mango:deposit-crank`
-  //   );
-  //   this.verifyActive();
-  //   debug('Crank deposit %s into Mango', amount);
-
-  //   const proxyTokenAccountKey = Keypair.generate();
-
-  //   const [mangoAuthorityPk] = await getUtpAuthority(
-  //     this._config.mango.programId,
-  //     this._utpConfig.authoritySeed,
-  //     this._program.programId
-  //   );
-
-  //   const createProxyTokenAccountIx = SystemProgram.createAccount({
-  //     fromPubkey: this._program.provider.wallet.publicKey,
-  //     lamports:
-  //       await this._program.provider.connection.getMinimumBalanceForRentExemption(
-  //         AccountLayout.span
-  //       ),
-  //     newAccountPubkey: proxyTokenAccountKey.publicKey,
-  //     programId: TOKEN_PROGRAM_ID,
-  //     space: AccountLayout.span,
-  //   });
-  //   const initProxyTokenAccountIx = Token.createInitAccountInstruction(
-  //     TOKEN_PROGRAM_ID,
-  //     this._marginAccount.group.bank.mint,
-  //     proxyTokenAccountKey.publicKey,
-  //     mangoAuthorityPk
-  //   );
-  //   const depositIx = await this.makeDepositCrankIx(
-  //     proxyTokenAccountKey.publicKey,
-  //     amount
-  //   );
-
-  //   const ixs = [createProxyTokenAccountIx, initProxyTokenAccountIx, depositIx];
-  //   const tx = new Transaction().add(...ixs);
-  //   const sig = await processTransaction(this._program.provider, tx, [
-  //     proxyTokenAccountKey,
-  //   ]);
-  //   return sig;
-  // }
-
   /**
    * Create transaction instruction to withdraw from the Mango account to the margin account.
    *
@@ -389,7 +339,7 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async withdraw(amount: BN) {
-    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:withdraw`);
+    const debug = require("debug")(`mfi:utp:${this.address}:mango:withdraw`);
     debug("Withdrawing %s from Mango", amount);
     this.verifyActive();
 
@@ -489,7 +439,7 @@ export class UtpMangoAccount implements UtpAccount {
   }
 
   private verifyActive() {
-    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:verify-active`);
+    const debug = require("debug")(`mfi:utp:${this.address}:mango:verify-active`);
     if (!this.isActive) {
       debug("Utp isn't active");
       throw new Error("Utp isn't active");
@@ -508,7 +458,7 @@ export class UtpMangoAccount implements UtpAccount {
     quantity: number,
     options?: UtpMangoPlacePerpOrderOptions
   ) {
-    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:place-perp-order2`);
+    const debug = require("debug")(`mfi:utp:${this.address}:mango:place-perp-order2`);
     debug("Placing a %s perp order for %s @ %s of %s, opt: %o", side, quantity, price, perpMarket.publicKey, options);
     this.verifyActive();
 
@@ -555,7 +505,7 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async cancelPerpOrder(perpMarket: PerpMarket, orderId: BN, invalidIdOk: boolean) {
-    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:cancel-perp-order`);
+    const debug = require("debug")(`mfi:utp:${this.address}:mango:cancel-perp-order`);
     debug("Cancelling perp order %s", orderId);
     this.verifyActive();
 
@@ -591,7 +541,7 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns Health cache for the Mango UTP
    */
   async localObserve(): Promise<UtpObservation> {
-    const debug = require("debug")(`mfi:utp:${this.config.address}:mango:local-observe`);
+    const debug = require("debug")(`mfi:utp:${this.address}:mango:local-observe`);
     debug("Observing Locally");
     const [mangoGroupAi, mangoAccountAi, mangoCacheAi] =
       await this._program.provider.connection.getMultipleAccountsInfo([

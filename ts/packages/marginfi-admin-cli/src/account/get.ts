@@ -63,7 +63,7 @@ export async function getAccount(accountPk: string, options: OptionValues) {
     const marginRatio = equity / liabilities;
 
     console.log(
-      "Margin \tratio: %s\n\trequirement\n\tinit: %s, health: %s\n\tmaint: %s, health: %s",
+      "-----------------\nMargin \tratio: %s\n\trequirement\n\tinit: %s, health: %s\n\tmaint: %s, health: %s",
       marginRatio,
       marginRequirementInit,
       initHealth,

@@ -1,6 +1,6 @@
 import { Connection, PublicKey } from "@solana/web3.js";
-import { DriftConfig, getDriftConfig } from "./utp/drift/config";
 import { getMangoConfig, MangoConfig } from "./utp/mango/config";
+import { getZoConfig, ZoConfig } from "./utp/zo";
 
 /**
  * Supported config environments.
@@ -21,8 +21,8 @@ export interface MarginfiDedicatedConfig {
 }
 
 export interface MarginfiConfig extends MarginfiDedicatedConfig {
-  drift: DriftConfig;
   mango: MangoConfig;
+  zo: ZoConfig;
 }
 
 /**
@@ -40,14 +40,14 @@ export interface UtpConfig {
  */
 export function getMarginfiConfig(
   environment: Environment,
-  overrides?: Partial<Omit<MarginfiDedicatedConfig, "environment" | "drift" | "mango">>
+  overrides?: Partial<Omit<MarginfiDedicatedConfig, "environment" | "mango" | "zo">>
 ): MarginfiDedicatedConfig {
   if (environment == Environment.DEVNET) {
     return {
       environment,
-      programId: overrides?.programId || new PublicKey("2KY2AYv9XRfqdyFqzYUixdN6ZP1qFnwjF2dpw5qum47V"),
-      groupPk: overrides?.groupPk || new PublicKey("7YChtFmc8DoU4ptvNqMNmh5MmZhWEw7oZ9BPmmyi3wXk"),
-      collateralMintPk: overrides?.collateralMintPk || new PublicKey("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"),
+      programId: overrides?.programId || new PublicKey("7zqRtgBNVth1BANGUV8tv5R62Ub6pUaZfpU6RP5X7yZY"),
+      groupPk: overrides?.groupPk || new PublicKey("HoFKnT1ytBd9ozoGkUM4Crzf9D6f5zuisQvJDKR74i4H"),
+      collateralMintPk: overrides?.collateralMintPk || new PublicKey("7UT1javY6X1M9R2UrPGrwcZ78SX3huaXyETff5hm5YdX"),
     };
   } else {
     throw Error(`Unknown environment ${environment}`);
@@ -65,8 +65,8 @@ export async function getConfig(
   if (environment == Environment.DEVNET) {
     return {
       ...getMarginfiConfig(environment, overrides),
-      drift: await getDriftConfig(environment, overrides?.drift),
       mango: await getMangoConfig(environment, connection, overrides?.mango),
+      zo: await getZoConfig(environment, connection, overrides?.zo),
     };
   } else {
     throw Error(`Unknown environment ${environment}`);

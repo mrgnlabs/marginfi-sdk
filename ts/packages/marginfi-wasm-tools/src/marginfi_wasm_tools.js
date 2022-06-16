@@ -339,23 +339,6 @@ module.exports.get_max_rebalance_withdraw_amount = function(observation, margin_
 };
 
 /**
-* @param {Uint8Array} drift_user_data
-* @param {Uint8Array} drift_user_positions_data
-* @param {Uint8Array} drift_markets_data
-* @returns {WasmObservation}
-*/
-module.exports.observe_drift = function(drift_user_data, drift_user_positions_data, drift_markets_data) {
-    const ptr0 = passArray8ToWasm0(drift_user_data, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(drift_user_positions_data, wasm.__wbindgen_malloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ptr2 = passArray8ToWasm0(drift_markets_data, wasm.__wbindgen_malloc);
-    const len2 = WASM_VECTOR_LEN;
-    const ret = wasm.observe_drift(ptr0, len0, ptr1, len1, ptr2, len2);
-    return WasmObservation.__wrap(ret);
-};
-
-/**
 * @param {Uint8Array} mango_group_data
 * @param {Uint8Array} mango_account_data
 * @param {Uint8Array} mango_cache_data
@@ -373,6 +356,26 @@ module.exports.observe_mango = function(mango_group_data, mango_account_data, ma
     const low3 = u32CvtShim[0];
     const high3 = u32CvtShim[1];
     const ret = wasm.observe_mango(ptr0, len0, ptr1, len1, ptr2, len2, low3, high3);
+    return WasmObservation.__wrap(ret);
+};
+
+/**
+* @param {Uint8Array} zo_margin_data
+* @param {Uint8Array} zo_control_data
+* @param {Uint8Array} zo_state_data
+* @param {Uint8Array} zo_cache_data
+* @returns {WasmObservation}
+*/
+module.exports.observe_zo = function(zo_margin_data, zo_control_data, zo_state_data, zo_cache_data) {
+    const ptr0 = passArray8ToWasm0(zo_margin_data, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArray8ToWasm0(zo_control_data, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ptr2 = passArray8ToWasm0(zo_state_data, wasm.__wbindgen_malloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passArray8ToWasm0(zo_cache_data, wasm.__wbindgen_malloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ret = wasm.observe_zo(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3);
     return WasmObservation.__wrap(ret);
 };
 
