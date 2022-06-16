@@ -15,7 +15,7 @@ import {
   makePlacePerpOrderIx,
   makeWithdrawIx,
 } from "./instruction";
-import { PerpOrderType, Side, UtpMangoPlacePerpOrderOptions } from "./types";
+import { ExpiryType, PerpOrderType, Side, UtpMangoPlacePerpOrderOptions } from "./types";
 
 /**
  * Class encapsulating Mango-specific interactions (internal)
@@ -389,10 +389,11 @@ export class UtpMangoAccount implements UtpAccount {
     options?: UtpMangoPlacePerpOrderOptions
   ) {
     options = options ? options : {};
-    let { maxQuoteQuantity, limit, orderType, clientOrderId, reduceOnly, expiryTimestamp } = options;
+    let { maxQuoteQuantity, limit, orderType, clientOrderId, reduceOnly, expiryTimestamp, expiryType } = options;
     limit = limit || 20;
     clientOrderId = clientOrderId === undefined ? 0 : clientOrderId;
     orderType = orderType || PerpOrderType.ImmediateOrCancel;
+    expiryType = expiryType || ExpiryType.Absolute;
 
     const [nativePrice, nativeQuantity] = market.uiToNativePriceQuantity(price, quantity);
     const maxQuoteQuantityLots = maxQuoteQuantity ? market.uiQuoteToLots(maxQuoteQuantity) : I64_MAX_BN;
@@ -414,6 +415,7 @@ export class UtpMangoAccount implements UtpAccount {
       reduceOnly,
       expiryTimestamp: expiryTimestamp ? new BN(Math.floor(expiryTimestamp)) : ZERO_BN,
       limit: new BN(limit), // one byte; max 255
+      expiryType,
     };
 
     return makePlacePerpOrderIx(
