@@ -1,14 +1,8 @@
-import { BN, Program } from '@project-serum/anchor';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import {
-  AccountMeta,
-  PublicKey,
-  SystemProgram,
-  SYSVAR_RENT_PUBKEY,
-  TransactionInstruction,
-} from '@solana/web3.js';
-import { OrderType } from '@zero_one/client';
-import { MarginfiIdl } from '../../idl';
+import { BN, Program } from "@project-serum/anchor";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { AccountMeta, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, TransactionInstruction } from "@solana/web3.js";
+import { OrderType } from "@zero_one/client";
+import { MarginfiIdl } from "../../idl";
 
 export async function makeActivateIx(
   mfProgram: Program<MarginfiIdl>,
@@ -261,11 +255,7 @@ export async function makeCancelPerpOrderIx(
   }
 ): Promise<TransactionInstruction> {
   return mfProgram.methods
-    .utpZoCancelPerpOrder(
-      args.orderId || null,
-      args.isLong || null,
-      args.clientId || null
-    )
+    .utpZoCancelPerpOrder(args.orderId || null, args.isLong || null, args.clientId || null)
     .accounts({
       header: {
         marginAccount: accounts.marginAccount,
