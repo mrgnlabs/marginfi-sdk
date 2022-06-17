@@ -510,14 +510,10 @@ export class MarginAccount {
    * @returns UTP interface instance
    */
   private utpFromIndex(utpIndex: number): UtpAccount {
-    switch (utpIndex) {
-      case 1:
-        return this.mango;
-      case 2:
-        return this.zo;
-      default:
-        throw Error("Unsupported UTP");
+    if (utpIndex >= this.allUtps().length) {
+      throw Error(`Unsupported UTP ${utpIndex} (${this.allUtps().length} UTPs supported)`);
     }
+    return this.allUtps()[utpIndex];
   }
 
   async checkRebalance() {
