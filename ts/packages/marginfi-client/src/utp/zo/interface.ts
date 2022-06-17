@@ -1,5 +1,13 @@
 import { observe_zo } from "@mrgnlabs/marginfi-wasm-tools";
-import { AccountMeta, Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
+import {
+  AccountMeta,
+  ComputeBudgetProgram,
+  Keypair,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction,
+} from "@solana/web3.js";
 import { MarginfiClient } from "../../client";
 import { MarginAccount } from "../../marginAccount";
 import { UtpObservation } from "../../state";
@@ -424,8 +432,12 @@ export class UtpZoAccount implements UtpAccount {
     debug("Placing perp order on 01");
     debug("%s", args);
 
-    const ix = await this.makePlacePerpOrderIx(args);
-    const tx = new Transaction().add(ix);
+    const requestCUIx = ComputeBudgetProgram.requestUnits({
+      units: 400000,
+      additionalFee: 0,
+    });
+    const placeOrderIx = await this.makePlacePerpOrderIx(args);
+    const tx = new Transaction().add(requestCUIx, placeOrderIx);
     const sig = await processTransaction(this._program.provider, tx);
     debug("Sig %s", sig);
     return sig;
