@@ -18,10 +18,12 @@
     "@mrgnlabs/marginfi-client": "^0.0.12",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.37.0",
+    "@zero_one/client": "^0.8.7",
     "dotenv": "^16.0.1"
   },
   "devDependencies": {
     "@types/node": "^17.0.38",
+    "@types/node-fetch": "^2.6.2",
     "@typescript-eslint/eslint-plugin": "^5.27.0",
     "@typescript-eslint/parser": "^5.27.0",
     "eslint": "^8.16.0",

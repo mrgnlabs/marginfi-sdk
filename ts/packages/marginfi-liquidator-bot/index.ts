@@ -11,6 +11,7 @@ import {
   Wallet,
 } from "@mrgnlabs/marginfi-client";
 import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/src/utp/mango";
+import { OrderType } from "@mrgnlabs/marginfi-client/src/utp/zo/types";
 import { Connection, PublicKey } from "@solana/web3.js";
 import debugBuilder from "debug";
 
@@ -85,7 +86,7 @@ async function liquidate(liquidateeMarginAccount: MarginAccount, liquidatorMargi
 
   debug("Liquidating UTP %s", utp.utp_index);
 
-  await liquidatorMarginAccount.liquidate(liquidateeMarginAccount.publicKey, utp.utp_index);
+  await liquidatorMarginAccount.liquidate(liquidateeMarginAccount, utp.utp_index);
   await closeAllUTPs(liquidatorMarginAccount);
 }
 
@@ -99,38 +100,85 @@ async function closeAllUTPs(marginAccount: MarginAccount) {
     await closeMango(marginAccount);
   }
 
-  if (marginAccount.drift.isActive) {
-    await closeDrift(marginAccount);
+  if (marginAccount.zo.isActive) {
+    await closeZo(marginAccount);
   }
-
   // Close the UTP account
 }
 
-async function closeDrift(marginAccount: MarginAccount) {
-  const debug = debugBuilder("liquidator:utp:drift");
+async function closeZo(marginAccount: MarginAccount) {
+  const debug = debugBuilder("liquidator:utp:zo");
+  debug("Closing Zo Positions");
 
-  debug("Closing Drift Positions");
+  const [zoMargin, zoState] = await marginAccount.zo.getZoMarginAndState();
 
-  const [_, user] = await marginAccount.drift.getClearingHouseAndUser();
+  /// Close open orders
+  const marketSymbols = Object.keys(zoState.markets);
 
-  const positions = user.getUserPositionsAccount().positions;
-
-  for (let i = 0; i < positions.length; i++) {
-    const position = positions[i];
-
-    if (!position.baseAssetAmount.isZero()) {
-      debug("Closing position on market %s", position.marketIndex);
-      await marginAccount.drift.closePosition({
-        marketIndex: position.marketIndex,
-        optionalAccounts: [],
-      });
+  debug("Cancelling Open Orders");
+  for (let sym of marketSymbols) {
+    let oo = await zoMargin.getOpenOrdersInfoBySymbol(sym, false);
+    let empty = !oo || (oo.coinOnAsks.isZero() && oo.coinOnBids.isZero());
+    if (!empty) {
+      await marginAccount.zo.cancelPerpOrder({ symbol: sym });
     }
   }
 
-  await withdrawFromDrift(marginAccount);
+  /// Close positions
+  debug("Closing Positions");
+  for (let position of zoMargin.positions) {
+    if (position.coins.number === 0) {
+      continue;
+    }
+    await zoState.loadMarkets();
 
-  debug("Deactivating Drift");
-  await marginAccount.drift.deactivate();
+    let closeDirectionLong = !position.isLong;
+    let price;
+    let market = await zoState.getMarketBySymbol(position.marketKey);
+
+    if (closeDirectionLong) {
+      let asks = await market.loadAsks(connection);
+      price = [...asks.items(true)][0].price;
+    } else {
+      let bidsOrderbook = await market.loadBids(connection);
+      let bids = [...bidsOrderbook.items(true)];
+      price = bids[bids.length - 1].price;
+    }
+
+    debug("Closing position on %s %s @ %s", position.coins.number, position.marketKey, price);
+
+    let oo = await zoMargin.getOpenOrdersInfoBySymbol(position.marketKey, false);
+    if (!oo) {
+      await marginAccount.zo.createPerpOpenOrders(position.marketKey);
+    }
+    await marginAccount.zo.placePerpOrder({
+      symbol: position.marketKey,
+      orderType: OrderType.ReduceOnlyIoc,
+      isLong: closeDirectionLong,
+      price: price,
+      size: position.coins.number,
+    });
+  }
+
+  /// Settle funds
+  for (let sym of marketSymbols) {
+    let oo = await zoMargin.getOpenOrdersInfoBySymbol(sym);
+
+    if (!oo) {
+      continue;
+    }
+
+    await marginAccount.zo.settleFunds(sym);
+  }
+
+  let observation = await marginAccount.zo.localObserve();
+  let withdrawableAmount = observation.freeCollateral.sub(new BN(100));
+
+  debug("Withdrawing %s from ZO", bnToNumber(withdrawableAmount));
+  await marginAccount.zo.withdraw(withdrawableAmount);
+
+  debug("Deactivating ZO");
+  await marginAccount.zo.deactivate();
 }
 
 async function closeMango(marginAccount: MarginAccount) {
@@ -144,19 +192,6 @@ async function closeMango(marginAccount: MarginAccount) {
   await marginAccount.mango.deactivate();
   debug("Deactivating mango");
   await marginAccount.reload();
-}
-
-async function withdrawFromDrift(marginAccount: MarginAccount) {
-  const debug = debugBuilder("liquidator:utp:drift");
-  let observation = await marginAccount.drift.localObserve();
-  let withdrawAmount = observation.freeCollateral.sub(new BN(1));
-
-  if (withdrawAmount.lte(ZERO_BN)) {
-    return;
-  }
-
-  debug("Withdrawing %d from Drift", bnToNumber(withdrawAmount));
-  await marginAccount.drift.withdraw(withdrawAmount);
 }
 
 async function withdrawFromMango(marginAccount: MarginAccount) {

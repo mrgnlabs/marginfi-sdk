@@ -41,6 +41,8 @@ export class MarginfiGroup {
    * @return MarginfiGroup instance
    */
   static async get(config: MarginfiConfig, program: Program<MarginfiIdl>) {
+    const debug = require("debug")(`mfi:margin-group`);
+    debug("Loading Margin Group %s", config.groupPk);
     const accountData = await MarginfiGroup._fetchAccountData(config, program);
     return new MarginfiGroup(config, program, accountData.admin, Bank.from(accountData.bank));
   }

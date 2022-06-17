@@ -3,7 +3,7 @@ import { BN, Program } from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, PublicKey, SystemProgram } from "@solana/web3.js";
 import { MarginfiIdl } from "../../idl";
-import { PerpOrderType, Side, toProgramPerpOrderType, toProgramSide } from "./types";
+import { ExpiryType, PerpOrderType, Side, toProgramExpiryType, toProgramPerpOrderType, toProgramSide } from "./types";
 
 export async function makeActivateIx(
   mfProgram: Program<MarginfiIdl>,
@@ -147,6 +147,7 @@ export async function makePlacePerpOrderIx(
       reduceOnly?: boolean;
       expiryTimestamp?: BN;
       limit: BN; // one byte; max 255
+      expiryType: ExpiryType;
     };
   },
   remainingAccounts: AccountMeta[] = []
@@ -162,6 +163,7 @@ export async function makePlacePerpOrderIx(
       reduceOnly: args.args.reduceOnly || false,
       expiryTimestamp: args.args.expiryTimestamp || ZERO_BN,
       limit: args.args.limit,
+      expiryType: toProgramExpiryType(args.args.expiryType),
     } as any)
     .accounts({
       marginAccount: accounts.marginAccountPk,

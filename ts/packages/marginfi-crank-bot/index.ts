@@ -3,6 +3,7 @@ require("dotenv").config();
 import {
   Environment,
   getConfig,
+  loadKeypair,
   MarginAccount,
   MarginAccountData,
   MarginfiClient,
@@ -12,7 +13,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 
 const marginFiPk = new PublicKey(process.env.MARGINFI_PROGRAM!);
 const connection = new Connection(process.env.RPC_ENDPOINT!);
-const wallet = Wallet.local();
+const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const marginGroupPk = new PublicKey(process.env.MARGIN_GROUP!);
 
 (async function () {

@@ -375,11 +375,6 @@ export type Marginfi = {
           isSigner: false;
         },
         {
-          name: "admin";
-          isMut: false;
-          isSigner: true;
-        },
-        {
           name: "insuranceVaultAuthority";
           isMut: false;
           isSigner: false;
@@ -432,424 +427,6 @@ export type Marginfi = {
         }
       ];
       args: [];
-    },
-    {
-      name: "utpDriftActivate";
-      accounts: [
-        {
-          name: "marginAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "marginGroup";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "authority";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "driftAuthority";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftState";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftUser";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftUserPositions";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "rent";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        }
-      ];
-      args: [
-        {
-          name: "authoritySeed";
-          type: "publicKey";
-        },
-        {
-          name: "authorityBump";
-          type: "u8";
-        }
-      ];
-    },
-    {
-      name: "utpDriftDeposit";
-      accounts: [
-        {
-          name: "marginAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "marginGroup";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "signer";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "marginCollateralVault";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "bankAuthority";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "tempCollateralAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftAuthority";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftUser";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftState";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftUserPositions";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftCollateralVault";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftMarkets";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftDepositHistory";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftFundingPaymentHistory";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        }
-      ];
-      args: [
-        {
-          name: "amount";
-          type: "u64";
-        }
-      ];
-    },
-    {
-      name: "utpDriftWithdraw";
-      accounts: [
-        {
-          name: "marginAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "marginGroup";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "signer";
-          isMut: false;
-          isSigner: true;
-        },
-        {
-          name: "marginCollateralVault";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftAuthority";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftUser";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftState";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftUserPositions";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftCollateralVault";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftCollateralVaultAuthority";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftInsuranceVault";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftInsuranceVaultAuthority";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftMarkets";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftDepositHistory";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftFundingPaymentHistory";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "systemsProgram";
-          isMut: false;
-          isSigner: false;
-        }
-      ];
-      args: [
-        {
-          name: "amount";
-          type: "u64";
-        }
-      ];
-    },
-    {
-      name: "utpDriftUseOpenPosition";
-      accounts: [
-        {
-          name: "marginAccount";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "marginGroup";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "authority";
-          isMut: false;
-          isSigner: true;
-        },
-        {
-          name: "driftAuthority";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftUser";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftState";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftMarkets";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftUserPositions";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftTradeHistory";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftFundingPaymentHistory";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftFundingRateHistory";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftOracle";
-          isMut: false;
-          isSigner: false;
-        }
-      ];
-      args: [
-        {
-          name: "args";
-          type: {
-            defined: "UtpDriftOpenPositionIxArgs";
-          };
-        }
-      ];
-    },
-    {
-      name: "utpDriftUseClosePosition";
-      accounts: [
-        {
-          name: "marginAccount";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "marginGroup";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "authority";
-          isMut: false;
-          isSigner: true;
-        },
-        {
-          name: "driftAuthority";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftUser";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "driftState";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftMarkets";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftUserPositions";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftTradeHistory";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftFundingPaymentHistory";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftFundingRateHistory";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "driftOracle";
-          isMut: false;
-          isSigner: false;
-        }
-      ];
-      args: [
-        {
-          name: "args";
-          type: {
-            defined: "UtpDriftClosePositionIxArgs";
-          };
-        }
-      ];
     },
     {
       name: "utpMangoActivate";
@@ -961,12 +538,12 @@ export type Marginfi = {
         },
         {
           name: "mangoCache";
-          isMut: false;
+          isMut: true;
           isSigner: false;
         },
         {
           name: "mangoRootBank";
-          isMut: false;
+          isMut: true;
           isSigner: false;
         },
         {
@@ -1210,6 +787,612 @@ export type Marginfi = {
           type: "bool";
         }
       ];
+    },
+    {
+      name: "utpZoActivate";
+      accounts: [
+        {
+          name: "marginAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "marginGroup";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "authority";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "utpAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zoProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zoState";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zoMargin";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zoControl";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "rent";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "authoritySeed";
+          type: "publicKey";
+        },
+        {
+          name: "authorityBump";
+          type: "u8";
+        },
+        {
+          name: "zoMarginNonce";
+          type: "u8";
+        }
+      ];
+    },
+    {
+      name: "utpZoDeposit";
+      accounts: [
+        {
+          name: "marginAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "marginGroup";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "signer";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "marginCollateralVault";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "bankAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "tempCollateralAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "utpAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zoProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zoState";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zoStateSigner";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zoCache";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zoMargin";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zoVault";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "rent";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "amount";
+          type: "u64";
+        }
+      ];
+    },
+    {
+      name: "utpZoWithdraw";
+      accounts: [
+        {
+          name: "marginAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "marginGroup";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "signer";
+          isMut: false;
+          isSigner: true;
+        },
+        {
+          name: "marginCollateralVault";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "utpAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zoMargin";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zoProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zoState";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zoStateSigner";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zoCache";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zoControl";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zoVault";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "amount";
+          type: "u64";
+        }
+      ];
+    },
+    {
+      name: "utpZoCreatePerpOpenOrders";
+      accounts: [
+        {
+          name: "header";
+          accounts: [
+            {
+              name: "marginAccount";
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: "marginGroup";
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: "signer";
+              isMut: true;
+              isSigner: true;
+            },
+            {
+              name: "utpAuthority";
+              isMut: false;
+              isSigner: false;
+            }
+          ];
+        },
+        {
+          name: "zoProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "state";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "stateSigner";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "margin";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "control";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "openOrders";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "dexMarket";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "dexProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "rent";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [];
+    },
+    {
+      name: "utpZoPlacePerpOrder";
+      accounts: [
+        {
+          name: "header";
+          accounts: [
+            {
+              name: "marginAccount";
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: "marginGroup";
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: "signer";
+              isMut: true;
+              isSigner: true;
+            },
+            {
+              name: "utpAuthority";
+              isMut: false;
+              isSigner: false;
+            }
+          ];
+        },
+        {
+          name: "zoProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "state";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "stateSigner";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "cache";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "margin";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "control";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "openOrders";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "dexMarket";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "reqQ";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "eventQ";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "marketBids";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "marketAsks";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "dexProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "rent";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "args";
+          type: {
+            defined: "UtpZoPlacePerpOrderIxArgs";
+          };
+        }
+      ];
+    },
+    {
+      name: "utpZoCancelPerpOrder";
+      accounts: [
+        {
+          name: "header";
+          accounts: [
+            {
+              name: "marginAccount";
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: "marginGroup";
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: "signer";
+              isMut: true;
+              isSigner: true;
+            },
+            {
+              name: "utpAuthority";
+              isMut: false;
+              isSigner: false;
+            }
+          ];
+        },
+        {
+          name: "zoProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "state";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "cache";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "margin";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "control";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "openOrders";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "dexMarket";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "marketBids";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "marketAsks";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "eventQ";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "dexProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "orderId";
+          type: {
+            option: "u128";
+          };
+        },
+        {
+          name: "isLong";
+          type: {
+            option: "bool";
+          };
+        },
+        {
+          name: "clientId";
+          type: {
+            option: "u64";
+          };
+        }
+      ];
+    },
+    {
+      name: "utpZoSettleFunds";
+      accounts: [
+        {
+          name: "header";
+          accounts: [
+            {
+              name: "marginAccount";
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: "marginGroup";
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: "signer";
+              isMut: true;
+              isSigner: true;
+            },
+            {
+              name: "utpAuthority";
+              isMut: false;
+              isSigner: false;
+            }
+          ];
+        },
+        {
+          name: "zoProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "state";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "stateSigner";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "cache";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "margin";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "control";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "openOrders";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "dexMarket";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "dexProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [];
     }
   ];
   accounts: [
@@ -1241,7 +1424,7 @@ export type Marginfi = {
           {
             name: "activeUtps";
             type: {
-              array: ["bool", 32];
+              array: ["bool", 64];
             };
           },
           {
@@ -1251,7 +1434,7 @@ export type Marginfi = {
                 {
                   defined: "UTPAccountConfig";
                 },
-                32
+                64
               ];
             };
           },
@@ -1323,56 +1506,6 @@ export type Marginfi = {
   ];
   types: [
     {
-      name: "UtpDriftOpenPositionIxArgs";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "direction";
-            type: {
-              defined: "DriftPositionDirection";
-            };
-          },
-          {
-            name: "quoteAssetAmount";
-            type: "u128";
-          },
-          {
-            name: "marketIndex";
-            type: "u64";
-          },
-          {
-            name: "limitPrice";
-            type: "u128";
-          },
-          {
-            name: "optionalAccounts";
-            type: {
-              defined: "DriftManagePositionOptionalAccounts";
-            };
-          }
-        ];
-      };
-    },
-    {
-      name: "UtpDriftClosePositionIxArgs";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "marketIndex";
-            type: "u64";
-          },
-          {
-            name: "optionalAccounts";
-            type: {
-              defined: "DriftManagePositionOptionalAccounts";
-            };
-          }
-        ];
-      };
-    },
-    {
       name: "UtpMangoPlacePerpOrderArgs";
       type: {
         kind: "struct";
@@ -1418,6 +1551,76 @@ export type Marginfi = {
           {
             name: "limit";
             type: "u8";
+          },
+          {
+            name: "expiryType";
+            type: {
+              defined: "MangoExpiryType";
+            };
+          }
+        ];
+      };
+    },
+    {
+      name: "UtpZoPlacePerpOrderIxArgs";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "isLong";
+            type: "bool";
+          },
+          {
+            name: "limitPrice";
+            type: "u64";
+          },
+          {
+            name: "maxBaseQuantity";
+            type: "u64";
+          },
+          {
+            name: "maxQuoteQuantity";
+            type: "u64";
+          },
+          {
+            name: "orderType";
+            type: {
+              defined: "OrderType";
+            };
+          },
+          {
+            name: "limit";
+            type: "u16";
+          },
+          {
+            name: "clientId";
+            type: "u64";
+          }
+        ];
+      };
+    },
+    {
+      name: "UtpZoCancelPerpOrderIxArgs";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "orderId";
+            type: {
+              option: "u128";
+            };
+          },
+          {
+            name: "isLong";
+            type: {
+              option: "bool";
+            };
+          },
+          {
+            name: "clientId";
+            type: {
+              option: "u64";
+            };
           }
         ];
       };
@@ -1442,22 +1645,6 @@ export type Marginfi = {
           {
             name: "mid";
             type: "u32";
-          }
-        ];
-      };
-    },
-    {
-      name: "DriftManagePositionOptionalAccounts";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "discountToken";
-            type: "bool";
-          },
-          {
-            name: "referrer";
-            type: "bool";
           }
         ];
       };
@@ -1697,20 +1884,6 @@ export type Marginfi = {
       };
     },
     {
-      name: "DriftPositionDirection";
-      type: {
-        kind: "enum";
-        variants: [
-          {
-            name: "Long";
-          },
-          {
-            name: "Short";
-          }
-        ];
-      };
-    },
-    {
       name: "MangoOrderType";
       type: {
         kind: "enum";
@@ -1743,6 +1916,20 @@ export type Marginfi = {
           },
           {
             name: "Ask";
+          }
+        ];
+      };
+    },
+    {
+      name: "MangoExpiryType";
+      type: {
+        kind: "enum";
+        variants: [
+          {
+            name: "Absolute";
+          },
+          {
+            name: "Relative";
           }
         ];
       };
@@ -1802,6 +1989,32 @@ export type Marginfi = {
           },
           {
             name: "Deposit";
+          }
+        ];
+      };
+    },
+    {
+      name: "OrderType";
+      type: {
+        kind: "enum";
+        variants: [
+          {
+            name: "Limit";
+          },
+          {
+            name: "ImmediateOrCancel";
+          },
+          {
+            name: "PostOnly";
+          },
+          {
+            name: "ReduceOnlyIoc";
+          },
+          {
+            name: "ReduceOnlyLimit";
+          },
+          {
+            name: "FillOrKill";
           }
         ];
       };
@@ -1906,27 +2119,17 @@ export type Marginfi = {
     {
       code: 6019;
       name: "AccountDepositLimit";
-      msg: "Account has much deposits";
+      msg: "Account deposit too large";
     },
     {
       code: 6020;
-      name: "DriftError";
-      msg: "Drift Error";
+      name: "InvalidObserveAccounts";
+      msg: "Missing accounts for UTP observation";
     },
     {
       code: 6021;
-      name: "MissingDriftObserveAccounts";
-      msg: "Missing accounts for Drift observe";
-    },
-    {
-      code: 6022;
       name: "MangoError";
       msg: "Mango error";
-    },
-    {
-      code: 6023;
-      name: "MissingMangoObserveAccounts";
-      msg: "Missing accounts for Mango observe";
     }
   ];
 };
@@ -2308,11 +2511,6 @@ export const IDL: Marginfi = {
           isSigner: false,
         },
         {
-          name: "admin",
-          isMut: false,
-          isSigner: true,
-        },
-        {
           name: "insuranceVaultAuthority",
           isMut: false,
           isSigner: false,
@@ -2365,424 +2563,6 @@ export const IDL: Marginfi = {
         },
       ],
       args: [],
-    },
-    {
-      name: "utpDriftActivate",
-      accounts: [
-        {
-          name: "marginAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "marginGroup",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "authority",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "driftAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftState",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftUser",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftUserPositions",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "rent",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [
-        {
-          name: "authoritySeed",
-          type: "publicKey",
-        },
-        {
-          name: "authorityBump",
-          type: "u8",
-        },
-      ],
-    },
-    {
-      name: "utpDriftDeposit",
-      accounts: [
-        {
-          name: "marginAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "marginGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "signer",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "marginCollateralVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "bankAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "tempCollateralAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftUser",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftState",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftUserPositions",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftCollateralVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftMarkets",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftDepositHistory",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftFundingPaymentHistory",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [
-        {
-          name: "amount",
-          type: "u64",
-        },
-      ],
-    },
-    {
-      name: "utpDriftWithdraw",
-      accounts: [
-        {
-          name: "marginAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "marginGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "signer",
-          isMut: false,
-          isSigner: true,
-        },
-        {
-          name: "marginCollateralVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftUser",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftState",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftUserPositions",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftCollateralVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftCollateralVaultAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftInsuranceVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftInsuranceVaultAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftMarkets",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftDepositHistory",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftFundingPaymentHistory",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemsProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [
-        {
-          name: "amount",
-          type: "u64",
-        },
-      ],
-    },
-    {
-      name: "utpDriftUseOpenPosition",
-      accounts: [
-        {
-          name: "marginAccount",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "marginGroup",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "authority",
-          isMut: false,
-          isSigner: true,
-        },
-        {
-          name: "driftAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftUser",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftState",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftMarkets",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftUserPositions",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftTradeHistory",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftFundingPaymentHistory",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftFundingRateHistory",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftOracle",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [
-        {
-          name: "args",
-          type: {
-            defined: "UtpDriftOpenPositionIxArgs",
-          },
-        },
-      ],
-    },
-    {
-      name: "utpDriftUseClosePosition",
-      accounts: [
-        {
-          name: "marginAccount",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "marginGroup",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "authority",
-          isMut: false,
-          isSigner: true,
-        },
-        {
-          name: "driftAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftUser",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "driftState",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftMarkets",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftUserPositions",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftTradeHistory",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftFundingPaymentHistory",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftFundingRateHistory",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "driftOracle",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [
-        {
-          name: "args",
-          type: {
-            defined: "UtpDriftClosePositionIxArgs",
-          },
-        },
-      ],
     },
     {
       name: "utpMangoActivate",
@@ -2894,12 +2674,12 @@ export const IDL: Marginfi = {
         },
         {
           name: "mangoCache",
-          isMut: false,
+          isMut: true,
           isSigner: false,
         },
         {
           name: "mangoRootBank",
-          isMut: false,
+          isMut: true,
           isSigner: false,
         },
         {
@@ -3144,6 +2924,612 @@ export const IDL: Marginfi = {
         },
       ],
     },
+    {
+      name: "utpZoActivate",
+      accounts: [
+        {
+          name: "marginAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "marginGroup",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "authority",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "utpAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zoProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zoState",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zoMargin",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zoControl",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "rent",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "authoritySeed",
+          type: "publicKey",
+        },
+        {
+          name: "authorityBump",
+          type: "u8",
+        },
+        {
+          name: "zoMarginNonce",
+          type: "u8",
+        },
+      ],
+    },
+    {
+      name: "utpZoDeposit",
+      accounts: [
+        {
+          name: "marginAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "marginGroup",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "signer",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "marginCollateralVault",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "bankAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "tempCollateralAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "utpAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zoProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zoState",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zoStateSigner",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zoCache",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zoMargin",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zoVault",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "rent",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "amount",
+          type: "u64",
+        },
+      ],
+    },
+    {
+      name: "utpZoWithdraw",
+      accounts: [
+        {
+          name: "marginAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "marginGroup",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "signer",
+          isMut: false,
+          isSigner: true,
+        },
+        {
+          name: "marginCollateralVault",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "utpAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zoMargin",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zoProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zoState",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zoStateSigner",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zoCache",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zoControl",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zoVault",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "amount",
+          type: "u64",
+        },
+      ],
+    },
+    {
+      name: "utpZoCreatePerpOpenOrders",
+      accounts: [
+        {
+          name: "header",
+          accounts: [
+            {
+              name: "marginAccount",
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: "marginGroup",
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: "signer",
+              isMut: true,
+              isSigner: true,
+            },
+            {
+              name: "utpAuthority",
+              isMut: false,
+              isSigner: false,
+            },
+          ],
+        },
+        {
+          name: "zoProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "state",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "stateSigner",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "margin",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "control",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "openOrders",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "dexMarket",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "dexProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "rent",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
+    },
+    {
+      name: "utpZoPlacePerpOrder",
+      accounts: [
+        {
+          name: "header",
+          accounts: [
+            {
+              name: "marginAccount",
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: "marginGroup",
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: "signer",
+              isMut: true,
+              isSigner: true,
+            },
+            {
+              name: "utpAuthority",
+              isMut: false,
+              isSigner: false,
+            },
+          ],
+        },
+        {
+          name: "zoProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "state",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "stateSigner",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "cache",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "margin",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "control",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "openOrders",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "dexMarket",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "reqQ",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "eventQ",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "marketBids",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "marketAsks",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "dexProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "rent",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "args",
+          type: {
+            defined: "UtpZoPlacePerpOrderIxArgs",
+          },
+        },
+      ],
+    },
+    {
+      name: "utpZoCancelPerpOrder",
+      accounts: [
+        {
+          name: "header",
+          accounts: [
+            {
+              name: "marginAccount",
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: "marginGroup",
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: "signer",
+              isMut: true,
+              isSigner: true,
+            },
+            {
+              name: "utpAuthority",
+              isMut: false,
+              isSigner: false,
+            },
+          ],
+        },
+        {
+          name: "zoProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "state",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "cache",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "margin",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "control",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "openOrders",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "dexMarket",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "marketBids",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "marketAsks",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "eventQ",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "dexProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "orderId",
+          type: {
+            option: "u128",
+          },
+        },
+        {
+          name: "isLong",
+          type: {
+            option: "bool",
+          },
+        },
+        {
+          name: "clientId",
+          type: {
+            option: "u64",
+          },
+        },
+      ],
+    },
+    {
+      name: "utpZoSettleFunds",
+      accounts: [
+        {
+          name: "header",
+          accounts: [
+            {
+              name: "marginAccount",
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: "marginGroup",
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: "signer",
+              isMut: true,
+              isSigner: true,
+            },
+            {
+              name: "utpAuthority",
+              isMut: false,
+              isSigner: false,
+            },
+          ],
+        },
+        {
+          name: "zoProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "state",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "stateSigner",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "cache",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "margin",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "control",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "openOrders",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "dexMarket",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "dexProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
+    },
   ],
   accounts: [
     {
@@ -3174,7 +3560,7 @@ export const IDL: Marginfi = {
           {
             name: "activeUtps",
             type: {
-              array: ["bool", 32],
+              array: ["bool", 64],
             },
           },
           {
@@ -3184,7 +3570,7 @@ export const IDL: Marginfi = {
                 {
                   defined: "UTPAccountConfig",
                 },
-                32,
+                64,
               ],
             },
           },
@@ -3256,56 +3642,6 @@ export const IDL: Marginfi = {
   ],
   types: [
     {
-      name: "UtpDriftOpenPositionIxArgs",
-      type: {
-        kind: "struct",
-        fields: [
-          {
-            name: "direction",
-            type: {
-              defined: "DriftPositionDirection",
-            },
-          },
-          {
-            name: "quoteAssetAmount",
-            type: "u128",
-          },
-          {
-            name: "marketIndex",
-            type: "u64",
-          },
-          {
-            name: "limitPrice",
-            type: "u128",
-          },
-          {
-            name: "optionalAccounts",
-            type: {
-              defined: "DriftManagePositionOptionalAccounts",
-            },
-          },
-        ],
-      },
-    },
-    {
-      name: "UtpDriftClosePositionIxArgs",
-      type: {
-        kind: "struct",
-        fields: [
-          {
-            name: "marketIndex",
-            type: "u64",
-          },
-          {
-            name: "optionalAccounts",
-            type: {
-              defined: "DriftManagePositionOptionalAccounts",
-            },
-          },
-        ],
-      },
-    },
-    {
       name: "UtpMangoPlacePerpOrderArgs",
       type: {
         kind: "struct",
@@ -3352,6 +3688,76 @@ export const IDL: Marginfi = {
             name: "limit",
             type: "u8",
           },
+          {
+            name: "expiryType",
+            type: {
+              defined: "MangoExpiryType",
+            },
+          },
+        ],
+      },
+    },
+    {
+      name: "UtpZoPlacePerpOrderIxArgs",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "isLong",
+            type: "bool",
+          },
+          {
+            name: "limitPrice",
+            type: "u64",
+          },
+          {
+            name: "maxBaseQuantity",
+            type: "u64",
+          },
+          {
+            name: "maxQuoteQuantity",
+            type: "u64",
+          },
+          {
+            name: "orderType",
+            type: {
+              defined: "OrderType",
+            },
+          },
+          {
+            name: "limit",
+            type: "u16",
+          },
+          {
+            name: "clientId",
+            type: "u64",
+          },
+        ],
+      },
+    },
+    {
+      name: "UtpZoCancelPerpOrderIxArgs",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "orderId",
+            type: {
+              option: "u128",
+            },
+          },
+          {
+            name: "isLong",
+            type: {
+              option: "bool",
+            },
+          },
+          {
+            name: "clientId",
+            type: {
+              option: "u64",
+            },
+          },
         ],
       },
     },
@@ -3375,22 +3781,6 @@ export const IDL: Marginfi = {
           {
             name: "mid",
             type: "u32",
-          },
-        ],
-      },
-    },
-    {
-      name: "DriftManagePositionOptionalAccounts",
-      type: {
-        kind: "struct",
-        fields: [
-          {
-            name: "discountToken",
-            type: "bool",
-          },
-          {
-            name: "referrer",
-            type: "bool",
           },
         ],
       },
@@ -3630,20 +4020,6 @@ export const IDL: Marginfi = {
       },
     },
     {
-      name: "DriftPositionDirection",
-      type: {
-        kind: "enum",
-        variants: [
-          {
-            name: "Long",
-          },
-          {
-            name: "Short",
-          },
-        ],
-      },
-    },
-    {
       name: "MangoOrderType",
       type: {
         kind: "enum",
@@ -3676,6 +4052,20 @@ export const IDL: Marginfi = {
           },
           {
             name: "Ask",
+          },
+        ],
+      },
+    },
+    {
+      name: "MangoExpiryType",
+      type: {
+        kind: "enum",
+        variants: [
+          {
+            name: "Absolute",
+          },
+          {
+            name: "Relative",
           },
         ],
       },
@@ -3735,6 +4125,32 @@ export const IDL: Marginfi = {
           },
           {
             name: "Deposit",
+          },
+        ],
+      },
+    },
+    {
+      name: "OrderType",
+      type: {
+        kind: "enum",
+        variants: [
+          {
+            name: "Limit",
+          },
+          {
+            name: "ImmediateOrCancel",
+          },
+          {
+            name: "PostOnly",
+          },
+          {
+            name: "ReduceOnlyIoc",
+          },
+          {
+            name: "ReduceOnlyLimit",
+          },
+          {
+            name: "FillOrKill",
           },
         ],
       },
@@ -3839,27 +4255,17 @@ export const IDL: Marginfi = {
     {
       code: 6019,
       name: "AccountDepositLimit",
-      msg: "Account has much deposits",
+      msg: "Account deposit too large",
     },
     {
       code: 6020,
-      name: "DriftError",
-      msg: "Drift Error",
+      name: "InvalidObserveAccounts",
+      msg: "Missing accounts for UTP observation",
     },
     {
       code: 6021,
-      name: "MissingDriftObserveAccounts",
-      msg: "Missing accounts for Drift observe",
-    },
-    {
-      code: 6022,
       name: "MangoError",
       msg: "Mango error",
-    },
-    {
-      code: 6023,
-      name: "MissingMangoObserveAccounts",
-      msg: "Missing accounts for Mango observe",
     },
   ],
 };

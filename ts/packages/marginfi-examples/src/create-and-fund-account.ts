@@ -27,7 +27,7 @@ const wallet = new Wallet(loadKeypair(process.env.WALLET!));
   // Fund margin account
   await marginAccount.deposit(depositAmount);
 
-  // Activate Drift and Mango UTPs
-  await marginAccount.drift.activate();
+  // Activate Mango and 01 UTPs
   await marginAccount.mango.activate();
+  await marginAccount.zo.activate();
 })();

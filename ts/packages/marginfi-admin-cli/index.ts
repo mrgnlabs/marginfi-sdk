@@ -3,11 +3,11 @@ require("dotenv").config();
 import { Command } from "commander";
 import { createAccount } from "./src/account/create";
 import { deposit } from "./src/account/deposit";
-import { activateDrift } from "./src/account/drift/activate";
-import { depositDrift } from "./src/account/drift/deposit";
 import { getAccount } from "./src/account/get";
 import { activateMango } from "./src/account/mango/activate";
 import { depositMango } from "./src/account/mango/deposit";
+import { activateZo } from "./src/account/zo/activate";
+import { depositZo } from "./src/account/zo/deposit";
 import { configureGroup } from "./src/group/configure-group";
 import { createGroup } from "./src/group/create-group";
 import { getGroup } from "./src/group/load-group-config";
@@ -77,18 +77,18 @@ mangoProgram
   .arguments("<address> [amount]")
   .action(depositMango);
 
-const driftProgram = accountProgram.command("drift");
+const zoProgram = accountProgram.command("zo");
 
-driftProgram
+zoProgram
   .command("activate")
   .argument("<address>", "account address")
   .requiredOption("-G, --group <address>", "margin group address", DEFAULT_MARGIN_GROUP)
-  .action(activateDrift);
+  .action(activateZo);
 
-driftProgram
+zoProgram
   .command("deposit")
   .arguments("<address> [amount]")
   .requiredOption("-G, --group <address>", "margin group address", DEFAULT_MARGIN_GROUP)
-  .action(depositDrift);
+  .action(depositZo);
 
 cliProgram.parse();

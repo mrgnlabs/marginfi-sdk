@@ -36,8 +36,8 @@ import {
   processTransaction,
   wasmDecimalToNative,
 } from "./utils";
-import { UptDriftAccount } from "./utp/drift";
 import { UtpMangoAccount } from "./utp/mango";
+import { UtpZoAccount } from "./utp/zo";
 
 /**
  * Wrapper class around a specific marginfi margin account.
@@ -51,11 +51,11 @@ export class MarginAccount {
   private _borrowRecord: BN;
   private _client: MarginfiClient;
 
-  public readonly drift: UptDriftAccount;
   public readonly mango: UtpMangoAccount;
+  public readonly zo: UtpZoAccount;
 
   allUtps(): UtpAccount[] {
-    return [this.drift, this.mango]; // *Must* be sorted according to UTP indices
+    return [this.mango, this.zo]; // *Must* be sorted according to UTP indices
   }
 
   activeUtps(): UtpAccount[] {
@@ -76,14 +76,14 @@ export class MarginAccount {
     group: MarginfiGroup,
     depositRecord: BN,
     borrowRecord: BN,
-    driftUtpData: UtpData,
-    mangoUtpData: UtpData
+    mangoUtpData: UtpData,
+    zoUtpData: UtpData
   ) {
     this.publicKey = marginAccountPk;
     this._client = client;
 
-    this.drift = new UptDriftAccount(client, this, driftUtpData);
     this.mango = new UtpMangoAccount(client, this, mangoUtpData);
+    this.zo = new UtpZoAccount(client, this, zoUtpData);
 
     this._authority = authority;
     this._group = group;
@@ -113,8 +113,8 @@ export class MarginAccount {
       await MarginfiGroup.get(config, program),
       mDecimalToNative(accountData.depositRecord),
       mDecimalToNative(accountData.borrowRecord),
-      MarginAccount._packUtpData(accountData, config.drift.utpIndex),
-      MarginAccount._packUtpData(accountData, config.mango.utpIndex)
+      MarginAccount._packUtpData(accountData, config.mango.utpIndex),
+      MarginAccount._packUtpData(accountData, config.zo.utpIndex)
     );
 
     require("debug")("mfi:margin-account")("Loaded margin account %s", marginAccountPk);
@@ -160,8 +160,8 @@ export class MarginAccount {
       marginfiGroup,
       mDecimalToNative(accountData.depositRecord),
       mDecimalToNative(accountData.borrowRecord),
-      MarginAccount._packUtpData(accountData, client.config.drift.utpIndex),
-      MarginAccount._packUtpData(accountData, client.config.mango.utpIndex)
+      MarginAccount._packUtpData(accountData, client.config.mango.utpIndex),
+      MarginAccount._packUtpData(accountData, client.config.zo.utpIndex)
     );
   }
 
@@ -300,8 +300,8 @@ export class MarginAccount {
     this._depositRecord = mDecimalToNative(data.depositRecord);
     this._borrowRecord = mDecimalToNative(data.borrowRecord);
 
-    this.drift.update(MarginAccount._packUtpData(data, this._config.drift.utpIndex));
     this.mango.update(MarginAccount._packUtpData(data, this._config.mango.utpIndex));
+    this.zo.update(MarginAccount._packUtpData(data, this._config.zo.utpIndex));
   }
 
   /**
@@ -510,15 +510,10 @@ export class MarginAccount {
    * @returns UTP interface instance
    */
   private utpFromIndex(utpIndex: number): UtpAccount {
-    switch (utpIndex) {
-      case 0:
-        return this.drift;
-      case 1:
-        return this.mango;
-
-      default:
-        throw Error("Unsupported UTP");
+    if (utpIndex >= this.allUtps().length) {
+      throw Error(`Unsupported UTP ${utpIndex} (${this.allUtps().length} UTPs supported)`);
     }
+    return this.allUtps()[utpIndex];
   }
 
   async checkRebalance() {
@@ -701,16 +696,17 @@ export class MarginAccount {
     }
   }
 
-  public async liquidate(marginAccountLiquidateePk: PublicKey, utpIndex: number): Promise<string> {
+  public async liquidate(marginAccountLiquidatee: MarginAccount, utpIndex: number): Promise<string> {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:liquidate`);
     let [bankAuthority, _] = await getBankAuthority(this._config.groupPk, this._program.programId);
-    const remainingAccounts = await this.getObservationAccounts();
+
+    const remainingAccounts = await marginAccountLiquidatee.getObservationAccounts();
 
     let liquidateIx = await makeLiquidateIx(
       this._program,
       {
         marginAccountPk: this.publicKey,
-        marginAccountLiquidateePk,
+        marginAccountLiquidateePk: marginAccountLiquidatee.publicKey,
         marginGroupPk: this.group.publicKey,
         signerPk: this._authority,
         bankVault: this.group.bank.vault,
@@ -721,7 +717,7 @@ export class MarginAccount {
       remainingAccounts
     );
 
-    debug("Liquidator %s, liquidating UTP %s", marginAccountLiquidateePk, utpIndex);
+    debug("Liquidator %s, liquidating %s UTP %s", this.publicKey, marginAccountLiquidatee.publicKey, utpIndex);
 
     const tx = new Transaction().add(liquidateIx);
     const sig = await processTransaction(this._program.provider, tx);

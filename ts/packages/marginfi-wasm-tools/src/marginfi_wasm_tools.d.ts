@@ -47,13 +47,6 @@ export function get_max_rebalance_deposit_amount(observation: WasmObservation, m
 */
 export function get_max_rebalance_withdraw_amount(observation: WasmObservation, margin_account_data: Uint8Array, margin_group_data: Uint8Array, utp_observer_data: Uint8Array): WasmDecimal;
 /**
-* @param {Uint8Array} drift_user_data
-* @param {Uint8Array} drift_user_positions_data
-* @param {Uint8Array} drift_markets_data
-* @returns {WasmObservation}
-*/
-export function observe_drift(drift_user_data: Uint8Array, drift_user_positions_data: Uint8Array, drift_markets_data: Uint8Array): WasmObservation;
-/**
 * @param {Uint8Array} mango_group_data
 * @param {Uint8Array} mango_account_data
 * @param {Uint8Array} mango_cache_data
@@ -61,6 +54,14 @@ export function observe_drift(drift_user_data: Uint8Array, drift_user_positions_
 * @returns {WasmObservation}
 */
 export function observe_mango(mango_group_data: Uint8Array, mango_account_data: Uint8Array, mango_cache_data: Uint8Array, timestamp: BigInt): WasmObservation;
+/**
+* @param {Uint8Array} zo_margin_data
+* @param {Uint8Array} zo_control_data
+* @param {Uint8Array} zo_state_data
+* @param {Uint8Array} zo_cache_data
+* @returns {WasmObservation}
+*/
+export function observe_zo(zo_margin_data: Uint8Array, zo_control_data: Uint8Array, zo_state_data: Uint8Array, zo_cache_data: Uint8Array): WasmObservation;
 /**
 * @param {Uint8Array} margin_account_data
 * @param {Uint8Array} margin_group_data

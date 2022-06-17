@@ -18,7 +18,7 @@ const program = getMfiProgram(
   wallet
 );
 
-export async function depositDrift(accountPk: string, amount: number, options: OptionValues) {
+export async function depositZo(accountPk: string, amount: number, options: OptionValues) {
   const connection = program.provider.connection;
   const config = await getConfig(Environment.DEVNET, connection, {
     groupPk: new PublicKey(options.group),
@@ -27,6 +27,6 @@ export async function depositDrift(accountPk: string, amount: number, options: O
   const client = await MarginfiClient.get(config, wallet, connection);
   const account = await MarginAccount.get(new PublicKey(accountPk), client);
 
-  const sig = await account.drift.deposit(new BN(amount * 10 ** 6));
-  console.log("Mango deposit %s", sig);
+  const sig = await account.zo.deposit(new BN(amount * 10 ** 6));
+  console.log("01 deposit %s", sig);
 }

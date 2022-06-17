@@ -1,7 +1,7 @@
 let imports = {};
 imports['__wbindgen_placeholder__'] = module.exports;
 let wasm;
-const { TextEncoder, TextDecoder } = require(`util`);
+const { TextDecoder, TextEncoder } = require(`util`);
 
 const heap = new Array(32).fill(undefined);
 
@@ -23,7 +23,9 @@ function takeObject(idx) {
     return ret;
 }
 
-let WASM_VECTOR_LEN = 0;
+let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
+
+cachedTextDecoder.decode();
 
 let cachegetUint8Memory0 = null;
 function getUint8Memory0() {
@@ -32,6 +34,21 @@ function getUint8Memory0() {
     }
     return cachegetUint8Memory0;
 }
+
+function getStringFromWasm0(ptr, len) {
+    return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
+}
+
+function addHeapObject(obj) {
+    if (heap_next === heap.length) heap.push(heap.length + 1);
+    const idx = heap_next;
+    heap_next = heap[idx];
+
+    heap[idx] = obj;
+    return idx;
+}
+
+let WASM_VECTOR_LEN = 0;
 
 let cachedTextEncoder = new TextEncoder('utf-8');
 
@@ -96,23 +113,6 @@ function getInt32Memory0() {
         cachegetInt32Memory0 = new Int32Array(wasm.memory.buffer);
     }
     return cachegetInt32Memory0;
-}
-
-let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
-
-cachedTextDecoder.decode();
-
-function getStringFromWasm0(ptr, len) {
-    return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
-}
-
-function addHeapObject(obj) {
-    if (heap_next === heap.length) heap.push(heap.length + 1);
-    const idx = heap_next;
-    heap_next = heap[idx];
-
-    heap[idx] = obj;
-    return idx;
 }
 
 let cachegetFloat64Memory0 = null;
@@ -339,23 +339,6 @@ module.exports.get_max_rebalance_withdraw_amount = function(observation, margin_
 };
 
 /**
-* @param {Uint8Array} drift_user_data
-* @param {Uint8Array} drift_user_positions_data
-* @param {Uint8Array} drift_markets_data
-* @returns {WasmObservation}
-*/
-module.exports.observe_drift = function(drift_user_data, drift_user_positions_data, drift_markets_data) {
-    const ptr0 = passArray8ToWasm0(drift_user_data, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(drift_user_positions_data, wasm.__wbindgen_malloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ptr2 = passArray8ToWasm0(drift_markets_data, wasm.__wbindgen_malloc);
-    const len2 = WASM_VECTOR_LEN;
-    const ret = wasm.observe_drift(ptr0, len0, ptr1, len1, ptr2, len2);
-    return WasmObservation.__wrap(ret);
-};
-
-/**
 * @param {Uint8Array} mango_group_data
 * @param {Uint8Array} mango_account_data
 * @param {Uint8Array} mango_cache_data
@@ -373,6 +356,26 @@ module.exports.observe_mango = function(mango_group_data, mango_account_data, ma
     const low3 = u32CvtShim[0];
     const high3 = u32CvtShim[1];
     const ret = wasm.observe_mango(ptr0, len0, ptr1, len1, ptr2, len2, low3, high3);
+    return WasmObservation.__wrap(ret);
+};
+
+/**
+* @param {Uint8Array} zo_margin_data
+* @param {Uint8Array} zo_control_data
+* @param {Uint8Array} zo_state_data
+* @param {Uint8Array} zo_cache_data
+* @returns {WasmObservation}
+*/
+module.exports.observe_zo = function(zo_margin_data, zo_control_data, zo_state_data, zo_cache_data) {
+    const ptr0 = passArray8ToWasm0(zo_margin_data, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArray8ToWasm0(zo_control_data, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ptr2 = passArray8ToWasm0(zo_state_data, wasm.__wbindgen_malloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passArray8ToWasm0(zo_cache_data, wasm.__wbindgen_malloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ret = wasm.observe_zo(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3);
     return WasmObservation.__wrap(ret);
 };
 
@@ -1441,6 +1444,16 @@ module.exports.__wbindgen_object_drop_ref = function(arg0) {
     takeObject(arg0);
 };
 
+module.exports.__wbindgen_string_new = function(arg0, arg1) {
+    const ret = getStringFromWasm0(arg0, arg1);
+    return addHeapObject(ret);
+};
+
+module.exports.__wbg_pubkey_new = function(arg0) {
+    const ret = Pubkey.__wrap(arg0);
+    return addHeapObject(ret);
+};
+
 module.exports.__wbindgen_string_get = function(arg0, arg1) {
     const obj = getObject(arg1);
     const ret = typeof(obj) === 'string' ? obj : undefined;
@@ -1455,21 +1468,11 @@ module.exports.__wbindgen_is_undefined = function(arg0) {
     return ret;
 };
 
-module.exports.__wbindgen_string_new = function(arg0, arg1) {
-    const ret = getStringFromWasm0(arg0, arg1);
-    return addHeapObject(ret);
-};
-
 module.exports.__wbindgen_number_get = function(arg0, arg1) {
     const obj = getObject(arg1);
     const ret = typeof(obj) === 'number' ? obj : undefined;
     getFloat64Memory0()[arg0 / 8 + 1] = isLikeNone(ret) ? 0 : ret;
     getInt32Memory0()[arg0 / 4 + 0] = !isLikeNone(ret);
-};
-
-module.exports.__wbg_pubkey_new = function(arg0) {
-    const ret = Pubkey.__wrap(arg0);
-    return addHeapObject(ret);
 };
 
 module.exports.__wbindgen_number_new = function(arg0) {

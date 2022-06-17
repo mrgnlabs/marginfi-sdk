@@ -7,6 +7,7 @@ export interface UtpMangoPlacePerpOrderOptions {
   reduceOnly?: boolean;
   //   referrerMangoAccountPk?: PublicKey;
   expiryTimestamp?: number;
+  expiryType?: ExpiryType;
 }
 
 export enum Side {
@@ -34,5 +35,16 @@ export function toProgramPerpOrderType(orderType: PerpOrderType) {
   if (orderType == PerpOrderType.PostOnly) return { postOnly: {} };
   if (orderType == PerpOrderType.Market) return { market: {} };
   if (orderType == PerpOrderType.PostOnlySlide) return { postOnlySlide: {} };
+  throw Error("Invalid side");
+}
+
+export enum ExpiryType {
+  Absolute,
+  Relative,
+}
+
+export function toProgramExpiryType(orderType: ExpiryType) {
+  if (orderType == ExpiryType.Absolute) return { absolute: {} };
+  if (orderType == ExpiryType.Relative) return { relative: {} };
   throw Error("Invalid side");
 }
