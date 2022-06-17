@@ -28,7 +28,7 @@ export async function getMangoConfig(
     const mangoRPCClient = new MangoClient(connection, programId);
     const mangoGroup = await mangoRPCClient.getMangoGroup(groupConfig.publicKey);
     return {
-      utpIndex: 1,
+      utpIndex: 0,
       programId,
       group: mangoGroup,
       groupConfig,
