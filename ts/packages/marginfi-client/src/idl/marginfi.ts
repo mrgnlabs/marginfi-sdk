@@ -1424,7 +1424,7 @@ export type Marginfi = {
           {
             name: "activeUtps";
             type: {
-              array: ["bool", 32];
+              array: ["bool", 64];
             };
           },
           {
@@ -1434,7 +1434,7 @@ export type Marginfi = {
                 {
                   defined: "UTPAccountConfig";
                 },
-                32
+                64
               ];
             };
           },
@@ -3560,7 +3560,7 @@ export const IDL: Marginfi = {
           {
             name: "activeUtps",
             type: {
-              array: ["bool", 32],
+              array: ["bool", 64],
             },
           },
           {
@@ -3570,7 +3570,7 @@ export const IDL: Marginfi = {
                 {
                   defined: "UTPAccountConfig",
                 },
-                32,
+                64,
               ],
             },
           },
