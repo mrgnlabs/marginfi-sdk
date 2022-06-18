@@ -18,15 +18,15 @@ import debugBuilder from "debug";
 const marginFiPk = new PublicKey(process.env.MARGINFI_PROGRAM!);
 const connection = new Connection(process.env.RPC_ENDPOINT!);
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
-const marginGroupPk = new PublicKey(process.env.MARGIN_GROUP!);
+const marginfiGroupPk = new PublicKey(process.env.MARGINFI_GROUP!);
 const marginAccountPk = new PublicKey(process.env.MARGIN_ACCOUNT!);
 
 (async function () {
   const debug = debugBuilder("liquidator");
 
-  debug("Starting liquidator for group %s", marginGroupPk);
+  debug("Starting liquidator for group %s", marginfiGroupPk);
   const config = await getConfig(Environment.DEVNET, connection, {
-    groupPk: marginGroupPk,
+    groupPk: marginfiGroupPk,
     programId: marginFiPk,
   });
   const marginClient = await MarginfiClient.get(config, wallet, connection);
@@ -323,9 +323,9 @@ async function closeMangoPositions(marginAccount: MarginAccount) {
 
 async function loadAllMarginAccounts(mfiClient: MarginfiClient) {
   const debug = debugBuilder("liquidator:loader");
-  debug("Loading margin accounts for group %s", marginGroupPk);
+  debug("Loading margin accounts for group %s", marginfiGroupPk);
 
-  const dis = { memcmp: { offset: 32 + 8, bytes: marginGroupPk.toBase58() } };
+  const dis = { memcmp: { offset: 32 + 8, bytes: marginfiGroupPk.toBase58() } };
   const rawMarignAccounts = await mfiClient.program.account.marginAccount.all([dis]);
 
   const marginAccounts = rawMarignAccounts.map((a) => {

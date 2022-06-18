@@ -264,14 +264,14 @@ module.exports.rebalance_deposit_valid = function(wasm_observation) {
 
 /**
 * @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_group_data
 * @param {Uint8Array} utp_observer_data
 * @returns {boolean}
 */
-module.exports.is_bankrupt = function(margin_account_data, margin_group_data, utp_observer_data) {
+module.exports.is_bankrupt = function(margin_account_data, marginfi_group_data, utp_observer_data) {
     const ptr0 = passArray8ToWasm0(margin_account_data, wasm.__wbindgen_malloc);
     const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(margin_group_data, wasm.__wbindgen_malloc);
+    const ptr1 = passArray8ToWasm0(marginfi_group_data, wasm.__wbindgen_malloc);
     const len1 = WASM_VECTOR_LEN;
     const ptr2 = passArray8ToWasm0(utp_observer_data, wasm.__wbindgen_malloc);
     const len2 = WASM_VECTOR_LEN;
@@ -281,14 +281,14 @@ module.exports.is_bankrupt = function(margin_account_data, margin_group_data, ut
 
 /**
 * @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_group_data
 * @param {Uint8Array} utp_observer_data
 * @returns {boolean}
 */
-module.exports.rebalance_withdraw_valid = function(margin_account_data, margin_group_data, utp_observer_data) {
+module.exports.rebalance_withdraw_valid = function(margin_account_data, marginfi_group_data, utp_observer_data) {
     const ptr0 = passArray8ToWasm0(margin_account_data, wasm.__wbindgen_malloc);
     const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(margin_group_data, wasm.__wbindgen_malloc);
+    const ptr1 = passArray8ToWasm0(marginfi_group_data, wasm.__wbindgen_malloc);
     const len1 = WASM_VECTOR_LEN;
     const ptr2 = passArray8ToWasm0(utp_observer_data, wasm.__wbindgen_malloc);
     const len2 = WASM_VECTOR_LEN;
@@ -299,17 +299,17 @@ module.exports.rebalance_withdraw_valid = function(margin_account_data, margin_g
 /**
 * @param {WasmObservation} observation
 * @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_group_data
 * @param {Uint8Array} utp_observer_data
 * @returns {WasmDecimal}
 */
-module.exports.get_max_rebalance_deposit_amount = function(observation, margin_account_data, margin_group_data, utp_observer_data) {
+module.exports.get_max_rebalance_deposit_amount = function(observation, margin_account_data, marginfi_group_data, utp_observer_data) {
     _assertClass(observation, WasmObservation);
     var ptr0 = observation.ptr;
     observation.ptr = 0;
     const ptr1 = passArray8ToWasm0(margin_account_data, wasm.__wbindgen_malloc);
     const len1 = WASM_VECTOR_LEN;
-    const ptr2 = passArray8ToWasm0(margin_group_data, wasm.__wbindgen_malloc);
+    const ptr2 = passArray8ToWasm0(marginfi_group_data, wasm.__wbindgen_malloc);
     const len2 = WASM_VECTOR_LEN;
     const ptr3 = passArray8ToWasm0(utp_observer_data, wasm.__wbindgen_malloc);
     const len3 = WASM_VECTOR_LEN;
@@ -320,17 +320,17 @@ module.exports.get_max_rebalance_deposit_amount = function(observation, margin_a
 /**
 * @param {WasmObservation} observation
 * @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_group_data
 * @param {Uint8Array} utp_observer_data
 * @returns {WasmDecimal}
 */
-module.exports.get_max_rebalance_withdraw_amount = function(observation, margin_account_data, margin_group_data, utp_observer_data) {
+module.exports.get_max_rebalance_withdraw_amount = function(observation, margin_account_data, marginfi_group_data, utp_observer_data) {
     _assertClass(observation, WasmObservation);
     var ptr0 = observation.ptr;
     observation.ptr = 0;
     const ptr1 = passArray8ToWasm0(margin_account_data, wasm.__wbindgen_malloc);
     const len1 = WASM_VECTOR_LEN;
-    const ptr2 = passArray8ToWasm0(margin_group_data, wasm.__wbindgen_malloc);
+    const ptr2 = passArray8ToWasm0(marginfi_group_data, wasm.__wbindgen_malloc);
     const len2 = WASM_VECTOR_LEN;
     const ptr3 = passArray8ToWasm0(utp_observer_data, wasm.__wbindgen_malloc);
     const len3 = WASM_VECTOR_LEN;
@@ -381,14 +381,14 @@ module.exports.observe_zo = function(zo_margin_data, zo_control_data, zo_state_d
 
 /**
 * @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_group_data
 * @param {Uint8Array} utp_observer_data
 * @returns {boolean}
 */
-module.exports.liquidation_valid = function(margin_account_data, margin_group_data, utp_observer_data) {
+module.exports.liquidation_valid = function(margin_account_data, marginfi_group_data, utp_observer_data) {
     const ptr0 = passArray8ToWasm0(margin_account_data, wasm.__wbindgen_malloc);
     const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(margin_group_data, wasm.__wbindgen_malloc);
+    const ptr1 = passArray8ToWasm0(marginfi_group_data, wasm.__wbindgen_malloc);
     const len1 = WASM_VECTOR_LEN;
     const ptr2 = passArray8ToWasm0(utp_observer_data, wasm.__wbindgen_malloc);
     const len2 = WASM_VECTOR_LEN;
@@ -398,16 +398,16 @@ module.exports.liquidation_valid = function(margin_account_data, margin_group_da
 
 /**
 * @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_group_data
 * @param {boolean} deposit
 * @returns {BigInt}
 */
-module.exports.get_quote_balance = function(margin_account_data, margin_group_data, deposit) {
+module.exports.get_quote_balance = function(margin_account_data, marginfi_group_data, deposit) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passArray8ToWasm0(margin_account_data, wasm.__wbindgen_malloc);
         const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passArray8ToWasm0(margin_group_data, wasm.__wbindgen_malloc);
+        const ptr1 = passArray8ToWasm0(marginfi_group_data, wasm.__wbindgen_malloc);
         const len1 = WASM_VECTOR_LEN;
         wasm.get_quote_balance(retptr, ptr0, len0, ptr1, len1, deposit);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
@@ -423,14 +423,14 @@ module.exports.get_quote_balance = function(margin_account_data, margin_group_da
 
 /**
 * @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_group_data
 * @param {number} wasm_mreq_t
 * @returns {WasmDecimal}
 */
-module.exports.get_margin_requirement = function(margin_account_data, margin_group_data, wasm_mreq_t) {
+module.exports.get_margin_requirement = function(margin_account_data, marginfi_group_data, wasm_mreq_t) {
     const ptr0 = passArray8ToWasm0(margin_account_data, wasm.__wbindgen_malloc);
     const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(margin_group_data, wasm.__wbindgen_malloc);
+    const ptr1 = passArray8ToWasm0(marginfi_group_data, wasm.__wbindgen_malloc);
     const len1 = WASM_VECTOR_LEN;
     const ret = wasm.get_margin_requirement(ptr0, len0, ptr1, len1, wasm_mreq_t);
     return WasmDecimal.__wrap(ret);

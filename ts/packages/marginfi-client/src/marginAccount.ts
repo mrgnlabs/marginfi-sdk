@@ -148,9 +148,9 @@ export class MarginAccount {
     accountData: MarginAccountData,
     marginfiGroup: MarginfiGroup
   ) {
-    if (!accountData.marginGroup.equals(client.config.groupPk))
+    if (!accountData.marginfiGroup.equals(client.config.groupPk))
       throw Error(
-        `Marginfi account tied to group ${accountData.marginGroup.toBase58()}. Expected: ${client.config.groupPk.toBase58()}`
+        `Marginfi account tied to group ${accountData.marginfiGroup.toBase58()}. Expected: ${client.config.groupPk.toBase58()}`
       );
 
     return new MarginAccount(
@@ -236,9 +236,9 @@ export class MarginAccount {
   ): Promise<MarginAccountData> {
     const data: MarginAccountData = (await program.account.marginAccount.fetch(accountAddress)) as any;
 
-    if (!data.marginGroup.equals(config.groupPk))
+    if (!data.marginfiGroup.equals(config.groupPk))
       throw Error(
-        `Marginfi account tied to group ${data.marginGroup.toBase58()}. Expected: ${config.groupPk.toBase58()}`
+        `Marginfi account tied to group ${data.marginfiGroup.toBase58()}. Expected: ${config.groupPk.toBase58()}`
       );
 
     return data;
@@ -442,7 +442,7 @@ export class MarginAccount {
       this._program,
       {
         marginAccountPk: this.publicKey,
-        marginGroupPk: this._group.publicKey,
+        marginfiGroupPk: this._group.publicKey,
         insuranceVaultAuthorityPk,
         insuranceVaultPk: this._group.bank.insuranceVault,
         liquidityVaultPk: this._group.bank.vault,
@@ -526,20 +526,20 @@ export class MarginAccount {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:rebalance:withdraw`);
     debug("Checking withdraw rebalance");
 
-    let [marginGroupAi, marginAccountAi] = await this.loadAccountAndGroupAi();
+    let [marginfiGroupAi, marginAccountAi] = await this.loadAccountAndGroupAi();
 
     if (!marginAccountAi) {
       throw Error("Margin Account no found");
     }
-    if (!marginGroupAi) {
-      throw Error("Margin Group Account no found");
+    if (!marginfiGroupAi) {
+      throw Error("Marginfi Group Account no found");
     }
 
     const observations = await this.localObserve();
 
     let observer = await this.getObserver(observations);
 
-    const rebalanceNeeded = rebalance_withdraw_valid(marginAccountAi.data, marginGroupAi.data, observer);
+    const rebalanceNeeded = rebalance_withdraw_valid(marginAccountAi.data, marginfiGroupAi.data, observer);
 
     if (!rebalanceNeeded) {
       return;
@@ -554,7 +554,7 @@ export class MarginAccount {
       get_max_rebalance_withdraw_amount(
         richestUtpObservation.observation.toWasm(),
         marginAccountAi.data,
-        marginGroupAi.data,
+        marginfiGroupAi.data,
         observer
       )
     );
@@ -579,7 +579,7 @@ export class MarginAccount {
   private async checkRebalanceDeposit() {
     let debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:rebalance:deposit`);
     debug("Checking deposit rebalance");
-    let [marginGroupAi, marginAccountAi] = await this._program.provider.connection.getMultipleAccountsInfo([
+    let [marginfiGroupAi, marginAccountAi] = await this._program.provider.connection.getMultipleAccountsInfo([
       this._config.groupPk,
       this.publicKey,
     ]);
@@ -587,8 +587,8 @@ export class MarginAccount {
     if (!marginAccountAi) {
       throw Error("Margin Account no found");
     }
-    if (!marginGroupAi) {
-      throw Error("Margin Group Account no found");
+    if (!marginfiGroupAi) {
+      throw Error("Marginfi Group Account no found");
     }
 
     const indexed_observations = await this.localObserve();
@@ -612,7 +612,7 @@ export class MarginAccount {
       let rebalanceAmountDecimal = get_max_rebalance_deposit_amount(
         observation.toWasm(),
         marginAccountAi!.data,
-        marginGroupAi!.data,
+        marginfiGroupAi!.data,
         observer
       );
 
@@ -628,7 +628,7 @@ export class MarginAccount {
         debug(e);
       }
 
-      [marginGroupAi, marginAccountAi] = await this._program.provider.connection.getMultipleAccountsInfo([
+      [marginfiGroupAi, marginAccountAi] = await this._program.provider.connection.getMultipleAccountsInfo([
         this._config.groupPk,
         this.publicKey,
       ]);
@@ -639,18 +639,18 @@ export class MarginAccount {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:bankruptcy`);
     debug("Checking bankruptcy");
 
-    let [marginGroupAi, marginAccountAi] = await this.loadAccountAndGroupAi();
+    let [marginfiGroupAi, marginAccountAi] = await this.loadAccountAndGroupAi();
 
     if (!marginAccountAi) {
       throw Error("Margin Account no found");
     }
-    if (!marginGroupAi) {
-      throw Error("Margin Group Account no found");
+    if (!marginfiGroupAi) {
+      throw Error("Marginfi Group Account no found");
     }
 
     const observations = await this.localObserve();
     let observer = await this.getObserver(observations);
-    const isBankrupt = is_bankrupt(marginAccountAi.data, marginGroupAi.data, observer);
+    const isBankrupt = is_bankrupt(marginAccountAi.data, marginfiGroupAi.data, observer);
 
     if (!isBankrupt) {
       return;
@@ -670,7 +670,7 @@ export class MarginAccount {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:loader`);
     debug("Loading margin account %s, and group %s", this.publicKey, this._config.groupPk);
 
-    let [marginGroupAi, marginAccountAi] = await this._program.provider.connection.getMultipleAccountsInfo([
+    let [marginfiGroupAi, marginAccountAi] = await this._program.provider.connection.getMultipleAccountsInfo([
       this._config.groupPk,
       this.publicKey,
     ]);
@@ -678,19 +678,19 @@ export class MarginAccount {
     if (!marginAccountAi) {
       throw Error("Margin Account no found");
     }
-    if (!marginGroupAi) {
-      throw Error("Margin Group Account no found");
+    if (!marginfiGroupAi) {
+      throw Error("Marginfi Group Account no found");
     }
 
-    return [marginGroupAi, marginAccountAi];
+    return [marginfiGroupAi, marginAccountAi];
   }
 
   public async canBeLiquidated() {
     try {
-      let [marginGroupAi, marginAccountAi] = await this.loadAccountAndGroupAi();
+      let [marginfiGroupAi, marginAccountAi] = await this.loadAccountAndGroupAi();
       const observer = await this.getObserver();
 
-      return liquidation_valid(marginAccountAi.data, marginGroupAi.data, observer);
+      return liquidation_valid(marginAccountAi.data, marginfiGroupAi.data, observer);
     } catch (e) {
       return false;
     }
@@ -707,7 +707,7 @@ export class MarginAccount {
       {
         marginAccountPk: this.publicKey,
         marginAccountLiquidateePk: marginAccountLiquidatee.publicKey,
-        marginGroupPk: this.group.publicKey,
+        marginfiGroupPk: this.group.publicKey,
         signerPk: this._authority,
         bankVault: this.group.bank.vault,
         bankAuthority,
@@ -727,18 +727,18 @@ export class MarginAccount {
   }
 
   public async getDeposits(): Promise<BN> {
-    let [marginGroupAi, marginAccountAi] = await this.loadAccountAndGroupAi();
-    let balance = get_quote_balance(marginAccountAi.data, marginGroupAi.data, true).valueOf();
+    let [marginfiGroupAi, marginAccountAi] = await this.loadAccountAndGroupAi();
+    let balance = get_quote_balance(marginAccountAi.data, marginfiGroupAi.data, true).valueOf();
 
     return bigIntToBN(balance);
   }
 
   public async getBalance(): Promise<[BN, BN, BN]> {
-    let [marginGroupAi, marginAccountAi] = await this.loadAccountAndGroupAi();
+    let [marginfiGroupAi, marginAccountAi] = await this.loadAccountAndGroupAi();
 
     let assets = new BN(0);
 
-    let deposits = bigIntToBN(get_quote_balance(marginAccountAi.data, marginGroupAi.data, true).valueOf());
+    let deposits = bigIntToBN(get_quote_balance(marginAccountAi.data, marginfiGroupAi.data, true).valueOf());
 
     assets = assets.add(deposits);
 
@@ -750,7 +750,7 @@ export class MarginAccount {
       assets = assets.add(observation.observation.freeCollateral);
     }
 
-    let liabilities = bigIntToBN(get_quote_balance(marginAccountAi.data, marginGroupAi.data, false).valueOf());
+    let liabilities = bigIntToBN(get_quote_balance(marginAccountAi.data, marginfiGroupAi.data, false).valueOf());
 
     let balance = assets.sub(liabilities);
 
@@ -762,8 +762,8 @@ export class MarginAccount {
   }
 
   public async getMarginRequirement(type: MarginRequirementType): Promise<Decimal> {
-    let [marginGroupAi, marginAccountAi] = await this.loadAccountAndGroupAi();
-    let mreq = get_margin_requirement(marginAccountAi.data, marginGroupAi.data, type);
+    let [marginfiGroupAi, marginAccountAi] = await this.loadAccountAndGroupAi();
+    let mreq = get_margin_requirement(marginAccountAi.data, marginfiGroupAi.data, type);
 
     return Decimal.fromWasm(mreq);
   }

@@ -6,7 +6,7 @@ import {
   processTransaction,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
-import { makeInitMarginGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
+import { makeInitMarginfiGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Command } from "commander";
@@ -28,7 +28,7 @@ export async function createGroup(_string: string, command: Command) {
 
   const [bankVaultAuthority, bankAuthorityPdaBump] = await getBankAuthority(mfiGroupKey.publicKey, program.programId);
 
-  const createMarginGroupAccountIx = await program.account.marginGroup.createInstruction(mfiGroupKey);
+  const createMarginfiGroupAccountIx = await program.account.marginfiGroup.createInstruction(mfiGroupKey);
 
   const [bankVaultKey, bankVaultInstructions] = await createVaultAccountInstructions(mintPk, bankVaultAuthority);
 
@@ -51,7 +51,7 @@ export async function createGroup(_string: string, command: Command) {
 
   const [feeVaultKey, feeVaultInstructions] = await createVaultAccountInstructions(mintPk, feeVaultAuthority);
 
-  const createMarginGroupIx = await makeInitMarginGroupIx(
+  const createMarginfiGroupIx = await makeInitMarginfiGroupIx(
     program,
     {
       marginfiGroupPk: mfiGroupKey.publicKey,
@@ -72,11 +72,11 @@ export async function createGroup(_string: string, command: Command) {
   );
 
   const ixs = [
-    createMarginGroupAccountIx,
+    createMarginfiGroupAccountIx,
     ...bankVaultInstructions,
     ...insuranceVaultInstructions,
     ...feeVaultInstructions,
-    createMarginGroupIx,
+    createMarginfiGroupIx,
   ];
 
   const tx = new Transaction().add(...ixs);
@@ -87,7 +87,7 @@ export async function createGroup(_string: string, command: Command) {
     feeVaultKey,
   ]);
 
-  console.log("Margin group %s", mfiGroupKey.publicKey);
+  console.log("Marginfi group %s", mfiGroupKey.publicKey);
   console.log(`Transaction signature ${sig}`);
 }
 

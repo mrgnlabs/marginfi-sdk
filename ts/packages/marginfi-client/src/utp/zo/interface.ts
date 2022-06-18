@@ -107,7 +107,7 @@ export class UtpZoAccount implements UtpAccount {
     const activateZoIx = await makeActivateIx(
       this._program,
       {
-        marginGroup: this._config.groupPk,
+        marginfiGroup: this._config.groupPk,
         marginAccount: this._marginAccount.publicKey,
         authority: this._program.provider.wallet.publicKey,
         utpAuthority: utpAuthorityPk,
@@ -202,7 +202,7 @@ export class UtpZoAccount implements UtpAccount {
     return makeDepositIx(
       this._program,
       {
-        marginGroup: this._config.groupPk,
+        marginfiGroup: this._config.groupPk,
         marginAccount: this._marginAccount.publicKey,
         signer: this._program.provider.wallet.publicKey,
         marginCollateralVault: this._client.group.bank.vault,
@@ -260,7 +260,7 @@ export class UtpZoAccount implements UtpAccount {
       this._program,
       {
         marginAccount: this._marginAccount.publicKey,
-        marginGroup: this._client.group.publicKey,
+        marginfiGroup: this._client.group.publicKey,
         signer: this._program.provider.wallet.publicKey,
         marginCollateralVault: this._client.group.bank.vault,
         utpAuthority: utpAuthority,
@@ -309,7 +309,7 @@ export class UtpZoAccount implements UtpAccount {
 
     return makeCreatePerpOpenOrdersIx(this._program, {
       marginAccount: this._marginAccount.publicKey,
-      marginGroup: this._client.group.publicKey,
+      marginfiGroup: this._client.group.publicKey,
       utpAuthority,
       signer: this._client.program.provider.wallet.publicKey,
       zoProgram: this.config.programId,
@@ -395,7 +395,7 @@ export class UtpZoAccount implements UtpAccount {
       this._client.program,
       {
         marginAccount: this._marginAccount.publicKey,
-        marginGroup: this._client.group.publicKey,
+        marginfiGroup: this._client.group.publicKey,
         utpAuthority: utpAuthority,
         signer: this._program.provider.wallet.publicKey,
         zoProgram: zoProgram.programId,
@@ -467,7 +467,7 @@ export class UtpZoAccount implements UtpAccount {
       this._client.program,
       {
         marginAccount: this._marginAccount.publicKey,
-        marginGroup: this._client.group.publicKey,
+        marginfiGroup: this._client.group.publicKey,
         utpAuthority: utpAuthority,
         signer: this._program.provider.wallet.publicKey,
         zoProgram: zoProgram.programId,
@@ -517,7 +517,7 @@ export class UtpZoAccount implements UtpAccount {
 
     return makeSettleFundsIx(this._client.program, {
       marginAccount: this._marginAccount.publicKey,
-      marginGroup: this._client.group.publicKey,
+      marginfiGroup: this._client.group.publicKey,
       utpAuthority: utpAuthority,
       signer: this._program.provider.wallet.publicKey,
       zoProgram: zoProgram.programId,

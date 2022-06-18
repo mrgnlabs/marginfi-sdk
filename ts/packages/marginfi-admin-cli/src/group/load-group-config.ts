@@ -11,9 +11,9 @@ const program = getMfiProgram(
 );
 
 export async function getGroup(address: string) {
-  const group = await program.account.marginGroup.fetch(address);
+  const group = await program.account.marginfiGroup.fetch(address);
 
-  console.log("Margin Group: %s", address);
+  console.log("Marginfi Group: %s", address);
   console.log("Admin: %s", group.admin);
 
   console.log("Bank");

@@ -24,7 +24,7 @@ export async function deposit(address: string, amount: number) {
   const connection = program.provider.connection;
 
   const accountData = await program.account.marginAccount.fetch(accountPk);
-  const groupPk = accountData.marginGroup;
+  const groupPk = accountData.marginfiGroup;
   const config = await getConfig(Environment.DEVNET, connection, {
     groupPk,
     programId: program.programId,

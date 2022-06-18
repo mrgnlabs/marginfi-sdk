@@ -3,7 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 import { BankData, MDecimalRaw, UTPAccountConfig } from ".";
 
 export enum AccountType {
-  MarginfiGroup = "marginGroup",
+  MarginfiGroup = "marginfiGroup",
   MarginAccount = "marginAccount",
 }
 
@@ -15,7 +15,7 @@ export interface MarginfiGroupData {
 
 export interface MarginAccountData {
   authority: PublicKey;
-  marginGroup: PublicKey;
+  marginfiGroup: PublicKey;
   depositRecord: MDecimalRaw;
   borrowRecord: MDecimalRaw;
   activeUtps: boolean[];

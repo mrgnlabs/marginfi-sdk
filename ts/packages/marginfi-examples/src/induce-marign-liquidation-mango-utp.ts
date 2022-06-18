@@ -19,7 +19,7 @@ import {
   IDS,
   QUOTE_INDEX,
 } from "@blockworks-foundation/mango-client";
-import { makeConfigureMarginGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
+import { makeConfigureMarginfiGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
 import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/src/utp/mango/types";
 
 // const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGIN_ACCOUNT!);
@@ -35,7 +35,7 @@ async function configureMarginReq(client: MarginfiClient, initMReq: number, main
     },
   };
 
-  const ix = await makeConfigureMarginGroupIx(
+  const ix = await makeConfigureMarginfiGroupIx(
     client.program,
     {
       adminPk: wallet.publicKey,

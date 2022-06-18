@@ -11,7 +11,7 @@ import {
   processTransaction,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
-import { makeConfigureMarginGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
+import { makeConfigureMarginfiGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
 import * as zoClient from "@zero_one/client";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!);
@@ -26,7 +26,7 @@ async function configureMarginReq(client: MarginfiClient, initMReq: number, main
     },
   };
 
-  const ix = await makeConfigureMarginGroupIx(
+  const ix = await makeConfigureMarginfiGroupIx(
     client.program,
     {
       adminPk: wallet.publicKey,
@@ -47,7 +47,7 @@ const MARKET_SYMBOL = "SOL-PERP";
 (async function () {
   const config = await getConfig(Environment.DEVNET, connection, {
     programId: new PublicKey(process.env.MARGINFI_PROGRAM!),
-    groupPk: new PublicKey(process.env.MARGIN_GROUP!),
+    groupPk: new PublicKey(process.env.MARGINFI_GROUP!),
     collateralMintPk: zoClient.USDC_DEVNET_MINT_ADDRESS,
   });
 

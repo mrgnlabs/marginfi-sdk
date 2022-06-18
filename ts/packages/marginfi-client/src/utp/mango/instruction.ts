@@ -24,7 +24,7 @@ export async function makeActivateIx(
   return mfProgram.methods
     .utpMangoActivate(args.authoritySeed, args.authorityBump)
     .accounts({
-      marginGroup: accounts.marginfiGroupPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       marginAccount: accounts.marginAccountPk,
       mangoProgram: accounts.mangoProgramId,
       mangoGroup: accounts.mangoGroupPk,
@@ -60,7 +60,7 @@ export async function makeDepositIx(
   return mfProgram.methods
     .utpMangoDeposit(args.amount)
     .accounts({
-      marginGroup: accounts.marginfiGroupPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       marginAccount: accounts.marginAccountPk,
       signer: accounts.signerPk,
       marginCollateralVault: accounts.bankVaultPk,
@@ -102,7 +102,7 @@ export async function makeWithdrawIx(
   return mfProgram.methods
     .utpMangoWithdraw(args.amount)
     .accounts({
-      marginGroup: accounts.marginfiGroupPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       marginAccount: accounts.marginAccountPk,
       signer: accounts.signerPk,
       marginCollateralVault: accounts.bankVaultPk,
@@ -124,7 +124,7 @@ export async function makePlacePerpOrderIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginAccountPk: PublicKey;
-    marginGroupPk: PublicKey;
+    marginfiGroupPk: PublicKey;
     authorityPk: PublicKey;
     mangoAuthorityPk: PublicKey;
     mangoProgramId: PublicKey;
@@ -167,7 +167,7 @@ export async function makePlacePerpOrderIx(
     } as any)
     .accounts({
       marginAccount: accounts.marginAccountPk,
-      marginGroup: accounts.marginGroupPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       authority: accounts.authorityPk,
       mangoAuthority: accounts.mangoAuthorityPk,
       mangoProgram: accounts.mangoProgramId,

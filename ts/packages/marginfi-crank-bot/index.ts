@@ -14,16 +14,16 @@ import { Connection, PublicKey } from "@solana/web3.js";
 const marginFiPk = new PublicKey(process.env.MARGINFI_PROGRAM!);
 const connection = new Connection(process.env.RPC_ENDPOINT!);
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
-const marginGroupPk = new PublicKey(process.env.MARGIN_GROUP!);
+const marginfiGroupPk = new PublicKey(process.env.MARGINFI_GROUP!);
 
 (async function () {
   console.log("Running crank bot, use DEBUG=* to see logs");
   const debug = require("debug")("crank-bot");
   const config = await getConfig(Environment.DEVNET, connection, {
-    groupPk: marginGroupPk,
+    groupPk: marginfiGroupPk,
     programId: marginFiPk,
   });
-  debug("Running crank bot for group %s", marginGroupPk);
+  debug("Running crank bot for group %s", marginfiGroupPk);
   const marginClient = await MarginfiClient.get(config, wallet, connection);
   const round = async function () {
     try {
@@ -42,9 +42,9 @@ const marginGroupPk = new PublicKey(process.env.MARGIN_GROUP!);
 
 async function loadAllMarginAccounts(mfiClient: MarginfiClient) {
   const debug = require("debug")("crank-bot:loader");
-  debug("Loading margin accounts for group %s", marginGroupPk);
+  debug("Loading margin accounts for group %s", marginfiGroupPk);
 
-  const dis = { memcmp: { offset: 32 + 8, bytes: marginGroupPk.toBase58() } };
+  const dis = { memcmp: { offset: 32 + 8, bytes: marginfiGroupPk.toBase58() } };
   const rawMarignAccounts = await mfiClient.program.account.marginAccount.all([dis]);
 
   const marginAccounts = rawMarignAccounts.map((a) => {

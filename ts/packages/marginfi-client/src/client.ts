@@ -106,7 +106,7 @@ export class MarginfiClient {
         {
           memcmp: {
             bytes: this._group.publicKey.toBase58(),
-            offset: 8 + 32, // margin_group is the second field in the account after the authority, so offset by the discriminant and a pubkey
+            offset: 8 + 32, // marginfi_group is the second field in the account after the authority, so offset by the discriminant and a pubkey
           },
         },
       ])
@@ -150,7 +150,7 @@ export class MarginfiClient {
           {
             memcmp: {
               bytes: this._group.publicKey.toBase58(),
-              offset: 8 + 32, // margin_group is the second field in the account after the authority, so offset by the discriminant and a pubkey
+              offset: 8 + 32, // marginfi_group is the second field in the account after the authority, so offset by the discriminant and a pubkey
             },
           },
           {

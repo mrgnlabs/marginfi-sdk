@@ -422,7 +422,7 @@ export class UtpMangoAccount implements UtpAccount {
       this._program,
       {
         marginAccountPk: this._marginAccount.publicKey,
-        marginGroupPk: this._marginAccount.group.publicKey,
+        marginfiGroupPk: this._marginAccount.group.publicKey,
         authorityPk: this._program.provider.wallet.publicKey,
         mangoAuthorityPk,
         mangoProgramId: this._config.mango.programId,

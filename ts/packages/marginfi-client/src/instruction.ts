@@ -4,7 +4,7 @@ import { AccountMeta, PublicKey, SystemProgram } from "@solana/web3.js";
 import { MarginfiIdl } from "./idl";
 import { GroupConfig } from "./types";
 
-export async function makeInitMarginGroupIx(
+export async function makeInitMarginfiGroupIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
@@ -24,9 +24,9 @@ export async function makeInitMarginGroupIx(
   }
 ) {
   return mfProgram.methods
-    .initMarginGroup(args.bankAuthorityPdaBump, args.insuranceVaultAuthorityPdaBump, args.feeVaultAuthorityPdaBump)
+    .initMarginfiGroup(args.bankAuthorityPdaBump, args.insuranceVaultAuthorityPdaBump, args.feeVaultAuthorityPdaBump)
     .accounts({
-      marginGroup: accounts.marginfiGroupPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       admin: accounts.adminPk,
       collateralMint: accounts.mintPk,
       bankVault: accounts.bankVaultPk,
@@ -40,7 +40,7 @@ export async function makeInitMarginGroupIx(
     .instruction();
 }
 
-export async function makeConfigureMarginGroupIx(
+export async function makeConfigureMarginfiGroupIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
@@ -51,7 +51,7 @@ export async function makeConfigureMarginGroupIx(
   }
 ) {
   return mfProgram.methods
-    .configureMarginGroup({
+    .configureMarginfiGroup({
       admin: args.args.admin || null,
       bank: {
         scalingFactorC: args.args.bank?.scalingFactorC || null,
@@ -64,7 +64,7 @@ export async function makeConfigureMarginGroupIx(
       paused: args.args.paused || null,
     })
     .accounts({
-      marginGroup: accounts.marginfiGroupPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       admin: accounts.adminPk,
     })
     .instruction();
@@ -81,7 +81,7 @@ export async function makeInitMarginAccountIx(
   return mfProgram.methods
     .initMarginAccount()
     .accounts({
-      marginGroup: accounts.marginfiGroupPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       marginAccount: accounts.marginAccountPk,
       authority: accounts.authorityPk,
       systemProgram: SystemProgram.programId,
@@ -106,7 +106,7 @@ export async function makeDepositIx(
   return mfProgram.methods
     .marginDepositCollateral(args.amount)
     .accounts({
-      marginGroup: accounts.marginfiGroupPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       marginAccount: accounts.marginAccountPk,
       signer: accounts.authorityPk,
       fundingAccount: accounts.userTokenAtaPk,
@@ -135,7 +135,7 @@ export async function makeWithdrawIx(
   return mfProgram.methods
     .marginWithdrawCollateral(args.amount)
     .accounts({
-      marginGroup: accounts.marginfiGroupPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       marginAccount: accounts.marginAccountPk,
       signer: accounts.authorityPk,
       marginCollateralVault: accounts.bankVaultPk,
@@ -159,7 +159,7 @@ export async function makeUpdateInterestAccumulatorIx(
   return mfProgram.methods
     .updateInterestAccumulator()
     .accounts({
-      marginGroup: accounts.marginfiGroupPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       bankVault: accounts.bankVault,
       bankAuthority: accounts.bankAuthority,
       bankFeeVault: accounts.bankFeeVault,
@@ -194,7 +194,7 @@ export async function makeLiquidateIx(
   accounts: {
     marginAccountPk: PublicKey;
     marginAccountLiquidateePk: PublicKey;
-    marginGroupPk: PublicKey;
+    marginfiGroupPk: PublicKey;
     bankVault: PublicKey;
     bankAuthority: PublicKey;
     bankInsuranceVault: PublicKey;
@@ -210,7 +210,7 @@ export async function makeLiquidateIx(
     .accounts({
       marginAccount: accounts.marginAccountPk,
       marginAccountLiquidatee: accounts.marginAccountLiquidateePk,
-      marginGroup: accounts.marginGroupPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       bankVault: accounts.bankVault,
       bankAuthority: accounts.bankAuthority,
       bankInsuranceVault: accounts.bankInsuranceVault,
@@ -225,7 +225,7 @@ export async function makeHandleBankruptcyIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginAccountPk: PublicKey;
-    marginGroupPk: PublicKey;
+    marginfiGroupPk: PublicKey;
     insuranceVaultPk: PublicKey;
     insuranceVaultAuthorityPk: PublicKey;
     liquidityVaultPk: PublicKey;
@@ -236,7 +236,7 @@ export async function makeHandleBankruptcyIx(
     .handleBankruptcy()
     .accounts({
       marginAccount: accounts.marginAccountPk,
-      marginGroup: accounts.marginGroupPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       insuranceVault: accounts.insuranceVaultPk,
       insuranceVaultAuthority: accounts.insuranceVaultAuthorityPk,
       liquidityVault: accounts.liquidityVaultPk,
