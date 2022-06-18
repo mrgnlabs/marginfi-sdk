@@ -22,7 +22,7 @@ import {
 import { makeConfigureMarginfiGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
 import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/src/utp/mango/types";
 
-// const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGIN_ACCOUNT!);
+// const MARGINFI_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 const connection = new Connection(process.env.RPC_ENDPOINT!);
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 
@@ -61,14 +61,14 @@ const depositAmount = 100;
   await configureMarginReq(client, 0.075, 0.05);
 
   // Prepare user accounts
-  const marginAccount = await client.createMarginAccount();
-  await marginAccount.deposit(numberToQuote(depositAmount));
+  const marginfiAccount = await client.createMarginfiAccount();
+  await marginfiAccount.deposit(numberToQuote(depositAmount));
 
-  await marginAccount.mango.activate();
-  await marginAccount.mango.deposit(numberToQuote(depositAmount * 2));
+  await marginfiAccount.mango.activate();
+  await marginfiAccount.mango.deposit(numberToQuote(depositAmount * 2));
 
   // Open counterpart BTC LONG on Mango
-  const [mangoClient, mangoAccount] = await marginAccount.mango.getMangoClientAndAccount();
+  const [mangoClient, mangoAccount] = await marginfiAccount.mango.getMangoClientAndAccount();
   const mangoConfig = new MangoConfig(IDS);
   const groupConfig = mangoConfig.getGroup("devnet", "devnet.2");
   if (!groupConfig) throw Error('`No group config found for "devnet" - "devnet.2"');
@@ -94,7 +94,7 @@ const depositAmount = 100;
 
   console.log("Balance: %s, price: %s, amount %s", balance.toNumber(), price.toNumber(), baseAssetAmount.toNumber());
 
-  await marginAccount.mango.placePerpOrder(mangoBtcMarket, Side.Ask, price.toNumber(), baseAssetAmount.toNumber(), {
+  await marginfiAccount.mango.placePerpOrder(mangoBtcMarket, Side.Ask, price.toNumber(), baseAssetAmount.toNumber(), {
     orderType: PerpOrderType.Market,
   }); // TODO: probably wrong parameters to open symmetrical LONG
 

@@ -4,8 +4,8 @@ import {
   Environment,
   getConfig,
   loadKeypair,
-  MarginAccount,
-  MarginAccountData,
+  MarginfiAccount,
+  MarginfiAccountData,
   MarginfiClient,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
@@ -27,7 +27,7 @@ const marginfiGroupPk = new PublicKey(process.env.MARGINFI_GROUP!);
   const marginClient = await MarginfiClient.get(config, wallet, connection);
   const round = async function () {
     try {
-      await loadAllMarginAccounts(marginClient);
+      await loadAllMarginfiAccounts(marginClient);
     } catch (e) {
       debug("Bot crashed");
       debug(e);
@@ -40,22 +40,22 @@ const marginfiGroupPk = new PublicKey(process.env.MARGINFI_GROUP!);
   round();
 })();
 
-async function loadAllMarginAccounts(mfiClient: MarginfiClient) {
+async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
   const debug = require("debug")("crank-bot:loader");
-  debug("Loading margin accounts for group %s", marginfiGroupPk);
+  debug("Loading marginfi accounts for group %s", marginfiGroupPk);
 
   const dis = { memcmp: { offset: 32 + 8, bytes: marginfiGroupPk.toBase58() } };
-  const rawMarignAccounts = await mfiClient.program.account.marginAccount.all([dis]);
+  const rawMarignAccounts = await mfiClient.program.account.marginfiAccount.all([dis]);
 
-  const marginAccounts = rawMarignAccounts.map((a) => {
-    let data: MarginAccountData = a.account as any;
-    return MarginAccount.fromAccountData(a.publicKey, mfiClient, data, mfiClient.group);
+  const marginfiAccounts = rawMarignAccounts.map((a) => {
+    let data: MarginfiAccountData = a.account as any;
+    return MarginfiAccount.fromAccountData(a.publicKey, mfiClient, data, mfiClient.group);
   });
 
-  debug("Loaded %d margin accounts", marginAccounts.length);
+  debug("Loaded %d marginfi accounts", marginfiAccounts.length);
 
-  for (let marginAccount of marginAccounts) {
-    await marginAccount.checkRebalance();
-    await marginAccount.checkBankruptcy();
+  for (let marginfiAccount of marginfiAccounts) {
+    await marginfiAccount.checkRebalance();
+    await marginfiAccount.checkBankruptcy();
   }
 }

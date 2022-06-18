@@ -3,7 +3,7 @@ import {
   getConfig,
   getMfiProgram,
   loadKeypair,
-  MarginAccount,
+  MarginfiAccount,
   MarginfiClient,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
@@ -25,7 +25,7 @@ export async function depositMango(accountPk: string, amount: number, options: O
     programId: program.programId,
   });
   const client = await MarginfiClient.get(config, wallet, connection);
-  const account = await MarginAccount.get(new PublicKey(accountPk), client);
+  const account = await MarginfiAccount.get(new PublicKey(accountPk), client);
 
   const sig = await account.mango.deposit(new BN(amount * 10 ** 6));
   console.log("Mango deposit %s", sig);

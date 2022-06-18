@@ -3,7 +3,7 @@ import {
   getConfig,
   getMfiProgram,
   loadKeypair,
-  MarginAccount,
+  MarginfiAccount,
   MarginfiClient,
   MarginRequirementType,
   Wallet,
@@ -26,7 +26,7 @@ export async function getAccount(accountPk: string, options: OptionValues) {
       programId: program.programId,
     });
     const client = await MarginfiClient.get(config, wallet, connection);
-    const account = await MarginAccount.get(new PublicKey(accountPk), client);
+    const account = await MarginfiAccount.get(new PublicKey(accountPk), client);
 
     const balances = await account.getBalance();
     const [equity, assets, liabilities] = balances.map((n) => n.toNumber() / 1_000_000);
@@ -34,7 +34,7 @@ export async function getAccount(accountPk: string, options: OptionValues) {
     const observations = await account.localObserve();
 
     console.log(
-      "Margin Account %s\n\tBalance %s,\n\tAssets: %s,\n\tLiabilities: %s",
+      "Marginfi account %s\n\tBalance %s,\n\tAssets: %s,\n\tLiabilities: %s",
       accountPk,
       equity,
       assets,

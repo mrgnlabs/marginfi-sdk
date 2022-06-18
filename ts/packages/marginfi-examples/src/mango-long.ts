@@ -15,7 +15,7 @@ import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/src/utp/mango";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!);
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
-const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGIN_ACCOUNT!);
+const MARGINFI_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
 (async function () {
   const config = await getConfig(Environment.DEVNET, connection);
@@ -24,12 +24,12 @@ const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGIN_ACCOUNT!);
   const client = await MarginfiClient.get(config, wallet, connection);
 
   // Prepare user accounts
-  const marginAccount = await client.getMarginAccount(MARGIN_ACCOUNT_PK);
+  const marginfiAccount = await client.getMarginfiAccount(MARGINFI_ACCOUNT_PK);
 
-  marginAccount.mango.deposit(uiToNative(500));
+  marginfiAccount.mango.deposit(uiToNative(500));
 
   // Open counterpart BTC LONG on Mango
-  const [mangoClient, mangoAccount] = await marginAccount.mango.getMangoClientAndAccount();
+  const [mangoClient, mangoAccount] = await marginfiAccount.mango.getMangoClientAndAccount();
   const mangoConfig = new MangoConfig(IDS);
   const groupConfig = mangoConfig.getGroup("devnet", "devnet.2")!;
   const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "BTC", "perp");
@@ -50,7 +50,7 @@ const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGIN_ACCOUNT!);
 
   console.log("Balance %s, base asset amount %s, price %s", balance, baseAssetAmount, price);
 
-  await marginAccount.mango.placePerpOrder(mangoBtcMarket, Side.Bid, price.toNumber(), baseAssetAmount.toNumber(), {
+  await marginfiAccount.mango.placePerpOrder(mangoBtcMarket, Side.Bid, price.toNumber(), baseAssetAmount.toNumber(), {
     orderType: PerpOrderType.Market,
   });
 })();

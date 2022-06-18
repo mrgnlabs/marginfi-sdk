@@ -3,7 +3,7 @@ import {
   getConfig,
   getMfiProgram,
   loadKeypair,
-  MarginAccount,
+  MarginfiAccount,
   MarginfiClient,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
@@ -24,7 +24,7 @@ export async function activateZo(accountPk: string, options: OptionValues) {
     programId: program.programId,
   });
   const client = await MarginfiClient.get(config, wallet, connection);
-  const account = await MarginAccount.get(new PublicKey(accountPk), client);
+  const account = await MarginfiAccount.get(new PublicKey(accountPk), client);
 
   const sig = await account.zo.activate();
   console.log("01 account activated %s", sig);

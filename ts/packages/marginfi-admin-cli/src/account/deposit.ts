@@ -3,7 +3,7 @@ import {
   getConfig,
   getMfiProgram,
   loadKeypair,
-  MarginAccount,
+  MarginfiAccount,
   MarginfiClient,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
@@ -23,14 +23,14 @@ export async function deposit(address: string, amount: number) {
 
   const connection = program.provider.connection;
 
-  const accountData = await program.account.marginAccount.fetch(accountPk);
+  const accountData = await program.account.marginfiAccount.fetch(accountPk);
   const groupPk = accountData.marginfiGroup;
   const config = await getConfig(Environment.DEVNET, connection, {
     groupPk,
     programId: program.programId,
   });
   const client = await MarginfiClient.get(config, wallet, connection);
-  const account = await MarginAccount.get(accountPk, client);
+  const account = await MarginfiAccount.get(accountPk, client);
 
   let sig = await account.deposit(new BN(amount));
   console.log("Sig %s", sig);

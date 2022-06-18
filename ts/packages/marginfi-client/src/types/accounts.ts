@@ -4,7 +4,7 @@ import { BankData, MDecimalRaw, UTPAccountConfig } from ".";
 
 export enum AccountType {
   MarginfiGroup = "marginfiGroup",
-  MarginAccount = "marginAccount",
+  MarginfiAccount = "marginfiAccount",
 }
 
 export interface MarginfiGroupData {
@@ -13,7 +13,7 @@ export interface MarginfiGroupData {
   reservedSpace: BN[];
 }
 
-export interface MarginAccountData {
+export interface MarginfiAccountData {
   authority: PublicKey;
   marginfiGroup: PublicKey;
   depositRecord: MDecimalRaw;

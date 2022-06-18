@@ -136,7 +136,7 @@ export type Marginfi = {
       ];
     },
     {
-      name: "initMarginAccount";
+      name: "initMarginfiAccount";
       accounts: [
         {
           name: "authority";
@@ -149,7 +149,7 @@ export type Marginfi = {
           isSigner: false;
         },
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: true;
           isSigner: false;
         },
@@ -206,7 +206,7 @@ export type Marginfi = {
       name: "marginDepositCollateral";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: true;
           isSigner: false;
         },
@@ -247,7 +247,7 @@ export type Marginfi = {
       name: "marginWithdrawCollateral";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: true;
           isSigner: false;
         },
@@ -293,7 +293,7 @@ export type Marginfi = {
       name: "liquidate";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: true;
           isSigner: false;
         },
@@ -308,7 +308,7 @@ export type Marginfi = {
           isSigner: true;
         },
         {
-          name: "marginAccountLiquidatee";
+          name: "marginfiAccountLiquidatee";
           isMut: true;
           isSigner: false;
         },
@@ -344,7 +344,7 @@ export type Marginfi = {
       name: "deactivateUtp";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: true;
           isSigner: false;
         },
@@ -365,7 +365,7 @@ export type Marginfi = {
       name: "handleBankruptcy";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: true;
           isSigner: false;
         },
@@ -432,7 +432,7 @@ export type Marginfi = {
       name: "utpMangoActivate";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: true;
           isSigner: false;
         },
@@ -487,7 +487,7 @@ export type Marginfi = {
       name: "utpMangoDeposit";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: true;
           isSigner: false;
         },
@@ -573,7 +573,7 @@ export type Marginfi = {
       name: "utpMangoWithdraw";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: true;
           isSigner: false;
         },
@@ -654,7 +654,7 @@ export type Marginfi = {
       name: "utpMangoUsePlacePerpOrder";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: false;
           isSigner: false;
         },
@@ -727,7 +727,7 @@ export type Marginfi = {
       name: "utpMangoUseCancelPerpOrder";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: false;
           isSigner: false;
         },
@@ -792,7 +792,7 @@ export type Marginfi = {
       name: "utpZoActivate";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: true;
           isSigner: false;
         },
@@ -861,7 +861,7 @@ export type Marginfi = {
       name: "utpZoDeposit";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: true;
           isSigner: false;
         },
@@ -952,7 +952,7 @@ export type Marginfi = {
       name: "utpZoWithdraw";
       accounts: [
         {
-          name: "marginAccount";
+          name: "marginfiAccount";
           isMut: true;
           isSigner: false;
         },
@@ -1031,7 +1031,7 @@ export type Marginfi = {
           name: "header";
           accounts: [
             {
-              name: "marginAccount";
+              name: "marginfiAccount";
               isMut: false;
               isSigner: false;
             },
@@ -1112,7 +1112,7 @@ export type Marginfi = {
           name: "header";
           accounts: [
             {
-              name: "marginAccount";
+              name: "marginfiAccount";
               isMut: false;
               isSigner: false;
             },
@@ -1220,7 +1220,7 @@ export type Marginfi = {
           name: "header";
           accounts: [
             {
-              name: "marginAccount";
+              name: "marginfiAccount";
               isMut: false;
               isSigner: false;
             },
@@ -1325,7 +1325,7 @@ export type Marginfi = {
           name: "header";
           accounts: [
             {
-              name: "marginAccount";
+              name: "marginfiAccount";
               isMut: false;
               isSigner: false;
             },
@@ -1397,7 +1397,7 @@ export type Marginfi = {
   ];
   accounts: [
     {
-      name: "marginAccount";
+      name: "marginfiAccount";
       type: {
         kind: "struct";
         fields: [
@@ -2081,12 +2081,12 @@ export type Marginfi = {
     {
       code: 6009;
       name: "AccountNotLiquidatable";
-      msg: "Margin account not liquidatable";
+      msg: "Marginfi account not liquidatable";
     },
     {
       code: 6010;
       name: "AccountNotBankrupt";
-      msg: "Margin account not bankrupt";
+      msg: "Marginfi account not bankrupt";
     },
     {
       code: 6011;
@@ -2284,7 +2284,7 @@ export const IDL: Marginfi = {
       ],
     },
     {
-      name: "initMarginAccount",
+      name: "initMarginfiAccount",
       accounts: [
         {
           name: "authority",
@@ -2297,7 +2297,7 @@ export const IDL: Marginfi = {
           isSigner: false,
         },
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: true,
           isSigner: false,
         },
@@ -2354,7 +2354,7 @@ export const IDL: Marginfi = {
       name: "marginDepositCollateral",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: true,
           isSigner: false,
         },
@@ -2395,7 +2395,7 @@ export const IDL: Marginfi = {
       name: "marginWithdrawCollateral",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: true,
           isSigner: false,
         },
@@ -2441,7 +2441,7 @@ export const IDL: Marginfi = {
       name: "liquidate",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: true,
           isSigner: false,
         },
@@ -2456,7 +2456,7 @@ export const IDL: Marginfi = {
           isSigner: true,
         },
         {
-          name: "marginAccountLiquidatee",
+          name: "marginfiAccountLiquidatee",
           isMut: true,
           isSigner: false,
         },
@@ -2492,7 +2492,7 @@ export const IDL: Marginfi = {
       name: "deactivateUtp",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: true,
           isSigner: false,
         },
@@ -2513,7 +2513,7 @@ export const IDL: Marginfi = {
       name: "handleBankruptcy",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: true,
           isSigner: false,
         },
@@ -2580,7 +2580,7 @@ export const IDL: Marginfi = {
       name: "utpMangoActivate",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: true,
           isSigner: false,
         },
@@ -2635,7 +2635,7 @@ export const IDL: Marginfi = {
       name: "utpMangoDeposit",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: true,
           isSigner: false,
         },
@@ -2721,7 +2721,7 @@ export const IDL: Marginfi = {
       name: "utpMangoWithdraw",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: true,
           isSigner: false,
         },
@@ -2802,7 +2802,7 @@ export const IDL: Marginfi = {
       name: "utpMangoUsePlacePerpOrder",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: false,
           isSigner: false,
         },
@@ -2875,7 +2875,7 @@ export const IDL: Marginfi = {
       name: "utpMangoUseCancelPerpOrder",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: false,
           isSigner: false,
         },
@@ -2940,7 +2940,7 @@ export const IDL: Marginfi = {
       name: "utpZoActivate",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: true,
           isSigner: false,
         },
@@ -3009,7 +3009,7 @@ export const IDL: Marginfi = {
       name: "utpZoDeposit",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: true,
           isSigner: false,
         },
@@ -3100,7 +3100,7 @@ export const IDL: Marginfi = {
       name: "utpZoWithdraw",
       accounts: [
         {
-          name: "marginAccount",
+          name: "marginfiAccount",
           isMut: true,
           isSigner: false,
         },
@@ -3179,7 +3179,7 @@ export const IDL: Marginfi = {
           name: "header",
           accounts: [
             {
-              name: "marginAccount",
+              name: "marginfiAccount",
               isMut: false,
               isSigner: false,
             },
@@ -3260,7 +3260,7 @@ export const IDL: Marginfi = {
           name: "header",
           accounts: [
             {
-              name: "marginAccount",
+              name: "marginfiAccount",
               isMut: false,
               isSigner: false,
             },
@@ -3368,7 +3368,7 @@ export const IDL: Marginfi = {
           name: "header",
           accounts: [
             {
-              name: "marginAccount",
+              name: "marginfiAccount",
               isMut: false,
               isSigner: false,
             },
@@ -3473,7 +3473,7 @@ export const IDL: Marginfi = {
           name: "header",
           accounts: [
             {
-              name: "marginAccount",
+              name: "marginfiAccount",
               isMut: false,
               isSigner: false,
             },
@@ -3545,7 +3545,7 @@ export const IDL: Marginfi = {
   ],
   accounts: [
     {
-      name: "marginAccount",
+      name: "marginfiAccount",
       type: {
         kind: "struct",
         fields: [
@@ -4229,12 +4229,12 @@ export const IDL: Marginfi = {
     {
       code: 6009,
       name: "AccountNotLiquidatable",
-      msg: "Margin account not liquidatable",
+      msg: "Marginfi account not liquidatable",
     },
     {
       code: 6010,
       name: "AccountNotBankrupt",
-      msg: "Margin account not bankrupt",
+      msg: "Marginfi account not bankrupt",
     },
     {
       code: 6011,

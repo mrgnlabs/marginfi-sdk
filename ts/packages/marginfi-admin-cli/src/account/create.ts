@@ -17,6 +17,6 @@ export async function createAccount(options: OptionValues) {
   });
   const client = await MarginfiClient.get(config, wallet, connection);
 
-  const account = await client.createMarginAccount();
-  console.log("Margin account address %s", account.publicKey);
+  const account = await client.createMarginfiAccount();
+  console.log("Marginfi account address %s", account.publicKey);
 }
