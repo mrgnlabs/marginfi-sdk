@@ -1,15 +1,11 @@
 require("dotenv").config();
 
-import { Environment, getConfig, loadKeypair, MarginfiClient, Wallet } from "@mrgnlabs/marginfi-client";
-import { Connection } from "@solana/web3.js";
-
-const wallet = new Wallet(loadKeypair(process.env.WALLET!));
-const connection = new Connection(process.env.RPC_ENDPOINT!);
+import { getClientFromEnv } from "@mrgnlabs/marginfi-client";
 
 (async function () {
   const debug = require("debug")("interest-rate-accumulator-bot");
-  const config = await getConfig(Environment.DEVNET, connection);
-  const client = await MarginfiClient.get(config, wallet, connection);
+  const client = await getClientFromEnv();
+  const config = client.config;
   const group = client.group;
 
   console.log("Starting bot for group %s, on %s", group.publicKey, config.environment);

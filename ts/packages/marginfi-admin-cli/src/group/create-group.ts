@@ -1,26 +1,22 @@
 import {
   BankVaultType,
   getBankAuthority,
-  getMfiProgram,
-  loadKeypair,
   processTransaction,
-  Wallet,
+  instruction
 } from "@mrgnlabs/marginfi-client";
-import { makeInitMarginfiGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Command } from "commander";
-
-const program = getMfiProgram(
-  new PublicKey(process.env.MARGINFI_PROGRAM!),
-  new Connection(process.env.RPC_ENDPOINT!),
-  new Wallet(loadKeypair(process.env.WALLET!))
-);
-
-const wallet = program.provider.wallet;
-const connection = program.provider.connection;
+import { getEnvClient } from "../common";
 
 export async function createGroup(_string: string, command: Command) {
+
+  const client = await getEnvClient();
+  const program = client.program;
+  const wallet = program.provider.wallet;
+  const connection = program.provider.connection;
+
+
   const options = command.opts();
   const mintPk = new PublicKey(options.collateral);
 
@@ -30,7 +26,7 @@ export async function createGroup(_string: string, command: Command) {
 
   const createMarginfiGroupAccountIx = await program.account.marginfiGroup.createInstruction(mfiGroupKey);
 
-  const [bankVaultKey, bankVaultInstructions] = await createVaultAccountInstructions(mintPk, bankVaultAuthority);
+  const [bankVaultKey, bankVaultInstructions] = await createVaultAccountInstructions(mintPk, bankVaultAuthority, wallet.publicKey, connection);
 
   const [insuranceVaultAuthority, insuranceVaultAuthorityPdaBump] = await getBankAuthority(
     mfiGroupKey.publicKey,
@@ -40,7 +36,8 @@ export async function createGroup(_string: string, command: Command) {
 
   const [insuranceVaultKey, insuranceVaultInstructions] = await createVaultAccountInstructions(
     mintPk,
-    insuranceVaultAuthority
+    insuranceVaultAuthority,
+wallet.publicKey, connection
   );
 
   const [feeVaultAuthority, feeVaultAuthorityPdaBump] = await getBankAuthority(
@@ -49,9 +46,9 @@ export async function createGroup(_string: string, command: Command) {
     BankVaultType.FeeVault
   );
 
-  const [feeVaultKey, feeVaultInstructions] = await createVaultAccountInstructions(mintPk, feeVaultAuthority);
+  const [feeVaultKey, feeVaultInstructions] = await createVaultAccountInstructions(mintPk, feeVaultAuthority,wallet.publicKey, connection );
 
-  const createMarginfiGroupIx = await makeInitMarginfiGroupIx(
+  const createMarginfiGroupIx = await instruction.makeInitMarginfiGroupIx(
     program,
     {
       marginfiGroupPk: mfiGroupKey.publicKey,
@@ -93,11 +90,13 @@ export async function createGroup(_string: string, command: Command) {
 
 async function createVaultAccountInstructions(
   mintPk: PublicKey,
-  owner: PublicKey
+  owner: PublicKey,
+  payerPk: PublicKey,
+  connection: Connection,
 ): Promise<[Keypair, TransactionInstruction[]]> {
   const vaultKeypair = Keypair.generate();
   const createVaultAccount = SystemProgram.createAccount({
-    fromPubkey: wallet.publicKey,
+    fromPubkey: payerPk,
     lamports: await connection.getMinimumBalanceForRentExemption(AccountLayout.span),
     newAccountPubkey: vaultKeypair.publicKey,
     programId: TOKEN_PROGRAM_ID,

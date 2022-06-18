@@ -1,16 +1,11 @@
-import { getMfiProgram, loadKeypair, Wallet } from "@mrgnlabs/marginfi-client";
-import { Connection, PublicKey } from "@solana/web3.js";
-import { parseDecimal } from "../common";
+import { getEnvClient, parseDecimal } from "../common";
 
 require("dotenv").config();
 
-const program = getMfiProgram(
-  new PublicKey(process.env.MARGINFI_PROGRAM!),
-  new Connection(process.env.RPC_ENDPOINT!),
-  new Wallet(loadKeypair(process.env.WALLET!))
-);
-
 export async function getGroup(address: string) {
+  const client = await getEnvClient();
+  const program = client.program;  
+
   const group = await program.account.marginfiGroup.fetch(address);
 
   console.log("Marginfi Group: %s", address);
