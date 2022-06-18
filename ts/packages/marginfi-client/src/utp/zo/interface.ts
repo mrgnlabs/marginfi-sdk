@@ -9,7 +9,7 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js";
 import { MarginfiClient } from "../../client";
-import { MarginAccount } from "../../marginAccount";
+import { MarginfiAccount } from "../../marginfiAccount";
 import { UtpObservation } from "../../state";
 import { UtpAccount, UTPAccountConfig, UtpData } from "../../types";
 import {
@@ -35,15 +35,15 @@ import { CONTROL_ACCOUNT_SIZE, OrderType } from "@zero_one/client";
 
 export class UtpZoAccount implements UtpAccount {
   private _client: MarginfiClient;
-  private _marginAccount: MarginAccount;
+  private _marginfiAccount: MarginfiAccount;
 
   private _isActive: boolean;
   private _utpConfig: UTPAccountConfig;
 
   /** @internal */
-  constructor(client: MarginfiClient, mfAccount: MarginAccount, accountData: UtpData) {
+  constructor(client: MarginfiClient, mfAccount: MarginfiAccount, accountData: UtpData) {
     this._client = client;
-    this._marginAccount = mfAccount;
+    this._marginfiAccount = mfAccount;
     this._isActive = accountData.isActive;
     this._utpConfig = accountData.accountConfig;
   }
@@ -107,8 +107,8 @@ export class UtpZoAccount implements UtpAccount {
     const activateZoIx = await makeActivateIx(
       this._program,
       {
-        marginGroup: this._config.groupPk,
-        marginAccount: this._marginAccount.publicKey,
+        marginfiGroup: this._config.groupPk,
+        marginfiAccount: this._marginfiAccount.publicKey,
         authority: this._program.provider.wallet.publicKey,
         utpAuthority: utpAuthorityPk,
         zoProgram: zoProgramId,
@@ -127,7 +127,7 @@ export class UtpZoAccount implements UtpAccount {
   }
 
   async activate(): Promise<string> {
-    const debug = require("debug")(`mfi:margin-account:${this._marginAccount.publicKey}:utp:zo:activate`);
+    const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:activate`);
     debug("Activate 01 UTP");
 
     const provider = this._program.provider;
@@ -152,7 +152,7 @@ export class UtpZoAccount implements UtpAccount {
 
     debug("Sig %s", sig);
 
-    await this._marginAccount.reload(); // Required to update the internal UTP address
+    await this._marginfiAccount.reload(); // Required to update the internal UTP address
     return sig;
   }
 
@@ -162,7 +162,7 @@ export class UtpZoAccount implements UtpAccount {
    * @returns `DeactivateUtp` transaction instruction
    */
   async makeDeactivateIx() {
-    return this._marginAccount.makeDeactivateUtpIx(new BN(this.index));
+    return this._marginfiAccount.makeDeactivateUtpIx(new BN(this.index));
   }
 
   /**
@@ -175,9 +175,9 @@ export class UtpZoAccount implements UtpAccount {
     this.verifyActive();
     debug("Deactivating 01 UTP");
 
-    const sig = await this._marginAccount.deactivateUtp(new BN(this.index));
+    const sig = await this._marginfiAccount.deactivateUtp(new BN(this.index));
 
-    await this._marginAccount.reload();
+    await this._marginfiAccount.reload();
     return sig;
   }
 
@@ -197,13 +197,13 @@ export class UtpZoAccount implements UtpAccount {
       this.config.statePk
     );
     const [zoVaultPk] = await zoState.getVaultCollateralByMint(this._client.group.bank.mint);
-    const remainingAccounts = await this._marginAccount.getObservationAccounts();
+    const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     return makeDepositIx(
       this._program,
       {
-        marginGroup: this._config.groupPk,
-        marginAccount: this._marginAccount.publicKey,
+        marginfiGroup: this._config.groupPk,
+        marginfiAccount: this._marginfiAccount.publicKey,
         signer: this._program.provider.wallet.publicKey,
         marginCollateralVault: this._client.group.bank.vault,
         bankAuthority: bankAuthority,
@@ -222,7 +222,7 @@ export class UtpZoAccount implements UtpAccount {
   }
 
   async deposit(amount: BN): Promise<string> {
-    const debug = require("debug")(`mfi:margin-account:${this._marginAccount.publicKey}:utp:zo:deposit`);
+    const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:deposit`);
     debug("Depositing %s into 01", amount);
 
     const [utpAuthority] = await getUtpAuthority(
@@ -254,13 +254,13 @@ export class UtpZoAccount implements UtpAccount {
     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
     const [zoVaultPk] = await zoState.getVaultCollateralByMint(this._client.group.bank.mint);
     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, zoState.cache, utpAuthority);
-    const remainingAccounts = await this._marginAccount.getObservationAccounts();
+    const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     return makeWithdrawIx(
       this._program,
       {
-        marginAccount: this._marginAccount.publicKey,
-        marginGroup: this._client.group.publicKey,
+        marginfiAccount: this._marginfiAccount.publicKey,
+        marginfiGroup: this._client.group.publicKey,
         signer: this._program.provider.wallet.publicKey,
         marginCollateralVault: this._client.group.bank.vault,
         utpAuthority: utpAuthority,
@@ -278,7 +278,7 @@ export class UtpZoAccount implements UtpAccount {
   }
 
   async withdraw(amount: BN): Promise<string> {
-    const debug = require("debug")(`mfi:margin-account:${this._marginAccount.publicKey}:utp:zo:withdraw`);
+    const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:withdraw`);
     debug("Withdrawing %s from 01", amount);
 
     const withdrawIx = await this.makeWithdrawIx(amount);
@@ -308,8 +308,8 @@ export class UtpZoAccount implements UtpAccount {
     const [openOrdersPk] = await zoMargin.getOpenOrdersKeyBySymbol(marketSymbol, this.config.cluster);
 
     return makeCreatePerpOpenOrdersIx(this._program, {
-      marginAccount: this._marginAccount.publicKey,
-      marginGroup: this._client.group.publicKey,
+      marginfiAccount: this._marginfiAccount.publicKey,
+      marginfiGroup: this._client.group.publicKey,
       utpAuthority,
       signer: this._client.program.provider.wallet.publicKey,
       zoProgram: this.config.programId,
@@ -325,7 +325,7 @@ export class UtpZoAccount implements UtpAccount {
 
   async createPerpOpenOrders(symbol: string): Promise<string> {
     const debug = require("debug")(
-      `mfi:margin-account:${this._marginAccount.publicKey}:utp:zo:create-perp-open-orders`
+      `mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:create-perp-open-orders`
     );
     debug("Creating perp open orders account on 01");
 
@@ -379,7 +379,7 @@ export class UtpZoAccount implements UtpAccount {
     const maxQuoteQtyBn = new BN(
       Math.round(limitPriceBn.mul(maxBaseQtyBn).mul(market.decoded["quoteLotSize"]).toNumber() * feeMultiplier)
     );
-    const remainingAccounts = await this._marginAccount.getObservationAccounts();
+    const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     const args = {
       isLong,
@@ -394,8 +394,8 @@ export class UtpZoAccount implements UtpAccount {
     return makePlacePerpOrderIx(
       this._client.program,
       {
-        marginAccount: this._marginAccount.publicKey,
-        marginGroup: this._client.group.publicKey,
+        marginfiAccount: this._marginfiAccount.publicKey,
+        marginfiGroup: this._client.group.publicKey,
         utpAuthority: utpAuthority,
         signer: this._program.provider.wallet.publicKey,
         zoProgram: zoProgram.programId,
@@ -428,7 +428,7 @@ export class UtpZoAccount implements UtpAccount {
       clientId?: BN;
     }>
   ): Promise<string> {
-    const debug = require("debug")(`mfi:margin-account:${this._marginAccount.publicKey}:utp:zo:place-perp-order`);
+    const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:place-perp-order`);
     debug("Placing perp order on 01");
     debug("%s", args);
 
@@ -466,8 +466,8 @@ export class UtpZoAccount implements UtpAccount {
     return makeCancelPerpOrderIx(
       this._client.program,
       {
-        marginAccount: this._marginAccount.publicKey,
-        marginGroup: this._client.group.publicKey,
+        marginfiAccount: this._marginfiAccount.publicKey,
+        marginfiGroup: this._client.group.publicKey,
         utpAuthority: utpAuthority,
         signer: this._program.provider.wallet.publicKey,
         zoProgram: zoProgram.programId,
@@ -491,7 +491,7 @@ export class UtpZoAccount implements UtpAccount {
   }
 
   async cancelPerpOrder(args: { symbol: string; isLong?: boolean; orderId?: BN; clientId?: BN }): Promise<string> {
-    const debug = require("debug")(`mfi:margin-account:${this._marginAccount.publicKey}:utp:zo:cancel-perp-order`);
+    const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:cancel-perp-order`);
     debug("Cancelling perp order on 01");
 
     const ix = await this.makeCancelPerpOrderIx(args);
@@ -516,8 +516,8 @@ export class UtpZoAccount implements UtpAccount {
     const [openOrdersPk] = await zoMargin.getOpenOrdersKeyBySymbol(symbol, this.config.cluster);
 
     return makeSettleFundsIx(this._client.program, {
-      marginAccount: this._marginAccount.publicKey,
-      marginGroup: this._client.group.publicKey,
+      marginfiAccount: this._marginfiAccount.publicKey,
+      marginfiGroup: this._client.group.publicKey,
       utpAuthority: utpAuthority,
       signer: this._program.provider.wallet.publicKey,
       zoProgram: zoProgram.programId,

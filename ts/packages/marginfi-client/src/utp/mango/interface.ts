@@ -4,7 +4,7 @@ import { BN } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { MarginfiClient } from "../..";
-import { MarginAccount } from "../../marginAccount";
+import { MarginfiAccount } from "../../marginfiAccount";
 import { UtpObservation } from "../../state";
 import { UtpAccount, UTPAccountConfig, UtpData } from "../../types";
 import { getBankAuthority, getUtpAuthority, processTransaction } from "../../utils";
@@ -22,16 +22,16 @@ import { ExpiryType, PerpOrderType, Side, UtpMangoPlacePerpOrderOptions } from "
  */
 export class UtpMangoAccount implements UtpAccount {
   private _client: MarginfiClient;
-  private _marginAccount: MarginAccount;
+  private _marginfiAccount: MarginfiAccount;
 
   private _isActive: boolean;
   private _utpConfig: UTPAccountConfig;
 
   /** @internal */
-  constructor(client: MarginfiClient, mfAccount: MarginAccount, accountData: UtpData) {
+  constructor(client: MarginfiClient, mfAccount: MarginfiAccount, accountData: UtpData) {
     this._client = client;
 
-    this._marginAccount = mfAccount;
+    this._marginfiAccount = mfAccount;
 
     this._isActive = accountData.isActive;
     this._utpConfig = accountData.accountConfig;
@@ -106,7 +106,7 @@ export class UtpMangoAccount implements UtpAccount {
       this._program,
       {
         marginfiGroupPk: this._config.groupPk,
-        marginAccountPk: this._marginAccount.publicKey,
+        marginfiAccountPk: this._marginfiAccount.publicKey,
         mangoProgramId: this._config.mango.programId,
         mangoGroupPk: this._config.mango.group.publicKey,
         mangoAccountPk,
@@ -126,14 +126,14 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns Transaction signature
    */
   async activate(/* accountNumber: BN = new BN(0) */) {
-    const debug = require("debug")(`mfi:margin-account:${this._marginAccount.publicKey}:utp:mango:activate`);
+    const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:mango:activate`);
     debug("Activate Mango UTP");
     const activateIx = await this.makeActivateIx();
 
     const tx = new Transaction().add(activateIx);
     const sig = await processTransaction(this._program.provider, tx);
 
-    await this._marginAccount.reload(); // Required to update the internal UTP address
+    await this._marginfiAccount.reload(); // Required to update the internal UTP address
     return sig;
   }
 
@@ -143,7 +143,7 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns `DeactivateUtp` transaction instruction
    */
   async makeDeactivateIx() {
-    return this._marginAccount.makeDeactivateUtpIx(new BN(this.index));
+    return this._marginfiAccount.makeDeactivateUtpIx(new BN(this.index));
   }
 
   /**
@@ -156,9 +156,9 @@ export class UtpMangoAccount implements UtpAccount {
     this.verifyActive();
     debug("Deactivating Mango UTP");
 
-    const sig = await this._marginAccount.deactivateUtp(new BN(this.index));
+    const sig = await this._marginfiAccount.deactivateUtp(new BN(this.index));
 
-    await this._marginAccount.reload();
+    await this._marginfiAccount.reload();
     return sig;
   }
 
@@ -182,15 +182,15 @@ export class UtpMangoAccount implements UtpAccount {
     const rootBankPk = this._config.mango.group.tokens[collateralMintIndex].rootBank;
     const nodeBankPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].publicKey;
     const vaultPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].vault;
-    const remainingAccounts = await this._marginAccount.getObservationAccounts();
+    const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     return makeDepositIx(
       this._program,
       {
         marginfiGroupPk: this._config.groupPk,
-        marginAccountPk: this._marginAccount.publicKey,
+        marginfiAccountPk: this._marginfiAccount.publicKey,
         signerPk: this._program.provider.wallet.publicKey,
-        bankVaultPk: this._marginAccount.group.bank.vault,
+        bankVaultPk: this._marginfiAccount.group.bank.vault,
         bankAuthorityPk: marginBankAuthorityPk,
         proxyTokenAccountPk,
         mangoRootBankPk: rootBankPk,
@@ -235,7 +235,7 @@ export class UtpMangoAccount implements UtpAccount {
     });
     const initProxyTokenAccountIx = Token.createInitAccountInstruction(
       TOKEN_PROGRAM_ID,
-      this._marginAccount.group.bank.mint,
+      this._marginfiAccount.group.bank.mint,
       proxyTokenAccountKey.publicKey,
       mangoAuthorityPk
     );
@@ -267,15 +267,15 @@ export class UtpMangoAccount implements UtpAccount {
     const rootBankPk = this._config.mango.group.tokens[collateralMintIndex].rootBank;
     const nodeBankPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].publicKey;
     const vaultPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].vault;
-    const remainingAccounts = await this._marginAccount.getObservationAccounts();
+    const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     return makeDepositIx(
       this._program,
       {
         marginfiGroupPk: this._config.groupPk,
-        marginAccountPk: this._marginAccount.publicKey,
+        marginfiAccountPk: this._marginfiAccount.publicKey,
         signerPk: this._program.provider.wallet.publicKey,
-        bankVaultPk: this._marginAccount.group.bank.vault,
+        bankVaultPk: this._marginfiAccount.group.bank.vault,
         bankAuthorityPk: marginBankAuthorityPk,
         proxyTokenAccountPk,
         mangoRootBankPk: rootBankPk,
@@ -293,7 +293,7 @@ export class UtpMangoAccount implements UtpAccount {
   }
 
   /**
-   * Create transaction instruction to withdraw from the Mango account to the margin account.
+   * Create transaction instruction to withdraw from the Mango account to the marginfi account.
    *
    * @param amount Amount to deposit (mint native unit)
    * @returns `MangoWithdrawCollateral` transaction instruction
@@ -315,9 +315,9 @@ export class UtpMangoAccount implements UtpAccount {
       this._program,
       {
         marginfiGroupPk: this._config.groupPk,
-        marginAccountPk: this._marginAccount.publicKey,
+        marginfiAccountPk: this._marginfiAccount.publicKey,
         signerPk: this._program.provider.wallet.publicKey,
-        bankVaultPk: this._marginAccount.group.bank.vault,
+        bankVaultPk: this._marginfiAccount.group.bank.vault,
         mangoRootBankPk: rootBankPk,
         mangoNodeBankPk: nodeBankPk,
         mangoVaultPk: vaultPk,
@@ -333,7 +333,7 @@ export class UtpMangoAccount implements UtpAccount {
   }
 
   /**
-   * Withdraw from the Mango account to the margin account.
+   * Withdraw from the Mango account to the marginfi account.
    *
    * @param amount Amount to deposit (mint native unit)
    * @returns Transaction signature
@@ -403,7 +403,7 @@ export class UtpMangoAccount implements UtpAccount {
       this._utpConfig.authoritySeed,
       this._program.programId
     );
-    const remainingAccounts = await this._marginAccount.getObservationAccounts();
+    const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     const args = {
       side,
@@ -421,8 +421,8 @@ export class UtpMangoAccount implements UtpAccount {
     return makePlacePerpOrderIx(
       this._program,
       {
-        marginAccountPk: this._marginAccount.publicKey,
-        marginGroupPk: this._marginAccount.group.publicKey,
+        marginfiAccountPk: this._marginfiAccount.publicKey,
+        marginfiGroupPk: this._marginfiAccount.group.publicKey,
         authorityPk: this._program.provider.wallet.publicKey,
         mangoAuthorityPk,
         mangoProgramId: this._config.mango.programId,
@@ -487,7 +487,7 @@ export class UtpMangoAccount implements UtpAccount {
     return makeCancelPerpOrderIx(
       this._program,
       {
-        marginAccountPk: this._marginAccount.publicKey,
+        marginfiAccountPk: this._marginfiAccount.publicKey,
         authorityPk: this._program.provider.wallet.publicKey,
         mangoAuthorityPk,
         mangoProgramId: this._config.mango.programId,

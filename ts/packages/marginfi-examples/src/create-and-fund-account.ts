@@ -18,16 +18,16 @@ const wallet = new Wallet(loadKeypair(process.env.WALLET!));
   // Prepare user accounts
   const collateral = new Token(connection, config.collateralMintPk, TOKEN_PROGRAM_ID, wallet.payer);
   const ataAi = await collateral.getOrCreateAssociatedAccountInfo(wallet.publicKey);
-  // Create margin account
-  const marginAccount = await client.createMarginAccount();
+  // Create marginfi account
+  const marginfiAccount = await client.createMarginfiAccount();
   await airdropCollateral(client.program.provider, depositAmount.toNumber(), config.collateralMintPk, ataAi.address);
 
-  console.log("Margin account created: %s", marginAccount.publicKey);
+  console.log("Marginfi account created: %s", marginfiAccount.publicKey);
 
-  // Fund margin account
-  await marginAccount.deposit(depositAmount);
+  // Fund marginfi account
+  await marginfiAccount.deposit(depositAmount);
 
   // Activate Mango and 01 UTPs
-  await marginAccount.mango.activate();
-  await marginAccount.zo.activate();
+  await marginfiAccount.mango.activate();
+  await marginfiAccount.zo.activate();
 })();

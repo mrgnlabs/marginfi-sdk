@@ -7,8 +7,8 @@ import { MarginfiIdl } from "../../idl";
 export async function makeActivateIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
-    marginAccount: PublicKey;
-    marginGroup: PublicKey;
+    marginfiAccount: PublicKey;
+    marginfiGroup: PublicKey;
     authority: PublicKey;
     utpAuthority: PublicKey;
     zoProgram: PublicKey;
@@ -25,8 +25,8 @@ export async function makeActivateIx(
   return mfProgram.methods
     .utpZoActivate(args.authoritySeed, args.authorityBump, args.zoMarginNonce)
     .accounts({
-      marginAccount: accounts.marginAccount,
-      marginGroup: accounts.marginGroup,
+      marginfiAccount: accounts.marginfiAccount,
+      marginfiGroup: accounts.marginfiGroup,
       authority: accounts.authority,
       utpAuthority: accounts.utpAuthority,
       zoProgram: accounts.zoProgram,
@@ -42,8 +42,8 @@ export async function makeActivateIx(
 export async function makeDepositIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
-    marginAccount: PublicKey;
-    marginGroup: PublicKey;
+    marginfiAccount: PublicKey;
+    marginfiGroup: PublicKey;
     signer: PublicKey;
     marginCollateralVault: PublicKey;
     bankAuthority: PublicKey;
@@ -64,8 +64,8 @@ export async function makeDepositIx(
   return mfProgram.methods
     .utpZoDeposit(args.amount)
     .accounts({
-      marginAccount: accounts.marginAccount,
-      marginGroup: accounts.marginGroup,
+      marginfiAccount: accounts.marginfiAccount,
+      marginfiGroup: accounts.marginfiGroup,
       signer: accounts.signer,
       marginCollateralVault: accounts.marginCollateralVault,
       bankAuthority: accounts.bankAuthority,
@@ -88,8 +88,8 @@ export async function makeDepositIx(
 export async function makeWithdrawIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
-    marginAccount: PublicKey;
-    marginGroup: PublicKey;
+    marginfiAccount: PublicKey;
+    marginfiGroup: PublicKey;
     signer: PublicKey;
     marginCollateralVault: PublicKey;
     utpAuthority: PublicKey;
@@ -109,8 +109,8 @@ export async function makeWithdrawIx(
   return mfProgram.methods
     .utpZoWithdraw(args.amount)
     .accounts({
-      marginAccount: accounts.marginAccount,
-      marginGroup: accounts.marginGroup,
+      marginfiAccount: accounts.marginfiAccount,
+      marginfiGroup: accounts.marginfiGroup,
       signer: accounts.signer,
       marginCollateralVault: accounts.marginCollateralVault,
       utpAuthority: accounts.utpAuthority,
@@ -130,8 +130,8 @@ export async function makeWithdrawIx(
 export async function makeCreatePerpOpenOrdersIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
-    marginAccount: PublicKey;
-    marginGroup: PublicKey;
+    marginfiAccount: PublicKey;
+    marginfiGroup: PublicKey;
     utpAuthority: PublicKey;
     signer: PublicKey;
     zoProgram: PublicKey;
@@ -148,8 +148,8 @@ export async function makeCreatePerpOpenOrdersIx(
     .utpZoCreatePerpOpenOrders()
     .accounts({
       header: {
-        marginAccount: accounts.marginAccount,
-        marginGroup: accounts.marginGroup,
+        marginfiAccount: accounts.marginfiAccount,
+        marginfiGroup: accounts.marginfiGroup,
         utpAuthority: accounts.utpAuthority,
         signer: accounts.signer,
       },
@@ -170,8 +170,8 @@ export async function makeCreatePerpOpenOrdersIx(
 export async function makePlacePerpOrderIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
-    marginAccount: PublicKey;
-    marginGroup: PublicKey;
+    marginfiAccount: PublicKey;
+    marginfiGroup: PublicKey;
     utpAuthority: PublicKey;
     signer: PublicKey;
     zoProgram: PublicKey;
@@ -205,8 +205,8 @@ export async function makePlacePerpOrderIx(
     .utpZoPlacePerpOrder(args.args as any)
     .accounts({
       header: {
-        marginAccount: accounts.marginAccount,
-        marginGroup: accounts.marginGroup,
+        marginfiAccount: accounts.marginfiAccount,
+        marginfiGroup: accounts.marginfiGroup,
         utpAuthority: accounts.utpAuthority,
         signer: accounts.signer,
       },
@@ -232,8 +232,8 @@ export async function makePlacePerpOrderIx(
 export async function makeCancelPerpOrderIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
-    marginAccount: PublicKey;
-    marginGroup: PublicKey;
+    marginfiAccount: PublicKey;
+    marginfiGroup: PublicKey;
     utpAuthority: PublicKey;
     signer: PublicKey;
     zoProgram: PublicKey;
@@ -258,8 +258,8 @@ export async function makeCancelPerpOrderIx(
     .utpZoCancelPerpOrder(args.orderId || null, args.isLong || null, args.clientId || null)
     .accounts({
       header: {
-        marginAccount: accounts.marginAccount,
-        marginGroup: accounts.marginGroup,
+        marginfiAccount: accounts.marginfiAccount,
+        marginfiGroup: accounts.marginfiGroup,
         utpAuthority: accounts.utpAuthority,
         signer: accounts.signer,
       },
@@ -281,8 +281,8 @@ export async function makeCancelPerpOrderIx(
 export async function makeSettleFundsIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
-    marginAccount: PublicKey;
-    marginGroup: PublicKey;
+    marginfiAccount: PublicKey;
+    marginfiGroup: PublicKey;
     utpAuthority: PublicKey;
     signer: PublicKey;
     zoProgram: PublicKey;
@@ -300,8 +300,8 @@ export async function makeSettleFundsIx(
     .utpZoSettleFunds()
     .accounts({
       header: {
-        marginAccount: accounts.marginAccount,
-        marginGroup: accounts.marginGroup,
+        marginfiAccount: accounts.marginfiAccount,
+        marginfiGroup: accounts.marginfiGroup,
         utpAuthority: accounts.utpAuthority,
         signer: accounts.signer,
       },

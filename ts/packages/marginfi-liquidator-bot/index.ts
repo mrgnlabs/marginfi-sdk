@@ -5,8 +5,8 @@ import {
   Environment,
   getConfig,
   loadKeypair,
-  MarginAccount,
-  MarginAccountData,
+  MarginfiAccount,
+  MarginfiAccountData,
   MarginfiClient,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
@@ -18,47 +18,47 @@ import debugBuilder from "debug";
 const marginFiPk = new PublicKey(process.env.MARGINFI_PROGRAM!);
 const connection = new Connection(process.env.RPC_ENDPOINT!);
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
-const marginGroupPk = new PublicKey(process.env.MARGIN_GROUP!);
-const marginAccountPk = new PublicKey(process.env.MARGIN_ACCOUNT!);
+const marginfiGroupPk = new PublicKey(process.env.MARGINFI_GROUP!);
+const marginfiAccountPk = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
 (async function () {
   const debug = debugBuilder("liquidator");
 
-  debug("Starting liquidator for group %s", marginGroupPk);
+  debug("Starting liquidator for group %s", marginfiGroupPk);
   const config = await getConfig(Environment.DEVNET, connection, {
-    groupPk: marginGroupPk,
+    groupPk: marginfiGroupPk,
     programId: marginFiPk,
   });
   const marginClient = await MarginfiClient.get(config, wallet, connection);
-  const marginAccount = await MarginAccount.get(marginAccountPk, marginClient);
+  const marginfiAccount = await MarginfiAccount.get(marginfiAccountPk, marginClient);
 
   const round = async function () {
-    await checkForActiveUtps(marginAccount);
-    await processAccounts(marginClient, marginAccount);
+    await checkForActiveUtps(marginfiAccount);
+    await processAccounts(marginClient, marginfiAccount);
 
     setTimeout(round, Number.parseInt(process.env.TIMEOUT!));
   };
   round();
 })();
 
-async function checkForActiveUtps(marginAccount: MarginAccount) {
+async function checkForActiveUtps(marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:utps");
-  await marginAccount.reload();
-  if (marginAccount.activeUtps().length > 0) {
-    debug("Margin account has active UTPs, closing...");
-    await closeAllUTPs(marginAccount);
+  await marginfiAccount.reload();
+  if (marginfiAccount.activeUtps().length > 0) {
+    debug("Marginfi account has active UTPs, closing...");
+    await closeAllUTPs(marginfiAccount);
   }
 }
 
-async function processAccounts(client: MarginfiClient, marginAccount: MarginAccount) {
+async function processAccounts(client: MarginfiClient, marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:loop");
-  const accounts = await loadAllMarginAccounts(client);
+  const accounts = await loadAllMarginfiAccounts(client);
 
   for (let account of accounts) {
     debug("Checking account %s", account.publicKey);
     try {
       if (await account.canBeLiquidated()) {
-        await liquidate(account, marginAccount);
+        await liquidate(account, marginfiAccount);
       }
     } catch (e) {
       debug("Can't verify if account liquidatable");
@@ -66,13 +66,13 @@ async function processAccounts(client: MarginfiClient, marginAccount: MarginAcco
   }
 }
 
-async function liquidate(liquidateeMarginAccount: MarginAccount, liquidatorMarginAccount: MarginAccount) {
+async function liquidate(liquidateeMarginfiAccount: MarginfiAccount, liquidatorMarginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:liquidator");
 
-  debug("Liquidating account %s", liquidateeMarginAccount.publicKey);
+  debug("Liquidating account %s", liquidateeMarginfiAccount.publicKey);
 
-  const utpObservations = await liquidateeMarginAccount.localObserve();
-  const [balance] = await liquidatorMarginAccount.getBalance();
+  const utpObservations = await liquidateeMarginfiAccount.localObserve();
+  const [balance] = await liquidatorMarginfiAccount.getBalance();
   debug("Available balance %s", balance.toNumber() / 1_000_000);
 
   const utp = utpObservations
@@ -86,31 +86,31 @@ async function liquidate(liquidateeMarginAccount: MarginAccount, liquidatorMargi
 
   debug("Liquidating UTP %s", utp.utp_index);
 
-  await liquidatorMarginAccount.liquidate(liquidateeMarginAccount, utp.utp_index);
-  await closeAllUTPs(liquidatorMarginAccount);
+  await liquidatorMarginfiAccount.liquidate(liquidateeMarginfiAccount, utp.utp_index);
+  await closeAllUTPs(liquidatorMarginfiAccount);
 }
 
-async function closeAllUTPs(marginAccount: MarginAccount) {
+async function closeAllUTPs(marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:utp");
-  await marginAccount.reload();
+  await marginfiAccount.reload();
   debug("Closing all UTP accounts");
 
   // Close all UTP positions
-  if (marginAccount.mango.isActive) {
-    await closeMango(marginAccount);
+  if (marginfiAccount.mango.isActive) {
+    await closeMango(marginfiAccount);
   }
 
-  if (marginAccount.zo.isActive) {
-    await closeZo(marginAccount);
+  if (marginfiAccount.zo.isActive) {
+    await closeZo(marginfiAccount);
   }
   // Close the UTP account
 }
 
-async function closeZo(marginAccount: MarginAccount) {
+async function closeZo(marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:utp:zo");
   debug("Closing Zo Positions");
 
-  const [zoMargin, zoState] = await marginAccount.zo.getZoMarginAndState();
+  const [zoMargin, zoState] = await marginfiAccount.zo.getZoMarginAndState();
 
   /// Close open orders
   const marketSymbols = Object.keys(zoState.markets);
@@ -120,7 +120,7 @@ async function closeZo(marginAccount: MarginAccount) {
     let oo = await zoMargin.getOpenOrdersInfoBySymbol(sym, false);
     let empty = !oo || (oo.coinOnAsks.isZero() && oo.coinOnBids.isZero());
     if (!empty) {
-      await marginAccount.zo.cancelPerpOrder({ symbol: sym });
+      await marginfiAccount.zo.cancelPerpOrder({ symbol: sym });
     }
   }
 
@@ -149,9 +149,9 @@ async function closeZo(marginAccount: MarginAccount) {
 
     let oo = await zoMargin.getOpenOrdersInfoBySymbol(position.marketKey, false);
     if (!oo) {
-      await marginAccount.zo.createPerpOpenOrders(position.marketKey);
+      await marginfiAccount.zo.createPerpOpenOrders(position.marketKey);
     }
-    await marginAccount.zo.placePerpOrder({
+    await marginfiAccount.zo.placePerpOrder({
       symbol: position.marketKey,
       orderType: OrderType.ReduceOnlyIoc,
       isLong: closeDirectionLong,
@@ -168,36 +168,36 @@ async function closeZo(marginAccount: MarginAccount) {
       continue;
     }
 
-    await marginAccount.zo.settleFunds(sym);
+    await marginfiAccount.zo.settleFunds(sym);
   }
 
-  let observation = await marginAccount.zo.localObserve();
+  let observation = await marginfiAccount.zo.localObserve();
   let withdrawableAmount = observation.freeCollateral.sub(new BN(100));
 
   debug("Withdrawing %s from ZO", bnToNumber(withdrawableAmount));
-  await marginAccount.zo.withdraw(withdrawableAmount);
+  await marginfiAccount.zo.withdraw(withdrawableAmount);
 
   debug("Deactivating ZO");
-  await marginAccount.zo.deactivate();
+  await marginfiAccount.zo.deactivate();
 }
 
-async function closeMango(marginAccount: MarginAccount) {
+async function closeMango(marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:utp:mango");
   debug("Closing Mango positions");
 
-  await closeMangoPositions(marginAccount);
+  await closeMangoPositions(marginfiAccount);
 
-  await withdrawFromMango(marginAccount);
+  await withdrawFromMango(marginfiAccount);
 
-  await marginAccount.mango.deactivate();
+  await marginfiAccount.mango.deactivate();
   debug("Deactivating mango");
-  await marginAccount.reload();
+  await marginfiAccount.reload();
 }
 
-async function withdrawFromMango(marginAccount: MarginAccount) {
+async function withdrawFromMango(marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:utp:mango:withdraw");
   debug("Trying to withdraw from Mango");
-  let observation = await marginAccount.mango.localObserve();
+  let observation = await marginfiAccount.mango.localObserve();
   let withdrawAmount = observation.freeCollateral.sub(new BN(1));
 
   if (withdrawAmount.lte(ZERO_BN)) {
@@ -205,21 +205,21 @@ async function withdrawFromMango(marginAccount: MarginAccount) {
   }
 
   debug("Withdrawing %d from Mango", bnToNumber(withdrawAmount));
-  await marginAccount.mango.withdraw(withdrawAmount);
+  await marginfiAccount.mango.withdraw(withdrawAmount);
 }
 
 function bnToNumber(bn: BN, decimal: number = 6): number {
   return bn.toNumber() / 10 ** decimal;
 }
 
-async function closeMangoPositions(marginAccount: MarginAccount) {
-  const mangoUtp = marginAccount.mango;
+async function closeMangoPositions(marginfiAccount: MarginfiAccount) {
+  const mangoUtp = marginfiAccount.mango;
 
   const debug = debugBuilder("liquidator:utp:mango");
   let mangoGroup = mangoUtp._config.mango.group;
   const [mangoClient, mangoAccount] = await mangoUtp.getMangoClientAndAccount();
 
-  await mangoAccount.reload(marginAccount.client.program.provider.connection);
+  await mangoAccount.reload(marginfiAccount.client.program.provider.connection);
 
   const perpMarkets = await Promise.all(
     mangoUtp._config.mango.groupConfig.perpMarkets.map((perpMarket) => {
@@ -321,19 +321,19 @@ async function closeMangoPositions(marginAccount: MarginAccount) {
   }
 }
 
-async function loadAllMarginAccounts(mfiClient: MarginfiClient) {
+async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
   const debug = debugBuilder("liquidator:loader");
-  debug("Loading margin accounts for group %s", marginGroupPk);
+  debug("Loading marginfi accounts for group %s", marginfiGroupPk);
 
-  const dis = { memcmp: { offset: 32 + 8, bytes: marginGroupPk.toBase58() } };
-  const rawMarignAccounts = await mfiClient.program.account.marginAccount.all([dis]);
+  const dis = { memcmp: { offset: 32 + 8, bytes: marginfiGroupPk.toBase58() } };
+  const rawMarignAccounts = await mfiClient.program.account.marginfiAccount.all([dis]);
 
-  const marginAccounts = rawMarignAccounts.map((a) => {
-    let data: MarginAccountData = a.account as any;
-    return MarginAccount.fromAccountData(a.publicKey, mfiClient, data, mfiClient.group);
+  const marginfiAccounts = rawMarignAccounts.map((a) => {
+    let data: MarginfiAccountData = a.account as any;
+    return MarginfiAccount.fromAccountData(a.publicKey, mfiClient, data, mfiClient.group);
   });
 
-  debug("Loaded %d margin accounts", marginAccounts.length);
+  debug("Loaded %d marginfi accounts", marginfiAccounts.length);
 
-  return marginAccounts;
+  return marginfiAccounts;
 }

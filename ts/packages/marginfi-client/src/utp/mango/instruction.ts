@@ -9,7 +9,7 @@ export async function makeActivateIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
-    marginAccountPk: PublicKey;
+    marginfiAccountPk: PublicKey;
     mangoProgramId: PublicKey;
     mangoGroupPk: PublicKey;
     mangoAccountPk: PublicKey;
@@ -24,8 +24,8 @@ export async function makeActivateIx(
   return mfProgram.methods
     .utpMangoActivate(args.authoritySeed, args.authorityBump)
     .accounts({
-      marginGroup: accounts.marginfiGroupPk,
-      marginAccount: accounts.marginAccountPk,
+      marginfiGroup: accounts.marginfiGroupPk,
+      marginfiAccount: accounts.marginfiAccountPk,
       mangoProgram: accounts.mangoProgramId,
       mangoGroup: accounts.mangoGroupPk,
       mangoAccount: accounts.mangoAccountPk,
@@ -40,7 +40,7 @@ export async function makeDepositIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
-    marginAccountPk: PublicKey;
+    marginfiAccountPk: PublicKey;
     signerPk: PublicKey;
     bankVaultPk: PublicKey;
     bankAuthorityPk: PublicKey;
@@ -60,8 +60,8 @@ export async function makeDepositIx(
   return mfProgram.methods
     .utpMangoDeposit(args.amount)
     .accounts({
-      marginGroup: accounts.marginfiGroupPk,
-      marginAccount: accounts.marginAccountPk,
+      marginfiGroup: accounts.marginfiGroupPk,
+      marginfiAccount: accounts.marginfiAccountPk,
       signer: accounts.signerPk,
       marginCollateralVault: accounts.bankVaultPk,
       bankAuthority: accounts.bankAuthorityPk,
@@ -84,7 +84,7 @@ export async function makeWithdrawIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
-    marginAccountPk: PublicKey;
+    marginfiAccountPk: PublicKey;
     signerPk: PublicKey;
     bankVaultPk: PublicKey;
     mangoProgramId: PublicKey;
@@ -102,8 +102,8 @@ export async function makeWithdrawIx(
   return mfProgram.methods
     .utpMangoWithdraw(args.amount)
     .accounts({
-      marginGroup: accounts.marginfiGroupPk,
-      marginAccount: accounts.marginAccountPk,
+      marginfiGroup: accounts.marginfiGroupPk,
+      marginfiAccount: accounts.marginfiAccountPk,
       signer: accounts.signerPk,
       marginCollateralVault: accounts.bankVaultPk,
       mangoProgram: accounts.mangoProgramId,
@@ -123,8 +123,8 @@ export async function makeWithdrawIx(
 export async function makePlacePerpOrderIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
-    marginAccountPk: PublicKey;
-    marginGroupPk: PublicKey;
+    marginfiAccountPk: PublicKey;
+    marginfiGroupPk: PublicKey;
     authorityPk: PublicKey;
     mangoAuthorityPk: PublicKey;
     mangoProgramId: PublicKey;
@@ -166,8 +166,8 @@ export async function makePlacePerpOrderIx(
       expiryType: toProgramExpiryType(args.args.expiryType),
     } as any)
     .accounts({
-      marginAccount: accounts.marginAccountPk,
-      marginGroup: accounts.marginGroupPk,
+      marginfiAccount: accounts.marginfiAccountPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       authority: accounts.authorityPk,
       mangoAuthority: accounts.mangoAuthorityPk,
       mangoProgram: accounts.mangoProgramId,
@@ -186,7 +186,7 @@ export async function makePlacePerpOrderIx(
 export async function makeCancelPerpOrderIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
-    marginAccountPk: PublicKey;
+    marginfiAccountPk: PublicKey;
     authorityPk: PublicKey;
     mangoAuthorityPk: PublicKey;
     mangoProgramId: PublicKey;
@@ -205,7 +205,7 @@ export async function makeCancelPerpOrderIx(
   return mfProgram.methods
     .utpMangoUseCancelPerpOrder(args.orderId, args.invalidIdOk)
     .accounts({
-      marginAccount: accounts.marginAccountPk,
+      marginfiAccount: accounts.marginfiAccountPk,
       authority: accounts.authorityPk,
       mangoAuthority: accounts.mangoAuthorityPk,
       mangoProgram: accounts.mangoProgramId,

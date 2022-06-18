@@ -4,10 +4,10 @@ import { ConfirmOptions, Connection, Keypair, PublicKey, Transaction } from "@so
 import { Wallet } from ".";
 import { MarginfiConfig } from "./config";
 import { MarginfiIdl, MARGINFI_IDL } from "./idl";
-import { makeInitMarginAccountIx } from "./instruction";
-import { MarginAccount } from "./marginAccount";
+import { makeInitMarginfiAccountIx } from "./instruction";
+import { MarginfiAccount } from "./marginfiAccount";
 import { MarginfiGroup } from "./marginfiGroup";
-import { AccountType, MarginAccountData } from "./types";
+import { AccountType, MarginfiAccountData } from "./types";
 import { processTransaction } from "./utils";
 
 /**
@@ -35,7 +35,7 @@ export class MarginfiClient {
   /**
    * MarginfiClient factory
    *
-   * Fetch account data according to the config and instantiate the corresponding MarginAccount.
+   * Fetch account data according to the config and instantiate the corresponding MarginfiAccount.
    *
    * @param config marginfi config
    * @param wallet User wallet (used to pay fees and sign transations)
@@ -52,7 +52,7 @@ export class MarginfiClient {
   // --- Getters and setters
 
   /**
-   * Margin account group address
+   * Marginfi account group address
    */
   get group(): MarginfiGroup {
     return this._group;
@@ -61,42 +61,44 @@ export class MarginfiClient {
   // --- Others
 
   /**
-   * Create a new margin account under the authority of the user.
+   * Create a new marginfi account under the authority of the user.
    *
-   * @returns MarginAccount instance
+   * @returns MarginfiAccount instance
    */
-  async createMarginAccount(): Promise<MarginAccount> {
+  async createMarginfiAccount(): Promise<MarginfiAccount> {
     const dbg = require("debug")("mfi:client");
-    const marginAccountKey = Keypair.generate();
+    const marginfiAccountKey = Keypair.generate();
 
-    dbg("Creating Margin Account %s", marginAccountKey.publicKey);
+    dbg("Creating Marginfi account %s", marginfiAccountKey.publicKey);
 
-    const createMarginAccountAccountIx = await this.program.account.marginAccount.createInstruction(marginAccountKey);
-    const initMarginAccountIx = await makeInitMarginAccountIx(this.program, {
+    const createMarginfiAccountAccountIx = await this.program.account.marginfiAccount.createInstruction(
+      marginfiAccountKey
+    );
+    const initMarginfiAccountIx = await makeInitMarginfiAccountIx(this.program, {
       marginfiGroupPk: this._group.publicKey,
-      marginAccountPk: marginAccountKey.publicKey,
+      marginfiAccountPk: marginfiAccountKey.publicKey,
       authorityPk: this.program.provider.wallet.publicKey,
     });
 
-    const ixs = [createMarginAccountAccountIx, initMarginAccountIx];
+    const ixs = [createMarginfiAccountAccountIx, initMarginfiAccountIx];
 
     const tx = new Transaction().add(...ixs);
-    const sig = await processTransaction(this.program.provider, tx, [marginAccountKey]);
+    const sig = await processTransaction(this.program.provider, tx, [marginfiAccountKey]);
 
-    dbg("Created Margin account %s", sig);
+    dbg("Created Marginfi account %s", sig);
 
-    return MarginAccount.get(marginAccountKey.publicKey, this);
+    return MarginfiAccount.get(marginfiAccountKey.publicKey, this);
   }
 
   /**
-   * Retrieves all margin accounts under the authority of the user.
+   * Retrieves all marginfi accounts under the authority of the user.
    *
-   * @returns MarginAccount instances
+   * @returns MarginfiAccount instances
    */
-  async getOwnMarginAccounts(): Promise<MarginAccount[]> {
+  async getOwnMarginfiAccounts(): Promise<MarginfiAccount[]> {
     const marginfiGroup = await MarginfiGroup.get(this.config, this.program);
     return (
-      await this.program.account.marginAccount.all([
+      await this.program.account.marginfiAccount.all([
         {
           memcmp: {
             bytes: this.program.provider.wallet.publicKey.toBase58(),
@@ -106,39 +108,44 @@ export class MarginfiClient {
         {
           memcmp: {
             bytes: this._group.publicKey.toBase58(),
-            offset: 8 + 32, // margin_group is the second field in the account after the authority, so offset by the discriminant and a pubkey
+            offset: 8 + 32, // marginfi_group is the second field in the account after the authority, so offset by the discriminant and a pubkey
           },
         },
       ])
-    ).map((a) => MarginAccount.fromAccountData(a.publicKey, this, a.account as MarginAccountData, marginfiGroup));
+    ).map((a) => MarginfiAccount.fromAccountData(a.publicKey, this, a.account as MarginfiAccountData, marginfiGroup));
   }
 
   /**
-   * Retrieves all margin accounts in the underlying group.
+   * Retrieves all marginfi accounts in the underlying group.
    *
-   * @returns MarginAccount instances
+   * @returns MarginfiAccount instances
    */
-  async getAllMarginAccounts(): Promise<MarginAccount[]> {
+  async getAllMarginfiAccounts(): Promise<MarginfiAccount[]> {
     const marginfiGroup = await MarginfiGroup.get(this.config, this.program);
-    const marginAccountAddresses = await this.getAllMarginAccountAddresses();
+    const marginfiAccountAddresses = await this.getAllMarginfiAccountAddresses();
 
-    return (await this.program.account.marginAccount.fetchMultiple(marginAccountAddresses))
+    return (await this.program.account.marginfiAccount.fetchMultiple(marginfiAccountAddresses))
       .filter((a) => a !== null)
       .map((account, i) =>
-        MarginAccount.fromAccountData(marginAccountAddresses[i], this, account as MarginAccountData, marginfiGroup)
+        MarginfiAccount.fromAccountData(
+          marginfiAccountAddresses[i],
+          this,
+          account as MarginfiAccountData,
+          marginfiGroup
+        )
       );
   }
 
-  async getMarginAccount(address: PublicKey): Promise<MarginAccount> {
-    return MarginAccount.get(address, this);
+  async getMarginfiAccount(address: PublicKey): Promise<MarginfiAccount> {
+    return MarginfiAccount.get(address, this);
   }
 
   /**
-   * Retrieves the addresses of all margin accounts in the udnerlying group.
+   * Retrieves the addresses of all marginfi accounts in the udnerlying group.
    *
    * @returns Account addresses
    */
-  async getAllMarginAccountAddresses(): Promise<PublicKey[]> {
+  async getAllMarginfiAccountAddresses(): Promise<PublicKey[]> {
     return (
       await this.program.provider.connection.getProgramAccounts(this.programId, {
         commitment: this.program.provider.connection.commitment,
@@ -150,13 +157,13 @@ export class MarginfiClient {
           {
             memcmp: {
               bytes: this._group.publicKey.toBase58(),
-              offset: 8 + 32, // margin_group is the second field in the account after the authority, so offset by the discriminant and a pubkey
+              offset: 8 + 32, // marginfi_group is the second field in the account after the authority, so offset by the discriminant and a pubkey
             },
           },
           {
             memcmp: {
               offset: 0,
-              bytes: bs58.encode(BorshAccountsCoder.accountDiscriminator(AccountType.MarginAccount)),
+              bytes: bs58.encode(BorshAccountsCoder.accountDiscriminator(AccountType.MarginfiAccount)),
             },
           },
         ],

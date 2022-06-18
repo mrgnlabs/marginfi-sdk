@@ -35,21 +35,21 @@ const wallet = new Wallet(loadKeypair(process.env.WALLET!));
   // Prepare user accounts
   const collateral = new Token(connection, config.collateralMintPk, TOKEN_PROGRAM_ID, wallet.payer);
   const ataAi = await collateral.getOrCreateAssociatedAccountInfo(wallet.publicKey);
-  // Create margin account
-  const marginAccount = await client.createMarginAccount();
+  // Create marginfi account
+  const marginfiAccount = await client.createMarginfiAccount();
   await airdropCollateral(client.program.provider, depositAmount.toNumber(), config.collateralMintPk, ataAi.address);
 
-  console.log("Margin account created: %s", marginAccount.publicKey);
+  console.log("Marginfi account created: %s", marginfiAccount.publicKey);
 
-  // Fund margin account
-  await marginAccount.deposit(depositAmount);
+  // Fund marginfi account
+  await marginfiAccount.deposit(depositAmount);
 
   // Activate Drift and Mango UTPs
-  await marginAccount.mango.activate();
-  await marginAccount.zo.activate();
+  await marginfiAccount.mango.activate();
+  await marginfiAccount.zo.activate();
   // Deposit collateral to Mango and Drift
-  await marginAccount.mango.deposit(uiToNative(50));
-  await marginAccount.zo.deposit(uiToNative(100));
+  await marginfiAccount.mango.deposit(uiToNative(50));
+  await marginfiAccount.zo.deposit(uiToNative(100));
 
   // ---------------------------------------------------------------------
   // Open BTC SHORT on Drift
@@ -57,9 +57,9 @@ const wallet = new Wallet(loadKeypair(process.env.WALLET!));
   // TODO: Update example w/ 01
 
   // const driftBtcmarketInfo = Markets.find((market) => market.baseAssetSymbol === "BTC")!;
-  // const [_, driftUser] = await marginAccount.drift.getClearingHouseAndUser();
+  // const [_, driftUser] = await marginfiAccount.drift.getClearingHouseAndUser();
   // const driftQuoteAmount = driftUser.getBuyingPower(driftBtcmarketInfo.marketIndex);
-  // await marginAccount.drift.openPosition({
+  // await marginfiAccount.drift.openPosition({
   //   direction: { short: {} },
   //   quoteAssetAmount: driftQuoteAmount,
   //   marketIndex: new BN(driftBtcmarketInfo.marketIndex),
@@ -73,7 +73,7 @@ const wallet = new Wallet(loadKeypair(process.env.WALLET!));
   // ---------------------------------------------------------------------
   // Open BTC LONG on Mango
 
-  const [mangoClient, mangoAccount] = await marginAccount.mango.getMangoClientAndAccount();
+  const [mangoClient, mangoAccount] = await marginfiAccount.mango.getMangoClientAndAccount();
   const mangoConfig = new MangoConfig(IDS);
   const groupConfig = mangoConfig.getGroup("devnet", "devnet.2")!;
   const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "BTC", "perp");
@@ -91,7 +91,7 @@ const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 
   const price = mangoGroup.getPrice(perpMarketConfig.marketIndex, mangoCache);
   const baseAssetAmount = balance.div(price);
-  await marginAccount.mango.placePerpOrder(
+  await marginfiAccount.mango.placePerpOrder(
     mangoBtcMarket,
     mango.Side.Bid,
     price.toNumber(),

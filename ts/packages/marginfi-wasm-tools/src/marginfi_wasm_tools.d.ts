@@ -17,35 +17,35 @@ export function inject_observation_into_observer(observer_data: Uint8Array, wasm
 */
 export function rebalance_deposit_valid(wasm_observation: WasmObservation): boolean;
 /**
-* @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_account_data
+* @param {Uint8Array} marginfi_group_data
 * @param {Uint8Array} utp_observer_data
 * @returns {boolean}
 */
-export function is_bankrupt(margin_account_data: Uint8Array, margin_group_data: Uint8Array, utp_observer_data: Uint8Array): boolean;
+export function is_bankrupt(marginfi_account_data: Uint8Array, marginfi_group_data: Uint8Array, utp_observer_data: Uint8Array): boolean;
 /**
-* @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_account_data
+* @param {Uint8Array} marginfi_group_data
 * @param {Uint8Array} utp_observer_data
 * @returns {boolean}
 */
-export function rebalance_withdraw_valid(margin_account_data: Uint8Array, margin_group_data: Uint8Array, utp_observer_data: Uint8Array): boolean;
+export function rebalance_withdraw_valid(marginfi_account_data: Uint8Array, marginfi_group_data: Uint8Array, utp_observer_data: Uint8Array): boolean;
 /**
 * @param {WasmObservation} observation
-* @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_account_data
+* @param {Uint8Array} marginfi_group_data
 * @param {Uint8Array} utp_observer_data
 * @returns {WasmDecimal}
 */
-export function get_max_rebalance_deposit_amount(observation: WasmObservation, margin_account_data: Uint8Array, margin_group_data: Uint8Array, utp_observer_data: Uint8Array): WasmDecimal;
+export function get_max_rebalance_deposit_amount(observation: WasmObservation, marginfi_account_data: Uint8Array, marginfi_group_data: Uint8Array, utp_observer_data: Uint8Array): WasmDecimal;
 /**
 * @param {WasmObservation} observation
-* @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_account_data
+* @param {Uint8Array} marginfi_group_data
 * @param {Uint8Array} utp_observer_data
 * @returns {WasmDecimal}
 */
-export function get_max_rebalance_withdraw_amount(observation: WasmObservation, margin_account_data: Uint8Array, margin_group_data: Uint8Array, utp_observer_data: Uint8Array): WasmDecimal;
+export function get_max_rebalance_withdraw_amount(observation: WasmObservation, marginfi_account_data: Uint8Array, marginfi_group_data: Uint8Array, utp_observer_data: Uint8Array): WasmDecimal;
 /**
 * @param {Uint8Array} mango_group_data
 * @param {Uint8Array} mango_account_data
@@ -63,26 +63,26 @@ export function observe_mango(mango_group_data: Uint8Array, mango_account_data: 
 */
 export function observe_zo(zo_margin_data: Uint8Array, zo_control_data: Uint8Array, zo_state_data: Uint8Array, zo_cache_data: Uint8Array): WasmObservation;
 /**
-* @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_account_data
+* @param {Uint8Array} marginfi_group_data
 * @param {Uint8Array} utp_observer_data
 * @returns {boolean}
 */
-export function liquidation_valid(margin_account_data: Uint8Array, margin_group_data: Uint8Array, utp_observer_data: Uint8Array): boolean;
+export function liquidation_valid(marginfi_account_data: Uint8Array, marginfi_group_data: Uint8Array, utp_observer_data: Uint8Array): boolean;
 /**
-* @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_account_data
+* @param {Uint8Array} marginfi_group_data
 * @param {boolean} deposit
 * @returns {BigInt}
 */
-export function get_quote_balance(margin_account_data: Uint8Array, margin_group_data: Uint8Array, deposit: boolean): BigInt;
+export function get_quote_balance(marginfi_account_data: Uint8Array, marginfi_group_data: Uint8Array, deposit: boolean): BigInt;
 /**
-* @param {Uint8Array} margin_account_data
-* @param {Uint8Array} margin_group_data
+* @param {Uint8Array} marginfi_account_data
+* @param {Uint8Array} marginfi_group_data
 * @param {number} wasm_mreq_t
 * @returns {WasmDecimal}
 */
-export function get_margin_requirement(margin_account_data: Uint8Array, margin_group_data: Uint8Array, wasm_mreq_t: number): WasmDecimal;
+export function get_margin_requirement(marginfi_account_data: Uint8Array, marginfi_group_data: Uint8Array, wasm_mreq_t: number): WasmDecimal;
 /**
 * @param {WasmObservation} wasm_observation
 * @returns {BigInt}

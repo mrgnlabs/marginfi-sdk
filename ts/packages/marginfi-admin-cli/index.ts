@@ -13,7 +13,7 @@ import { createGroup } from "./src/group/create-group";
 import { getGroup } from "./src/group/load-group-config";
 import { airdropCollateral } from "./src/token-faucet";
 
-const DEFAULT_MARGIN_GROUP = process.env.MARGIN_GROUP;
+const DEFAULT_MARGINFI_GROUP = process.env.MARGINFI_GROUP;
 
 const cliProgram = new Command();
 
@@ -52,7 +52,7 @@ const accountProgram = cliProgram.command("account");
 
 accountProgram
   .command("create")
-  .requiredOption("-G, --group <address>", "margin group address", DEFAULT_MARGIN_GROUP)
+  .requiredOption("-G, --group <address>", "marginfi group address", DEFAULT_MARGINFI_GROUP)
   .action(createAccount);
 
 accountProgram.command("deposit").arguments("<address> [amount]").action(deposit);
@@ -60,7 +60,7 @@ accountProgram.command("deposit").arguments("<address> [amount]").action(deposit
 accountProgram
   .command("get")
   .argument("<address>", "account address")
-  .requiredOption("-G, --group <address>", "margin group address", DEFAULT_MARGIN_GROUP)
+  .requiredOption("-G, --group <address>", "marginfi group address", DEFAULT_MARGINFI_GROUP)
   .action(getAccount);
 
 const mangoProgram = accountProgram.command("mango");
@@ -68,12 +68,12 @@ const mangoProgram = accountProgram.command("mango");
 mangoProgram
   .command("activate")
   .argument("<address>", "account address")
-  .requiredOption("-G, --group <address>", "margin group address", DEFAULT_MARGIN_GROUP)
+  .requiredOption("-G, --group <address>", "marginfi group address", DEFAULT_MARGINFI_GROUP)
   .action(activateMango);
 
 mangoProgram
   .command("deposit")
-  .requiredOption("-G, --group <address>", "margin group address", DEFAULT_MARGIN_GROUP)
+  .requiredOption("-G, --group <address>", "marginfi group address", DEFAULT_MARGINFI_GROUP)
   .arguments("<address> [amount]")
   .action(depositMango);
 
@@ -82,13 +82,13 @@ const zoProgram = accountProgram.command("zo");
 zoProgram
   .command("activate")
   .argument("<address>", "account address")
-  .requiredOption("-G, --group <address>", "margin group address", DEFAULT_MARGIN_GROUP)
+  .requiredOption("-G, --group <address>", "marginfi group address", DEFAULT_MARGINFI_GROUP)
   .action(activateZo);
 
 zoProgram
   .command("deposit")
   .arguments("<address> [amount]")
-  .requiredOption("-G, --group <address>", "margin group address", DEFAULT_MARGIN_GROUP)
+  .requiredOption("-G, --group <address>", "marginfi group address", DEFAULT_MARGINFI_GROUP)
   .action(depositZo);
 
 cliProgram.parse();

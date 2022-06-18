@@ -14,7 +14,7 @@ export * from "./client";
 export * from "./config";
 export * from "./constants";
 export * from "./idl";
-export * from "./marginAccount";
+export * from "./marginfiAccount";
 export * from "./marginfiGroup";
 export * from "./state";
 export * from "./types";

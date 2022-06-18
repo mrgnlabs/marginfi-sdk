@@ -42,7 +42,7 @@ export class MarginfiGroup {
    */
   static async get(config: MarginfiConfig, program: Program<MarginfiIdl>) {
     const debug = require("debug")(`mfi:margin-group`);
-    debug("Loading Margin Group %s", config.groupPk);
+    debug("Loading Marginfi Group %s", config.groupPk);
     const accountData = await MarginfiGroup._fetchAccountData(config, program);
     return new MarginfiGroup(config, program, accountData.admin, Bank.from(accountData.bank));
   }
@@ -113,7 +113,7 @@ export class MarginfiGroup {
     config: MarginfiConfig,
     program: Program<MarginfiIdl>
   ): Promise<MarginfiGroupData> {
-    const data: MarginfiGroupData = (await program.account.marginGroup.fetch(config.groupPk)) as any;
+    const data: MarginfiGroupData = (await program.account.marginfiGroup.fetch(config.groupPk)) as any;
 
     if (!data.bank.mint.equals(config.collateralMintPk))
       throw Error(
