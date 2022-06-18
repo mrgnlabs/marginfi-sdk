@@ -20,6 +20,7 @@ export async function configureGroup(marginfiGroupAddress: string, options: Opti
       interestFee: parseOption(options.interestFee),
       initMarginRatio: parseOption(options.initMarginRatio),
       maintMarginRatio: parseOption(options.maintMarginRatio),
+      accountDepositLimit: parseOption(options.accountDepositLimit),
     },
     paused: parsePaused(options.paused),
   };

@@ -45,7 +45,7 @@ groupProgram
   .option("--initMarginRatio <number>", "initialization margin ratio")
   .option("--maintMarginRatio <number>", "maintenance margin ratio")
   .option("-P, --paused <boolean>", "paused")
-  .option("--deposit-limit", "account deposit limit")
+  .option("--accountDepositLimit", "account deposit limit")
   .action(configureGroup);
 
 const accountProgram = cliProgram.command("account");
