@@ -15,7 +15,7 @@ import {
 } from "@solana/web3.js";
 import * as fs from "fs";
 import path from "path";
-import { Wallet } from "..";
+import { Environment, getConfig, MarginfiClient, Wallet } from "..";
 import {
   COLLATERAL_DECIMALS,
   PDA_BANK_FEE_VAULT_SEED,
@@ -25,6 +25,7 @@ import {
   VERY_VERBOSE_ERROR,
 } from "../constants";
 import { MarginfiIdl, MARGINFI_IDL } from "../idl";
+import { NodeWallet } from "../nodeWallet";
 import { AccountType, MDecimalRaw } from "../types";
 import { Decimal } from "./decimal";
 
@@ -214,4 +215,34 @@ export async function createTempTransferAccounts(
   const initTokenAccountIx = Token.createInitAccountInstruction(TOKEN_PROGRAM_ID, mint, key.publicKey, authority);
 
   return [key, createTokenAccountIx, initTokenAccountIx];
+}
+
+export function getEnvFromStr(envString: string = "devnet"): Environment {
+  switch (envString.toUpperCase()) {
+    case "MAINNET":
+      return Environment.MAINNET;
+    case "MAINNET-BETA":
+      return Environment.MAINNET;
+    default:
+      return Environment.DEVNET;
+  }
+}
+
+export async function getClientFromEnv(): Promise<MarginfiClient> {
+  const debug = require("debug")("mfi");
+  const env = getEnvFromStr(process.env.ENV!);
+  const connection = new Connection(process.env.RPC_ENDPOINT!);
+  const programId = new PublicKey(process.env.MARGINFI_PROGRAM!);
+  const groupPk = process.env.MARGINFI_GROUP ? new PublicKey(process.env.MARGINFI_GROUP) : PublicKey.default;
+  const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));
+
+  debug("Loading the marginfi client from env vars");
+  debug("Env: %s\nProgram: %s\nGroup: %s\nSigner: %s", env, programId, groupPk, wallet.publicKey);
+
+  const config = await getConfig(env, connection, {
+    groupPk,
+    programId,
+  });
+
+  return MarginfiClient.get(config, wallet, connection);
 }

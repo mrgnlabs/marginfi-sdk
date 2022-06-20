@@ -5,6 +5,7 @@ import { IS_BROWSER } from "./utils";
 
 import * as config from "./config";
 import * as idl from "./idl";
+import * as instruction from "./instruction";
 import * as state from "./state";
 import * as types from "./types";
 import * as utils from "./utils";
@@ -20,7 +21,7 @@ export * from "./state";
 export * from "./types";
 export * from "./utils";
 export * from "./utp";
-export { config, constants, idl, state, types, utils, utp };
+export { config, constants, idl, state, types, utils, utp, instruction };
 export { WasmMarginRequirement as MarginRequirementType };
 
 export declare class Wallet extends NodeWallet {}

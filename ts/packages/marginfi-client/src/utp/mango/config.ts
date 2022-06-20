@@ -21,20 +21,36 @@ export async function getMangoConfig(
   connection: Connection,
   overrides?: Partial<MangoConfig>
 ): Promise<MangoConfig> {
-  if (environment == Environment.DEVNET) {
-    const mangoConfig = new Config(IDS);
-    const groupConfig = mangoConfig.getGroup("devnet", "devnet.2")!;
-    const programId = groupConfig.mangoProgramId;
-    const mangoRPCClient = new MangoClient(connection, programId);
-    const mangoGroup = await mangoRPCClient.getMangoGroup(groupConfig.publicKey);
-    return {
-      utpIndex: 0,
-      programId,
-      group: mangoGroup,
-      groupConfig,
-      ...overrides,
-    };
-  } else {
-    throw "You were never meant to be here!!";
+  switch (environment) {
+    case Environment.MAINNET: {
+      const mangoConfig = new Config(IDS);
+      const groupConfig = mangoConfig.getGroup("mainnet", "mainnet.1")!;
+      const programId = groupConfig.mangoProgramId;
+      const mangoRPCClient = new MangoClient(connection, programId);
+      const mangoGroup = await mangoRPCClient.getMangoGroup(groupConfig.publicKey);
+      return {
+        utpIndex: 0,
+        programId,
+        group: mangoGroup,
+        groupConfig,
+        ...overrides,
+      };
+    }
+    case Environment.DEVNET: {
+      const mangoConfig = new Config(IDS);
+      const groupConfig = mangoConfig.getGroup("devnet", "devnet.2")!;
+      const programId = groupConfig.mangoProgramId;
+      const mangoRPCClient = new MangoClient(connection, programId);
+      const mangoGroup = await mangoRPCClient.getMangoGroup(groupConfig.publicKey);
+      return {
+        utpIndex: 0,
+        programId,
+        group: mangoGroup,
+        groupConfig,
+        ...overrides,
+      };
+    }
+    default:
+      throw "You were never meant to be here!!";
   }
 }

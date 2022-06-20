@@ -1,30 +1,15 @@
 require("dotenv").config();
 
-import {
-  Environment,
-  getConfig,
-  loadKeypair,
-  MarginfiAccount,
-  MarginfiAccountData,
-  MarginfiClient,
-  Wallet,
-} from "@mrgnlabs/marginfi-client";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { getClientFromEnv, MarginfiAccount, MarginfiAccountData, MarginfiClient } from "@mrgnlabs/marginfi-client";
+import { PublicKey } from "@solana/web3.js";
 
-const marginFiPk = new PublicKey(process.env.MARGINFI_PROGRAM!);
-const connection = new Connection(process.env.RPC_ENDPOINT!);
-const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const marginfiGroupPk = new PublicKey(process.env.MARGINFI_GROUP!);
 
 (async function () {
   console.log("Running crank bot, use DEBUG=* to see logs");
   const debug = require("debug")("crank-bot");
-  const config = await getConfig(Environment.DEVNET, connection, {
-    groupPk: marginfiGroupPk,
-    programId: marginFiPk,
-  });
   debug("Running crank bot for group %s", marginfiGroupPk);
-  const marginClient = await MarginfiClient.get(config, wallet, connection);
+  const marginClient = await getClientFromEnv();
   const round = async function () {
     try {
       await loadAllMarginfiAccounts(marginClient);

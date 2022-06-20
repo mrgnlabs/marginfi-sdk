@@ -61,7 +61,7 @@ export async function makeConfigureMarginfiGroupIx(
         initMarginRatio: args.args.bank?.initMarginRatio || null,
         accountDepositLimit: args.args.bank?.accountDepositLimit || null,
       } as never,
-      paused: args.args.paused || null,
+      paused: args.args.paused !== undefined ? args.args.paused : null,
     })
     .accounts({
       marginfiGroup: accounts.marginfiGroupPk,

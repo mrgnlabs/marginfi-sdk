@@ -1441,7 +1441,7 @@ export type Marginfi = {
           {
             name: "reservedSpace";
             type: {
-              array: ["u32", 128];
+              array: ["u128", 256];
             };
           }
         ];
@@ -1469,13 +1469,7 @@ export type Marginfi = {
           {
             name: "reservedSpace";
             type: {
-              array: ["u128", 32];
-            };
-          },
-          {
-            name: "reservedSpace2";
-            type: {
-              array: ["u128", 32];
+              array: ["u128", 384];
             };
           }
         ];
@@ -1681,7 +1675,7 @@ export type Marginfi = {
           {
             name: "reservedSpace";
             type: {
-              array: ["u32", 4];
+              array: ["u32", 32];
             };
           }
         ];
@@ -3589,7 +3583,7 @@ export const IDL: Marginfi = {
           {
             name: "reservedSpace",
             type: {
-              array: ["u32", 128],
+              array: ["u128", 256],
             },
           },
         ],
@@ -3617,13 +3611,7 @@ export const IDL: Marginfi = {
           {
             name: "reservedSpace",
             type: {
-              array: ["u128", 32],
-            },
-          },
-          {
-            name: "reservedSpace2",
-            type: {
-              array: ["u128", 32],
+              array: ["u128", 384],
             },
           },
         ],
@@ -3829,7 +3817,7 @@ export const IDL: Marginfi = {
           {
             name: "reservedSpace",
             type: {
-              array: ["u32", 4],
+              array: ["u32", 32],
             },
           },
         ],

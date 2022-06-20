@@ -7,6 +7,7 @@ import { getZoConfig, ZoConfig } from "./utp/zo";
  */
 export enum Environment {
   DEVNET = "devnet",
+  MAINNET = "mainnet",
 }
 
 /**
@@ -42,15 +43,23 @@ export function getMarginfiConfig(
   environment: Environment,
   overrides?: Partial<Omit<MarginfiDedicatedConfig, "environment" | "mango" | "zo">>
 ): MarginfiDedicatedConfig {
-  if (environment == Environment.DEVNET) {
-    return {
-      environment,
-      programId: overrides?.programId || new PublicKey("7zqRtgBNVth1BANGUV8tv5R62Ub6pUaZfpU6RP5X7yZY"),
-      groupPk: overrides?.groupPk || new PublicKey("HoFKnT1ytBd9ozoGkUM4Crzf9D6f5zuisQvJDKR74i4H"),
-      collateralMintPk: overrides?.collateralMintPk || new PublicKey("7UT1javY6X1M9R2UrPGrwcZ78SX3huaXyETff5hm5YdX"),
-    };
-  } else {
-    throw Error(`Unknown environment ${environment}`);
+  switch (environment) {
+    case Environment.MAINNET:
+      return {
+        environment,
+        programId: overrides?.programId || new PublicKey("mrgnfD8pJKsw4AxCDquyUBjgABNEaZ79iTLgtov2Yff"),
+        groupPk: overrides?.groupPk || new PublicKey(""),
+        collateralMintPk: overrides?.collateralMintPk || new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+      };
+    case Environment.DEVNET:
+      return {
+        environment,
+        programId: overrides?.programId || new PublicKey("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK"),
+        groupPk: overrides?.groupPk || new PublicKey("7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg"),
+        collateralMintPk: overrides?.collateralMintPk || new PublicKey("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"),
+      };
+    default:
+      throw Error(`Unknown environment ${environment}`);
   }
 }
 
@@ -62,13 +71,9 @@ export async function getConfig(
   connection: Connection,
   overrides?: Partial<Omit<MarginfiConfig, "environment">>
 ): Promise<MarginfiConfig> {
-  if (environment == Environment.DEVNET) {
-    return {
-      ...getMarginfiConfig(environment, overrides),
-      mango: await getMangoConfig(environment, connection, overrides?.mango),
-      zo: await getZoConfig(environment, connection, overrides?.zo),
-    };
-  } else {
-    throw Error(`Unknown environment ${environment}`);
-  }
+  return {
+    ...getMarginfiConfig(environment, overrides),
+    mango: await getMangoConfig(environment, connection, overrides?.mango),
+    zo: await getZoConfig(environment, connection, overrides?.zo),
+  };
 }

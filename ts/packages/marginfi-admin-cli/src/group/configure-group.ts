@@ -1,5 +1,4 @@
-import { getMfiProgram, loadKeypair, processTransaction } from "@mrgnlabs/marginfi-client";
-import { makeConfigureMarginfiGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
+import { getMfiProgram, instruction, loadKeypair, processTransaction } from "@mrgnlabs/marginfi-client";
 import { BN, Wallet } from "@project-serum/anchor";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { OptionValues } from "commander";
@@ -21,11 +20,12 @@ export async function configureGroup(marginfiGroupAddress: string, options: Opti
       interestFee: parseOption(options.interestFee),
       initMarginRatio: parseOption(options.initMarginRatio),
       maintMarginRatio: parseOption(options.maintMarginRatio),
+      accountDepositLimit: parseOption(options.accountDepositLimit),
     },
     paused: parsePaused(options.paused),
   };
 
-  const ix = await makeConfigureMarginfiGroupIx(
+  const ix = await instruction.makeConfigureMarginfiGroupIx(
     program,
     {
       adminPk: wallet.publicKey,

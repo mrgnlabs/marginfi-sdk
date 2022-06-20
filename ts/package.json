@@ -4,6 +4,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "buidl": "lerna run build",
+    "build": "lerna run build",
     "watch": "lerna run watch",
     "lint": "lerna run format:check",
     "format": "lerna run format",
