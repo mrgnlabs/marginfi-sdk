@@ -367,12 +367,7 @@ export class UtpMangoAccount implements UtpAccount {
         pubkey: this._config.mango.group.mangoCache,
         isSigner: false,
         isWritable: false,
-      },
-      {
-        pubkey: this._config.mango.programId,
-        isSigner: false,
-        isWritable: false,
-      },
+      }, 
     ];
   }
 
@@ -542,7 +537,7 @@ export class UtpMangoAccount implements UtpAccount {
    *
    * @returns Health cache for the Mango UTP
    */
-  async localObserve(): Promise<UtpObservation> {
+  async observe(): Promise<UtpObservation> {
     const debug = require("debug")(`mfi:utp:${this.address}:mango:local-observe`);
     debug("Observing Locally");
     const [mangoGroupAi, mangoAccountAi, mangoCacheAi] =

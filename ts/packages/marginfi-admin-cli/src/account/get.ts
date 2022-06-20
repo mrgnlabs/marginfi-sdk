@@ -9,7 +9,7 @@ export async function getAccount(accountPk: string) {
     const balances = await account.getBalance();
     const [equity, assets, liabilities] = balances.map((n) => n.toNumber() / 1_000_000);
     const utps = account.allUtps();
-    const observations = await account.localObserve();
+    const observations = await account.observe();
 
     console.log(
       "Marginfi account %s\n\tBalance %s,\n\tAssets: %s,\n\tLiabilities: %s",

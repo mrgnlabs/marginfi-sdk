@@ -562,7 +562,7 @@ export class UtpZoAccount implements UtpAccount {
     ];
   }
 
-  async localObserve(): Promise<UtpObservation> {
+  async observe(): Promise<UtpObservation> {
     const [zoMargin, zoState] = await this.getZoMarginAndState();
     const [zoMarginAi, zoControlAi, zoStateAi, zoCacheAi] =
       await this._program.provider.connection.getMultipleAccountsInfo([

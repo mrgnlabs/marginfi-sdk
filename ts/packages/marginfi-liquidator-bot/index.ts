@@ -66,7 +66,7 @@ async function liquidate(liquidateeMarginfiAccount: MarginfiAccount, liquidatorM
 
   debug("Liquidating account %s", liquidateeMarginfiAccount.publicKey);
 
-  const utpObservations = await liquidateeMarginfiAccount.localObserve();
+  const utpObservations = await liquidateeMarginfiAccount.observe();
   const [balance] = await liquidatorMarginfiAccount.getBalance();
   debug("Available balance %s", balance.toNumber() / 1_000_000);
 
@@ -166,7 +166,7 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
     await marginfiAccount.zo.settleFunds(sym);
   }
 
-  let observation = await marginfiAccount.zo.localObserve();
+  let observation = await marginfiAccount.zo.observe();
   let withdrawableAmount = observation.freeCollateral.sub(new BN(100));
 
   debug("Withdrawing %s from ZO", bnToNumber(withdrawableAmount));
@@ -192,7 +192,7 @@ async function closeMango(marginfiAccount: MarginfiAccount) {
 async function withdrawFromMango(marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:utp:mango:withdraw");
   debug("Trying to withdraw from Mango");
-  let observation = await marginfiAccount.mango.localObserve();
+  let observation = await marginfiAccount.mango.observe();
   let withdrawAmount = observation.freeCollateral.sub(new BN(1));
 
   if (withdrawAmount.lte(ZERO_BN)) {
