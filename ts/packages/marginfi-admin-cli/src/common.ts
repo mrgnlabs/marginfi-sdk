@@ -5,4 +5,3 @@ export function parseDecimal(m: MDecimalRaw): number {
   let num = decimal.toNumber();
   return num;
 }
-

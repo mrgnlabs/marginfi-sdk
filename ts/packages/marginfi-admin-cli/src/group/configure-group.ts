@@ -1,4 +1,4 @@
-import { getMfiProgram, loadKeypair, processTransaction, instruction } from "@mrgnlabs/marginfi-client";
+import { getMfiProgram, instruction, loadKeypair, processTransaction } from "@mrgnlabs/marginfi-client";
 import { BN, Wallet } from "@project-serum/anchor";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { OptionValues } from "commander";
