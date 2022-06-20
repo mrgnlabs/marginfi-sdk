@@ -5,8 +5,8 @@ import {
   loadKeypair,
   MARGINFI_IDL,
   processTransaction,
+  Wallet,
 } from "@mrgnlabs/marginfi-client";
-import { NodeWallet } from "@mrgnlabs/marginfi-client/dist/nodeWallet";
 import { Program, Provider } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
@@ -16,7 +16,7 @@ export async function createGroup(_string: string, command: Command) {
   const connection = new Connection(process.env.RPC_ENDPOINT!);
   const programId = new PublicKey(process.env.MARGINFI_PROGRAM!);
   const groupPk = process.env.MARGINFI_GROUP ? new PublicKey(process.env.MARGINFI_GROUP) : PublicKey.default;
-  const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));
+  const wallet = new Wallet(loadKeypair(process.env.WALLET!));
   const program = new Program(MARGINFI_IDL, programId, new Provider(connection, wallet, {}));
 
   console.log("Loading from env vars");
