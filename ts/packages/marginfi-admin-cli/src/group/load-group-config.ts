@@ -1,9 +1,10 @@
-import { getEnvClient, parseDecimal } from "../common";
+import { getClientFromEnv } from "@mrgnlabs/marginfi-client";
+import {parseDecimal } from "../common";
 
 require("dotenv").config();
 
 export async function getGroup(address: string) {
-  const client = await getEnvClient();
+  const client = await getClientFromEnv();
   const program = client.program;  
 
   const group = await program.account.marginfiGroup.fetch(address);

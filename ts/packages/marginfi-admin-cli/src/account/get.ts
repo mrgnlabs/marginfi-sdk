@@ -1,10 +1,9 @@
-import { MarginfiAccount, MarginRequirementType } from "@mrgnlabs/marginfi-client";
+import { getClientFromEnv, MarginfiAccount, MarginRequirementType } from "@mrgnlabs/marginfi-client";
 import { PublicKey } from "@solana/web3.js";
-import { getEnvClient } from "../common";
 
 export async function getAccount(accountPk: string) {
   try {
-    const client = await getEnvClient();
+    const client = await getClientFromEnv();
     const account = await MarginfiAccount.get(new PublicKey(accountPk), client);
 
     const balances = await account.getBalance();
