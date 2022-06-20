@@ -48,7 +48,7 @@ export function getMarginfiConfig(
       return {
         environment,
         programId: overrides?.programId || new PublicKey("mrgnfD8pJKsw4AxCDquyUBjgABNEaZ79iTLgtov2Yff"),
-        groupPk: overrides?.groupPk || new PublicKey(""),
+        groupPk: overrides?.groupPk || new PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba"),
         collateralMintPk: overrides?.collateralMintPk || new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
       };
     case Environment.DEVNET:

@@ -3,84 +3,112 @@ require("dotenv").config();
 import { Connection } from "@solana/web3.js";
 
 import {
-  Environment,
   getConfig,
-  loadKeypair,
-  mango,
   MarginfiClient,
-  uiToNative,
+  Environment,
   Wallet,
+  loadKeypair,
+  uiToNative,
 } from "@mrgnlabs/marginfi-client";
 
 import {
-  Config as MangoConfig,
   getMarketByBaseSymbolAndKind,
   I80F48,
-  IDS,
   QUOTE_INDEX,
 } from "@blockworks-foundation/mango-client";
-import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { airdropCollateral } from "./utils";
+import {
+  PerpOrderType,
+  Side,
+} from "@mrgnlabs/marginfi-client/dist/utp/mango/types";
+// import { airdropCollateral } from "./utils";
+// import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import * as ZoClient from "@zero_one/client";
+import { OrderType } from "@mrgnlabs/marginfi-client/dist/utp/zo/types";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!);
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 
+const depositAmountUi = 2;
+
 (async function () {
-  const depositAmount = uiToNative(200);
-  const config = await getConfig(Environment.DEVNET, connection);
+  // const depositAmount = uiToNative(depositAmountUi);
+  const config = await getConfig(Environment.MAINNET, connection);
 
   // Setup the client
   const client = await MarginfiClient.get(config, wallet, connection);
 
-  // Prepare user accounts
-  const collateral = new Token(connection, config.collateralMintPk, TOKEN_PROGRAM_ID, wallet.payer);
-  const ataAi = await collateral.getOrCreateAssociatedAccountInfo(wallet.publicKey);
-  // Create marginfi account
-  const marginfiAccount = await client.createMarginfiAccount();
-  await airdropCollateral(client.program.provider, depositAmount.toNumber(), config.collateralMintPk, ataAi.address);
+  // // Prepare user accounts
+  // const collateral = new Token(
+  //   connection,
+  //   config.collateralMintPk,
+  //   TOKEN_PROGRAM_ID,
+  //   wallet.payer
+  // );
+  // const ataAi = await collateral.getOrCreateAssociatedAccountInfo(
+  //   wallet.publicKey
+  // );
+  // Create margin account
+  // const mfiAccount = await client.getMarginfiAccount(new PublicKey(process.env.MARGINFI_ACCOUNT!));  // await airdropCollateral(
+  //   client.program.provider,
+  //   depositAmount.toNumber(),
+  //   config.collateralMintPk,
+  //   ataAi.address
+  // );
 
-  console.log("Marginfi account created: %s", marginfiAccount.publicKey);
 
-  // Fund marginfi account
-  await marginfiAccount.deposit(depositAmount);
+  const mfiAccount = await client.createMarginfiAccount();
 
-  // Activate Drift and Mango UTPs
-  await marginfiAccount.mango.activate();
-  await marginfiAccount.zo.activate();
-  // Deposit collateral to Mango and Drift
-  await marginfiAccount.mango.deposit(uiToNative(50));
-  await marginfiAccount.zo.deposit(uiToNative(100));
+
+  console.log("Margin account created: %s", mfiAccount.publicKey);
+
+  // // Fund margin account
+  await mfiAccount.deposit(uiToNative(depositAmountUi));
+
+  // // Activate Drift and Mango UTPs
+  await mfiAccount.zo.activate();
+  await mfiAccount.mango.activate();
+  // Deposit collateral to Mango and 01
+  await mfiAccount.zo.deposit(uiToNative(depositAmountUi / 2));
+  await mfiAccount.mango.deposit(uiToNative(depositAmountUi / 2));
 
   // ---------------------------------------------------------------------
-  // Open BTC SHORT on Drift
+  // Open BTC SHORT on 01
+  const marketKey = "BTC-PERP";
+  const [zoMargin, zoState] = await mfiAccount.zo.getZoMarginAndState();
+  const market: ZoClient.ZoMarket = await zoState.getMarketBySymbol(marketKey);
+  const bids = [...(await market.loadBids(connection)).items(false)];
+  const zoPrice = bids[0].price;
 
-  // TODO: Update example w/ 01
+  const zoSize = zoMargin.freeCollateralValue.div(zoPrice); 
 
-  // const driftBtcmarketInfo = Markets.find((market) => market.baseAssetSymbol === "BTC")!;
-  // const [_, driftUser] = await marginfiAccount.drift.getClearingHouseAndUser();
-  // const driftQuoteAmount = driftUser.getBuyingPower(driftBtcmarketInfo.marketIndex);
-  // await marginfiAccount.drift.openPosition({
-  //   direction: { short: {} },
-  //   quoteAssetAmount: driftQuoteAmount,
-  //   marketIndex: new BN(driftBtcmarketInfo.marketIndex),
-  //   limitPrice: new BN(0),
-  //   optionalAccounts: {
-  //     discountToken: false,
-  //     referrer: false,
-  //   },
-  // });
+  const oo = await zoMargin.getOpenOrdersInfoBySymbol(marketKey, false);
+  if (!oo) {
+    await mfiAccount.zo.createPerpOpenOrders(marketKey);
+  }
+  await mfiAccount.zo.placePerpOrder({
+    symbol: marketKey,
+    orderType: OrderType.ImmediateOrCancel,
+    isLong: false,
+    price: zoPrice,
+    size: zoSize.toNumber(),
+  });
 
   // ---------------------------------------------------------------------
   // Open BTC LONG on Mango
-
-  const [mangoClient, mangoAccount] = await marginfiAccount.mango.getMangoClientAndAccount();
-  const mangoConfig = new MangoConfig(IDS);
-  const groupConfig = mangoConfig.getGroup("devnet", "devnet.2")!;
-  const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "BTC", "perp");
+  const [mangoClient, mangoAccount] =
+    await mfiAccount.mango.getMangoClientAndAccount();
+  const groupConfig = mfiAccount.mango.config.groupConfig;
+  const perpMarketConfig = getMarketByBaseSymbolAndKind(
+    groupConfig,
+    "BTC",
+    "perp"
+  );
 
   const mangoGroup = await mangoClient.getMangoGroup(groupConfig.publicKey);
   const mangoCache = await mangoGroup.loadCache(connection);
-  const balance = mangoAccount.getAvailableBalance(mangoGroup, mangoCache, QUOTE_INDEX).div(I80F48.fromNumber(10 ** 6));
+  const balance = mangoAccount
+    .getAvailableBalance(mangoGroup, mangoCache, QUOTE_INDEX)
+    .div(I80F48.fromNumber(10 ** 6));
 
   const mangoBtcMarket = await mangoGroup.loadPerpMarket(
     connection,
@@ -89,15 +117,18 @@ const wallet = new Wallet(loadKeypair(process.env.WALLET!));
     perpMarketConfig.quoteDecimals
   );
 
-  const price = mangoGroup.getPrice(perpMarketConfig.marketIndex, mangoCache);
-  const baseAssetAmount = balance.div(price);
-  await marginfiAccount.mango.placePerpOrder(
+  const mangoPrice = mangoGroup.getPrice(
+    perpMarketConfig.marketIndex,
+    mangoCache
+  );
+  const mangoSize = balance.div(mangoPrice);
+  await mfiAccount.mango.placePerpOrder(
     mangoBtcMarket,
-    mango.Side.Bid,
-    price.toNumber(),
-    baseAssetAmount.toNumber(),
+    Side.Bid,
+    mangoPrice.toNumber(),
+    mangoSize.toNumber(),
     {
-      orderType: mango.PerpOrderType.Market,
+      orderType: PerpOrderType.Market,
     }
   );
 

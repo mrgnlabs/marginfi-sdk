@@ -23,12 +23,13 @@ export async function getAccount(accountPk: string) {
     }
     for (let observation of observations) {
       console.log(
-        "Utp Observation: %d, equity: %s, free collateral: %s, assets: %s, margin req: %s",
+        "Utp Observation: %d, equity: %s, free collateral: %s, assets: %s, init margin req: %s, valid %s",
         observation.utp_index,
         observation.observation.equity.toNumber() / 1_000_000,
         observation.observation.freeCollateral.toNumber() / 1_000_000,
         observation.observation.totalCollateral.toNumber() / 1_000_000,
-        observation.observation.marginRequirementInit.toNumber() / 1_000_000
+        observation.observation.marginRequirementInit.toNumber() / 1_000_000,
+        observation.observation.valid,
       );
     }
 

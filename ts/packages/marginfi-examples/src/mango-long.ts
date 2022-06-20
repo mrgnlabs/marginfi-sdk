@@ -12,18 +12,15 @@ const connection = new Connection(process.env.RPC_ENDPOINT!);
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
-const depositAmount = 100;
+const depositAmount = 5;
 
 (async function () {
-  const config = await getConfig(Environment.DEVNET, connection);
-
+  const config = await getConfig(Environment.MAINNET, connection);
   // Setup the client
   const client = await MarginfiClient.get(config, wallet, connection);
 
   // Prepare user accounts
   const mfiAccount = await client.getMarginfiAccount(MARGIN_ACCOUNT_PK);
-
-  console.log("n active utps", mfiAccount.activeUtps().length);
 
   await mfiAccount.mango.deposit(uiToNative(depositAmount));
 
