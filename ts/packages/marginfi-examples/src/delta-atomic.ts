@@ -23,7 +23,7 @@ const connection = new Connection(process.env.RPC_ENDPOINT!, { commitment: "conf
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
-const posAmountUi = 2;
+const posAmountUi = 10;
 
 (async function () {
   // const depositAmount = uiToNative(depositAmountUi);
@@ -34,10 +34,10 @@ const posAmountUi = 2;
 
   const mfiAccount = await client.getMarginfiAccount(MARGIN_ACCOUNT_PK);
 
-  await Promise.all([
-    mfiAccount.zo.deposit(uiToNative(posAmountUi / 2)),
-    mfiAccount.mango.deposit(uiToNative(posAmountUi / 2)),
-  ]);
+//   await Promise.all([
+//     mfiAccount.zo.deposit(uiToNative(posAmountUi / 2)),
+//     mfiAccount.mango.deposit(uiToNative(posAmountUi / 2)),
+//   ]);
 
   // ---------------------------------------------------------------------
   // Open BTC SHORT on 01
@@ -46,6 +46,8 @@ const posAmountUi = 2;
   const market: ZoClient.ZoMarket = await zoState.getMarketBySymbol(marketKey);
   const bids = [...(await market.loadBids(connection)).items(false)];
   const zoPrice = bids[0].price;
+
+  const zoBalance = zoMargin.freeCollateralValue;
 
   const zoSize = posAmountUi / zoPrice;
   //   console.log(zoMargin.freeCollateralValue, zoPrice, zoSize);
@@ -70,7 +72,10 @@ const posAmountUi = 2;
 
   const mangoGroup = await mangoClient.getMangoGroup(groupConfig.publicKey);
   const mangoCache = await mangoGroup.loadCache(connection);
-  const balance = mangoAccount.getAvailableBalance(mangoGroup, mangoCache, QUOTE_INDEX).div(I80F48.fromNumber(10 ** 6));
+//   const balance = mangoAccount.getMaxWithBorrowForToken(mangoGroup, mangoCache, QUOTE_INDEX).div(I80F48.fromNumber(10 ** 6));
+  const balance = I80F48.fromNumber(posAmountUi);
+
+  console.log("Mango Equity: %s", mangoAccount.getEquityUi(mangoGroup, mangoCache) * 10 ** 6);
 
   const mangoBtcMarket = await mangoGroup.loadPerpMarket(
     connection,
