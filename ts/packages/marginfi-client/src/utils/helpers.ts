@@ -85,7 +85,7 @@ export async function processTransaction(
   signers?: Array<Signer>,
   opts?: ConfirmOptions
 ): Promise<TransactionSignature> {
-  const blockhash = await provider.connection.getRecentBlockhash();
+  const blockhash = await provider.connection.getLatestBlockhash();
   tx.recentBlockhash = blockhash.blockhash;
   tx.feePayer = provider.wallet.publicKey;
   tx = await provider.wallet.signTransaction(tx);
@@ -231,7 +231,7 @@ export function getEnvFromStr(envString: string = "devnet"): Environment {
 export async function getClientFromEnv(): Promise<MarginfiClient> {
   const debug = require("debug")("mfi");
   const env = getEnvFromStr(process.env.ENV!);
-  const connection = new Connection(process.env.RPC_ENDPOINT!);
+  const connection = new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
   const programId = new PublicKey(process.env.MARGINFI_PROGRAM!);
   const groupPk = process.env.MARGINFI_GROUP ? new PublicKey(process.env.MARGINFI_GROUP) : PublicKey.default;
   const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));

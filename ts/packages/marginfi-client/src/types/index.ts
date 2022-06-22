@@ -71,7 +71,7 @@ export interface UtpAccount {
   index: number;
   address: PublicKey;
   getObservationAccounts: () => Promise<AccountMeta[]>;
-  localObserve: () => Promise<UtpObservation>;
+  observe: () => Promise<UtpObservation>;
   deposit: (amount: BN) => Promise<string>;
   withdraw: (amount: BN) => Promise<string>;
 }

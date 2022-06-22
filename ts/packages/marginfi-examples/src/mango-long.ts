@@ -4,34 +4,32 @@ import { Connection, PublicKey } from "@solana/web3.js";
 
 import { Environment, getConfig, loadKeypair, MarginfiClient, uiToNative, Wallet } from "@mrgnlabs/marginfi-client";
 
-import {
-  Config as MangoConfig,
-  getMarketByBaseSymbolAndKind,
-  I80F48,
-  IDS,
-  QUOTE_INDEX,
-} from "@blockworks-foundation/mango-client";
-import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/src/utp/mango";
+import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/dist/utp/mango/types";
 
-const connection = new Connection(process.env.RPC_ENDPOINT!);
+import { getMarketByBaseSymbolAndKind, I80F48, QUOTE_INDEX } from "@blockworks-foundation/mango-client";
+
+const connection = new Connection(process.env.RPC_ENDPOINT!, {
+  commitment: "confirmed",
+  confirmTransactionInitialTimeout: 120_000,
+});
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
-const MARGINFI_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
+const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
+
+const depositAmount = 5;
 
 (async function () {
-  const config = await getConfig(Environment.DEVNET, connection);
-
+  const config = await getConfig(Environment.MAINNET, connection);
   // Setup the client
   const client = await MarginfiClient.get(config, wallet, connection);
 
   // Prepare user accounts
-  const marginfiAccount = await client.getMarginfiAccount(MARGINFI_ACCOUNT_PK);
+  const mfiAccount = await client.getMarginfiAccount(MARGIN_ACCOUNT_PK);
 
-  marginfiAccount.mango.deposit(uiToNative(500));
+  await mfiAccount.mango.deposit(uiToNative(depositAmount));
 
   // Open counterpart BTC LONG on Mango
-  const [mangoClient, mangoAccount] = await marginfiAccount.mango.getMangoClientAndAccount();
-  const mangoConfig = new MangoConfig(IDS);
-  const groupConfig = mangoConfig.getGroup("devnet", "devnet.2")!;
+  const [mangoClient, mangoAccount] = await mfiAccount.mango.getMangoClientAndAccount();
+  const groupConfig = mfiAccount.mango.config.groupConfig;
   const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "BTC", "perp");
 
   const mangoGroup = await mangoClient.getMangoGroup(groupConfig.publicKey);
@@ -50,7 +48,7 @@ const MARGINFI_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
   console.log("Balance %s, base asset amount %s, price %s", balance, baseAssetAmount, price);
 
-  await marginfiAccount.mango.placePerpOrder(mangoBtcMarket, Side.Bid, price.toNumber(), baseAssetAmount.toNumber(), {
+  await mfiAccount.mango.placePerpOrder(mangoBtcMarket, Side.Bid, price.toNumber(), baseAssetAmount.toNumber(), {
     orderType: PerpOrderType.Market,
   });
 })();

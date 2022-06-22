@@ -468,9 +468,14 @@ export class MarginfiAccount {
    * @returns `AccountMeta[]` list of account metas
    */
   async getObservationAccounts(): Promise<AccountMeta[]> {
-    return (await Promise.all(this.activeUtps().map(async (utp) => await utp.getObservationAccounts()))).flatMap(
-      (a) => a
-    );
+    const debug = require("debug")("mfi:obs-account-loader");
+    let accounts = (
+      await Promise.all(this.activeUtps().map(async (utp) => await utp.getObservationAccounts()))
+    ).flatMap((a) => a);
+
+    debug("Loading %s observation accounts", accounts.length);
+
+    return accounts;
   }
 
   /**
@@ -478,22 +483,22 @@ export class MarginfiAccount {
    *
    * @returns List of health caches for all active UTPs
    */
-  async localObserve(): Promise<IndexedObservation[]> {
+  async observe(): Promise<IndexedObservation[]> {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:observe`);
     debug("Observing UTP Accounts");
     return Promise.all(
       this.activeUtps().map(async (utp) => ({
         utp_index: utp.index,
-        observation: await utp.localObserve(),
+        observation: await utp.observe(),
       }))
     );
   }
 
-  async getObserver(observations?: IndexedObservation[]): Promise<Uint8Array> {
+  private async getObserver(observations?: IndexedObservation[]): Promise<Uint8Array> {
     let observer = create_observer();
 
     if (!observations) {
-      observations = await this.localObserve();
+      observations = await this.observe();
     }
 
     for (let observation of observations) {
@@ -535,7 +540,7 @@ export class MarginfiAccount {
       throw Error("Marginfi Group Account no found");
     }
 
-    const observations = await this.localObserve();
+    const observations = await this.observe();
 
     let observer = await this.getObserver(observations);
 
@@ -591,7 +596,7 @@ export class MarginfiAccount {
       throw Error("Marginfi Group Account no found");
     }
 
-    const indexed_observations = await this.localObserve();
+    const indexed_observations = await this.observe();
     const observer = await this.getObserver(indexed_observations);
 
     debug("Loaded %s observations", indexed_observations.length);
@@ -648,7 +653,7 @@ export class MarginfiAccount {
       throw Error("Marginfi Group Account no found");
     }
 
-    const observations = await this.localObserve();
+    const observations = await this.observe();
     let observer = await this.getObserver(observations);
     const isBankrupt = is_bankrupt(marginfiAccountAi.data, marginfiGroupAi.data, observer);
 
@@ -742,7 +747,7 @@ export class MarginfiAccount {
 
     assets = assets.add(deposits);
 
-    let indexed_observations = await this.localObserve();
+    let indexed_observations = await this.observe();
     for (let observation of indexed_observations) {
       if (!this.isUtpActive(observation.utp_index)) {
         continue;
