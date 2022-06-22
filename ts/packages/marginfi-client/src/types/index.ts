@@ -40,7 +40,6 @@ export interface BankData {
   maintMarginRatio: MDecimalRaw;
 }
 
-/** @internal */
 export interface MDecimalRaw {
   flags: number;
   hi: number;
