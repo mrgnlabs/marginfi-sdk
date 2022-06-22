@@ -8,7 +8,10 @@ import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/dist/utp/mango/ty
 
 import { getMarketByBaseSymbolAndKind, I80F48, QUOTE_INDEX } from "@blockworks-foundation/mango-client";
 
-const connection = new Connection(process.env.RPC_ENDPOINT!);
+const connection = new Connection(process.env.RPC_ENDPOINT!, {
+  commitment: "confirmed",
+  confirmTransactionInitialTimeout: 120_000,
+});
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 

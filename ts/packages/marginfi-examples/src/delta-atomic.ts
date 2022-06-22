@@ -12,18 +12,20 @@ import {
   Wallet,
 } from "@mrgnlabs/marginfi-client";
 
-import { getMarketByBaseSymbolAndKind, I80F48, QUOTE_INDEX } from "@blockworks-foundation/mango-client";
+import { getMarketByBaseSymbolAndKind, I80F48 } from "@blockworks-foundation/mango-client";
 import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/dist/utp/mango/types";
-// import { airdropCollateral } from "./utils";
-// import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { OrderType } from "@mrgnlabs/marginfi-client/dist/utp/zo/types";
 import * as ZoClient from "@zero_one/client";
 
-const connection = new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
+const connection = new Connection(process.env.RPC_ENDPOINT!, {
+  commitment: "confirmed",
+  confirmTransactionInitialTimeout: 120_000,
+});
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
 const posAmountUi = 10;
+const zoMarketKey = "BTC-PERP";
 
 (async function () {
   // const depositAmount = uiToNative(depositAmountUi);
@@ -34,30 +36,27 @@ const posAmountUi = 10;
 
   const mfiAccount = await client.getMarginfiAccount(MARGIN_ACCOUNT_PK);
 
-//   await Promise.all([
-//     mfiAccount.zo.deposit(uiToNative(posAmountUi / 2)),
-//     mfiAccount.mango.deposit(uiToNative(posAmountUi / 2)),
-//   ]);
+  // Fund accounts
+  await Promise.all([
+    mfiAccount.zo.deposit(uiToNative(posAmountUi / 2)),
+    mfiAccount.mango.deposit(uiToNative(posAmountUi / 2)),
+  ]);
 
   // ---------------------------------------------------------------------
   // Open BTC SHORT on 01
-  const marketKey = "BTC-PERP";
   const [zoMargin, zoState] = await mfiAccount.zo.getZoMarginAndState();
-  const market: ZoClient.ZoMarket = await zoState.getMarketBySymbol(marketKey);
+  const market: ZoClient.ZoMarket = await zoState.getMarketBySymbol(zoMarketKey);
   const bids = [...(await market.loadBids(connection)).items(false)];
   const zoPrice = bids[0].price;
 
-  const zoBalance = zoMargin.freeCollateralValue;
-
   const zoSize = posAmountUi / zoPrice;
-  //   console.log(zoMargin.freeCollateralValue, zoPrice, zoSize);
 
-  const oo = await zoMargin.getOpenOrdersInfoBySymbol(marketKey, false);
+  const oo = await zoMargin.getOpenOrdersInfoBySymbol(zoMarketKey, false);
   if (!oo) {
-    await mfiAccount.zo.createPerpOpenOrders(marketKey);
+    await mfiAccount.zo.createPerpOpenOrders(zoMarketKey);
   }
   const zoIx = await mfiAccount.zo.makePlacePerpOrderIx({
-    symbol: marketKey,
+    symbol: zoMarketKey,
     orderType: OrderType.ImmediateOrCancel,
     isLong: false,
     price: zoPrice,
@@ -72,10 +71,7 @@ const posAmountUi = 10;
 
   const mangoGroup = await mangoClient.getMangoGroup(groupConfig.publicKey);
   const mangoCache = await mangoGroup.loadCache(connection);
-//   const balance = mangoAccount.getMaxWithBorrowForToken(mangoGroup, mangoCache, QUOTE_INDEX).div(I80F48.fromNumber(10 ** 6));
   const balance = I80F48.fromNumber(posAmountUi);
-
-  console.log("Mango Equity: %s", mangoAccount.getEquityUi(mangoGroup, mangoCache) * 10 ** 6);
 
   const mangoBtcMarket = await mangoGroup.loadPerpMarket(
     connection,
@@ -105,7 +101,7 @@ const posAmountUi = 10;
     mangoIx
   );
 
-  const sig = await processTransaction(client.program.provider, tx, [], { commitment: "confirmed" });
+  const sig = await processTransaction(client.program.provider, tx, []);
   console.log("Sig %s", sig);
 
   process.exit();

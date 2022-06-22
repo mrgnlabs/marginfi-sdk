@@ -5,12 +5,15 @@ import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection } from "@solana/web3.js";
 import { airdropCollateral } from "./utils";
 
-const connection = new Connection(process.env.RPC_ENDPOINT!);
+const connection = new Connection(process.env.RPC_ENDPOINT!, {
+  commitment: "confirmed",
+  confirmTransactionInitialTimeout: 120_000,
+});
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 
 (async function () {
-  const depositAmount = uiToNative(1_000_000);
-  const config = await getConfig(Environment.DEVNET, connection);
+  const depositAmount = uiToNative(50);
+  const config = await getConfig(Environment.MAINNET, connection);
 
   // Setup the client
   const client = await MarginfiClient.get(config, wallet, connection);

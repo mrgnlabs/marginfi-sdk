@@ -29,7 +29,7 @@ export async function getAccount(accountPk: string) {
         observation.observation.freeCollateral.toNumber() / 1_000_000,
         observation.observation.totalCollateral.toNumber() / 1_000_000,
         observation.observation.marginRequirementInit.toNumber() / 1_000_000,
-        observation.observation.valid,
+        observation.observation.valid
       );
     }
 

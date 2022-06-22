@@ -367,7 +367,7 @@ export class UtpMangoAccount implements UtpAccount {
         pubkey: this._config.mango.group.mangoCache,
         isSigner: false,
         isWritable: false,
-      }, 
+      },
     ];
   }
 

@@ -1,19 +1,15 @@
 require("dotenv").config();
 
+import { Environment, getConfig, loadKeypair, MarginfiClient, uiToNative, Wallet } from "@mrgnlabs/marginfi-client";
 import { Connection, PublicKey } from "@solana/web3.js";
-import {
-  getConfig,
-  MarginfiClient,
-  Environment,
-  Wallet,
-  loadKeypair,
-  uiToNative,
-} from "@mrgnlabs/marginfi-client";
 import * as ZoClient from "@zero_one/client";
 
 import { OrderType } from "@mrgnlabs/marginfi-client/dist/utp/zo/types";
 
-const connection = new Connection(process.env.RPC_ENDPOINT!);
+const connection = new Connection(process.env.RPC_ENDPOINT!, {
+  commitment: "confirmed",
+  confirmTransactionInitialTimeout: 120_000,
+});
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 

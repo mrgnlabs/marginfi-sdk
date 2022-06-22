@@ -468,15 +468,15 @@ export class MarginfiAccount {
    * @returns `AccountMeta[]` list of account metas
    */
   async getObservationAccounts(): Promise<AccountMeta[]> {
-    const debug = require('debug')('mfi:obs-account-loader')
+    const debug = require("debug")("mfi:obs-account-loader");
     let accounts = (
       await Promise.all(this.activeUtps().map(async (utp) => await utp.getObservationAccounts()))
     ).flatMap((a) => a);
 
-    debug('Loading %s observation accounts', accounts.length);
+    debug("Loading %s observation accounts", accounts.length);
 
     for (let i = 0; i < accounts.length; i++) {
-      debug('Account %s %s', i, accounts[i].pubkey)
+      debug("Account %s %s", i, accounts[i].pubkey);
     }
 
     return accounts;
