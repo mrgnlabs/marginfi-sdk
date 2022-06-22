@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.1.0...@mrgnlabs/marginfi-client@0.1.1) (2022-06-22)
+
+
+### Bug Fixes
+
+* add missing 01 dep in client ([#7](https://github.com/mrgnlabs/marginfi-sdk/issues/7)) ([cc7f955](https://github.com/mrgnlabs/marginfi-sdk/commit/cc7f955020a213ad798d3f2084965f37b5b8e93f))
+
+
+
+
+
 # [0.1.0](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.0.12...@mrgnlabs/marginfi-client@0.1.0) (2022-06-20)
 
 
