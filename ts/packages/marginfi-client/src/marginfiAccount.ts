@@ -473,7 +473,7 @@ export class MarginfiAccount {
       await Promise.all(this.activeUtps().map(async (utp) => await utp.getObservationAccounts()))
     ).flatMap((a) => a);
 
-    debug("Loading %s observation accounts", accounts.length); 
+    debug("Loading %s observation accounts", accounts.length);
 
     return accounts;
   }
