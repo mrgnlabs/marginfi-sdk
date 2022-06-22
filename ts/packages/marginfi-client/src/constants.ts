@@ -7,4 +7,7 @@ export const VERY_VERBOSE_ERROR = Buffer.from(
   "V2hhdCB0aGUgZnVjayBkaWQgeW91IGp1c3QgZnVja2luZyBzYXkgYWJvdXQgbWUsIHlvdSBsaXR0bGUgYml0Y2g/IEknbGwgaGF2ZSB5b3Uga25vdyBJIGdyYWR1YXRlZCB0b3Agb2YgbXkgY2xhc3MgaW4gdGhlIE5hdnkgU2VhbHMsIGFuZCBJJ3ZlIGJlZW4gaW52b2x2ZWQgaW4gbnVtZXJvdXMgc2VjcmV0IHJhaWRzIG9uIEFsLVF1YWVkYSwgYW5kIEkgaGF2ZSBvdmVyIDMwMCBjb25maXJtZWQga2lsbHMu"
 ).toString("base64");
 
+/**
+ * @internal
+ */
 export const COLLATERAL_DECIMALS = 6; // USDC decimals

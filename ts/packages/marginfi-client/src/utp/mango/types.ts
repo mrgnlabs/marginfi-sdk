@@ -15,6 +15,9 @@ export enum Side {
   Ask = "ask",
 }
 
+/**
+ * @internal
+ */
 export function toProgramSide(side: Side) {
   if (side == Side.Bid) return { bid: {} };
   if (side == Side.Ask) return { ask: {} };
@@ -29,6 +32,9 @@ export enum PerpOrderType {
   PostOnlySlide,
 }
 
+/**
+ * @internal
+ */
 export function toProgramPerpOrderType(orderType: PerpOrderType) {
   if (orderType == PerpOrderType.Limit) return { limit: {} };
   if (orderType == PerpOrderType.ImmediateOrCancel) return { immediateOrCancel: {} };
@@ -43,6 +49,9 @@ export enum ExpiryType {
   Relative,
 }
 
+/**
+ * @internal
+ */
 export function toProgramExpiryType(orderType: ExpiryType) {
   if (orderType == ExpiryType.Absolute) return { absolute: {} };
   if (orderType == ExpiryType.Relative) return { relative: {} };

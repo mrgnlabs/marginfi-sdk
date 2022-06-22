@@ -13,7 +13,7 @@ import {
 } from "@mrgnlabs/marginfi-wasm-tools";
 import { BN, BorshCoder, Program } from "@project-serum/anchor";
 import { associatedAddress } from "@project-serum/anchor/dist/cjs/utils/token";
-import { AccountInfo, AccountMeta, PublicKey, Transaction } from "@solana/web3.js";
+import { AccountInfo, AccountMeta, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { toBufferBE } from "bigint-buffer";
 import { MarginfiClient } from ".";
 import { MarginfiConfig } from "./config";
@@ -26,7 +26,14 @@ import {
   makeWithdrawIx,
 } from "./instruction";
 import { MarginfiGroup } from "./marginfiGroup";
-import { AccountType, IndexedObservation, MarginfiAccountData, UtpAccount, UtpData } from "./types";
+import {
+  AccountType,
+  IndexedObservation,
+  InstructionsWrapper,
+  MarginfiAccountData,
+  UtpAccount,
+  UtpData,
+} from "./types";
 import {
   BankVaultType,
   Decimal,
@@ -310,23 +317,25 @@ export class MarginfiAccount {
    * @param amount Amount to deposit (mint native unit)
    * @returns `MarginDepositCollateral` transaction instruction
    */
-  async makeDepositIx(amount: BN) {
+  async makeDepositIx(amount: BN): Promise<TransactionInstruction[]> {
     const userTokenAtaPk = await associatedAddress({
       mint: this._group.bank.mint,
       owner: this._program.provider.wallet.publicKey,
     });
 
-    return makeDepositIx(
-      this._program,
-      {
-        marginfiGroupPk: this._group.publicKey,
-        marginfiAccountPk: this.publicKey,
-        authorityPk: this._program.provider.wallet.publicKey,
-        userTokenAtaPk,
-        bankVaultPk: this._group.bank.vault,
-      },
-      { amount }
-    );
+    return [
+      await makeDepositIx(
+        this._program,
+        {
+          marginfiGroupPk: this._group.publicKey,
+          marginfiAccountPk: this.publicKey,
+          authorityPk: this._program.provider.wallet.publicKey,
+          userTokenAtaPk,
+          bankVaultPk: this._group.bank.vault,
+        },
+        { amount }
+      ),
+    ];
   }
 
   /**
@@ -340,7 +349,7 @@ export class MarginfiAccount {
 
     debug("Depositing %s into marginfi account", amount);
     const depositIx = await this.makeDepositIx(amount);
-    const tx = new Transaction().add(depositIx);
+    const tx = new Transaction().add(...depositIx);
     const sig = await processTransaction(this._program.provider, tx);
     debug("Depositing successful %s", sig);
     await this.reload();
@@ -353,26 +362,28 @@ export class MarginfiAccount {
    * @param amount Amount to withdraw (mint native unit)
    * @returns `MarginWithdrawCollateral` transaction instruction
    */
-  async makeWithdrawIx(amount: BN) {
+  async makeWithdrawIx(amount: BN): Promise<TransactionInstruction[]> {
     const userTokenAtaPk = await associatedAddress({
       mint: this._group.bank.mint,
       owner: this._program.provider.wallet.publicKey,
     });
     const [marginBankAuthorityPk] = await getBankAuthority(this._config.groupPk, this._program.programId);
     const remainingAccounts = await this.getObservationAccounts();
-    return makeWithdrawIx(
-      this._program,
-      {
-        marginfiGroupPk: this._group.publicKey,
-        marginfiAccountPk: this.publicKey,
-        authorityPk: this._program.provider.wallet.publicKey,
-        receivingTokenAccount: userTokenAtaPk,
-        bankVaultPk: this._group.bank.vault,
-        bankVaultAuthorityPk: marginBankAuthorityPk,
-      },
-      { amount },
-      remainingAccounts
-    );
+    return [
+      await makeWithdrawIx(
+        this._program,
+        {
+          marginfiGroupPk: this._group.publicKey,
+          marginfiAccountPk: this.publicKey,
+          authorityPk: this._program.provider.wallet.publicKey,
+          receivingTokenAccount: userTokenAtaPk,
+          bankVaultPk: this._group.bank.vault,
+          bankVaultAuthorityPk: marginBankAuthorityPk,
+        },
+        { amount },
+        remainingAccounts
+      ),
+    ];
   }
 
   /**
@@ -386,7 +397,7 @@ export class MarginfiAccount {
 
     debug("Withdrawing %s from marginfi account", amount);
     const withdrawIx = await this.makeWithdrawIx(amount);
-    const tx = new Transaction().add(withdrawIx);
+    const tx = new Transaction().add(...withdrawIx);
     const sig = await processTransaction(this._program.provider, tx);
     debug("Withdrawing successful %s", sig);
     await this.reload();
@@ -401,17 +412,23 @@ export class MarginfiAccount {
    *
    * @internal
    */
-  async makeDeactivateUtpIx(utpIndex: BN) {
+  async makeDeactivateUtpIx(utpIndex: BN): Promise<InstructionsWrapper> {
     const remainingAccounts = await this.getObservationAccounts();
-    return makeDeactivateUtpIx(
-      this._program,
-      {
-        marginfiAccountPk: this.publicKey,
-        authorityPk: this._program.provider.wallet.publicKey,
-      },
-      { utpIndex },
-      remainingAccounts
-    );
+
+    return {
+      instructions: [
+        await makeDeactivateUtpIx(
+          this._program,
+          {
+            marginfiAccountPk: this.publicKey,
+            authorityPk: this._program.provider.wallet.publicKey,
+          },
+          { utpIndex },
+          remainingAccounts
+        ),
+      ],
+      keys: [],
+    };
   }
 
   /**
@@ -424,7 +441,7 @@ export class MarginfiAccount {
    */
   async deactivateUtp(utpIndex: BN) {
     const verifyIx = await this.makeDeactivateUtpIx(utpIndex);
-    const tx = new Transaction().add(verifyIx);
+    const tx = new Transaction().add(...verifyIx.instructions);
     return processTransaction(this._program.provider, tx);
   }
 
@@ -433,22 +450,28 @@ export class MarginfiAccount {
    *
    * @returns `HandleBankruptcy` transaction instruction
    */
-  async makeHandleBankruptcyIx() {
+  async makeHandleBankruptcyIx(): Promise<InstructionsWrapper> {
     const remainingAccounts = await this.getObservationAccounts();
     const insuranceVaultAuthorityPk = (
       await getBankAuthority(this._group.publicKey, this._program.programId, BankVaultType.InsuranceVault)
     )[0];
-    return makeHandleBankruptcyIx(
-      this._program,
-      {
-        marginfiAccountPk: this.publicKey,
-        marginfiGroupPk: this._group.publicKey,
-        insuranceVaultAuthorityPk,
-        insuranceVaultPk: this._group.bank.insuranceVault,
-        liquidityVaultPk: this._group.bank.vault,
-      },
-      remainingAccounts
-    );
+
+    return {
+      instructions: [
+        await makeHandleBankruptcyIx(
+          this._program,
+          {
+            marginfiAccountPk: this.publicKey,
+            marginfiGroupPk: this._group.publicKey,
+            insuranceVaultAuthorityPk,
+            insuranceVaultPk: this._group.bank.insuranceVault,
+            liquidityVaultPk: this._group.bank.vault,
+          },
+          remainingAccounts
+        ),
+      ],
+      keys: [],
+    };
   }
 
   /**
@@ -458,7 +481,7 @@ export class MarginfiAccount {
    */
   async handleBankruptcy() {
     const handleBankruptcyIx = await this.makeHandleBankruptcyIx();
-    const tx = new Transaction().add(handleBankruptcyIx);
+    const tx = new Transaction().add(...handleBankruptcyIx.instructions);
     return processTransaction(this._program.provider, tx);
   }
 

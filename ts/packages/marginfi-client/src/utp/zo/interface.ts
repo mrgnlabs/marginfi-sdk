@@ -11,7 +11,7 @@ import {
 import { MarginfiClient } from "../../client";
 import { MarginfiAccount } from "../../marginfiAccount";
 import { UtpObservation } from "../../state";
-import { UtpAccount, UTPAccountConfig, UtpData } from "../../types";
+import { InstructionsWrapper, UtpAccount, UTPAccountConfig, UtpData } from "../../types";
 import {
   BankVaultType,
   createTempTransferAccounts as createTempTransferAccountIxs,
@@ -34,10 +34,13 @@ import * as ZoClient from "@zero_one/client";
 import { CONTROL_ACCOUNT_SIZE, OrderType } from "@zero_one/client";
 
 export class UtpZoAccount implements UtpAccount {
+  /** @internal */
   private _client: MarginfiClient;
+  /** @internal */
   private _marginfiAccount: MarginfiAccount;
-
+  /** @internal */
   private _isActive: boolean;
+  /** @internal */
   private _utpConfig: UTPAccountConfig;
 
   /** @internal */
@@ -49,13 +52,15 @@ export class UtpZoAccount implements UtpAccount {
   }
 
   // --- Getters and setters
-
+  /** @internal */
   public get _config() {
     return this._client.config;
   }
+  /** @internal */
   public get utpConfig() {
     return this._utpConfig;
   }
+  /** @internal */
   public get _program() {
     return this._client.program;
   }
@@ -90,7 +95,7 @@ export class UtpZoAccount implements UtpAccount {
     this._utpConfig = data.accountConfig;
   }
 
-  async makeActivateIx(zoControlPk: PublicKey): Promise<TransactionInstruction> {
+  async makeActivateIx(zoControlPk: PublicKey): Promise<InstructionsWrapper> {
     const utpAuthoritySeed = Keypair.generate().publicKey;
 
     const zoProgramId = this._config.zo.programId;
@@ -123,7 +128,10 @@ export class UtpZoAccount implements UtpAccount {
       }
     );
 
-    return activateZoIx;
+    return {
+      instructions: [activateZoIx],
+      keys: [],
+    };
   }
 
   async activate(): Promise<string> {
@@ -147,7 +155,7 @@ export class UtpZoAccount implements UtpAccount {
       programId: this.config.programId,
     });
 
-    const tx = new Transaction().add(createZoControlAccount, activateIx);
+    const tx = new Transaction().add(createZoControlAccount, ...activateIx.instructions);
     const sig = await processTransaction(provider, tx, [zoControlKey]);
 
     debug("Sig %s", sig);
@@ -161,7 +169,7 @@ export class UtpZoAccount implements UtpAccount {
    *
    * @returns `DeactivateUtp` transaction instruction
    */
-  async makeDeactivateIx() {
+  async makeDeactivateIx(): Promise<InstructionsWrapper> {
     return this._marginfiAccount.makeDeactivateUtpIx(new BN(this.index));
   }
 
@@ -181,8 +189,20 @@ export class UtpZoAccount implements UtpAccount {
     return sig;
   }
 
-  async makeDepositIx(tempTokenAccountPk: PublicKey, amount: BN): Promise<TransactionInstruction> {
+  async makeDepositIx(amount: BN): Promise<InstructionsWrapper> {
     const zoProgramId = this._config.zo.programId;
+
+    const [utpAuthority] = await getUtpAuthority(
+      this.config.programId,
+      this._utpConfig.authoritySeed,
+      this._program.programId
+    );
+    const [tempTokenAccountKey, createTokenAccountIx, initTokenAccountIx] = await createTempTransferAccountIxs(
+      this._client.program.provider,
+      this._client.group.bank.mint,
+      utpAuthority
+    );
+
     const [utpAuthorityPk] = await getUtpAuthority(zoProgramId, this._utpConfig.authoritySeed, this._program.programId);
 
     const [bankAuthority] = await getBankAuthority(
@@ -199,47 +219,42 @@ export class UtpZoAccount implements UtpAccount {
     const [zoVaultPk] = await zoState.getVaultCollateralByMint(this._client.group.bank.mint);
     const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
-    return makeDepositIx(
-      this._program,
-      {
-        marginfiGroup: this._config.groupPk,
-        marginfiAccount: this._marginfiAccount.publicKey,
-        signer: this._program.provider.wallet.publicKey,
-        marginCollateralVault: this._client.group.bank.vault,
-        bankAuthority: bankAuthority,
-        tempCollateralAccount: tempTokenAccountPk,
-        utpAuthority: utpAuthorityPk,
-        zoProgram: zoProgramId,
-        zoState: this.config.statePk,
-        zoStateSigner: zoStateSigner,
-        zoCache: zoState.cache.pubkey,
-        zoMargin: this._utpConfig.address,
-        zoVault: zoVaultPk,
-      },
-      { amount },
-      remainingAccounts
-    );
+    return {
+      instructions: [
+        createTokenAccountIx,
+        initTokenAccountIx,
+        await makeDepositIx(
+          this._program,
+          {
+            marginfiGroup: this._config.groupPk,
+            marginfiAccount: this._marginfiAccount.publicKey,
+            signer: this._program.provider.wallet.publicKey,
+            marginCollateralVault: this._client.group.bank.vault,
+            bankAuthority: bankAuthority,
+            tempCollateralAccount: tempTokenAccountKey.publicKey,
+            utpAuthority: utpAuthorityPk,
+            zoProgram: zoProgramId,
+            zoState: this.config.statePk,
+            zoStateSigner: zoStateSigner,
+            zoCache: zoState.cache.pubkey,
+            zoMargin: this._utpConfig.address,
+            zoVault: zoVaultPk,
+          },
+          { amount },
+          remainingAccounts
+        ),
+      ],
+      keys: [tempTokenAccountKey],
+    };
   }
 
   async deposit(amount: BN): Promise<string> {
     const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:deposit`);
     debug("Depositing %s into 01", amount);
 
-    const [utpAuthority] = await getUtpAuthority(
-      this.config.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
-    const [tempTokenAccountKey, createTokenAccountIx, initTokenAccountIx] = await createTempTransferAccountIxs(
-      this._client.program.provider,
-      this._client.group.bank.mint,
-      utpAuthority
-    );
-
-    const depositIx = await this.makeDepositIx(tempTokenAccountKey.publicKey, amount);
-
-    const tx = new Transaction().add(createTokenAccountIx, initTokenAccountIx, depositIx);
-    const sig = await processTransaction(this._program.provider, tx, [tempTokenAccountKey]);
+    const depositIx = await this.makeDepositIx(amount);
+    const tx = new Transaction().add(...depositIx.instructions);
+    const sig = await processTransaction(this._program.provider, tx, [...depositIx.keys]);
     debug("Sig %s", sig);
     return sig;
   }
@@ -253,7 +268,7 @@ export class UtpZoAccount implements UtpAccount {
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
     const [zoVaultPk] = await zoState.getVaultCollateralByMint(this._client.group.bank.mint);
-    const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, zoState.cache, utpAuthority);
+    const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
     const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     return makeWithdrawIx(
@@ -288,6 +303,7 @@ export class UtpZoAccount implements UtpAccount {
     return sig;
   }
 
+  /** @internal */
   private verifyActive() {
     const debug = require("debug")(`mfi:utp:${this.address}:zo:verify-active`);
     if (!this.isActive) {
@@ -296,7 +312,7 @@ export class UtpZoAccount implements UtpAccount {
     }
   }
 
-  async makeCreatePerpOpenOrdersIx(marketSymbol: string): Promise<TransactionInstruction> {
+  async makeCreatePerpOpenOrdersIx(marketSymbol: string): Promise<InstructionsWrapper> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
       this._utpConfig.authoritySeed,
@@ -307,20 +323,25 @@ export class UtpZoAccount implements UtpAccount {
     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, zoState.cache, utpAuthority);
     const [openOrdersPk] = await zoMargin.getOpenOrdersKeyBySymbol(marketSymbol, this.config.cluster);
 
-    return makeCreatePerpOpenOrdersIx(this._program, {
-      marginfiAccount: this._marginfiAccount.publicKey,
-      marginfiGroup: this._client.group.publicKey,
-      utpAuthority,
-      signer: this._client.program.provider.wallet.publicKey,
-      zoProgram: this.config.programId,
-      zoState: this.config.statePk,
-      zoStateSigner: zoState.signer,
-      zoMargin: this.address,
-      zoControl: zoMargin.control.pubkey,
-      zoOpenOrders: openOrdersPk,
-      zoDexMarket: zoState.getMarketKeyBySymbol(marketSymbol),
-      zoDexProgram: this.config.dexProgram,
-    });
+    return {
+      instructions: [
+        await makeCreatePerpOpenOrdersIx(this._program, {
+          marginfiAccount: this._marginfiAccount.publicKey,
+          marginfiGroup: this._client.group.publicKey,
+          utpAuthority,
+          signer: this._client.program.provider.wallet.publicKey,
+          zoProgram: this.config.programId,
+          zoState: this.config.statePk,
+          zoStateSigner: zoState.signer,
+          zoMargin: this.address,
+          zoControl: zoMargin.control.pubkey,
+          zoOpenOrders: openOrdersPk,
+          zoDexMarket: zoState.getMarketKeyBySymbol(marketSymbol),
+          zoDexProgram: this.config.dexProgram,
+        }),
+      ],
+      keys: [],
+    };
   }
 
   async createPerpOpenOrders(symbol: string): Promise<string> {
@@ -330,7 +351,7 @@ export class UtpZoAccount implements UtpAccount {
     debug("Creating perp open orders account on 01");
 
     const createPerpOpenOrdersIx = await this.makeCreatePerpOpenOrdersIx(symbol);
-    const tx = new Transaction().add(createPerpOpenOrdersIx);
+    const tx = new Transaction().add(...createPerpOpenOrdersIx.instructions);
     const sig = await processTransaction(this._client.program.provider, tx);
     debug("Sig %s", sig);
     return sig;
@@ -352,7 +373,7 @@ export class UtpZoAccount implements UtpAccount {
     size: number;
     limit?: number;
     clientId?: BN;
-  }>): Promise<TransactionInstruction> {
+  }>): Promise<InstructionsWrapper> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
       this._utpConfig.authoritySeed,
@@ -391,30 +412,35 @@ export class UtpZoAccount implements UtpAccount {
       clientId: clientId ?? new BN(0),
     };
 
-    return makePlacePerpOrderIx(
-      this._client.program,
-      {
-        marginfiAccount: this._marginfiAccount.publicKey,
-        marginfiGroup: this._client.group.publicKey,
-        utpAuthority: utpAuthority,
-        signer: this._program.provider.wallet.publicKey,
-        zoProgram: zoProgram.programId,
-        state: zoState.pubkey,
-        stateSigner: zoState.signer,
-        cache: zoState.cache.pubkey,
-        margin: zoMargin.pubkey,
-        control: zoMargin.control.pubkey,
-        openOrders: openOrdersPk,
-        dexMarket: market.publicKey,
-        reqQ: market.requestQueueAddress,
-        eventQ: market.eventQueueAddress,
-        marketBids: market.bidsAddress,
-        marketAsks: market.asksAddress,
-        dexProgram: this.config.dexProgram,
-      },
-      { args },
-      remainingAccounts
-    );
+    return {
+      instructions: [
+        await makePlacePerpOrderIx(
+          this._client.program,
+          {
+            marginfiAccount: this._marginfiAccount.publicKey,
+            marginfiGroup: this._client.group.publicKey,
+            utpAuthority: utpAuthority,
+            signer: this._program.provider.wallet.publicKey,
+            zoProgram: zoProgram.programId,
+            state: zoState.pubkey,
+            stateSigner: zoState.signer,
+            cache: zoState.cache.pubkey,
+            margin: zoMargin.pubkey,
+            control: zoMargin.control.pubkey,
+            openOrders: openOrdersPk,
+            dexMarket: market.publicKey,
+            reqQ: market.requestQueueAddress,
+            eventQ: market.eventQueueAddress,
+            marketBids: market.bidsAddress,
+            marketAsks: market.asksAddress,
+            dexProgram: this.config.dexProgram,
+          },
+          { args },
+          remainingAccounts
+        ),
+      ],
+      keys: [],
+    };
   }
 
   async placePerpOrder(
@@ -437,7 +463,7 @@ export class UtpZoAccount implements UtpAccount {
       additionalFee: 0,
     });
     const placeOrderIx = await this.makePlacePerpOrderIx(args);
-    const tx = new Transaction().add(requestCUIx, placeOrderIx);
+    const tx = new Transaction().add(requestCUIx, ...placeOrderIx.instructions);
     const sig = await processTransaction(this._program.provider, tx);
     debug("Sig %s", sig);
     return sig;
@@ -448,7 +474,7 @@ export class UtpZoAccount implements UtpAccount {
     isLong?: boolean;
     orderId?: BN;
     clientId?: BN;
-  }): Promise<TransactionInstruction> {
+  }): Promise<InstructionsWrapper> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
       this._utpConfig.authoritySeed,
@@ -457,37 +483,40 @@ export class UtpZoAccount implements UtpAccount {
 
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
-
-    const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, zoState.cache, utpAuthority);
-
+    const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
     const [openOrdersPk] = await zoMargin.getOpenOrdersKeyBySymbol(args.symbol, this.config.cluster);
     const market = await zoState.getMarketBySymbol(args.symbol);
 
-    return makeCancelPerpOrderIx(
-      this._client.program,
-      {
-        marginfiAccount: this._marginfiAccount.publicKey,
-        marginfiGroup: this._client.group.publicKey,
-        utpAuthority: utpAuthority,
-        signer: this._program.provider.wallet.publicKey,
-        zoProgram: zoProgram.programId,
-        state: zoState.pubkey,
-        cache: zoState.cache.pubkey,
-        margin: zoMargin.pubkey,
-        control: zoMargin.control.pubkey,
-        openOrders: openOrdersPk,
-        dexMarket: market.publicKey,
-        eventQ: market.eventQueueAddress,
-        marketBids: market.bidsAddress,
-        marketAsks: market.asksAddress,
-        dexProgram: this.config.dexProgram,
-      },
-      {
-        clientId: args.clientId,
-        isLong: args.isLong,
-        orderId: args.orderId,
-      }
-    );
+    return {
+      instructions: [
+        await makeCancelPerpOrderIx(
+          this._client.program,
+          {
+            marginfiAccount: this._marginfiAccount.publicKey,
+            marginfiGroup: this._client.group.publicKey,
+            utpAuthority: utpAuthority,
+            signer: this._program.provider.wallet.publicKey,
+            zoProgram: zoProgram.programId,
+            state: zoState.pubkey,
+            cache: zoState.cache.pubkey,
+            margin: zoMargin.pubkey,
+            control: zoMargin.control.pubkey,
+            openOrders: openOrdersPk,
+            dexMarket: market.publicKey,
+            eventQ: market.eventQueueAddress,
+            marketBids: market.bidsAddress,
+            marketAsks: market.asksAddress,
+            dexProgram: this.config.dexProgram,
+          },
+          {
+            clientId: args.clientId,
+            isLong: args.isLong,
+            orderId: args.orderId,
+          }
+        ),
+      ],
+      keys: [],
+    };
   }
 
   async cancelPerpOrder(args: { symbol: string; isLong?: boolean; orderId?: BN; clientId?: BN }): Promise<string> {
@@ -495,13 +524,14 @@ export class UtpZoAccount implements UtpAccount {
     debug("Cancelling perp order on 01");
 
     const ix = await this.makeCancelPerpOrderIx(args);
-    const tx = new Transaction().add(ix);
+    const tx = new Transaction().add(...ix.instructions);
     const sig = await processTransaction(this._client.program.provider, tx);
+
     debug("Sig %s", sig);
     return sig;
   }
 
-  async makeSettleFundsIx(symbol: string): Promise<TransactionInstruction> {
+  async makeSettleFundsIx(symbol: string): Promise<InstructionsWrapper> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
       this._utpConfig.authoritySeed,
@@ -510,31 +540,35 @@ export class UtpZoAccount implements UtpAccount {
 
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
-
-    const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, zoState.cache, utpAuthority);
+    const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
 
     const [openOrdersPk] = await zoMargin.getOpenOrdersKeyBySymbol(symbol, this.config.cluster);
 
-    return makeSettleFundsIx(this._client.program, {
-      marginfiAccount: this._marginfiAccount.publicKey,
-      marginfiGroup: this._client.group.publicKey,
-      utpAuthority: utpAuthority,
-      signer: this._program.provider.wallet.publicKey,
-      zoProgram: zoProgram.programId,
-      state: zoState.pubkey,
-      stateSigner: zoState.signer,
-      cache: zoState.cache.pubkey,
-      margin: zoMargin.pubkey,
-      control: zoMargin.control.pubkey,
-      openOrders: openOrdersPk,
-      dexMarket: zoState.getMarketKeyBySymbol(symbol),
-      dexProgram: this.config.dexProgram,
-    });
+    return {
+      instructions: [
+        await makeSettleFundsIx(this._client.program, {
+          marginfiAccount: this._marginfiAccount.publicKey,
+          marginfiGroup: this._client.group.publicKey,
+          utpAuthority: utpAuthority,
+          signer: this._program.provider.wallet.publicKey,
+          zoProgram: zoProgram.programId,
+          state: zoState.pubkey,
+          stateSigner: zoState.signer,
+          cache: zoState.cache.pubkey,
+          margin: zoMargin.pubkey,
+          control: zoMargin.control.pubkey,
+          openOrders: openOrdersPk,
+          dexMarket: zoState.getMarketKeyBySymbol(symbol),
+          dexProgram: this.config.dexProgram,
+        }),
+      ],
+      keys: [],
+    };
   }
 
   async settleFunds(symbol: string): Promise<string> {
     const ix = await this.makeSettleFundsIx(symbol);
-    const tx = new Transaction().add(ix);
+    const tx = new Transaction().add(...ix.instructions);
     return processTransaction(this._client.program.provider, tx);
   }
 
@@ -546,7 +580,7 @@ export class UtpZoAccount implements UtpAccount {
     );
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
-    const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, zoState.cache, utpAuthority);
+    const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
 
     return [zoMargin, zoState];
   }

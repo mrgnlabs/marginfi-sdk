@@ -114,6 +114,9 @@ export class Decimal {
   }
 }
 
+/**
+ * @internal
+ */
 export const printHex = (num: number, padding: number = 32) => {
   const buffer = new BN(num).toBuffer();
   const buffer_padded = Buffer.alloc(padding);
