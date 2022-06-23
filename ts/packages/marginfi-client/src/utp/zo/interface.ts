@@ -95,7 +95,22 @@ export class UtpZoAccount implements UtpAccount {
     this._utpConfig = data.accountConfig;
   }
 
-  async makeActivateIx(zoControlPk: PublicKey): Promise<InstructionsWrapper> {
+  async makeActivateIx(): Promise<InstructionsWrapper> {
+    const zoControlKey = Keypair.generate();
+
+    const controlAccountRent = await this._program.provider.connection.getMinimumBalanceForRentExemption(
+      CONTROL_ACCOUNT_SIZE
+    );
+
+    const provider = this._program.provider;
+    const createZoControlAccount = SystemProgram.createAccount({
+      fromPubkey: provider.wallet.publicKey,
+      newAccountPubkey: zoControlKey.publicKey,
+      lamports: controlAccountRent,
+      space: CONTROL_ACCOUNT_SIZE,
+      programId: this.config.programId,
+    });
+
     const utpAuthoritySeed = Keypair.generate().publicKey;
 
     const zoProgramId = this._config.zo.programId;
@@ -119,7 +134,7 @@ export class UtpZoAccount implements UtpAccount {
         zoProgram: zoProgramId,
         zoState: state.pubkey,
         zoMargin: zoMarginPubkey,
-        zoControl: zoControlPk,
+        zoControl: zoControlKey.publicKey,
       },
       {
         authoritySeed: utpAuthoritySeed,
@@ -129,8 +144,8 @@ export class UtpZoAccount implements UtpAccount {
     );
 
     return {
-      instructions: [activateZoIx],
-      keys: [],
+      instructions: [createZoControlAccount, activateZoIx],
+      keys: [zoControlKey],
     };
   }
 
@@ -138,25 +153,10 @@ export class UtpZoAccount implements UtpAccount {
     const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:activate`);
     debug("Activate 01 UTP");
 
-    const provider = this._program.provider;
+    const activateIx = await this.makeActivateIx();
 
-    const zoControlKey = Keypair.generate();
-    const activateIx = await this.makeActivateIx(zoControlKey.publicKey);
-
-    const controlAccountRent = await this._program.provider.connection.getMinimumBalanceForRentExemption(
-      CONTROL_ACCOUNT_SIZE
-    );
-
-    const createZoControlAccount = SystemProgram.createAccount({
-      fromPubkey: provider.wallet.publicKey,
-      newAccountPubkey: zoControlKey.publicKey,
-      lamports: controlAccountRent,
-      space: CONTROL_ACCOUNT_SIZE,
-      programId: this.config.programId,
-    });
-
-    const tx = new Transaction().add(createZoControlAccount, ...activateIx.instructions);
-    const sig = await processTransaction(provider, tx, [zoControlKey]);
+    const tx = new Transaction().add(...activateIx.instructions);
+    const sig = await processTransaction(this._program.provider, tx, [...activateIx.keys]);
 
     debug("Sig %s", sig);
 
