@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.1.1...@mrgnlabs/marginfi-client@0.2.0) (2022-06-23)
+
+
+### Features
+
+* better ux for composing ixs and docs clean up ([#9](https://github.com/mrgnlabs/marginfi-sdk/issues/9)) ([2e1c260](https://github.com/mrgnlabs/marginfi-sdk/commit/2e1c260aeb4f154fa3bc92462d8f0fc3c9d28e5b))
+
+
+
+
+
 ## [0.1.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.1.0...@mrgnlabs/marginfi-client@0.1.1) (2022-06-22)
 
 
