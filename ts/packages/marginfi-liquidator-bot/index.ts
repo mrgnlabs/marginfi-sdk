@@ -211,14 +211,14 @@ async function closeMangoPositions(marginfiAccount: MarginfiAccount) {
   const mangoUtp = marginfiAccount.mango;
 
   const debug = debugBuilder("liquidator:utp:mango");
-  let mangoGroup = mangoUtp._config.mango.group;
+  let mangoGroup = mangoUtp.config.group;
   const [mangoClient, mangoAccount] = await mangoUtp.getMangoClientAndAccount();
 
   await mangoAccount.reload(marginfiAccount.client.program.provider.connection);
 
   const perpMarkets = await Promise.all(
-    mangoUtp._config.mango.groupConfig.perpMarkets.map((perpMarket) => {
-      return mangoUtp._config.mango.group.loadPerpMarket(
+    mangoUtp.config.groupConfig.perpMarkets.map((perpMarket) => {
+      return mangoUtp.config.group.loadPerpMarket(
         connection,
         perpMarket.marketIndex,
         perpMarket.baseDecimals,
@@ -236,19 +236,12 @@ async function closeMangoPositions(marginfiAccount: MarginfiAccount) {
       const perpMarket = perpMarkets[i];
       const index = mangoGroup.getPerpMarketIndex(perpMarket.publicKey);
       const perpAccount = mangoAccount.perpAccounts[index];
-      const groupIds = mangoUtp._config.mango.groupConfig;
+      const groupIds = mangoUtp.config.groupConfig;
 
       if (perpMarket && perpAccount) {
         const openOrders = await perpMarket.loadOrdersForAccount(connection, mangoAccount);
 
         for (const oo of openOrders) {
-          // await client.cancelPerpOrder(
-          //   mangoGroup,
-          //   mangoAccount,
-          //   payer,x
-          //   perpMarket,
-          //   oo,
-          // );
           debug("Canceling Perp Order %s", oo.orderId);
           await mangoUtp.cancelPerpOrder(perpMarket, oo.orderId, false);
         }
@@ -271,21 +264,6 @@ async function closeMangoPositions(marginfiAccount: MarginfiAccount) {
             orderType: PerpOrderType.Market,
             reduceOnly: true,
           });
-
-          // await client.placePerpOrder(
-          //   mangoGroup,
-          //   mangoAccount,
-          //   cache.publicKey,
-          //   perpMarket,
-          //   payer,
-          //   side,
-          //   orderPrice,
-          //   basePositionSize,
-          //   'ioc',
-          //   0,
-          //   bookSideInfo ? bookSideInfo : undefined,
-          //   true,
-          // );
         }
 
         await mangoAccount.reload(connection, mangoGroup.dexProgramId);
