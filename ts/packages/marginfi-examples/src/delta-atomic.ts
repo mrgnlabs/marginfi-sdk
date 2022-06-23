@@ -65,7 +65,7 @@ const zoMarketKey = "BTC-PERP";
 
   // ---------------------------------------------------------------------
   // Open BTC LONG on Mango
-  const [mangoClient, mangoAccount] = await mfiAccount.mango.getMangoClientAndAccount();
+  const [mangoClient, _] = await mfiAccount.mango.getMangoClientAndAccount();
   const groupConfig = mfiAccount.mango.config.groupConfig;
   const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "BTC", "perp");
 
@@ -97,11 +97,11 @@ const zoMarketKey = "BTC-PERP";
       units: 600000,
       additionalFee: 0,
     }),
-    zoIx,
-    mangoIx
+    ...zoIx.instructions,
+    ...mangoIx.instructions
   );
 
-  const sig = await processTransaction(client.program.provider, tx, []);
+  const sig = await processTransaction(client.program.provider, tx);
   console.log("Sig %s", sig);
 
   process.exit();

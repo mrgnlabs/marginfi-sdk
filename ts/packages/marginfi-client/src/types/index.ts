@@ -1,14 +1,16 @@
 import { BN } from "@project-serum/anchor";
-import { AccountMeta, PublicKey } from "@solana/web3.js";
+import { AccountMeta, Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { UtpObservation } from "../state";
 export * from "./accounts";
 
+/** @internal */
 export interface GroupConfig {
   admin?: PublicKey;
   bank?: BankConfig;
   paused?: boolean;
 }
 
+/** @internal */
 export interface BankConfig {
   scalingFactorC?: BN;
   fixedFee?: BN;
@@ -52,7 +54,7 @@ export interface UTPAccountConfig {
   authorityBump: number;
 }
 
-// TODO:
+/** @internal */
 export interface UTPObservationCache {
   totalCollateral: MDecimalRaw;
   freeCollateral: MDecimalRaw;
@@ -79,4 +81,9 @@ export interface UtpAccount {
 export interface IndexedObservation {
   utp_index: number;
   observation: UtpObservation;
+}
+
+export interface InstructionsWrapper {
+  instructions: TransactionInstruction[];
+  keys: Keypair[];
 }

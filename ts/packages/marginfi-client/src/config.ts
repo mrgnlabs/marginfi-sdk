@@ -10,10 +10,6 @@ export enum Environment {
   MAINNET = "mainnet",
 }
 
-/**
- * Marginfi config.
- * Aggregated data required to conveniently interact with the program
- */
 export interface MarginfiDedicatedConfig {
   environment: Environment;
   programId: PublicKey;
@@ -21,6 +17,10 @@ export interface MarginfiDedicatedConfig {
   collateralMintPk: PublicKey;
 }
 
+/**
+ * Marginfi config.
+ * Aggregated data required to conveniently interact with the program
+ */
 export interface MarginfiConfig extends MarginfiDedicatedConfig {
   mango: MangoConfig;
   zo: ZoConfig;

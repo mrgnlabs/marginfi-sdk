@@ -5,6 +5,7 @@ import { format } from "util";
 import { UTPObservationCache } from "../types";
 import { mDecimalToNative } from "../utils";
 
+/** @internal */
 export interface WasmObservationJson {
   total_collateral: string;
   free_collateral: string;
@@ -17,6 +18,8 @@ export interface WasmObservationJson {
 /**
  * UtpObservation struct mirroring on-chain data.
  * Contains a UTP health metrics.
+ *
+ * @internal
  */
 export class UtpObservation {
   static EMPTY = new UtpObservation(new BN(0), new BN(0), new BN(0), new BN(0), new BN(0), false);

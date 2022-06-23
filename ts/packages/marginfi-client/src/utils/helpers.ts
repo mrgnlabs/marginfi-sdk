@@ -199,6 +199,9 @@ export function getMfiProgram(programAddress: PublicKey, connection: Connection,
   return program;
 }
 
+/**
+ * @internal
+ */
 export async function createTempTransferAccounts(
   provider: Provider,
   mint: PublicKey,
@@ -217,6 +220,9 @@ export async function createTempTransferAccounts(
   return [key, createTokenAccountIx, initTokenAccountIx];
 }
 
+/**
+ * @internal
+ */
 export function getEnvFromStr(envString: string = "devnet"): Environment {
   switch (envString.toUpperCase()) {
     case "MAINNET":
