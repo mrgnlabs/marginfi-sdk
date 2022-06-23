@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.2.0...@mrgnlabs/marginfi-client@0.2.1) (2022-06-23)
+
+
+### Bug Fixes
+
+* correctly wrap ixs ([#10](https://github.com/mrgnlabs/marginfi-sdk/issues/10)) ([039e8eb](https://github.com/mrgnlabs/marginfi-sdk/commit/039e8eb9c890253c6a0ecdd31a76bbe868506efb))
+
+
+
+
+
 # [0.2.0](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.1.1...@mrgnlabs/marginfi-client@0.2.0) (2022-06-23)
 
 
