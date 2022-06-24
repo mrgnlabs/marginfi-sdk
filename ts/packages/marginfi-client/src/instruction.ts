@@ -60,6 +60,7 @@ export async function makeConfigureMarginfiGroupIx(
         maintMarginRatio: args.args.bank?.maintMarginRatio || null,
         initMarginRatio: args.args.bank?.initMarginRatio || null,
         accountDepositLimit: args.args.bank?.accountDepositLimit || null,
+        lpDepositLimit: args.args.bank?.lpDepositLimit || null,
       } as never,
       paused: args.args.paused !== undefined ? args.args.paused : null,
     })

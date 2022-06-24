@@ -124,7 +124,6 @@ export function decimalToNative(amount: Decimal, decimals: number = COLLATERAL_D
 
 /**
  * Converts a token amount stored as `MDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
- * @internal
  */
 export function mDecimalToNative(amount: MDecimalRaw, decimals: number = COLLATERAL_DECIMALS): BN {
   return decimalToNative(Decimal.fromMDecimal(amount), decimals);

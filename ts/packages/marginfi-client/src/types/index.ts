@@ -18,6 +18,7 @@ export interface BankConfig {
   initMarginRatio?: BN;
   maintMarginRatio?: BN;
   accountDepositLimit?: BN;
+  lpDepositLimit?: BN;
 }
 
 export interface BankData {

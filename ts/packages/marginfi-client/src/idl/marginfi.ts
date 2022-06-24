@@ -1767,6 +1767,12 @@ export type Marginfi = {
             type: {
               option: "u64";
             };
+          },
+          {
+            name: "lpDepositLimit";
+            type: {
+              option: "u64";
+            };
           }
         ];
       };
@@ -1881,9 +1887,15 @@ export type Marginfi = {
             };
           },
           {
+            name: "lpDepositLimit";
+            type: {
+              defined: "MDecimal";
+            };
+          },
+          {
             name: "reservedSpace";
             type: {
-              array: ["u128", 32];
+              array: ["u128", 31];
             };
           }
         ];
@@ -2125,15 +2137,20 @@ export type Marginfi = {
     {
       code: 6019;
       name: "AccountDepositLimit";
-      msg: "Account deposit too large";
+      msg: "Deposit exceeds account cap";
     },
     {
       code: 6020;
+      name: "GroupDepositLimit";
+      msg: "Deposit exceeds group cap";
+    },
+    {
+      code: 6021;
       name: "InvalidObserveAccounts";
       msg: "Missing accounts for UTP observation";
     },
     {
-      code: 6021;
+      code: 6022;
       name: "MangoError";
       msg: "Mango error";
     }
@@ -3910,6 +3927,12 @@ export const IDL: Marginfi = {
               option: "u64",
             },
           },
+          {
+            name: "lpDepositLimit",
+            type: {
+              option: "u64",
+            },
+          },
         ],
       },
     },
@@ -4023,9 +4046,15 @@ export const IDL: Marginfi = {
             },
           },
           {
+            name: "lpDepositLimit",
+            type: {
+              defined: "MDecimal",
+            },
+          },
+          {
             name: "reservedSpace",
             type: {
-              array: ["u128", 32],
+              array: ["u128", 31],
             },
           },
         ],
@@ -4267,15 +4296,20 @@ export const IDL: Marginfi = {
     {
       code: 6019,
       name: "AccountDepositLimit",
-      msg: "Account deposit too large",
+      msg: "Deposit exceeds account cap",
     },
     {
       code: 6020,
+      name: "GroupDepositLimit",
+      msg: "Deposit exceeds group cap",
+    },
+    {
+      code: 6021,
       name: "InvalidObserveAccounts",
       msg: "Missing accounts for UTP observation",
     },
     {
-      code: 6021,
+      code: 6022,
       name: "MangoError",
       msg: "Mango error",
     },
