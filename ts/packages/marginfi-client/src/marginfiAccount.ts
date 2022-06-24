@@ -322,7 +322,7 @@ export class MarginfiAccount {
       mint: this._group.bank.mint,
       owner: this._program.provider.wallet.publicKey,
     });
-
+    const remainingAccounts = await this.getObservationAccounts();
     return [
       await makeDepositIx(
         this._program,
@@ -333,7 +333,8 @@ export class MarginfiAccount {
           userTokenAtaPk,
           bankVaultPk: this._group.bank.vault,
         },
-        { amount }
+        { amount },
+        remainingAccounts
       ),
     ];
   }
