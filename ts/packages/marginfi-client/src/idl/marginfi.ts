@@ -1967,6 +1967,20 @@ export type Marginfi = {
       };
     },
     {
+      name: "EquityType";
+      type: {
+        kind: "enum";
+        variants: [
+          {
+            name: "InitReqAdjusted";
+          },
+          {
+            name: "Total";
+          }
+        ];
+      };
+    },
+    {
       name: "BankVaultType";
       type: {
         kind: "enum";
@@ -2086,71 +2100,76 @@ export type Marginfi = {
     },
     {
       code: 6009;
+      name: "AccountHasActiveUtps";
+      msg: "Account has active utps";
+    },
+    {
+      code: 6010;
       name: "AccountNotLiquidatable";
       msg: "Marginfi account not liquidatable";
     },
     {
-      code: 6010;
+      code: 6011;
       name: "AccountNotBankrupt";
       msg: "Marginfi account not bankrupt";
     },
     {
-      code: 6011;
+      code: 6012;
       name: "IllegalUtpDeactivation";
       msg: "Utp account cannot be deactivated";
     },
     {
-      code: 6012;
+      code: 6013;
       name: "IllegalRebalance";
       msg: "Rebalance not legal";
     },
     {
-      code: 6013;
+      code: 6014;
       name: "BorrowNotAllowed";
       msg: "Borrow not allowed";
     },
     {
-      code: 6014;
+      code: 6015;
       name: "IllegalConfig";
       msg: "Config value not legal";
     },
     {
-      code: 6015;
+      code: 6016;
       name: "OperationsPaused";
       msg: "Operations paused";
     },
     {
-      code: 6016;
+      code: 6017;
       name: "InsufficientVaultBalance";
       msg: "Insufficient balance";
     },
     {
-      code: 6017;
+      code: 6018;
       name: "Forbidden";
       msg: "This operation is forbidden";
     },
     {
-      code: 6018;
+      code: 6019;
       name: "InvalidUTPAccount";
       msg: "Invalid account key";
     },
     {
-      code: 6019;
+      code: 6020;
       name: "AccountDepositLimit";
       msg: "Deposit exceeds account cap";
     },
     {
-      code: 6020;
+      code: 6021;
       name: "GroupDepositLimit";
       msg: "Deposit exceeds group cap";
     },
     {
-      code: 6021;
+      code: 6022;
       name: "InvalidObserveAccounts";
       msg: "Missing accounts for UTP observation";
     },
     {
-      code: 6022;
+      code: 6023;
       name: "MangoError";
       msg: "Mango error";
     }
@@ -4126,6 +4145,20 @@ export const IDL: Marginfi = {
       },
     },
     {
+      name: "EquityType",
+      type: {
+        kind: "enum",
+        variants: [
+          {
+            name: "InitReqAdjusted",
+          },
+          {
+            name: "Total",
+          },
+        ],
+      },
+    },
+    {
       name: "BankVaultType",
       type: {
         kind: "enum",
@@ -4245,71 +4278,76 @@ export const IDL: Marginfi = {
     },
     {
       code: 6009,
+      name: "AccountHasActiveUtps",
+      msg: "Account has active utps",
+    },
+    {
+      code: 6010,
       name: "AccountNotLiquidatable",
       msg: "Marginfi account not liquidatable",
     },
     {
-      code: 6010,
+      code: 6011,
       name: "AccountNotBankrupt",
       msg: "Marginfi account not bankrupt",
     },
     {
-      code: 6011,
+      code: 6012,
       name: "IllegalUtpDeactivation",
       msg: "Utp account cannot be deactivated",
     },
     {
-      code: 6012,
+      code: 6013,
       name: "IllegalRebalance",
       msg: "Rebalance not legal",
     },
     {
-      code: 6013,
+      code: 6014,
       name: "BorrowNotAllowed",
       msg: "Borrow not allowed",
     },
     {
-      code: 6014,
+      code: 6015,
       name: "IllegalConfig",
       msg: "Config value not legal",
     },
     {
-      code: 6015,
+      code: 6016,
       name: "OperationsPaused",
       msg: "Operations paused",
     },
     {
-      code: 6016,
+      code: 6017,
       name: "InsufficientVaultBalance",
       msg: "Insufficient balance",
     },
     {
-      code: 6017,
+      code: 6018,
       name: "Forbidden",
       msg: "This operation is forbidden",
     },
     {
-      code: 6018,
+      code: 6019,
       name: "InvalidUTPAccount",
       msg: "Invalid account key",
     },
     {
-      code: 6019,
+      code: 6020,
       name: "AccountDepositLimit",
       msg: "Deposit exceeds account cap",
     },
     {
-      code: 6020,
+      code: 6021,
       name: "GroupDepositLimit",
       msg: "Deposit exceeds group cap",
     },
     {
-      code: 6021,
+      code: 6022,
       name: "InvalidObserveAccounts",
       msg: "Missing accounts for UTP observation",
     },
     {
-      code: 6022,
+      code: 6023,
       name: "MangoError",
       msg: "Mango error",
     },
