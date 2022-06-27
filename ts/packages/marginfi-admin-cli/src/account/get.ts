@@ -4,16 +4,20 @@ import { PublicKey } from "@solana/web3.js";
 export async function getAccount(accountPk: string) {
   try {
     const client = await getClientFromEnv();
+    const connection = client.program.provider.connection;
     const account = await MarginfiAccount.get(new PublicKey(accountPk), client);
 
     const balances = await account.getBalance();
+    const depositsBase = await account.getDeposits();
+    const deposits = depositsBase.toNumber() / 10 ** 6;
     const [equity, assets, liabilities] = balances.map((n) => n.toNumber() / 1_000_000);
     const utps = account.allUtps();
     const observations = await account.observe();
 
     console.log(
-      "Marginfi account %s\n\tBalance %s,\n\tAssets: %s,\n\tLiabilities: %s",
+      "Marginfi account %s\n\tGA Balance: %s\n\tEquity: %s,\n\tAssets: %s,\n\tLiabilities: %s",
       accountPk,
+      deposits,
       equity,
       assets,
       liabilities
@@ -36,10 +40,9 @@ export async function getAccount(accountPk: string) {
     const marginRequirementInit = await account.getMarginRequirement(MarginRequirementType.Init);
     const marginRequirementMaint = await account.getMarginRequirement(MarginRequirementType.Maint);
 
-    const initHealth = equity / marginRequirementInit.toNumber();
-    const maintHealth = equity / marginRequirementMaint.toNumber();
-
-    const marginRatio = equity / liabilities;
+    const initHealth = marginRequirementInit.toNumber() <= 0 ? Infinity : equity / marginRequirementInit.toNumber();
+    const maintHealth = marginRequirementMaint.toNumber() <= 0 ? Infinity : equity / marginRequirementMaint.toNumber();
+    const marginRatio = liabilities <= 0 ? Infinity : equity / liabilities;
 
     console.log(
       "-----------------\nMargin \tratio: %s\n\trequirement\n\tinit: %s, health: %s\n\tmaint: %s, health: %s",
@@ -49,8 +52,96 @@ export async function getAccount(accountPk: string) {
       marginRequirementMaint,
       maintHealth
     );
+
+    if (account.mango.isActive) {
+      const [_, mangoAccount] = await account.mango.getMangoClientAndAccount();
+      const mangoGroup = account.mango.config.group;
+      const mangoGroupConfig = account.mango.config.groupConfig;
+      const mangoCache = await mangoGroup.loadCache(connection);
+      const mangoEquity = mangoAccount.getEquityUi(mangoGroup, mangoCache) * 10 ** 6;
+      const mangoFC = mangoAccount.getCollateralValueUi(mangoGroup, mangoCache);
+      const lev = mangoAccount.getLeverage(mangoGroup, mangoCache);
+      const marginReqInit = mangoAccount.getHealthRatio(mangoGroup, mangoCache, "Init");
+      const marginReqMaint = mangoAccount.getHealthRatio(mangoGroup, mangoCache, "Maint");
+
+      console.log("------------------");
+      console.log("Mango Markets");
+      console.log(
+        "Account %s\n\tEquity: %s\n\tFree Collateral: %s\n\tLev: %s\n\tHealth Ratio Init: %s Maint: %s",
+        accountPk,
+        mangoEquity,
+        mangoFC,
+        lev,
+        marginReqInit,
+        marginReqMaint
+      );
+
+      console.log("Perp markets:");
+      for (let perpMarketIndex = 0; perpMarketIndex < mangoCache.perpMarketCache.length; perpMarketIndex++) {
+        try {
+          if (!mangoGroupConfig.perpMarkets[perpMarketIndex]) {
+            continue;
+          }
+          const perpMarket = await mangoGroup.loadPerpMarket(
+            connection,
+            perpMarketIndex,
+            mangoGroupConfig.perpMarkets[perpMarketIndex].baseDecimals,
+            mangoGroupConfig.perpMarkets[perpMarketIndex].quoteDecimals
+          );
+          const position = await mangoAccount.getPerpPositionUi(perpMarketIndex, perpMarket);
+          if (position != 0) {
+            console.log("\t%s - position: %s", mangoGroupConfig.perpMarkets[perpMarketIndex].name, position);
+          }
+        } catch (e) {
+          console.log("\tCould not load the perp market %s", mangoGroupConfig.perpMarkets[perpMarketIndex].name);
+        }
+
+        const oo = await mangoAccount.getPerpOpenOrders().filter((a) => a.marketIndex === perpMarketIndex);
+        for (let o of oo) {
+          console.log("\tOpen order: side %s price %s", o.side, o.price.toNumber());
+        }
+      }
+    }
+
+    if (account.zo.isActive) {
+      const [zoMargin, zoState] = await account.zo.getZoMarginAndState();
+      const equity = await zoMargin.unweightedAccountValue;
+      const collateral = await zoMargin.freeCollateralValue;
+      const imr = zoMargin.marginFraction.div(zoMargin.initialMarginFraction());
+      const mmr = zoMargin.marginFraction.div(zoMargin.maintenanceMarginFraction);
+
+      console.log("------------------");
+      console.log("01 Protocol");
+      console.log(
+        "Account %s\n\tEquity: %s\n\tFree Collateral: %s\n\tHealth Ratio Init: %s Maint: %s",
+        zoMargin.pubkey,
+        equity,
+        collateral,
+        imr,
+        mmr
+      );
+
+      console.log("Perp Markets");
+      for (let pos of zoMargin.positions) {
+        if (pos.coins.number != 0) {
+          console.log("\t%s - position %s", pos.marketKey, pos.isLong ? pos.coins : -1 * pos.coins.number);
+        }
+      }
+
+      for (let mk of Object.keys(zoState.markets)) {
+        const oo = await zoMargin.getOpenOrdersInfoBySymbol(mk);
+        if (oo && (!oo.coinOnAsks.isZero() || !oo.coinOnBids.isZero())) {
+          console.log(
+            "Open order for %s asks: %s bids: %s, count: %s",
+            mk,
+            oo.coinOnAsks,
+            oo.coinOnBids,
+            oo.orderCount
+          );
+        }
+      }
+    }
   } catch (e) {
-    console.log("Observation failed because of invalid on-chain data");
-    console.log(e);
+    console.log("Something went wrong: %s", e);
   }
 }
