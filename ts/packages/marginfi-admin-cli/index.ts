@@ -8,6 +8,7 @@ import { activateMango } from "./src/account/mango/activate";
 import { depositMango } from "./src/account/mango/deposit";
 import { activateZo } from "./src/account/zo/activate";
 import { depositZo } from "./src/account/zo/deposit";
+import { decodeEvent } from "./src/decode-event";
 import { configureGroup } from "./src/group/configure-group";
 import { createGroup } from "./src/group/create-group";
 import { getGroup } from "./src/group/load-group-config";
@@ -91,5 +92,7 @@ zoProgram
   .arguments("<address> [amount]")
   .requiredOption("-G, --group <address>", "marginfi group address", DEFAULT_MARGINFI_GROUP)
   .action(depositZo);
+
+cliProgram.command("decode").argument("<data>").action(decodeEvent);
 
 cliProgram.parse();

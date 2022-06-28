@@ -2052,6 +2052,44 @@ export type Marginfi = {
       };
     }
   ];
+  events: [
+    {
+      name: "UpdateInterestAccumulatorEvent";
+      fields: [
+        {
+          name: "currentTimestamp";
+          type: "i64";
+          index: false;
+        },
+        {
+          name: "deltaCompoundingPeriods";
+          type: "u64";
+          index: false;
+        },
+        {
+          name: "feesCollected";
+          type: {
+            defined: "MDecimal";
+          };
+          index: false;
+        },
+        {
+          name: "utilizationRate";
+          type: {
+            defined: "MDecimal";
+          };
+          index: false;
+        },
+        {
+          name: "interestRate";
+          type: {
+            defined: "MDecimal";
+          };
+          index: false;
+        }
+      ];
+    }
+  ];
   errors: [
     {
       code: 6000;
@@ -4228,6 +4266,44 @@ export const IDL: Marginfi = {
           },
         ],
       },
+    },
+  ],
+  events: [
+    {
+      name: "UpdateInterestAccumulatorEvent",
+      fields: [
+        {
+          name: "currentTimestamp",
+          type: "i64",
+          index: false,
+        },
+        {
+          name: "deltaCompoundingPeriods",
+          type: "u64",
+          index: false,
+        },
+        {
+          name: "feesCollected",
+          type: {
+            defined: "MDecimal",
+          },
+          index: false,
+        },
+        {
+          name: "utilizationRate",
+          type: {
+            defined: "MDecimal",
+          },
+          index: false,
+        },
+        {
+          name: "interestRate",
+          type: {
+            defined: "MDecimal",
+          },
+          index: false,
+        },
+      ],
     },
   ],
   errors: [
