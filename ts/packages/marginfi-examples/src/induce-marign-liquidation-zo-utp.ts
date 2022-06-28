@@ -63,7 +63,9 @@ const MARKET_SYMBOL = "SOL-PERP";
   await marginfiAccount.zo.activate();
   await marginfiAccount.zo.deposit(numberToQuote(depositAmount * 2));
 
-  const [margin, state] = await marginfiAccount.zo.getZoMarginAndState();
+  const state = await marginfiAccount.zo.getZoState();
+  const margin = await marginfiAccount.zo.getZoMargin(state);
+
   await marginfiAccount.zo.createPerpOpenOrders(MARKET_SYMBOL);
 
   let quoteAmount = margin.freeCollateralValue.toNumber();

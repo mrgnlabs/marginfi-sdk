@@ -1,4 +1,4 @@
-import { Connection, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import * as ZoClient from "@zero_one/client";
 import {
   ZO_DEVNET_STATE_KEY,
@@ -23,11 +23,7 @@ export interface ZoConfig extends UtpConfig {
  *
  * @internal
  */
-export async function getZoConfig(
-  environment: Environment,
-  _connection: Connection,
-  overrides?: Partial<ZoConfig>
-): Promise<ZoConfig> {
+export async function getZoConfig(environment: Environment, overrides?: Partial<ZoConfig>): Promise<ZoConfig> {
   switch (environment) {
     case Environment.MAINNET:
       return {

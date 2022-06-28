@@ -105,7 +105,8 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:utp:zo");
   debug("Closing Zo Positions");
 
-  const [zoMargin, zoState] = await marginfiAccount.zo.getZoMarginAndState();
+  const zoState = await marginfiAccount.zo.getZoState();
+  const zoMargin = await marginfiAccount.zo.getZoMargin(zoState);
 
   /// Close open orders
   const marketSymbols = Object.keys(zoState.markets);
@@ -211,14 +212,14 @@ async function closeMangoPositions(marginfiAccount: MarginfiAccount) {
   const mangoUtp = marginfiAccount.mango;
 
   const debug = debugBuilder("liquidator:utp:mango");
-  let mangoGroup = mangoUtp.config.group;
-  const [mangoClient, mangoAccount] = await mangoUtp.getMangoClientAndAccount();
+  const mangoGroup = await mangoUtp.getMangoGroup();
+  const mangoAccount = await mangoUtp.getMangoAccount(mangoGroup);
 
   await mangoAccount.reload(marginfiAccount.client.program.provider.connection);
 
   const perpMarkets = await Promise.all(
     mangoUtp.config.groupConfig.perpMarkets.map((perpMarket) => {
-      return mangoUtp.config.group.loadPerpMarket(
+      return mangoGroup.loadPerpMarket(
         connection,
         perpMarket.marketIndex,
         perpMarket.baseDecimals,
@@ -275,6 +276,7 @@ async function closeMangoPositions(marginfiAccount: MarginfiAccount) {
         const quoteRootBank = rootBanks[QUOTE_INDEX];
         if (quoteRootBank) {
           debug("Settle %s-PERP, %s", groupIds?.perpMarkets[i].baseSymbol, perpAccount.quotePosition);
+          const mangoClient = mangoUtp.getMangoClient();
           await mangoClient.settlePnl(
             mangoGroup,
             cache,

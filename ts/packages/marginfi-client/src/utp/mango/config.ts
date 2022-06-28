@@ -1,5 +1,4 @@
-import { Config, GroupConfig, IDS, MangoClient, MangoGroup } from "@blockworks-foundation/mango-client";
-import { Connection } from "@solana/web3.js";
+import { Config, GroupConfig, IDS } from "@blockworks-foundation/mango-client";
 import { Environment, UtpConfig } from "../../config";
 
 /**
@@ -7,7 +6,6 @@ import { Environment, UtpConfig } from "../../config";
  * Aggregated data required to conveniently interact with Mango
  */
 export interface MangoConfig extends UtpConfig {
-  group: MangoGroup;
   groupConfig: GroupConfig;
 }
 
@@ -16,22 +14,15 @@ export interface MangoConfig extends UtpConfig {
  *
  * @internal
  */
-export async function getMangoConfig(
-  environment: Environment,
-  connection: Connection,
-  overrides?: Partial<MangoConfig>
-): Promise<MangoConfig> {
+export async function getMangoConfig(environment: Environment, overrides?: Partial<MangoConfig>): Promise<MangoConfig> {
   switch (environment) {
     case Environment.MAINNET: {
       const mangoConfig = new Config(IDS);
       const groupConfig = mangoConfig.getGroup("mainnet", "mainnet.1")!;
       const programId = groupConfig.mangoProgramId;
-      const mangoRPCClient = new MangoClient(connection, programId);
-      const mangoGroup = await mangoRPCClient.getMangoGroup(groupConfig.publicKey);
       return {
         utpIndex: 0,
         programId,
-        group: mangoGroup,
         groupConfig,
         ...overrides,
       };
@@ -40,12 +31,9 @@ export async function getMangoConfig(
       const mangoConfig = new Config(IDS);
       const groupConfig = mangoConfig.getGroup("devnet", "devnet.2")!;
       const programId = groupConfig.mangoProgramId;
-      const mangoRPCClient = new MangoClient(connection, programId);
-      const mangoGroup = await mangoRPCClient.getMangoGroup(groupConfig.publicKey);
       return {
         utpIndex: 0,
         programId,
-        group: mangoGroup,
         groupConfig,
         ...overrides,
       };

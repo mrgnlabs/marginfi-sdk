@@ -41,7 +41,10 @@ const depositAmountUi = 2;
   // ---------------------------------------------------------------------
   // Open BTC SHORT on 01
   const marketKey = "BTC-PERP";
-  const [zoMargin, zoState] = await mfiAccount.zo.getZoMarginAndState();
+
+  const zoState = await mfiAccount.zo.getZoState();
+  const zoMargin = await mfiAccount.zo.getZoMargin(zoState);
+
   const market: ZoClient.ZoMarket = await zoState.getMarketBySymbol(marketKey);
   const bids = [...(await market.loadBids(connection)).items(false)];
   const zoPrice = bids[0].price;
@@ -62,7 +65,9 @@ const depositAmountUi = 2;
 
   // ---------------------------------------------------------------------
   // Open BTC LONG on Mango
-  const [mangoClient, mangoAccount] = await mfiAccount.mango.getMangoClientAndAccount();
+  const mangoClient = mfiAccount.mango.getMangoClient();
+  const mangoAccount = await mfiAccount.mango.getMangoAccount();
+
   const groupConfig = mfiAccount.mango.config.groupConfig;
   const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "BTC", "perp");
 

@@ -12,13 +12,7 @@ import {
   Wallet,
 } from "@mrgnlabs/marginfi-client";
 
-import {
-  Config as MangoConfig,
-  getMarketByBaseSymbolAndKind,
-  I80F48,
-  IDS,
-  QUOTE_INDEX,
-} from "@blockworks-foundation/mango-client";
+import { getMarketByBaseSymbolAndKind, I80F48, QUOTE_INDEX } from "@blockworks-foundation/mango-client";
 import { makeConfigureMarginfiGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
 import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/src/utp/mango/types";
 
@@ -68,13 +62,10 @@ const depositAmount = 100;
   await marginfiAccount.mango.deposit(numberToQuote(depositAmount * 2));
 
   // Open counterpart BTC LONG on Mango
-  const [mangoClient, mangoAccount] = await marginfiAccount.mango.getMangoClientAndAccount();
-  const mangoConfig = new MangoConfig(IDS);
-  const groupConfig = mangoConfig.getGroup("devnet", "devnet.2");
-  if (!groupConfig) throw Error('`No group config found for "devnet" - "devnet.2"');
-  const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "BTC", "perp");
+  const mangoGroup = await marginfiAccount.mango.getMangoGroup();
+  const mangoAccount = await marginfiAccount.mango.getMangoAccount();
 
-  const mangoGroup = await mangoClient.getMangoGroup(groupConfig.publicKey);
+  const perpMarketConfig = getMarketByBaseSymbolAndKind(marginfiAccount.mango.config.groupConfig, "BTC", "perp");
 
   const mangoBtcMarket = await mangoGroup.loadPerpMarket(
     connection,

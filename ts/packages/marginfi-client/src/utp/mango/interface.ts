@@ -1,4 +1,11 @@
-import { I64_MAX_BN, MangoAccount, MangoClient, PerpMarket, ZERO_BN } from "@blockworks-foundation/mango-client";
+import {
+  I64_MAX_BN,
+  MangoAccount,
+  MangoClient,
+  MangoGroup,
+  PerpMarket,
+  ZERO_BN,
+} from "@blockworks-foundation/mango-client";
 import { observe_mango } from "@mrgnlabs/marginfi-wasm-tools";
 import { BN } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
@@ -99,7 +106,7 @@ export class UtpMangoAccount implements UtpAccount {
       this._program.programId
     );
     const [mangoAccountPk] = await getMangoAccountPda(
-      this._config.mango.group.publicKey,
+      this._config.mango.groupConfig.publicKey,
       mangoAuthorityPk,
       new BN(0),
       this._config.mango.programId
@@ -113,7 +120,7 @@ export class UtpMangoAccount implements UtpAccount {
             marginfiGroupPk: this._config.groupPk,
             marginfiAccountPk: this._marginfiAccount.publicKey,
             mangoProgramId: this._config.mango.programId,
-            mangoGroupPk: this._config.mango.group.publicKey,
+            mangoGroupPk: this._config.mango.groupConfig.publicKey,
             mangoAccountPk,
             mangoAuthorityPk,
             authorityPk: this._program.provider.wallet.publicKey,
@@ -185,12 +192,13 @@ export class UtpMangoAccount implements UtpAccount {
     );
 
     const [marginBankAuthorityPk] = await getBankAuthority(this._config.groupPk, this._program.programId);
+    const mangoGroup = await this.getMangoGroup();
 
-    const collateralMintIndex = this._config.mango.group.getTokenIndex(this._config.collateralMintPk);
-    await this._config.mango.group.loadRootBanks(this._program.provider.connection);
-    const rootBankPk = this._config.mango.group.tokens[collateralMintIndex].rootBank;
-    const nodeBankPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].publicKey;
-    const vaultPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].vault;
+    const collateralMintIndex = mangoGroup.getTokenIndex(this._config.collateralMintPk);
+    await mangoGroup.loadRootBanks(this._program.provider.connection);
+    const rootBankPk = mangoGroup.tokens[collateralMintIndex].rootBank;
+    const nodeBankPk = mangoGroup.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].publicKey;
+    const vaultPk = mangoGroup.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].vault;
     const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     const createProxyTokenAccountIx = SystemProgram.createAccount({
@@ -223,8 +231,8 @@ export class UtpMangoAccount implements UtpAccount {
             mangoRootBankPk: rootBankPk,
             mangoNodeBankPk: nodeBankPk,
             mangoVaultPk: vaultPk,
-            mangoGroupPk: this._config.mango.group.publicKey,
-            mangoCachePk: this._config.mango.group.mangoCache,
+            mangoGroupPk: mangoGroup.publicKey,
+            mangoCachePk: mangoGroup.mangoCache,
             mangoAccountPk: this._utpConfig.address,
             mangoAuthorityPk,
             mangoProgramId: this._config.mango.programId,
@@ -268,12 +276,14 @@ export class UtpMangoAccount implements UtpAccount {
       this._utpConfig.authoritySeed,
       this._program.programId
     );
-    const collateralMintIndex = this._config.mango.group.getTokenIndex(this._config.collateralMintPk);
 
-    await this._config.mango.group.loadRootBanks(this._program.provider.connection);
-    const rootBankPk = this._config.mango.group.tokens[collateralMintIndex].rootBank;
-    const nodeBankPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].publicKey;
-    const vaultPk = this._config.mango.group.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].vault;
+    const mangoGroup = await this.getMangoGroup();
+    const collateralMintIndex = mangoGroup.getTokenIndex(this._config.collateralMintPk);
+
+    await mangoGroup.loadRootBanks(this._program.provider.connection);
+    const rootBankPk = mangoGroup.tokens[collateralMintIndex].rootBank;
+    const nodeBankPk = mangoGroup.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].publicKey;
+    const vaultPk = mangoGroup.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0].vault;
 
     return {
       instructions: [
@@ -287,9 +297,9 @@ export class UtpMangoAccount implements UtpAccount {
             mangoRootBankPk: rootBankPk,
             mangoNodeBankPk: nodeBankPk,
             mangoVaultPk: vaultPk,
-            mangoVaultAuthorityPk: this._config.mango.group.signerKey,
-            mangoGroupPk: this._config.mango.group.publicKey,
-            mangoCachePk: this._config.mango.group.mangoCache,
+            mangoVaultAuthorityPk: mangoGroup.signerKey,
+            mangoGroupPk: mangoGroup.publicKey,
+            mangoCachePk: mangoGroup.mangoCache,
             mangoAccountPk: this._utpConfig.address,
             mangoAuthorityPk,
             mangoProgramId: this._config.mango.programId,
@@ -325,15 +335,16 @@ export class UtpMangoAccount implements UtpAccount {
    * @returns `AccountMeta[]` list of account metas
    */
   async getObservationAccounts(): Promise<AccountMeta[]> {
+    const mangoGroup = await this.getMangoGroup();
     return [
       { pubkey: this._utpConfig.address, isSigner: false, isWritable: false },
       {
-        pubkey: this._config.mango.group.publicKey,
+        pubkey: mangoGroup.publicKey,
         isSigner: false,
         isWritable: false,
       },
       {
-        pubkey: this._config.mango.group.mangoCache,
+        pubkey: mangoGroup.mangoCache,
         isSigner: false,
         isWritable: false,
       },
@@ -382,6 +393,8 @@ export class UtpMangoAccount implements UtpAccount {
       expiryType,
     };
 
+    const mangoGroup = await this.getMangoGroup();
+
     return {
       instructions: [
         await makePlacePerpOrderIx(
@@ -392,9 +405,9 @@ export class UtpMangoAccount implements UtpAccount {
             authorityPk: this._program.provider.wallet.publicKey,
             mangoAuthorityPk,
             mangoProgramId: this._config.mango.programId,
-            mangoGroupPk: this._config.mango.group.publicKey,
+            mangoGroupPk: mangoGroup.publicKey,
             mangoAccountPk: this._utpConfig.address,
-            mangoCachePk: this._config.mango.group.mangoCache,
+            mangoCachePk: mangoGroup.mangoCache,
             mangoPerpMarketPk: market.publicKey,
             mangoBidsPk: market.bids,
             mangoAsksPk: market.asks,
@@ -463,7 +476,7 @@ export class UtpMangoAccount implements UtpAccount {
             authorityPk: this._program.provider.wallet.publicKey,
             mangoAuthorityPk,
             mangoProgramId: this._config.mango.programId,
-            mangoGroupPk: this._config.mango.group.publicKey,
+            mangoGroupPk: this._config.mango.groupConfig.publicKey,
             mangoAccountPk: this._utpConfig.address,
             mangoPerpMarketPk: market.publicKey,
             mangoBidsPk: market.bids,
@@ -507,7 +520,7 @@ export class UtpMangoAccount implements UtpAccount {
   async getUtpAccountAddress(accountNumber: BN = new BN(0)) {
     const [utpAuthorityPk] = await this.getUtpAuthority();
     const [utpAccountPk] = await getMangoAccountPda(
-      this._config.mango.group.publicKey,
+      this._config.mango.groupConfig.publicKey,
       utpAuthorityPk,
       accountNumber,
       this._config.mango.programId
@@ -523,16 +536,17 @@ export class UtpMangoAccount implements UtpAccount {
   async observe(): Promise<UtpObservation> {
     const debug = require("debug")(`mfi:utp:${this.address}:mango:local-observe`);
     debug("Observing Locally");
+    const mangoGroup = await this.getMangoGroup();
     const [mangoGroupAi, mangoAccountAi, mangoCacheAi] =
       await this._program.provider.connection.getMultipleAccountsInfo([
-        this._config.mango.group.publicKey,
+        this._config.mango.groupConfig.publicKey,
         this._utpConfig.address,
-        this._config.mango.group.mangoCache,
+        mangoGroup.mangoCache,
       ]);
 
-    if (!mangoGroupAi) throw Error(`Mango group account not found: ${this._config.mango.group.publicKey}`);
+    if (!mangoGroupAi) throw Error(`Mango group account not found: ${this._config.mango.groupConfig.publicKey}`);
     if (!mangoAccountAi) throw Error(`Mango account not found: ${this._utpConfig.address}`);
-    if (!mangoCacheAi) throw Error(`Mango cache not found: ${this._config.mango.group.mangoCache}`);
+    if (!mangoCacheAi) throw Error(`Mango cache not found: ${mangoGroup.mangoCache}`);
 
     const timestamp = Math.round(new Date().getTime() / 1000);
     return UtpObservation.fromWasm(
@@ -545,14 +559,33 @@ export class UtpMangoAccount implements UtpAccount {
     );
   }
 
+  /** @internal @deprecated */
   async getMangoClientAndAccount(): Promise<[MangoClient, MangoAccount]> {
-    const mangoClient = new MangoClient(this._client.program.provider.connection, this._client.config.mango.programId);
-    const mangoAccount = await mangoClient.getMangoAccount(
-      this._utpConfig.address,
-      this._config.mango.group.dexProgramId
-    );
+    const mangoClient = this.getMangoClient();
+    const mangoGroup = await this.getMangoGroup();
+    const mangoAccount = await mangoClient.getMangoAccount(this._utpConfig.address, mangoGroup.dexProgramId);
 
     return [mangoClient, mangoAccount];
+  }
+
+  async getMangoAccount(mangoGroup?: MangoGroup): Promise<MangoAccount> {
+    if (!mangoGroup) {
+      mangoGroup = await this.getMangoGroup();
+    }
+
+    const mangoClient = this.getMangoClient();
+    const mangoAccount = await mangoClient.getMangoAccount(this._utpConfig.address, mangoGroup.dexProgramId);
+
+    return mangoAccount;
+  }
+
+  getMangoClient(): MangoClient {
+    return new MangoClient(this._client.program.provider.connection, this._client.config.mango.programId);
+  }
+
+  async getMangoGroup(): Promise<MangoGroup> {
+    const mangoClient = this.getMangoClient();
+    return mangoClient.getMangoGroup(this._config.mango.groupConfig.publicKey);
   }
 }
 

@@ -28,11 +28,13 @@ const depositAmount = 5;
   await mfiAccount.mango.deposit(uiToNative(depositAmount));
 
   // Open counterpart BTC LONG on Mango
-  const [mangoClient, mangoAccount] = await mfiAccount.mango.getMangoClientAndAccount();
+
+  const mangoGroup = await mfiAccount.mango.getMangoGroup();
+  const mangoAccount = await mfiAccount.mango.getMangoAccount(mangoGroup);
+
   const groupConfig = mfiAccount.mango.config.groupConfig;
   const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "BTC", "perp");
 
-  const mangoGroup = await mangoClient.getMangoGroup(groupConfig.publicKey);
   const mangoCache = await mangoGroup.loadCache(connection);
   const balance = mangoAccount.getAvailableBalance(mangoGroup, mangoCache, QUOTE_INDEX).div(I80F48.fromNumber(10 ** 6));
 
