@@ -559,6 +559,7 @@ export class UtpMangoAccount implements UtpAccount {
     );
   }
 
+  /** @internal @deprecated */
   async getMangoClientAndAccount(): Promise<[MangoClient, MangoAccount]> {
     const mangoClient = this.getMangoClient();
     const mangoGroup = await this.getMangoGroup();
