@@ -10,12 +10,14 @@
     "format": "lerna run format",
     "changed": "lerna changed",
     "docs": "lerna run generate-docs",
-    "bump": "lerna version --conventional-commits --conventional-graduate --create-release",
-    "bump-manual": "lerna version --conventional-graduate --create-release",
+    "bump": "lerna version --conventional-commits --conventional-graduate --create-release --no-changelog",
+    "bump-manual": "lerna version --conventional-graduate --create-release --no-changelog",
     "release": "lerna publish from-git"
   },
   "devDependencies": {
     "lerna": "^5.0.0"
   },
-  "workspaces": ["packages/*"]
+  "workspaces": [
+    "packages/*"
+  ]
 }
