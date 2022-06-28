@@ -559,7 +559,6 @@ export class UtpMangoAccount implements UtpAccount {
     );
   }
 
-  /** @internal @deprecated */
   async getMangoClientAndAccount(): Promise<[MangoClient, MangoAccount]> {
     const mangoClient = this.getMangoClient();
     const mangoGroup = await this.getMangoGroup();
@@ -568,9 +567,12 @@ export class UtpMangoAccount implements UtpAccount {
     return [mangoClient, mangoAccount];
   }
 
-  async getMangoAccount(): Promise<MangoAccount> {
+  async getMangoAccount(mangoGroup?: MangoGroup): Promise<MangoAccount> {
+    if (!mangoGroup) {
+      mangoGroup = await this.getMangoGroup();
+    }
+
     const mangoClient = this.getMangoClient();
-    const mangoGroup = await this.getMangoGroup();
     const mangoAccount = await mangoClient.getMangoAccount(this._utpConfig.address, mangoGroup.dexProgramId);
 
     return mangoAccount;

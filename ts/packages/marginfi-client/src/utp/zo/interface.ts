@@ -572,6 +572,7 @@ export class UtpZoAccount implements UtpAccount {
     return processTransaction(this._client.program.provider, tx);
   }
 
+  /** @deprecated @internal */
   async getZoMarginAndState(): Promise<[ZoClient.Margin, ZoClient.State]> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
@@ -583,6 +584,28 @@ export class UtpZoAccount implements UtpAccount {
     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
 
     return [zoMargin, zoState];
+  }
+
+  async getZoState(): Promise<ZoClient.State> {
+    const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
+    return ZoClient.State.load(zoProgram, this.config.statePk);
+  }
+
+  async getZoMargin(zoState?: ZoClient.State): Promise<ZoClient.Margin> {
+    const [utpAuthority] = await getUtpAuthority(
+      this.config.programId,
+      this._utpConfig.authoritySeed,
+      this._program.programId
+    );
+
+    if (!zoState) {
+      zoState = await this.getZoState();
+    }
+
+    const zoProgram = zoState.program;
+    const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
+
+    return zoMargin;
   }
 
   async getObservationAccounts(): Promise<AccountMeta[]> {
