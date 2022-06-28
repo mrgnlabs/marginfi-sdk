@@ -68,12 +68,12 @@ export function getMarginfiConfig(
  */
 export async function getConfig(
   environment: Environment,
-  connection: Connection,
+  _connection: Connection,
   overrides?: Partial<Omit<MarginfiConfig, "environment">>
 ): Promise<MarginfiConfig> {
   return {
     ...getMarginfiConfig(environment, overrides),
-    mango: await getMangoConfig(environment, connection, overrides?.mango),
-    zo: await getZoConfig(environment, connection, overrides?.zo),
+    mango: await getMangoConfig(environment, overrides?.mango),
+    zo: await getZoConfig(environment, overrides?.zo),
   };
 }
