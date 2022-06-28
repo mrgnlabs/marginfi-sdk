@@ -1,3 +1,16 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.0.7](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-interest-rate-accumulator-bot@0.0.6...@mrgnlabs/marginfi-interest-rate-accumulator-bot@0.0.7) (2022-06-28)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-interest-rate-accumulator-bot
+
+
+
+
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

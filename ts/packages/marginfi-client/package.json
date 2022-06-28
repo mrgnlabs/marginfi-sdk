@@ -1,6 +1,6 @@
 {
   "name": "@mrgnlabs/marginfi-client",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "marginfi protocol SDK",
   "main": "dist/index.js",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
@@ -20,7 +20,7 @@
   "dependencies": {
     "@blockworks-foundation/mango-client": "^3.3.28",
     "@drift-labs/sdk": "^0.1.36-master.2",
-    "@mrgnlabs/marginfi-wasm-tools": "^0.1.0",
+    "@mrgnlabs/marginfi-wasm-tools": "^0.1.1",
     "@project-serum/anchor": "^0.23.0",
     "@solana/web3.js": "^1.37.0",
     "@zero_one/client": "^0.8.7",
