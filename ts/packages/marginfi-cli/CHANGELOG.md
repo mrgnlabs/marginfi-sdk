@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-cli@0.2.0...@mrgnlabs/marginfi-cli@0.2.1) (2022-06-30)
+
+
+### Bug Fixes
+
+* remove dotenv ([#19](https://github.com/mrgnlabs/marginfi-sdk/issues/19)) ([d950ac1](https://github.com/mrgnlabs/marginfi-sdk/commit/d950ac10b66221c756f3aabbe246532b341cf740))
+
+
+
+
+
 # 0.2.0 (2022-06-30)
 
 
