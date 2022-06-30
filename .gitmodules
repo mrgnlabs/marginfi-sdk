@@ -1,0 +1,3 @@
+[submodule "ts/packages/arrakis"]
+	path = ts/packages/arrakis
+	url = git@github.com:mrgnlabs/arrakis.git
