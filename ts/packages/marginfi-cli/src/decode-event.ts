@@ -1,7 +1,9 @@
-import { Decimal, getClientFromEnv } from "@mrgnlabs/marginfi-client";
+import { Decimal } from "@mrgnlabs/marginfi-client";
+import { OptionValues } from "commander";
+import { getClientFromOptions } from "./common";
 
-export async function decodeEvent(encodedEvent: string) {
-  const mfiClient = await getClientFromEnv();
+export async function decodeEvent(encodedEvent: string, options: OptionValues) {
+  const mfiClient = await getClientFromOptions(options);
   const event = await mfiClient.program.coder.events.decode(encodedEvent);
 
   if (!event) {

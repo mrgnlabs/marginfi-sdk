@@ -1,9 +1,24 @@
-import { getClientFromEnv, MarginfiAccount, MarginRequirementType } from "@mrgnlabs/marginfi-client";
+import { MarginfiAccount, MarginRequirementType } from "@mrgnlabs/marginfi-client";
 import { PublicKey } from "@solana/web3.js";
+import { OptionValues } from "commander";
+import { getClientFromOptions } from "../common";
 
-export async function getAccount(accountPk: string) {
+export async function getAccounts(options: OptionValues) {
+  const client = await getClientFromOptions(options);
+  const accounts = await await client.getOwnMarginfiAccounts();
+  if (accounts.length > 0) {
+    console.log("%s accounts owned by %s:\n", accounts.length, client.program.provider.wallet.publicKey);
+  } else {
+    console.log("No accounts owned by %s", client.program.provider.wallet.publicKey);
+  }
+  for (let account of accounts) {
+    console.log("%s", account.publicKey);
+  }
+}
+
+export async function getAccount(accountPk: string, options: OptionValues) {
+  const client = await getClientFromOptions(options);
   try {
-    const client = await getClientFromEnv();
     const connection = client.program.provider.connection;
     const account = await MarginfiAccount.get(new PublicKey(accountPk), client);
 
@@ -11,8 +26,8 @@ export async function getAccount(accountPk: string) {
     const depositsBase = await account.getDeposits();
     const deposits = depositsBase.toNumber() / 10 ** 6;
     const [equity, assets, liabilities] = balances.map((n) => n.toNumber() / 1_000_000);
-    const utps = account.allUtps();
-    const observations = await account.observe();
+    // const utps = account.allUtps();
+    // const observations = await account.observe();
 
     console.log(
       "Marginfi account %s\n\tGA Balance: %s\n\tEquity: %s,\n\tAssets: %s,\n\tLiabilities: %s",
@@ -22,20 +37,20 @@ export async function getAccount(accountPk: string) {
       assets,
       liabilities
     );
-    for (let utp of utps) {
-      console.log("Utp %s active: %s, address %s", utp.index, utp.isActive, utp.address);
-    }
-    for (let observation of observations) {
-      console.log(
-        "Utp Observation: %d, equity: %s, free collateral: %s, assets: %s, init margin req: %s, valid %s",
-        observation.utp_index,
-        observation.observation.equity.toNumber() / 1_000_000,
-        observation.observation.freeCollateral.toNumber() / 1_000_000,
-        observation.observation.totalCollateral.toNumber() / 1_000_000,
-        observation.observation.marginRequirementInit.toNumber() / 1_000_000,
-        observation.observation.valid
-      );
-    }
+    // for (let utp of utps) {
+    //   console.log("Utp %s active: %s, address %s", utp.index, utp.isActive, utp.address);
+    // }
+    // for (let observation of observations) {
+    //   console.log(
+    //     "Utp Observation: %d, equity: %s, free collateral: %s, assets: %s, init margin req: %s, valid %s",
+    //     observation.utp_index,
+    //     observation.observation.equity.toNumber() / 1_000_000,
+    //     observation.observation.freeCollateral.toNumber() / 1_000_000,
+    //     observation.observation.totalCollateral.toNumber() / 1_000_000,
+    //     observation.observation.marginRequirementInit.toNumber() / 1_000_000,
+    //     observation.observation.valid
+    //   );
+    // }
 
     const marginRequirementInit = await account.getMarginRequirement(MarginRequirementType.Init);
     const marginRequirementMaint = await account.getMarginRequirement(MarginRequirementType.Maint);
@@ -54,27 +69,16 @@ export async function getAccount(accountPk: string) {
     );
 
     if (account.mango.isActive) {
-      const [_, mangoAccount] = await account.mango.getMangoClientAndAccount();
-      const mangoGroup = account.mango.config.group;
+      const mangoGroup = await account.mango.getMangoGroup();
+      const mangoAccount = await account.mango.getMangoAccount(mangoGroup);
       const mangoGroupConfig = account.mango.config.groupConfig;
       const mangoCache = await mangoGroup.loadCache(connection);
       const mangoEquity = mangoAccount.getEquityUi(mangoGroup, mangoCache) * 10 ** 6;
       const mangoFC = mangoAccount.getCollateralValueUi(mangoGroup, mangoCache);
-      const lev = mangoAccount.getLeverage(mangoGroup, mangoCache);
-      const marginReqInit = mangoAccount.getHealthRatio(mangoGroup, mangoCache, "Init");
-      const marginReqMaint = mangoAccount.getHealthRatio(mangoGroup, mangoCache, "Maint");
 
       console.log("------------------");
       console.log("Mango Markets");
-      console.log(
-        "Account %s\n\tEquity: %s\n\tFree Collateral: %s\n\tLev: %s\n\tHealth Ratio Init: %s Maint: %s",
-        accountPk,
-        mangoEquity,
-        mangoFC,
-        lev,
-        marginReqInit,
-        marginReqMaint
-      );
+      console.log("Account %s\n\tEquity: %s\n\tFree Collateral: %s", accountPk, mangoEquity, mangoFC);
 
       console.log("Perp markets:");
       for (let perpMarketIndex = 0; perpMarketIndex < mangoCache.perpMarketCache.length; perpMarketIndex++) {
@@ -104,22 +108,14 @@ export async function getAccount(accountPk: string) {
     }
 
     if (account.zo.isActive) {
-      const [zoMargin, zoState] = await account.zo.getZoMarginAndState();
+      const zoState = await account.zo.getZoState();
+      const zoMargin = await account.zo.getZoMargin(zoState);
       const equity = await zoMargin.unweightedAccountValue;
       const collateral = await zoMargin.freeCollateralValue;
-      const imr = zoMargin.marginFraction.div(zoMargin.initialMarginFraction());
-      const mmr = zoMargin.marginFraction.div(zoMargin.maintenanceMarginFraction);
 
       console.log("------------------");
       console.log("01 Protocol");
-      console.log(
-        "Account %s\n\tEquity: %s\n\tFree Collateral: %s\n\tHealth Ratio Init: %s Maint: %s",
-        zoMargin.pubkey,
-        equity,
-        collateral,
-        imr,
-        mmr
-      );
+      console.log("Account %s\n\tEquity: %s\n\tFree Collateral: %s", zoMargin.pubkey, equity, collateral);
 
       console.log("Perp Markets");
       for (let pos of zoMargin.positions) {

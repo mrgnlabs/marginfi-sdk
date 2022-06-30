@@ -1,15 +1,15 @@
-import { getMfiProgram, instruction, loadKeypair, processTransaction } from "@mrgnlabs/marginfi-client";
+import { getConfig, getMfiProgram, instruction, loadKeypair, processTransaction } from "@mrgnlabs/marginfi-client";
 import { BN, Wallet } from "@project-serum/anchor";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { OptionValues } from "commander";
-
-const program = getMfiProgram(
-  new PublicKey(process.env.MARGINFI_PROGRAM!),
-  new Connection(process.env.RPC_ENDPOINT!),
-  new Wallet(loadKeypair(process.env.WALLET!))
-);
+import { getEnvironment } from "../common";
 
 export async function configureGroup(marginfiGroupAddress: string, options: OptionValues) {
+  const connection = new Connection(options.url, "confirmed");
+  const config = await getConfig(getEnvironment(options.env), connection);
+
+  const program = getMfiProgram(config.programId, connection, new Wallet(loadKeypair(options.keypair)));
+
   const wallet = program.provider.wallet;
   const marginfiGroupPk = new PublicKey(marginfiGroupAddress);
   const args = {

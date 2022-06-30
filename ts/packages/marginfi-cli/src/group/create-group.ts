@@ -1,36 +1,30 @@
 import {
   BankVaultType,
   getBankAuthority,
+  getConfig,
+  getMfiProgram,
   instruction,
   loadKeypair,
-  MARGINFI_IDL,
   processTransaction,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
-import { Program, Provider } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
-import { Command } from "commander";
+import { OptionValues } from "commander";
+import { getEnvironment } from "../common";
 
-export async function createGroup(_string: string, command: Command) {
-  const connection = new Connection(process.env.RPC_ENDPOINT!);
-  const programId = new PublicKey(process.env.MARGINFI_PROGRAM!);
-  const groupPk = process.env.MARGINFI_GROUP ? new PublicKey(process.env.MARGINFI_GROUP) : PublicKey.default;
-  const wallet = new Wallet(loadKeypair(process.env.WALLET!));
-  const program = new Program(MARGINFI_IDL, programId, new Provider(connection, wallet, {}));
+export async function createGroup(_string: string, options: OptionValues) {
+  const connection = new Connection(options.url, "confirmed");
+  const wallet = new Wallet(loadKeypair(options.keypair));
+  const config = await getConfig(getEnvironment(options.env), connection);
+  const program = getMfiProgram(config.programId, connection, wallet);
 
-  console.log("Loading from env vars");
-  console.log("Program: %s\nGroup: %s\nSigner: %s", programId, groupPk, wallet.publicKey);
+  console.log("Program: %s\nSigner: %s", program.programId, wallet.publicKey);
 
-  const options = command.opts();
   const mintPk = new PublicKey(options.collateral);
-
   const mfiGroupKey = Keypair.generate();
-
   const [bankVaultAuthority, bankAuthorityPdaBump] = await getBankAuthority(mfiGroupKey.publicKey, program.programId);
-
   const createMarginfiGroupAccountIx = await program.account.marginfiGroup.createInstruction(mfiGroupKey);
-
   const [bankVaultKey, bankVaultInstructions] = await createVaultAccountInstructions(
     mintPk,
     bankVaultAuthority,
