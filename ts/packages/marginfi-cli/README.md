@@ -54,7 +54,7 @@ mfi withdraw <mfi_account_address> [amount]
 
 Example, withdraw $60
 ```
-mfi deposit HHS3XAt2UDSr2N6QWfEp5muML4VDggLwX5Tr8xqA6pf3 60
+mfi withdraw HHS3XAt2UDSr2N6QWfEp5muML4VDggLwX5Tr8xqA6pf3 60
 ```
 
 ### Mango Markets
