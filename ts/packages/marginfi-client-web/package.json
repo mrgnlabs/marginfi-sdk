@@ -1,0 +1,53 @@
+{
+  "name": "@mrgnlabs/marginfi-client-web",
+  "version": "0.1.0",
+  "description": "marginfi protocol SDK",
+  "main": "dist/index.js",
+  "repository": "https://github.com/mrgnlabs/marginfi-sdk",
+  "author": "MRGN Labs",
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "ts-mocha -p ./tsconfig.json ./src/**/*.spec.ts",
+    "build": "tsc -b",
+    "watch": "tsc -w",
+    "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
+    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check .",
+    "clean": "rm -rf dist",
+    "dev": "tsc -w",
+    "shell": "node -e \"$(< shell)\" -i --experimental-repl-await",
+    "generate-docs": "typedoc --out ../../../docs --plugin none"
+  },
+  "dependencies": {
+    "@blockworks-foundation/mango-client": "^3.3.28",
+    "@drift-labs/sdk": "^0.1.36-master.2",
+    "@mrgnlabs/marginfi-wasm-tools-web": "0.0.2",
+    "@project-serum/anchor": "^0.23.0",
+    "@solana/web3.js": "^1.37.0",
+    "@zero_one/client": "^0.8.7",
+    "bigint-buffer": "^1.1.5",
+    "debug": "^4.3.4"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.0",
+    "@types/chai": "^4.3.1",
+    "@types/chai-as-promised": "^7.1.5",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^17.0.38",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^8.16.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "mocha": "^10.0.0",
+    "prettier": "^2.6.2",
+    "prettier-plugin-organize-imports": "^2.3.4",
+    "ts-mocha": "^9.0.2",
+    "typedoc": "^0.22.15",
+    "typescript": "^4.7.3"
+  }
+}
