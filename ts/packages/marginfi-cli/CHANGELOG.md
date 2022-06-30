@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.2.0 (2022-06-30)
+
+
+### Features
+
+* cli bro ([#18](https://github.com/mrgnlabs/marginfi-sdk/issues/18)) ([32c086d](https://github.com/mrgnlabs/marginfi-sdk/commit/32c086d5e02c9c37faf9ea217e78cb8beffa4694))
+
+
+
+
+
 ## [0.1.4](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-admin-cli@0.1.3...@mrgnlabs/marginfi-admin-cli@0.1.4) (2022-06-28)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-admin-cli
