@@ -1,7 +1,7 @@
 {
-  "name": "@mrgnlabs/marginfi-admin-cli",
+  "name": "@mrgnlabs/marginfi-cli",
   "version": "0.1.4",
-  "description": "marginfi admin CLI",
+  "description": "marginfi CLI",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
   "license": "Apache-2.0",
