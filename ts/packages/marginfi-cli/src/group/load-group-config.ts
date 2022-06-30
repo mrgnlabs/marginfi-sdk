@@ -1,8 +1,6 @@
 import { OptionValues } from "commander";
 import { getClientFromOptions, parseDecimal } from "../common";
 
-require("dotenv").config();
-
 export async function getGroup(address: string, options: OptionValues) {
   const client = await getClientFromOptions(options);
   const program = client.program;
