@@ -5,7 +5,7 @@ import { getClientFromOptions } from "../common";
 
 export async function getAccounts(options: OptionValues) {
   const client = await getClientFromOptions(options);
-  const accounts = await (await client.getOwnMarginfiAccounts());
+  const accounts = await await client.getOwnMarginfiAccounts();
   if (accounts.length > 0) {
     console.log("%s accounts owned by %s:\n", accounts.length, client.program.provider.wallet.publicKey);
   } else {
@@ -78,12 +78,7 @@ export async function getAccount(accountPk: string, options: OptionValues) {
 
       console.log("------------------");
       console.log("Mango Markets");
-      console.log(
-        "Account %s\n\tEquity: %s\n\tFree Collateral: %s",
-        accountPk,
-        mangoEquity,
-        mangoFC,
-      );
+      console.log("Account %s\n\tEquity: %s\n\tFree Collateral: %s", accountPk, mangoEquity, mangoFC);
 
       console.log("Perp markets:");
       for (let perpMarketIndex = 0; perpMarketIndex < mangoCache.perpMarketCache.length; perpMarketIndex++) {
@@ -120,12 +115,7 @@ export async function getAccount(accountPk: string, options: OptionValues) {
 
       console.log("------------------");
       console.log("01 Protocol");
-      console.log(
-        "Account %s\n\tEquity: %s\n\tFree Collateral: %s",
-        zoMargin.pubkey,
-        equity,
-        collateral,
-      );
+      console.log("Account %s\n\tEquity: %s\n\tFree Collateral: %s", zoMargin.pubkey, equity, collateral);
 
       console.log("Perp Markets");
       for (let pos of zoMargin.positions) {
