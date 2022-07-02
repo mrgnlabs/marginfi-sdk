@@ -1,6 +1,10 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* @returns {number}
+*/
+export function test(): number;
+/**
 * @returns {Uint8Array}
 */
 export function create_observer(): Uint8Array;

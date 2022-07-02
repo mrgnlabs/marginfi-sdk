@@ -1,7 +1,7 @@
 import { init, WasmMarginRequirement } from "@mrgnlabs/marginfi-wasm-tools-web";
 import * as constants from "./constants";
 
-import * as config from "./config";
+import * as config from "../base/src/config";
 import * as idl from "./idl";
 import * as instruction from "./instruction";
 import * as state from "./state";

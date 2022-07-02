@@ -2,9 +2,13 @@
   "name": "@mrgnlabs/marginfi-wasm-tools",
   "description": "marginfi client wasm library",
   "version": "0.1.1",
-  "repository": "https://github.com/mrgnlabs/marginfi-sdk",
-  "author": "MRGN Labs",
-  "license": "Apache-2.0",
-  "main": "./src/marginfi_wasm_tools.js",
-  "types": "./src/marginfi_wasm_tools.d.ts"
+  "files": [
+    "marginfi_wasm_tools_bg.wasm",
+    "marginfi_wasm_tools.js",
+    "marginfi_wasm_tools_bg.js",
+    "marginfi_wasm_tools.d.ts"
+  ],
+  "module": "marginfi_wasm_tools.js",
+  "types": "marginfi_wasm_tools.d.ts",
+  "sideEffects": false
 }

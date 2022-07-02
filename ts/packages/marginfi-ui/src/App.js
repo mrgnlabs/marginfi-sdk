@@ -1,9 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
-import { get_margin_requirement, get_quote_balance } from "@mrgnlabs/marginfi-wasm-tools-web";
-import {} from "@mrgnlabs/marginfi-client-web"
+import * as wasm from "@mrgnlabs/marginfi-wasm-tools";
 
 function App() {
+  console.log(Object.keys(wasm))
+
   return (
     <div className="App">
       <header className="App-header">
