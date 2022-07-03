@@ -44,6 +44,14 @@ export class MarginfiClient {
    * @returns MarginfiClient instance
    */
   static async get(config: MarginfiConfig, wallet: Wallet, connection: Connection, opts?: ConfirmOptions) {
+    const debug = require("debug")("mfi:client");
+    debug(
+      "Loading Marginfi Client\n\tprogram: %s\n\tenv: %s\n\tgroup: %s\n\turl: %s",
+      config.programId,
+      config.environment,
+      config.groupPk,
+      connection.rpcEndpoint
+    );
     const provider = new Provider(connection, wallet, opts || Provider.defaultOptions());
     const program = new Program(MARGINFI_IDL, config.programId, provider) as Program<MarginfiIdl>;
     return new MarginfiClient(config, program, await MarginfiGroup.get(config, program));
