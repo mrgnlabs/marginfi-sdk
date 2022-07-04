@@ -17,8 +17,6 @@ import { createGroup } from "./src/group/create-group";
 import { getGroup } from "./src/group/load-group-config";
 import { airdropCollateral } from "./src/token-faucet";
 
-const DEFAULT_MARGINFI_GROUP = "Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba";
-
 function attachDefaultOptions(command: Command, excludeGroup: boolean = false): Command {
   command.requiredOption("-k, --keypair <KEYPAIR>", "Path to keypair file", "~/.config/solana/id.json");
   command.requiredOption("-u, --url <URL>", "URL for Solana's JSON RPC", "https://marginfi.genesysgo.net/");
@@ -29,7 +27,7 @@ function attachDefaultOptions(command: Command, excludeGroup: boolean = false): 
   );
 
   if (!excludeGroup) {
-    command.requiredOption("-G, --group <address>", "marginfi group address", DEFAULT_MARGINFI_GROUP);
+    command.option("-G, --group <address>", "marginfi group address");
   }
 
   return command;
