@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-cli@0.2.1...@mrgnlabs/marginfi-cli@0.3.0) (2022-07-04)
+
+
+### Features
+
+* derive-group-from-env ([#21](https://github.com/mrgnlabs/marginfi-sdk/issues/21)) ([68ab8d1](https://github.com/mrgnlabs/marginfi-sdk/commit/68ab8d1a4ae7e41f1560ef13fa036359e5f78eee))
+
+
+
+
+
 ## [0.2.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-cli@0.2.0...@mrgnlabs/marginfi-cli@0.2.1) (2022-06-30)
 
 
