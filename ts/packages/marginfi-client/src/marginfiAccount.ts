@@ -1,22 +1,10 @@
-import {
-  create_observer,
-  get_margin_requirement,
-  get_max_rebalance_deposit_amount,
-  get_max_rebalance_withdraw_amount,
-  get_quote_balance,
-  inject_observation_into_observer,
-  is_bankrupt,
-  liquidation_valid,
-  rebalance_deposit_valid,
-  rebalance_withdraw_valid,
-  WasmMarginRequirement,
-} from "@mrgnlabs/marginfi-wasm-tools";
 import { BN, BorshCoder, Program } from "@project-serum/anchor";
 import { associatedAddress } from "@project-serum/anchor/dist/cjs/utils/token";
 import { AccountInfo, AccountMeta, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
-import { toBufferBE } from "bigint-buffer";
+import BigNumber from "bignumber.js";
 import { MarginfiClient } from ".";
 import { MarginfiConfig } from "./config";
+import { LendingSide, UtpObservation } from "./state";
 import { MarginfiIdl, MARGINFI_IDL } from "./idl";
 import {
   makeDeactivateUtpIx,
@@ -27,21 +15,22 @@ import {
 } from "./instruction";
 import { MarginfiGroup } from "./marginfiGroup";
 import {
+  AccountBalances,
   AccountType,
-  IndexedObservation,
+  ObservationCache,
   InstructionsWrapper,
   MarginfiAccountData,
+  MarginRequirementType,
   UtpAccount,
   UtpData,
+  UtpIndex,
 } from "./types";
 import {
   BankVaultType,
-  Decimal,
-  decimalToNative,
   getBankAuthority,
-  mDecimalToNative,
+  decimalDataToBigNumber,
   processTransaction,
-  wasmDecimalToNative,
+  uiToNative,
 } from "./utils";
 import { UtpMangoAccount } from "./utp/mango";
 import { UtpZoAccount } from "./utp/zo";
@@ -53,13 +42,15 @@ export class MarginfiAccount {
   public readonly publicKey: PublicKey;
 
   private _authority: PublicKey;
-  private _group: MarginfiGroup;
-  private _depositRecord: BN;
-  private _borrowRecord: BN;
+  group: MarginfiGroup;
+  private _depositRecord: BigNumber;
+  private _borrowRecord: BigNumber;
   private _client: MarginfiClient;
 
   public readonly mango: UtpMangoAccount;
   public readonly zo: UtpZoAccount;
+
+  observationCache: ObservationCache = new Map<UtpIndex, UtpObservation>();
 
   allUtps(): UtpAccount[] {
     return [this.mango, this.zo]; // *Must* be sorted according to UTP indices
@@ -81,8 +72,8 @@ export class MarginfiAccount {
     authority: PublicKey,
     client: MarginfiClient,
     group: MarginfiGroup,
-    depositRecord: BN,
-    borrowRecord: BN,
+    depositRecord: BigNumber,
+    borrowRecord: BigNumber,
     mangoUtpData: UtpData,
     zoUtpData: UtpData
   ) {
@@ -93,7 +84,8 @@ export class MarginfiAccount {
     this.zo = new UtpZoAccount(client, this, zoUtpData);
 
     this._authority = authority;
-    this._group = group;
+    this.group = group;
+
     this._depositRecord = depositRecord;
     this._borrowRecord = borrowRecord;
   }
@@ -113,13 +105,14 @@ export class MarginfiAccount {
     const { config, program } = client;
 
     const accountData = await MarginfiAccount._fetchAccountData(marginfiAccountPk, config, program);
+
     const marginfiAccount = new MarginfiAccount(
       marginfiAccountPk,
       accountData.authority,
       client,
       await MarginfiGroup.get(config, program),
-      mDecimalToNative(accountData.depositRecord),
-      mDecimalToNative(accountData.borrowRecord),
+      decimalDataToBigNumber(accountData.depositRecord),
+      decimalDataToBigNumber(accountData.borrowRecord),
       MarginfiAccount._packUtpData(accountData, config.mango.utpIndex),
       MarginfiAccount._packUtpData(accountData, config.zo.utpIndex)
     );
@@ -165,8 +158,8 @@ export class MarginfiAccount {
       accountData.authority,
       client,
       marginfiGroup,
-      mDecimalToNative(accountData.depositRecord),
-      mDecimalToNative(accountData.borrowRecord),
+      decimalDataToBigNumber(accountData.depositRecord),
+      decimalDataToBigNumber(accountData.borrowRecord),
       MarginfiAccount._packUtpData(accountData, client.config.mango.utpIndex),
       MarginfiAccount._packUtpData(accountData, client.config.zo.utpIndex)
     );
@@ -205,27 +198,6 @@ export class MarginfiAccount {
     return this._authority;
   }
 
-  /**
-   * Marginfi account group address
-   */
-  get group(): MarginfiGroup {
-    return this._group;
-  }
-
-  /**
-   * Marginfi account deposit
-   */
-  get depositRecord(): BN {
-    return this._depositRecord;
-  }
-
-  /**
-   * Marginfi account debt
-   */
-  get borrowRecord(): BN {
-    return this._borrowRecord;
-  }
-
   // --- Others
 
   /**
@@ -258,7 +230,7 @@ export class MarginfiAccount {
    * @param utpIndex Index of the target UTP
    * @returns UTP data struct
    */
-  private static _packUtpData(data: MarginfiAccountData, utpIndex: number): UtpData {
+  private static _packUtpData(data: MarginfiAccountData, utpIndex: UtpIndex): UtpData {
     return {
       accountConfig: data.utpAccountConfig[utpIndex],
       isActive: data.activeUtps[utpIndex],
@@ -290,11 +262,18 @@ export class MarginfiAccount {
   /**
    * Update instance data by fetching and storing the latest on-chain state.
    */
-  async reload() {
+  async reload(observe: boolean = false) {
     require("debug")(`mfi:margin-account:${this.publicKey.toString()}:loader`)("Reloading account data");
-    const data = await MarginfiAccount._fetchAccountData(this.publicKey, this._config, this._program);
-    this._group = await MarginfiGroup.get(this._config, this._program);
-    this._updateFromAccountData(data);
+    const [marginfiAccountAi, marginfiGroupAi] = await this.loadAccountAndGroupAi()
+    const marginfiAccountData = MarginfiAccount.decode(marginfiAccountAi.data)
+    if (!marginfiAccountData.marginfiGroup.equals(this._config.groupPk))
+      throw Error(
+        `Marginfi account tied to group ${marginfiAccountData.marginfiGroup.toBase58()}. Expected: ${this._config.groupPk.toBase58()}`
+      );
+    this.group = MarginfiGroup.fromAccountDataRaw(this._config, this._program, marginfiGroupAi.data)
+    this._updateFromAccountData(marginfiAccountData);
+
+    if (observe) await this.observe()
   }
 
   /**
@@ -304,8 +283,8 @@ export class MarginfiAccount {
    */
   private _updateFromAccountData(data: MarginfiAccountData) {
     this._authority = data.authority;
-    this._depositRecord = mDecimalToNative(data.depositRecord);
-    this._borrowRecord = mDecimalToNative(data.borrowRecord);
+    this._depositRecord = decimalDataToBigNumber(data.depositRecord);
+    this._borrowRecord = decimalDataToBigNumber(data.borrowRecord);
 
     this.mango.update(MarginfiAccount._packUtpData(data, this._config.mango.utpIndex));
     this.zo.update(MarginfiAccount._packUtpData(data, this._config.zo.utpIndex));
@@ -319,7 +298,7 @@ export class MarginfiAccount {
    */
   async makeDepositIx(amount: BN): Promise<TransactionInstruction[]> {
     const userTokenAtaPk = await associatedAddress({
-      mint: this._group.bank.mint,
+      mint: this.group.bank.mint,
       owner: this._program.provider.wallet.publicKey,
     });
     const remainingAccounts = await this.getObservationAccounts();
@@ -327,11 +306,11 @@ export class MarginfiAccount {
       await makeDepositIx(
         this._program,
         {
-          marginfiGroupPk: this._group.publicKey,
+          marginfiGroupPk: this.group.publicKey,
           marginfiAccountPk: this.publicKey,
           authorityPk: this._program.provider.wallet.publicKey,
           userTokenAtaPk,
-          bankVaultPk: this._group.bank.vault,
+          bankVaultPk: this.group.bank.vault,
         },
         { amount },
         remainingAccounts
@@ -365,7 +344,7 @@ export class MarginfiAccount {
    */
   async makeWithdrawIx(amount: BN): Promise<TransactionInstruction[]> {
     const userTokenAtaPk = await associatedAddress({
-      mint: this._group.bank.mint,
+      mint: this.group.bank.mint,
       owner: this._program.provider.wallet.publicKey,
     });
     const [marginBankAuthorityPk] = await getBankAuthority(this._config.groupPk, this._program.programId);
@@ -374,11 +353,11 @@ export class MarginfiAccount {
       await makeWithdrawIx(
         this._program,
         {
-          marginfiGroupPk: this._group.publicKey,
+          marginfiGroupPk: this.group.publicKey,
           marginfiAccountPk: this.publicKey,
           authorityPk: this._program.provider.wallet.publicKey,
           receivingTokenAccount: userTokenAtaPk,
-          bankVaultPk: this._group.bank.vault,
+          bankVaultPk: this.group.bank.vault,
           bankVaultAuthorityPk: marginBankAuthorityPk,
         },
         { amount },
@@ -454,7 +433,7 @@ export class MarginfiAccount {
   async makeHandleBankruptcyIx(): Promise<InstructionsWrapper> {
     const remainingAccounts = await this.getObservationAccounts();
     const insuranceVaultAuthorityPk = (
-      await getBankAuthority(this._group.publicKey, this._program.programId, BankVaultType.InsuranceVault)
+      await getBankAuthority(this.group.publicKey, this._program.programId, BankVaultType.InsuranceVault)
     )[0];
 
     return {
@@ -463,10 +442,10 @@ export class MarginfiAccount {
           this._program,
           {
             marginfiAccountPk: this.publicKey,
-            marginfiGroupPk: this._group.publicKey,
+            marginfiGroupPk: this.group.publicKey,
             insuranceVaultAuthorityPk,
-            insuranceVaultPk: this._group.bank.insuranceVault,
-            liquidityVaultPk: this._group.bank.vault,
+            insuranceVaultPk: this.group.bank.insuranceVault,
+            liquidityVaultPk: this.group.bank.vault,
           },
           remainingAccounts
         ),
@@ -507,29 +486,21 @@ export class MarginfiAccount {
    *
    * @returns List of health caches for all active UTPs
    */
-  async observe(): Promise<IndexedObservation[]> {
+  async observe(): Promise<ObservationCache> {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:observe`);
     debug("Observing UTP Accounts");
-    return Promise.all(
+    const observations = await Promise.all(
       this.activeUtps().map(async (utp) => ({
-        utp_index: utp.index,
+        utpIndex: utp.index,
         observation: await utp.observe(),
       }))
-    );
-  }
-
-  private async getObserver(observations?: IndexedObservation[]): Promise<Uint8Array> {
-    let observer = create_observer();
-
-    if (!observations) {
-      observations = await this.observe();
-    }
-
-    for (let observation of observations) {
-      observer = inject_observation_into_observer(observer, observation.observation.toWasm(), observation.utp_index);
-    }
-
-    return observer;
+    )
+    const observationCache = observations.reduce((acc, o) => {
+      acc.set(o.utpIndex, o.observation)
+      return acc
+    }, new Map<number, UtpObservation>)
+    this.observationCache = observationCache;
+    return observationCache
   }
 
   /**
@@ -538,7 +509,7 @@ export class MarginfiAccount {
    * @param utpIndex UTP index
    * @returns UTP interface instance
    */
-  private utpFromIndex(utpIndex: number): UtpAccount {
+  private utpFromIndex(utpIndex: UtpIndex): UtpAccount {
     if (utpIndex >= this.allUtps().length) {
       throw Error(`Unsupported UTP ${utpIndex} (${this.allUtps().length} UTPs supported)`);
     }
@@ -555,20 +526,9 @@ export class MarginfiAccount {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:rebalance:withdraw`);
     debug("Checking withdraw rebalance");
 
-    let [marginfiGroupAi, marginfiAccountAi] = await this.loadAccountAndGroupAi();
+    await this.reload(true);
 
-    if (!marginfiAccountAi) {
-      throw Error("Marginfi account no found");
-    }
-    if (!marginfiGroupAi) {
-      throw Error("Marginfi Group Account no found");
-    }
-
-    const observations = await this.observe();
-
-    let observer = await this.getObserver(observations);
-
-    const rebalanceNeeded = rebalance_withdraw_valid(marginfiAccountAi.data, marginfiGroupAi.data, observer);
+    const rebalanceNeeded = await this.isRebalanceWithdrawNeeded();
 
     if (!rebalanceNeeded) {
       return;
@@ -576,27 +536,20 @@ export class MarginfiAccount {
 
     debug("Rebalance withdraw required");
 
-    const richestUtpObservation = observations.reduce((a, b) =>
-      a.observation.freeCollateral < b.observation.freeCollateral ? a : b
-    );
-    const withdrawAmountDecimal = Decimal.fromWasm(
-      get_max_rebalance_withdraw_amount(
-        richestUtpObservation.observation.toWasm(),
-        marginfiAccountAi.data,
-        marginfiGroupAi.data,
-        observer
-      )
-    );
+    const [richestUtpIndex, richestUtpObservation] = [...this.observationCache.entries()].sort((a, b) =>
+      b[1].freeCollateral.minus(a[1].freeCollateral).toNumber()
+    )[0];
+    const withdrawAmount = this.getMaxRebalanceWithdrawAmount(richestUtpObservation)
 
     debug(
       "Trying to rebalance withdraw UTP:%s, amount %s (RBWA)",
-      richestUtpObservation.utp_index,
-      withdrawAmountDecimal
+      richestUtpIndex,
+      withdrawAmount
     );
 
     try {
-      const sig = await this.utpFromIndex(richestUtpObservation.utp_index).withdraw(
-        decimalToNative(withdrawAmountDecimal)
+      const sig = await this.utpFromIndex(richestUtpIndex).withdraw(
+        uiToNative(withdrawAmount)
       );
       debug("Rebalance withdraw success - sig %s (RBWS)", sig);
     } catch (e) {
@@ -608,82 +561,40 @@ export class MarginfiAccount {
   private async checkRebalanceDeposit() {
     let debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:rebalance:deposit`);
     debug("Checking deposit rebalance");
-    let [marginfiGroupAi, marginfiAccountAi] = await this._program.provider.connection.getMultipleAccountsInfo([
-      this._config.groupPk,
-      this.publicKey,
-    ]);
 
-    if (!marginfiAccountAi) {
-      throw Error("Marginfi account no found");
-    }
-    if (!marginfiGroupAi) {
-      throw Error("Marginfi Group Account no found");
-    }
-
-    const indexed_observations = await this.observe();
-    const observer = await this.getObserver(indexed_observations);
-
-    debug("Loaded %s observations", indexed_observations.length);
-    for (let indexed_observation of indexed_observations) {
-      let { utp_index, observation } = indexed_observation;
+    await this.reload(true);
+    debug("Loaded %s observations", this.observationCache.size);
+    for (let [utpIndex, observation] of [...this.observationCache.entries()]) {
       let debug = require("debug")(
-        `mfi:margin-account:${this.publicKey.toString()}:rebalance:deposit:utp:${utp_index}`
+        `mfi:margin-account:${this.publicKey.toString()}:rebalance:deposit:utp:${utpIndex}`
       );
       debug(observation.toString());
 
-      if (!observation.valid) {
-        continue;
-      }
-      if (!rebalance_deposit_valid(observation.toWasm())) {
+      if (!observation.isRebalanceDepositNeeded) {
         continue;
       }
 
-      let rebalanceAmountDecimal = get_max_rebalance_deposit_amount(
-        observation.toWasm(),
-        marginfiAccountAi!.data,
-        marginfiGroupAi!.data,
-        observer
-      );
-
-      let cappedRebalanceAmount = wasmDecimalToNative(rebalanceAmountDecimal).muln(95).divn(100);
-
-      if (cappedRebalanceAmount.lte(new BN(0))) {
-        continue;
-      }
-
-      debug("Trying to rebalance deposit UTP:%s amount %s (RBDA)", utp_index, cappedRebalanceAmount);
+      let rebalanceAmountDecimal = this.getMaxRebalanceDepositAmount(observation);
+      let cappedRebalanceAmount = uiToNative(rebalanceAmountDecimal.times(0.95));
+      debug("Trying to rebalance deposit UTP:%s amount %s (RBDA)", utpIndex, cappedRebalanceAmount);
 
       try {
-        let sig = await this.utpFromIndex(utp_index).deposit(cappedRebalanceAmount);
+        let sig = await this.utpFromIndex(utpIndex).deposit(cappedRebalanceAmount);
         debug("Rebalance success (RBDS) sig %s", sig);
       } catch (e) {
         debug("Rebalance failed (RBDF)");
         throw e;
       }
 
-      [marginfiGroupAi, marginfiAccountAi] = await this._program.provider.connection.getMultipleAccountsInfo([
-        this._config.groupPk,
-        this.publicKey,
-      ]);
+      await this.reload();
     }
   }
 
   async checkBankruptcy() {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:bankruptcy`);
     debug("Checking bankruptcy");
-
-    let [marginfiGroupAi, marginfiAccountAi] = await this.loadAccountAndGroupAi();
-
-    if (!marginfiAccountAi) {
-      throw Error("Marginfi account no found");
-    }
-    if (!marginfiGroupAi) {
-      throw Error("Marginfi Group Account no found");
-    }
-
-    const observations = await this.observe();
-    let observer = await this.getObserver(observations);
-    const isBankrupt = is_bankrupt(marginfiAccountAi.data, marginfiGroupAi.data, observer);
+    await this.reload(true);
+    const isBankrupt = this.isBankrupt();
 
     if (!isBankrupt) {
       return;
@@ -699,37 +610,7 @@ export class MarginfiAccount {
     }
   }
 
-  private async loadAccountAndGroupAi(): Promise<AccountInfo<Buffer>[]> {
-    const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:loader`);
-    debug("Loading marginfi account %s, and group %s", this.publicKey, this._config.groupPk);
-
-    let [marginfiGroupAi, marginfiAccountAi] = await this._program.provider.connection.getMultipleAccountsInfo([
-      this._config.groupPk,
-      this.publicKey,
-    ]);
-
-    if (!marginfiAccountAi) {
-      throw Error("Marginfi account no found");
-    }
-    if (!marginfiGroupAi) {
-      throw Error("Marginfi Group Account no found");
-    }
-
-    return [marginfiGroupAi, marginfiAccountAi];
-  }
-
-  public async canBeLiquidated() {
-    try {
-      let [marginfiGroupAi, marginfiAccountAi] = await this.loadAccountAndGroupAi();
-      const observer = await this.getObserver();
-
-      return liquidation_valid(marginfiAccountAi.data, marginfiGroupAi.data, observer);
-    } catch (e) {
-      return false;
-    }
-  }
-
-  public async liquidate(marginfiAccountLiquidatee: MarginfiAccount, utpIndex: number): Promise<string> {
+  public async liquidate(marginfiAccountLiquidatee: MarginfiAccount, utpIndex: UtpIndex): Promise<string> {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:liquidate`);
     let [bankAuthority, _] = await getBankAuthority(this._config.groupPk, this._program.programId);
 
@@ -759,51 +640,93 @@ export class MarginfiAccount {
     return sig;
   }
 
-  public async getDeposits(): Promise<BN> {
-    let [marginfiGroupAi, marginfiAccountAi] = await this.loadAccountAndGroupAi();
-    let balance = get_quote_balance(marginfiAccountAi.data, marginfiGroupAi.data, true).valueOf();
-
-    return bigIntToBN(balance);
+  public getDeposits(): BigNumber {
+    return this.group.bank.getNativeAmount(this._depositRecord, LendingSide.Deposit);
   }
 
-  public async getBalance(): Promise<[BN, BN, BN]> {
-    let [marginfiGroupAi, marginfiAccountAi] = await this.loadAccountAndGroupAi();
+  public getBorrows(): BigNumber {
+    return this.group.bank.getNativeAmount(this._borrowRecord, LendingSide.Borrow);
+  }
 
-    let assets = new BN(0);
+  public getBalances(): AccountBalances {
+    let assets = new BigNumber(0);
 
-    let deposits = bigIntToBN(get_quote_balance(marginfiAccountAi.data, marginfiGroupAi.data, true).valueOf());
+    let deposits = this.getDeposits();
+    assets = assets.plus(deposits);
 
-    assets = assets.add(deposits);
-
-    let indexed_observations = await this.observe();
-    for (let observation of indexed_observations) {
-      if (!this.isUtpActive(observation.utp_index)) {
-        continue;
-      }
-      assets = assets.add(observation.observation.freeCollateral);
+    for (let observation of [...this.observationCache.values()]) {
+      console.log('observation.freeCollateral', observation.freeCollateral.toString());
+      assets = assets.plus(observation.freeCollateral);
     }
 
-    let liabilities = bigIntToBN(get_quote_balance(marginfiAccountAi.data, marginfiGroupAi.data, false).valueOf());
+    let liabilities = this.getBorrows();
+    let equity = assets.minus(liabilities);
 
-    let balance = assets.sub(liabilities);
-
-    return [balance, assets, liabilities];
+    return { equity, assets, liabilities };
   }
 
   public isUtpActive(index: number): boolean {
     return this.allUtps()[index].isActive;
   }
 
-  public async getMarginRequirement(type: MarginRequirementType): Promise<Decimal> {
-    let [marginfiGroupAi, marginfiAccountAi] = await this.loadAccountAndGroupAi();
-    let mreq = get_margin_requirement(marginfiAccountAi.data, marginfiGroupAi.data, type);
-
-    return Decimal.fromWasm(mreq);
+  public async canBeLiquidated() {
+    return !this.meetsMarginRequirement(MarginRequirementType.Maint);
   }
-}
 
-export type MarginRequirementType = WasmMarginRequirement;
+  public isBankrupt(): boolean {
+    return this.activeUtps().length === 0 && this._borrowRecord.gt(0);
+  }
 
-function bigIntToBN(number: bigint, size: number = 8): BN {
-  return new BN(toBufferBE(number, size), undefined, "be");
+  public getMarginRequirement(type: MarginRequirementType): BigNumber {
+    const marginRatio = this.group.bank.getMarginRatio(type)
+    const borrows = this.getBorrows();
+    const marginRequirement = borrows.times(marginRatio)
+    return marginRequirement;
+  }
+
+  public meetsMarginRequirement(type: MarginRequirementType): boolean {
+    const { equity } = this.getBalances()
+    const marginRequirement = this.getMarginRequirement(type)
+    return equity > marginRequirement;
+  }
+
+  public isRebalanceWithdrawNeeded(): boolean {
+    const { equity } = this.getBalances()
+    const marginRequirementInit = this.getMarginRequirement(MarginRequirementType.Init)
+    return equity < marginRequirementInit
+  }
+
+  public getMaxRebalanceWithdrawAmount(observation: UtpObservation): BigNumber {
+    const { equity } = this.getBalances()
+    const marginRequirementInit = this.getMarginRequirement(MarginRequirementType.Init)
+    const maxAmountAllowed = BigNumber.max(marginRequirementInit.minus(equity), 0)
+    const availableAmount = observation.freeCollateral || 0
+    return BigNumber.min(maxAmountAllowed, availableAmount)
+  }
+
+  public getMaxRebalanceDepositAmount(observation: UtpObservation): BigNumber {
+    const { equity } = this.getBalances()
+    const marginRequirementInit = this.getMarginRequirement(MarginRequirementType.Init)
+    const accountFreeCollateral = BigNumber.max(0, equity.minus(marginRequirementInit))
+    return BigNumber.min(observation.maxRebalanceDepositAmount, accountFreeCollateral)
+  }
+
+  private async loadAccountAndGroupAi(): Promise<AccountInfo<Buffer>[]> {
+    const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:loader`);
+    debug("Loading marginfi account %s, and group %s", this.publicKey, this._config.groupPk);
+
+    let [marginfiGroupAi, marginfiAccountAi] = await this._program.provider.connection.getMultipleAccountsInfo([
+      this._config.groupPk,
+      this.publicKey,
+    ]);
+
+    if (!marginfiAccountAi) {
+      throw Error("Marginfi account no found");
+    }
+    if (!marginfiGroupAi) {
+      throw Error("Marginfi Group Account no found");
+    }
+
+    return [marginfiGroupAi, marginfiAccountAi];
+  }
 }

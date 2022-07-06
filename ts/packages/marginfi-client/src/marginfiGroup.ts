@@ -13,20 +13,20 @@ import { getBankAuthority, processTransaction } from "./utils";
 export class MarginfiGroup {
   private _program: Program<MarginfiIdl>;
   private _config: MarginfiConfig;
-
+  bank: Bank;
   public readonly publicKey: PublicKey;
-  private _admin: PublicKey;
-  private _bank: Bank;
+  public readonly admin: PublicKey;
 
   /**
    * @internal
    */
-  private constructor(config: MarginfiConfig, program: Program<MarginfiIdl>, admin: PublicKey, bank: Bank) {
+  private constructor(config: MarginfiConfig, program: Program<MarginfiIdl>, rawData: MarginfiGroupData) {
     this.publicKey = config.groupPk;
     this._config = config;
     this._program = program;
-    this._admin = admin;
-    this._bank = bank;
+
+    this.admin = rawData.admin;
+    this.bank = new Bank(rawData.bank);
   }
 
   // --- Factories
@@ -44,7 +44,7 @@ export class MarginfiGroup {
     const debug = require("debug")(`mfi:margin-group`);
     debug("Loading Marginfi Group %s", config.groupPk);
     const accountData = await MarginfiGroup._fetchAccountData(config, program);
-    return new MarginfiGroup(config, program, accountData.admin, Bank.from(accountData.bank));
+    return new MarginfiGroup(config, program, accountData);
   }
 
   /**
@@ -64,7 +64,7 @@ export class MarginfiGroup {
         `Marginfi group uses collateral ${accountData.bank.mint.toBase58()}. Expected: ${config.collateralMintPk.toBase58()}`
       );
 
-    return new MarginfiGroup(config, program, accountData.admin, Bank.from(accountData.bank));
+    return new MarginfiGroup(config, program, accountData);
   }
 
   /**
@@ -81,22 +81,6 @@ export class MarginfiGroup {
   static fromAccountDataRaw(config: MarginfiConfig, program: Program<MarginfiIdl>, rawData: Buffer) {
     const data = MarginfiGroup.decode(rawData);
     return MarginfiGroup.fromAccountData(config, program, data);
-  }
-
-  // --- Getters and setters
-
-  /**
-   * marginfi group admin address
-   */
-  get admin(): PublicKey {
-    return this._admin;
-  }
-
-  /**
-   * marginfi group Bank
-   */
-  get bank(): Bank {
-    return this._bank;
   }
 
   // --- Others
@@ -150,8 +134,7 @@ export class MarginfiGroup {
    */
   async fetch() {
     const data = await MarginfiGroup._fetchAccountData(this._config, this._program);
-    this._admin = data.admin;
-    this._bank = Bank.from(data.bank);
+    this.bank = new Bank(data.bank);
   }
 
   /**

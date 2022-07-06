@@ -1,18 +1,22 @@
 import {
   I64_MAX_BN,
   MangoAccount,
+  MangoAccountLayout,
+  MangoCache,
+  MangoCacheLayout,
   MangoClient,
   MangoGroup,
   PerpMarket,
   ZERO_BN,
 } from "@blockworks-foundation/mango-client";
-import { observe_mango } from "@mrgnlabs/marginfi-wasm-tools";
 import { BN } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import BigNumber from "bignumber.js";
 import { MarginfiClient } from "../..";
 import { MarginfiAccount } from "../../marginfiAccount";
 import { UtpObservation } from "../../state";
+import { DUST_THRESHOLD } from "../../constants";
 import { InstructionsWrapper, UtpAccount, UTPAccountConfig, UtpData } from "../../types";
 import { getBankAuthority, getUtpAuthority, processTransaction } from "../../utils";
 import {
@@ -36,6 +40,8 @@ export class UtpMangoAccount implements UtpAccount {
   private _isActive: boolean;
   /** @internal */
   private _utpConfig: UTPAccountConfig;
+  /** @internal */
+  private _cachedObservation: UtpObservation = UtpObservation.EMPTY_OBSERVATION;
 
   /** @internal */
   constructor(client: MarginfiClient, mfAccount: MarginfiAccount, accountData: UtpData) {
@@ -54,10 +60,17 @@ export class UtpMangoAccount implements UtpAccount {
   public get _program() {
     return this._client.program;
   }
-
   public get address(): PublicKey {
     return this._utpConfig.address;
   }
+  get cachedObservation() {
+    const fetchAge = (new Date().getTime() - this._cachedObservation.timestamp.getTime()) / 1000.0
+    if (fetchAge > 5) {
+      console.log(`[WARNNG] Last Mango observation was fetched ${fetchAge} seconds ago`);
+    }
+    return this._cachedObservation;
+  }
+
 
   // --- Getters and setters
 
@@ -537,35 +550,41 @@ export class UtpMangoAccount implements UtpAccount {
     const debug = require("debug")(`mfi:utp:${this.address}:mango:local-observe`);
     debug("Observing Locally");
     const mangoGroup = await this.getMangoGroup();
-    const [mangoGroupAi, mangoAccountAi, mangoCacheAi] =
+    const [mangoAccountAi, mangoCacheAi] =
       await this._program.provider.connection.getMultipleAccountsInfo([
         this._config.mango.groupConfig.publicKey,
         this._utpConfig.address,
         mangoGroup.mangoCache,
       ]);
 
-    if (!mangoGroupAi) throw Error(`Mango group account not found: ${this._config.mango.groupConfig.publicKey}`);
     if (!mangoAccountAi) throw Error(`Mango account not found: ${this._utpConfig.address}`);
     if (!mangoCacheAi) throw Error(`Mango cache not found: ${mangoGroup.mangoCache}`);
 
-    const timestamp = Math.round(new Date().getTime() / 1000);
-    return UtpObservation.fromWasm(
-      observe_mango(
-        mangoGroupAi.data as Buffer,
-        mangoAccountAi.data as Buffer,
-        mangoCacheAi.data as Buffer,
-        BigInt(timestamp)
-      )
-    );
+    const mangoCacheDecoded = MangoCacheLayout.decode(mangoCacheAi.data)
+    const mangoCache = new MangoCache(mangoGroup.mangoCache, mangoCacheDecoded)
+
+    const mangoAccountDecoded = MangoAccountLayout.decode(mangoAccountAi.data)
+    const mangoAccount = new MangoAccount(this._utpConfig.address, mangoAccountDecoded)
+
+    const totalCollateralInit = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache, "Init").toString())
+    const marginRequirementInit = new BigNumber(mangoAccount.getLiabsVal(mangoGroup, mangoCache, "Init").toString())
+    const freeCollateral = totalCollateralInit.minus(marginRequirementInit)
+
+    const totalCollateralEquity = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache).toString())
+    const marginRequirementEquity = new BigNumber(mangoAccount.getLiabsVal(mangoGroup, mangoCache).toString())
+    const equity = totalCollateralEquity.minus(marginRequirementEquity)
+
+    const isRebalanceDepositNeeded = equity.lt(marginRequirementInit)
+    const maxRebalanceDepositAmount = BigNumber.max(0, marginRequirementInit.minus(totalCollateralInit))
+    const isEmpty = totalCollateralEquity.lt(DUST_THRESHOLD)
+
+    const observation = new UtpObservation({ timestamp: new Date(), equity, freeCollateral, liquidationValue: equity, isRebalanceDepositNeeded, maxRebalanceDepositAmount, isEmpty })
+    this._cachedObservation = observation;
+    return observation;
   }
 
-  /** @internal @deprecated */
-  async getMangoClientAndAccount(): Promise<[MangoClient, MangoAccount]> {
-    const mangoClient = this.getMangoClient();
-    const mangoGroup = await this.getMangoGroup();
-    const mangoAccount = await mangoClient.getMangoAccount(this._utpConfig.address, mangoGroup.dexProgramId);
-
-    return [mangoClient, mangoAccount];
+  getMangoClient(): MangoClient {
+    return new MangoClient(this._client.program.provider.connection, this._client.config.mango.programId);
   }
 
   async getMangoAccount(mangoGroup?: MangoGroup): Promise<MangoAccount> {
@@ -577,10 +596,6 @@ export class UtpMangoAccount implements UtpAccount {
     const mangoAccount = await mangoClient.getMangoAccount(this._utpConfig.address, mangoGroup.dexProgramId);
 
     return mangoAccount;
-  }
-
-  getMangoClient(): MangoClient {
-    return new MangoClient(this._client.program.provider.connection, this._client.config.mango.programId);
   }
 
   async getMangoGroup(): Promise<MangoGroup> {

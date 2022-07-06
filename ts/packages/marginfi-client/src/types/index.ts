@@ -1,5 +1,6 @@
 import { BN } from "@project-serum/anchor";
 import { AccountMeta, Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
+import BigNumber from "bignumber.js";
 import { UtpObservation } from "../state";
 export * from "./accounts";
 
@@ -21,47 +22,11 @@ export interface BankConfig {
   lpDepositLimit?: BN;
 }
 
-export interface BankData {
-  scalingFactorC: MDecimalRaw;
-  fixedFee: MDecimalRaw;
-  interestFee: MDecimalRaw;
-  depositAccumulator: MDecimalRaw;
-  borrowAccumulator: MDecimalRaw;
-  lastUpdate: BN;
-  nativeDepositBalance: MDecimalRaw;
-  nativeBorrowBalance: MDecimalRaw;
-  mint: PublicKey;
-  vault: PublicKey;
-  bankAutorityBump: number;
-  insuranceVault: PublicKey;
-  insuranceVaultAutorityBump: number;
-  feeVault: PublicKey;
-  feeVaultAutorityBump: number;
-  initMarginRatio: MDecimalRaw;
-  maintMarginRatio: MDecimalRaw;
-}
-
-export interface MDecimalRaw {
-  flags: number;
-  hi: number;
-  lo: number;
-  mid: number;
-}
-
 // TODO:
 export interface UTPAccountConfig {
   address: PublicKey;
   authoritySeed: PublicKey;
   authorityBump: number;
-}
-
-/** @internal */
-export interface UTPObservationCache {
-  totalCollateral: MDecimalRaw;
-  freeCollateral: MDecimalRaw;
-  marginRequirementInit: MDecimalRaw;
-  marginRequirementMaint: MDecimalRaw;
-  equity: MDecimalRaw;
 }
 
 export interface UtpData {
@@ -71,20 +36,40 @@ export interface UtpData {
 
 export interface UtpAccount {
   isActive: boolean;
-  index: number;
+  index: UtpIndex;
   address: PublicKey;
+  cachedObservation: UtpObservation;
   getObservationAccounts: () => Promise<AccountMeta[]>;
   observe: () => Promise<UtpObservation>;
   deposit: (amount: BN) => Promise<string>;
   withdraw: (amount: BN) => Promise<string>;
 }
 
-export interface IndexedObservation {
-  utp_index: number;
-  observation: UtpObservation;
+export enum UtpIndex {
+  Mango = 0,
+  ZO = 1
 }
+
+export type ObservationCache = Map<UtpIndex, UtpObservation>;
 
 export interface InstructionsWrapper {
   instructions: TransactionInstruction[];
   keys: Keypair[];
+}
+
+export enum MarginRequirementType {
+  Init,
+  Maint
+}
+
+export interface AccountBalances {
+  equity: BigNumber;
+  assets: BigNumber;
+  liabilities: BigNumber;
+}
+
+export interface LiquidationPrices {
+  finalPrice: BigNumber,
+  discountedLiquidatorPrice: BigNumber,
+  insuranceVaultFee: BigNumber
 }

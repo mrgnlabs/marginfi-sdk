@@ -1,4 +1,4 @@
-import { MarginfiAccount, MarginRequirementType } from "@mrgnlabs/marginfi-client";
+import { MarginfiAccount, MarginRequirementType, UtpIndex } from "@mrgnlabs/marginfi-client";
 import { PublicKey } from "@solana/web3.js";
 import { OptionValues } from "commander";
 import { getClientFromOptions } from "../common";
@@ -21,11 +21,11 @@ export async function getAccount(accountPk: string, options: OptionValues) {
   try {
     const connection = client.program.provider.connection;
     const account = await MarginfiAccount.get(new PublicKey(accountPk), client);
+    await account.observe()
 
-    const balances = await account.getBalance();
-    const depositsBase = await account.getDeposits();
-    const deposits = depositsBase.toNumber() / 10 ** 6;
-    const [equity, assets, liabilities] = balances.map((n) => n.toNumber() / 1_000_000);
+    let { assets, equity, liabilities } = await account.getBalances();
+    const deposits = await account.getDeposits();
+
     // const utps = account.allUtps();
     // const observations = await account.observe();
 
@@ -55,9 +55,9 @@ export async function getAccount(accountPk: string, options: OptionValues) {
     const marginRequirementInit = await account.getMarginRequirement(MarginRequirementType.Init);
     const marginRequirementMaint = await account.getMarginRequirement(MarginRequirementType.Maint);
 
-    const initHealth = marginRequirementInit.toNumber() <= 0 ? Infinity : equity / marginRequirementInit.toNumber();
-    const maintHealth = marginRequirementMaint.toNumber() <= 0 ? Infinity : equity / marginRequirementMaint.toNumber();
-    const marginRatio = liabilities <= 0 ? Infinity : equity / liabilities;
+    const initHealth = marginRequirementInit.toNumber() <= 0 ? Infinity : equity.div(marginRequirementInit.toNumber());
+    const maintHealth = marginRequirementMaint.toNumber() <= 0 ? Infinity : equity.div(marginRequirementMaint.toNumber());
+    const marginRatio = liabilities.lte(0) ? Infinity : equity.div(liabilities);
 
     console.log(
       "-----------------\nMargin \tratio: %s\n\trequirement\n\tinit: %s, health: %s\n\tmaint: %s, health: %s",
@@ -108,15 +108,14 @@ export async function getAccount(accountPk: string, options: OptionValues) {
     }
 
     if (account.zo.isActive) {
-      const zoState = await account.zo.getZoState();
-      const zoMargin = await account.zo.getZoMargin(zoState);
-      const equity = await zoMargin.unweightedAccountValue;
-      const collateral = await zoMargin.freeCollateralValue;
+      const observation = account.observationCache.get(UtpIndex.ZO)!; // 01 UTP index
 
       console.log("------------------");
       console.log("01 Protocol");
-      console.log("Account %s\n\tEquity: %s\n\tFree Collateral: %s", zoMargin.pubkey, equity, collateral);
+      console.log("Account %s\n\tEquity: %s\n\tFree Collateral: %s", account.zo.address, observation.equity, observation.freeCollateral);
 
+      const zoState = await account.zo.getZoState();
+      const zoMargin = await account.zo.getZoMargin(zoState);
       console.log("Perp Markets");
       for (let pos of zoMargin.positions) {
         if (pos.coins.number != 0) {
@@ -124,12 +123,12 @@ export async function getAccount(accountPk: string, options: OptionValues) {
         }
       }
 
-      for (let mk of Object.keys(zoState.markets)) {
-        const oo = await zoMargin.getOpenOrdersInfoBySymbol(mk);
+      for (let market of Object.keys(zoState.markets)) {
+        const oo = await zoMargin.getOpenOrdersInfoBySymbol(market);
         if (oo && (!oo.coinOnAsks.isZero() || !oo.coinOnBids.isZero())) {
           console.log(
             "Open order for %s asks: %s bids: %s, count: %s",
-            mk,
+            market,
             oo.coinOnAsks,
             oo.coinOnBids,
             oo.orderCount

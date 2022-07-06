@@ -1,4 +1,3 @@
-import { WasmDecimal } from "@mrgnlabs/marginfi-wasm-tools";
 import { BN, BorshAccountsCoder, Program, Provider } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
@@ -13,11 +12,14 @@ import {
   TransactionInstruction,
   TransactionSignature,
 } from "@solana/web3.js";
+import BigNumber from "bignumber.js";
 import * as fs from "fs";
 import path from "path";
 import { Environment, getConfig, MarginfiClient, Wallet } from "..";
 import {
   COLLATERAL_DECIMALS,
+  INSURANCE_VAULT_LIQUIDATION_FEE,
+  LIQUIDATOR_LIQUIDATION_FEE,
   PDA_BANK_FEE_VAULT_SEED,
   PDA_BANK_INSURANCE_VAULT_SEED,
   PDA_BANK_VAULT_SEED,
@@ -26,7 +28,7 @@ import {
 } from "../constants";
 import { MarginfiIdl, MARGINFI_IDL } from "../idl";
 import { NodeWallet } from "../nodeWallet";
-import { AccountType, MDecimalRaw } from "../types";
+import { AccountType, LiquidationPrices, DecimalData } from "../types";
 import { Decimal } from "./decimal";
 
 /**
@@ -125,23 +127,28 @@ export function decimalToNative(amount: Decimal, decimals: number = COLLATERAL_D
 /**
  * Converts a token amount stored as `MDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
  */
-export function mDecimalToNative(amount: MDecimalRaw, decimals: number = COLLATERAL_DECIMALS): BN {
-  return decimalToNative(Decimal.fromMDecimal(amount), decimals);
+export function decimalDataToNative(amount: DecimalData, decimals: number = COLLATERAL_DECIMALS): BN {
+  return decimalToNative(Decimal.fromAccountData(amount), decimals);
+}
+
+/**
+ * Converts a token amount stored as `MDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
+ */
+export function decimalDataToBigNumber(amount: DecimalData): BigNumber {
+  return new BigNumber(Decimal.fromAccountData(amount).toString());
 }
 
 /**
  * Converts a ui representation of a token amount into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
  */
-export function uiToNative(amount: number, decimals: number = COLLATERAL_DECIMALS): BN {
-  return new BN(amount * 10 ** decimals);
-}
-
-/**
- * Converts a token amount stored as `WasmDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
- * @internal
- */
-export function wasmDecimalToNative(amount: WasmDecimal, decimals: number = COLLATERAL_DECIMALS): BN {
-  return decimalToNative(Decimal.fromWasm(amount), decimals);
+export function uiToNative(amount: BigNumber | number | string, decimals: number = COLLATERAL_DECIMALS): BN {
+  let amt: BigNumber;
+  if (typeof amount === 'number' || typeof amount === 'string') {
+    amt = new BigNumber(amount)
+  } else {
+    amt = amount
+  }
+  return new BN(amt.toFixed(decimals, BigNumber.ROUND_FLOOR)).mul(new BN(10 ** decimals));
 }
 
 /**
@@ -150,6 +157,24 @@ export function wasmDecimalToNative(amount: WasmDecimal, decimals: number = COLL
  */
 export function isAccountType(data: Buffer, type: AccountType): boolean {
   return BorshAccountsCoder.accountDiscriminator(type).equals(data.slice(0, 8));
+}
+
+/**
+ * Calculates liquidation parameters given an account value.
+ * @internal
+ */
+export function calculateLiquidationPrices(accountValue: BigNumber): LiquidationPrices {
+  let liquidatorFee = accountValue.times(LIQUIDATOR_LIQUIDATION_FEE);
+  let insuranceVaultFee = accountValue.times(INSURANCE_VAULT_LIQUIDATION_FEE);
+
+  let discountedLiquidatorPrice = accountValue.minus(liquidatorFee);
+  let finalPrice = discountedLiquidatorPrice.minus(insuranceVaultFee);
+
+  return {
+    finalPrice,
+    discountedLiquidatorPrice,
+    insuranceVaultFee
+  }
 }
 
 /**

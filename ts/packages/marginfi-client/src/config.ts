@@ -1,4 +1,5 @@
 import { Connection, PublicKey } from "@solana/web3.js";
+import { UtpIndex } from "./types";
 import { getMangoConfig, MangoConfig } from "./utp/mango/config";
 import { getZoConfig, ZoConfig } from "./utp/zo";
 
@@ -30,7 +31,7 @@ export interface MarginfiConfig extends MarginfiDedicatedConfig {
  * Marginfi generic UTP config.
  */
 export interface UtpConfig {
-  utpIndex: number;
+  utpIndex: UtpIndex;
   programId: PublicKey;
 }
 

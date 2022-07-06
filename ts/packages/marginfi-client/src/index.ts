@@ -1,4 +1,3 @@
-import { init, WasmMarginRequirement } from "@mrgnlabs/marginfi-wasm-tools";
 import * as constants from "./constants";
 import { NodeWallet } from "./nodeWallet";
 import { IS_BROWSER } from "./utils";
@@ -22,11 +21,8 @@ export * from "./types";
 export * from "./utils";
 export * from "./utp";
 export { config, constants, idl, state, types, utils, utp, instruction };
-export { WasmMarginRequirement as MarginRequirementType };
 
-export declare class Wallet extends NodeWallet {}
+export declare class Wallet extends NodeWallet { }
 if (!IS_BROWSER) {
   exports.Wallet = require("./nodeWallet").NodeWallet;
 }
-
-init(); // enable logging from WebAssembly

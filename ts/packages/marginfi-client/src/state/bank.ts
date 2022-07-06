@@ -1,88 +1,85 @@
-import { BN } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { BankData } from "../types";
-import { Decimal } from "../utils/decimal";
+import BigNumber from "bignumber.js";
+import { BankData, MarginRequirementType } from "../types";
+import { Decimal } from "../utils";
 
 /**
  * Bank struct mirroring on-chain data
  * Contains the state of the marginfi group.
  */
 export class Bank {
-  readonly scalingFactorC: Decimal;
-  readonly fixedFee: Decimal;
-  readonly interestFee: Decimal;
-  readonly depositAccumulator: Decimal;
-  readonly borrowAccumulator: Decimal;
-  readonly lastUpdate: BN;
-  readonly nativeDepositBalance: Decimal;
-  readonly nativeBorrowBalance: Decimal;
-  readonly mint: PublicKey;
-  readonly vault: PublicKey;
-  readonly bankAutorityBump: number;
-  readonly insuranceVault: PublicKey;
-  readonly insuranceVaultAutorityBump: number;
-  readonly feeVault: PublicKey;
-  readonly feeVaultAutorityBump: number;
-  readonly initMarginRatio: Decimal;
-  readonly maintMarginRatio: Decimal;
+  public readonly scalingFactorC: BigNumber;
+  public readonly fixedFee: BigNumber;
+  public readonly interestFee: BigNumber;
+  public readonly depositAccumulator: BigNumber;
+  public readonly borrowAccumulator: BigNumber;
+  public readonly lastUpdate: Date;
+  public readonly nativeDepositBalance: BigNumber;
+  public readonly nativeBorrowBalance: BigNumber;
+  public readonly mint: PublicKey;
+  public readonly vault: PublicKey;
+  public readonly bankAutorityBump: number;
+  public readonly insuranceVault: PublicKey;
+  public readonly insuranceVaultAutorityBump: number;
+  public readonly feeVault: PublicKey;
+  public readonly feeVaultAutorityBump: number;
+  public readonly initMarginRatio: BigNumber;
+  public readonly maintMarginRatio: BigNumber;
 
   constructor(
-    scalingFactorC: Decimal,
-    fixedFee: Decimal,
-    interestFee: Decimal,
-    depositAccumulator: Decimal,
-    borrowAccumulator: Decimal,
-    lastUpdate: BN,
-    nativeDepositBalance: Decimal,
-    nativeBorrowBalance: Decimal,
-    mint: PublicKey,
-    vault: PublicKey,
-    bankAutorityBump: number,
-    insuranceVault: PublicKey,
-    insuranceVaultAutorityBump: number,
-    feeVault: PublicKey,
-    feeVaultAutorityBump: number,
-    initMarginRatio: Decimal,
-    maintMarginRatio: Decimal
+    data: BankData
   ) {
-    this.scalingFactorC = scalingFactorC;
-    this.fixedFee = fixedFee;
-    this.interestFee = interestFee;
-    this.depositAccumulator = depositAccumulator;
-    this.borrowAccumulator = borrowAccumulator;
-    this.lastUpdate = lastUpdate;
-    this.nativeDepositBalance = nativeDepositBalance;
-    this.nativeBorrowBalance = nativeBorrowBalance;
-    this.mint = mint;
-    this.vault = vault;
-    this.bankAutorityBump = bankAutorityBump;
-    this.insuranceVault = insuranceVault;
-    this.insuranceVaultAutorityBump = insuranceVaultAutorityBump;
-    this.feeVault = feeVault;
-    this.feeVaultAutorityBump = feeVaultAutorityBump;
-    this.initMarginRatio = initMarginRatio;
-    this.maintMarginRatio = maintMarginRatio;
+    this.scalingFactorC = new BigNumber(Decimal.fromAccountData(data.scalingFactorC).toNumber());
+    this.fixedFee = new BigNumber(Decimal.fromAccountData(data.fixedFee).toNumber());
+    this.interestFee = new BigNumber(Decimal.fromAccountData(data.interestFee).toNumber());
+    this.depositAccumulator = new BigNumber(Decimal.fromAccountData(data.depositAccumulator).toNumber());
+    this.borrowAccumulator = new BigNumber(Decimal.fromAccountData(data.borrowAccumulator).toNumber());
+    this.lastUpdate = new Date(data.lastUpdate.toNumber());
+    this.nativeDepositBalance = new BigNumber(Decimal.fromAccountData(data.nativeDepositBalance).toNumber());
+    this.nativeBorrowBalance = new BigNumber(Decimal.fromAccountData(data.nativeBorrowBalance).toNumber());
+    this.mint = data.mint;
+    this.vault = data.vault;
+    this.bankAutorityBump = data.bankAutorityBump;
+    this.insuranceVault = data.insuranceVault;
+    this.insuranceVaultAutorityBump = data.insuranceVaultAutorityBump;
+    this.feeVault = data.feeVault;
+    this.feeVaultAutorityBump = data.feeVaultAutorityBump;
+    this.initMarginRatio = new BigNumber(Decimal.fromAccountData(data.initMarginRatio).toNumber());
+    this.maintMarginRatio = new BigNumber(Decimal.fromAccountData(data.maintMarginRatio).toNumber());
   }
 
-  static from(bankData: BankData) {
-    return new Bank(
-      Decimal.fromMDecimal(bankData.scalingFactorC),
-      Decimal.fromMDecimal(bankData.fixedFee),
-      Decimal.fromMDecimal(bankData.interestFee),
-      Decimal.fromMDecimal(bankData.depositAccumulator),
-      Decimal.fromMDecimal(bankData.borrowAccumulator),
-      bankData.lastUpdate,
-      Decimal.fromMDecimal(bankData.nativeDepositBalance),
-      Decimal.fromMDecimal(bankData.nativeBorrowBalance),
-      bankData.mint,
-      bankData.vault,
-      bankData.bankAutorityBump,
-      bankData.insuranceVault,
-      bankData.insuranceVaultAutorityBump,
-      bankData.feeVault,
-      bankData.feeVaultAutorityBump,
-      Decimal.fromMDecimal(bankData.initMarginRatio),
-      Decimal.fromMDecimal(bankData.maintMarginRatio)
-    );
+  getNativeAmount(record: BigNumber, side: LendingSide): BigNumber {
+    if (side === LendingSide.Borrow) {
+      return record.times(this.borrowAccumulator)
+    } else if (side === LendingSide.Deposit) {
+      return record.times(this.depositAccumulator)
+    } else {
+      throw Error(`Unknown lending side: ${side}`)
+    }
   }
+
+  getRecordAmount(record: BigNumber, side: LendingSide): BigNumber {
+    if (side === LendingSide.Borrow) {
+      return record.div(this.borrowAccumulator)
+    } else if (side === LendingSide.Deposit) {
+      return record.div(this.depositAccumulator)
+    } else {
+      throw Error(`Unknown lending side: ${side}`)
+    }
+  }
+
+  getMarginRatio(type: MarginRequirementType): BigNumber {
+    if (type === MarginRequirementType.Init) {
+      return this.initMarginRatio
+    } else if (type === MarginRequirementType.Maint) {
+      return this.maintMarginRatio
+    } else {
+      throw Error(`Unknown margin requirement type: ${type}`)
+    }
+  }
+}
+
+export enum LendingSide {
+  Borrow,
+  Deposit,
 }

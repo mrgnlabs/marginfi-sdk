@@ -8,7 +8,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "test": "ts-mocha -p ./tsconfig.json ./src/**/*.spec.ts",
-    "build": "tsc -b",
+    "build": "tsc",
     "watch": "tsc -w",
     "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
     "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check .",
@@ -25,6 +25,7 @@
     "@solana/web3.js": "^1.37.0",
     "@zero_one/client": "^0.8.7",
     "bigint-buffer": "^1.1.5",
+    "bignumber.js": "^9.0.2",
     "debug": "^4.3.4"
   },
   "devDependencies": {

@@ -1,4 +1,3 @@
-import { observe_zo } from "@mrgnlabs/marginfi-wasm-tools";
 import {
   AccountMeta,
   ComputeBudgetProgram,
@@ -32,6 +31,8 @@ import {
 import { BN } from "@project-serum/anchor";
 import * as ZoClient from "@zero_one/client";
 import { CONTROL_ACCOUNT_SIZE, OrderType } from "@zero_one/client";
+import BigNumber from "bignumber.js";
+import { DUST_THRESHOLD } from "../../constants";
 
 export class UtpZoAccount implements UtpAccount {
   /** @internal */
@@ -41,14 +42,16 @@ export class UtpZoAccount implements UtpAccount {
   /** @internal */
   private _isActive: boolean;
   /** @internal */
-  private _utpConfig: UTPAccountConfig;
+  utpConfig: UTPAccountConfig;
+  /** @internal */
+  private _cachedObservation: UtpObservation = UtpObservation.EMPTY_OBSERVATION;
 
   /** @internal */
   constructor(client: MarginfiClient, mfAccount: MarginfiAccount, accountData: UtpData) {
     this._client = client;
     this._marginfiAccount = mfAccount;
     this._isActive = accountData.isActive;
-    this._utpConfig = accountData.accountConfig;
+    this.utpConfig = accountData.accountConfig;
   }
 
   // --- Getters and setters
@@ -57,15 +60,11 @@ export class UtpZoAccount implements UtpAccount {
     return this._client.config;
   }
   /** @internal */
-  public get utpConfig() {
-    return this._utpConfig;
-  }
-  /** @internal */
   public get _program() {
     return this._client.program;
   }
   public get address(): PublicKey {
-    return this._utpConfig.address;
+    return this.utpConfig.address;
   }
   public get index() {
     return this._config.zo.utpIndex;
@@ -85,6 +84,14 @@ export class UtpZoAccount implements UtpAccount {
     return this._config.zo;
   }
 
+  get cachedObservation() {
+    const fetchAge = (new Date().getTime() - this._cachedObservation.timestamp.getTime()) / 1000.0
+    if (fetchAge > 5) {
+      console.log(`[WARNNG] Last Mango observation was fetched ${fetchAge} seconds ago`);
+    }
+    return this._cachedObservation;
+  }
+
   /**
    * Update instance data from provided data struct.
    *
@@ -92,7 +99,7 @@ export class UtpZoAccount implements UtpAccount {
    */
   update(data: UtpData) {
     this._isActive = data.isActive;
-    this._utpConfig = data.accountConfig;
+    this.utpConfig = data.accountConfig;
   }
 
   async makeActivateIx(): Promise<InstructionsWrapper> {
@@ -194,7 +201,7 @@ export class UtpZoAccount implements UtpAccount {
 
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this._utpConfig.authoritySeed,
+      this.utpConfig.authoritySeed,
       this._program.programId
     );
     const [tempTokenAccountKey, createTokenAccountIx, initTokenAccountIx] = await createTempTransferAccountIxs(
@@ -203,7 +210,7 @@ export class UtpZoAccount implements UtpAccount {
       utpAuthority
     );
 
-    const [utpAuthorityPk] = await getUtpAuthority(zoProgramId, this._utpConfig.authoritySeed, this._program.programId);
+    const [utpAuthorityPk] = await getUtpAuthority(zoProgramId, this.utpConfig.authoritySeed, this._program.programId);
 
     const [bankAuthority] = await getBankAuthority(
       this._config.groupPk,
@@ -237,7 +244,7 @@ export class UtpZoAccount implements UtpAccount {
             zoState: this.config.statePk,
             zoStateSigner: zoStateSigner,
             zoCache: zoState.cache.pubkey,
-            zoMargin: this._utpConfig.address,
+            zoMargin: this.utpConfig.address,
             zoVault: zoVaultPk,
           },
           { amount },
@@ -262,7 +269,7 @@ export class UtpZoAccount implements UtpAccount {
   async makeWithdrawIx(amount: BN): Promise<TransactionInstruction> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this._utpConfig.authoritySeed,
+      this.utpConfig.authoritySeed,
       this._program.programId
     );
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
@@ -315,7 +322,7 @@ export class UtpZoAccount implements UtpAccount {
   async makeCreatePerpOpenOrdersIx(marketSymbol: string): Promise<InstructionsWrapper> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this._utpConfig.authoritySeed,
+      this.utpConfig.authoritySeed,
       this._program.programId
     );
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
@@ -376,7 +383,7 @@ export class UtpZoAccount implements UtpAccount {
   }>): Promise<InstructionsWrapper> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this._utpConfig.authoritySeed,
+      this.utpConfig.authoritySeed,
       this._program.programId
     );
 
@@ -394,8 +401,8 @@ export class UtpZoAccount implements UtpAccount {
       market.decoded.perpType.toNumber() === 1
         ? ZoClient.ZO_FUTURE_TAKER_FEE
         : market.decoded.perpType.toNumber() === 2
-        ? ZoClient.ZO_OPTION_TAKER_FEE
-        : ZoClient.ZO_SQUARE_TAKER_FEE;
+          ? ZoClient.ZO_OPTION_TAKER_FEE
+          : ZoClient.ZO_SQUARE_TAKER_FEE;
     const feeMultiplier = isLong ? 1 + takerFee : 1 - takerFee;
     const maxQuoteQtyBn = new BN(
       Math.round(limitPriceBn.mul(maxBaseQtyBn).mul(market.decoded["quoteLotSize"]).toNumber() * feeMultiplier)
@@ -477,7 +484,7 @@ export class UtpZoAccount implements UtpAccount {
   }): Promise<InstructionsWrapper> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this._utpConfig.authoritySeed,
+      this.utpConfig.authoritySeed,
       this._program.programId
     );
 
@@ -534,7 +541,7 @@ export class UtpZoAccount implements UtpAccount {
   async makeSettleFundsIx(symbol: string): Promise<InstructionsWrapper> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this._utpConfig.authoritySeed,
+      this.utpConfig.authoritySeed,
       this._program.programId
     );
 
@@ -572,20 +579,6 @@ export class UtpZoAccount implements UtpAccount {
     return processTransaction(this._client.program.provider, tx);
   }
 
-  /** @deprecated @internal */
-  async getZoMarginAndState(): Promise<[ZoClient.Margin, ZoClient.State]> {
-    const [utpAuthority] = await getUtpAuthority(
-      this.config.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
-    const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
-    const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
-    const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
-
-    return [zoMargin, zoState];
-  }
-
   async getZoState(): Promise<ZoClient.State> {
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
     return ZoClient.State.load(zoProgram, this.config.statePk);
@@ -594,7 +587,7 @@ export class UtpZoAccount implements UtpAccount {
   async getZoMargin(zoState?: ZoClient.State): Promise<ZoClient.Margin> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this._utpConfig.authoritySeed,
+      this.utpConfig.authoritySeed,
       this._program.programId
     );
 
@@ -609,7 +602,8 @@ export class UtpZoAccount implements UtpAccount {
   }
 
   async getObservationAccounts(): Promise<AccountMeta[]> {
-    const [zoMargin, zoState] = await this.getZoMarginAndState();
+    const zoMargin = await this.getZoMargin();
+    const zoState = await this.getZoState();
 
     return [
       { pubkey: zoMargin.pubkey, isWritable: false, isSigner: false },
@@ -623,15 +617,17 @@ export class UtpZoAccount implements UtpAccount {
     const debug = require("debug")(`mfi:utp:${this.address}:zo:local-observe`);
     debug("Observing Locally");
 
-    const [zoMargin, zoState] = await this.getZoMarginAndState();
-    const [zoMarginAi, zoControlAi, zoStateAi, zoCacheAi] =
-      await this._program.provider.connection.getMultipleAccountsInfo([
-        zoMargin.pubkey,
-        zoMargin.control.pubkey,
-        zoState.pubkey,
-        zoState.cache.pubkey,
-      ]);
+    const zoMargin = await this.getZoMargin();
 
-    return UtpObservation.fromWasm(observe_zo(zoMarginAi!.data, zoControlAi!.data, zoStateAi!.data, zoCacheAi!.data));
+    const equity = new BigNumber(zoMargin.unweightedAccountValue.toString());
+    const marginRequirementInit = new BigNumber(zoMargin.initialMarginInfo(null)[0].toString());
+    const freeCollateral = new BigNumber(zoMargin.freeCollateralValue.toString());;
+    const isRebalanceDepositNeeded = equity.lt(marginRequirementInit) // TODO: Check disconnect between equity/freeCollateral/marginRequirementInit according 01 and our terminology
+    const maxRebalanceDepositAmount = BigNumber.max(0, marginRequirementInit.minus(equity))
+    const isEmpty = equity.lt(DUST_THRESHOLD);
+
+    const observation = new UtpObservation({ timestamp: new Date(), equity, freeCollateral, liquidationValue: equity, isRebalanceDepositNeeded, maxRebalanceDepositAmount, isEmpty })
+    this._cachedObservation = observation;
+    return observation;
   }
 }

@@ -8,6 +8,7 @@ import {
   MarginfiAccount,
   MarginfiAccountData,
   MarginfiClient,
+  uiToNative,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
 import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/dist/utp/mango";
@@ -69,22 +70,23 @@ async function liquidate(liquidateeMarginfiAccount: MarginfiAccount, liquidatorM
 
   debug("Liquidating account %s", liquidateeMarginfiAccount.publicKey);
 
-  const utpObservations = await liquidateeMarginfiAccount.observe();
-  const [balance] = await liquidatorMarginfiAccount.getBalance();
-  debug("Available balance %s", balance.toNumber() / 1_000_000);
+  await liquidateeMarginfiAccount.observe();
+  const { equity: liquidatorEquity } = await liquidatorMarginfiAccount.getBalances();
+  debug("Available balance %s", liquidatorEquity.toNumber() / 1_000_000);
 
-  const utp = utpObservations
-    .filter((a) => a.observation.totalCollateral.lte(balance))
-    .sort((a, b) => (a.observation.totalCollateral > b.observation.totalCollateral ? 1 : -1))[0];
+  const affordableUtps = [...liquidateeMarginfiAccount.observationCache.entries()]
+    .filter((utp) => utp[1].equity.lte(liquidatorEquity))
+  const [cheapestUtpIndex, _] = affordableUtps
+    .sort((utp1, utp2) => (utp1[1].equity.minus(utp2[1].equity).toNumber()))[0];
 
-  if (!utp) {
-    debug("Can't liquidate any UTP");
+  if (!cheapestUtpIndex) {
+    console.log("Insufficient balance to liquidate any UTP");
     return;
   }
 
-  debug("Liquidating UTP %s", utp.utp_index);
+  debug("Liquidating UTP %s", cheapestUtpIndex);
 
-  await liquidatorMarginfiAccount.liquidate(liquidateeMarginfiAccount, utp.utp_index);
+  await liquidatorMarginfiAccount.liquidate(liquidateeMarginfiAccount, cheapestUtpIndex);
   await closeAllUTPs(liquidatorMarginfiAccount);
 }
 
@@ -160,18 +162,18 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
   }
 
   /// Settle funds
-  for (let sym of marketSymbols) {
-    let oo = await zoMargin.getOpenOrdersInfoBySymbol(sym);
+  for (let symbol of marketSymbols) {
+    let oo = await zoMargin.getOpenOrdersInfoBySymbol(symbol);
 
     if (!oo) {
       continue;
     }
 
-    await marginfiAccount.zo.settleFunds(sym);
+    await marginfiAccount.zo.settleFunds(symbol);
   }
 
-  let observation = await marginfiAccount.zo.observe();
-  let withdrawableAmount = observation.freeCollateral.sub(new BN(100));
+  const observation = await marginfiAccount.zo.observe();
+  let withdrawableAmount = uiToNative(observation.freeCollateral).sub(new BN(100));
 
   debug("Withdrawing %s from ZO", bnToNumber(withdrawableAmount));
   await marginfiAccount.zo.withdraw(withdrawableAmount);
@@ -197,7 +199,7 @@ async function withdrawFromMango(marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:utp:mango:withdraw");
   debug("Trying to withdraw from Mango");
   let observation = await marginfiAccount.mango.observe();
-  let withdrawAmount = observation.freeCollateral.sub(new BN(1));
+  let withdrawAmount = uiToNative(observation.freeCollateral).sub(new BN(1));
 
   if (withdrawAmount.lte(ZERO_BN)) {
     return;

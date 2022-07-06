@@ -110,6 +110,22 @@ describe("decimal", () => {
     assert.isFalse(dec2.isNegative());
     assert.isTrue(dec2.isPositive());
     assert.equal(dec2.toString(), "999999007199.254740991");
+
+    // 0.00254740991
+    const dec3 = Decimal.fromBN(new BN("254740991"), 11);
+    assert.isTrue(dec3.toBN().eq(new BN("254740991")));
+    assert.equal(dec3.scale, 11);
+    assert.isFalse(dec3.isNegative());
+    assert.isTrue(dec3.isPositive());
+    assert.equal(dec3.toString(), "0.00254740991");
+
+    // 0.9023757942
+    const dec4 = Decimal.fromBN(new BN("9023757942"), 10);
+    assert.isTrue(dec4.toBN().eq(new BN("9023757942")));
+    assert.equal(dec4.scale, 10);
+    assert.isFalse(dec4.isNegative());
+    assert.isTrue(dec4.isPositive());
+    assert.equal(dec4.toString(), "0.9023757942");
   });
 
   it("negative fixed point decimals", async function () {

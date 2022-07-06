@@ -1,6 +1,6 @@
 import { BN } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { BankData, MDecimalRaw, UTPAccountConfig } from ".";
+import { UTPAccountConfig } from ".";
 
 export enum AccountType {
   MarginfiGroup = "marginfiGroup",
@@ -16,9 +16,36 @@ export interface MarginfiGroupData {
 export interface MarginfiAccountData {
   authority: PublicKey;
   marginfiGroup: PublicKey;
-  depositRecord: MDecimalRaw;
-  borrowRecord: MDecimalRaw;
+  depositRecord: DecimalData;
+  borrowRecord: DecimalData;
   activeUtps: boolean[];
   utpAccountConfig: UTPAccountConfig[];
   reservedSpace: BN[];
+}
+
+export interface BankData {
+  scalingFactorC: DecimalData;
+  fixedFee: DecimalData;
+  interestFee: DecimalData;
+  depositAccumulator: DecimalData;
+  borrowAccumulator: DecimalData;
+  lastUpdate: BN;
+  nativeDepositBalance: DecimalData;
+  nativeBorrowBalance: DecimalData;
+  mint: PublicKey;
+  vault: PublicKey;
+  bankAutorityBump: number;
+  insuranceVault: PublicKey;
+  insuranceVaultAutorityBump: number;
+  feeVault: PublicKey;
+  feeVaultAutorityBump: number;
+  initMarginRatio: DecimalData;
+  maintMarginRatio: DecimalData;
+}
+
+export interface DecimalData {
+  flags: number;
+  hi: number;
+  lo: number;
+  mid: number;
 }
