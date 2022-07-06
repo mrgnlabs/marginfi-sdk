@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+import "./sentry";
+
 import { BN, ONE_I80F48, QUOTE_INDEX, sleep, ZERO_BN, ZERO_I80F48 } from "@blockworks-foundation/mango-client";
 import {
   getClientFromEnv,
@@ -14,16 +16,18 @@ import { OrderType } from "@mrgnlabs/marginfi-client/dist/utp/zo/types";
 import { Connection, PublicKey } from "@solana/web3.js";
 import debugBuilder from "debug";
 
-const connection = new Connection(process.env.RPC_ENDPOINT!);
+const connection = new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const marginfiGroupPk = new PublicKey(process.env.MARGINFI_GROUP!);
 const marginfiAccountPk = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
 (async function () {
   const debug = debugBuilder("liquidator");
+  const marginClient = await getClientFromEnv();
+
+  const marginfiGroupPk = marginClient.config.groupPk;
 
   debug("Starting liquidator for group %s", marginfiGroupPk);
-  const marginClient = await getClientFromEnv();
 
   const marginfiAccount = await MarginfiAccount.get(marginfiAccountPk, marginClient);
 

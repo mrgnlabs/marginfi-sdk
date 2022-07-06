@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+import "./sentry";
+
 import { getClientFromEnv } from "@mrgnlabs/marginfi-client";
 
 (async function () {

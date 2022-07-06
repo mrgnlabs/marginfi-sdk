@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+import './sentry';
+
 import { getClientFromEnv, MarginfiAccount, MarginfiAccountData, MarginfiClient } from "@mrgnlabs/marginfi-client";
 import { PublicKey } from "@solana/web3.js";
 

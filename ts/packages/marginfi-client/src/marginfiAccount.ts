@@ -647,6 +647,10 @@ export class MarginfiAccount {
 
       let cappedRebalanceAmount = wasmDecimalToNative(rebalanceAmountDecimal).muln(95).divn(100);
 
+      if (cappedRebalanceAmount.lte(new BN(0))) {
+        continue;
+      }
+
       debug("Trying to rebalance deposit UTP:%s amount %s (RBDA)", utp_index, cappedRebalanceAmount);
 
       try {

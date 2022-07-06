@@ -233,13 +233,29 @@ export function getEnvFromStr(envString: string = "devnet"): Environment {
   }
 }
 
-export async function getClientFromEnv(): Promise<MarginfiClient> {
-  const debug = require("debug")("mfi");
-  const env = getEnvFromStr(process.env.ENV!);
-  const connection = new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
-  const programId = new PublicKey(process.env.MARGINFI_PROGRAM!);
-  const groupPk = process.env.MARGINFI_GROUP ? new PublicKey(process.env.MARGINFI_GROUP) : PublicKey.default;
-  const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));
+export async function getClientFromEnv(
+  overrides?: Partial<{
+    env: Environment;
+    connection: Connection;
+    program_id: PublicKey;
+    marginfi_group: PublicKey;
+    wallet: Wallet;
+  }>
+): Promise<MarginfiClient> {
+  const debug = require("debug")("mfi:utils");
+  const env = overrides?.env ?? getEnvFromStr(process.env.ENV!);
+  const connection = overrides?.connection ?? new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
+  const programId = overrides?.program_id ?? new PublicKey(process.env.MARGINFI_PROGRAM!);
+  const groupPk =
+    overrides?.marginfi_group ??
+    (process.env.MARGINFI_GROUP ? new PublicKey(process.env.MARGINFI_GROUP) : PublicKey.default);
+  const wallet =
+    overrides?.wallet ??
+    new NodeWallet(
+      process.env.WALLET_KEY
+        ? Keypair.fromSecretKey(new Uint8Array(JSON.parse(process.env.WALLET_KEY)))
+        : loadKeypair(process.env.WALLET!)
+    );
 
   debug("Loading the marginfi client from env vars");
   debug("Env: %s\nProgram: %s\nGroup: %s\nSigner: %s", env, programId, groupPk, wallet.publicKey);
