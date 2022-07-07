@@ -554,7 +554,6 @@ export class UtpMangoAccount implements UtpAccount {
     const mangoGroup = await this.getMangoGroup();
     const [mangoAccountAi, mangoCacheAi] =
       await this._program.provider.connection.getMultipleAccountsInfo([
-        this._config.mango.groupConfig.publicKey,
         this._utpConfig.address,
         mangoGroup.mangoCache,
       ]);
@@ -567,8 +566,6 @@ export class UtpMangoAccount implements UtpAccount {
 
     const mangoAccountDecoded = MangoAccountLayout.decode(mangoAccountAi.data)
     const mangoAccount = new MangoAccount(this._utpConfig.address, mangoAccountDecoded)
-
-    console.log('hey', mangoAccount.getAssetsVal(mangoGroup, mangoCache, "Init"));
 
     const totalCollateralInit = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache, "Init").toString())
     const marginRequirementInit = new BigNumber(mangoAccount.getLiabsVal(mangoGroup, mangoCache, "Init").toString())
