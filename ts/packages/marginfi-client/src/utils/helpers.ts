@@ -148,7 +148,7 @@ export function uiToNative(amount: BigNumber | number | string, decimals: number
   } else {
     amt = amount
   }
-  return new BN(amt.toFixed(decimals, BigNumber.ROUND_FLOOR)).mul(new BN(10 ** decimals));
+  return new BN(amt.times(decimals).toFixed(0, BigNumber.ROUND_FLOOR));
 }
 
 /**

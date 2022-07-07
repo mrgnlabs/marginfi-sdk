@@ -72,12 +72,12 @@ async function liquidate(liquidateeMarginfiAccount: MarginfiAccount, liquidatorM
 
   await liquidateeMarginfiAccount.observe();
   const { equity: liquidatorEquity } = await liquidatorMarginfiAccount.getBalances();
-  debug("Available balance %s", liquidatorEquity.toNumber() / 1_000_000);
+  debug("Available balance %s", liquidatorEquity.toNumber());
 
   const affordableUtps = [...liquidateeMarginfiAccount.observationCache.entries()]
-    .filter((utp) => utp[1].equity.lte(liquidatorEquity))
+    .filter(([_, obs]) => obs.equity.lte(liquidatorEquity))
   const [cheapestUtpIndex, _] = affordableUtps
-    .sort((utp1, utp2) => (utp1[1].equity.minus(utp2[1].equity).toNumber()))[0];
+    .sort(([_1, obs1], [_2, obs2]) => (obs1.equity.minus(obs2.equity).toNumber()))[0];
 
   if (!cheapestUtpIndex) {
     console.log("Insufficient balance to liquidate any UTP");
