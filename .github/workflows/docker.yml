@@ -25,7 +25,7 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
       - name: Configure Docker for GCP
-        run: gcloud auth configure-docker
+        run: gcloud auth configure-docker us-east1-docker.pkg.dev
       - name: Build Docker Image
         run: docker build --platform linux/amd64 -t us-east1-docker.pkg.dev/marginfi-dev/main/$PACKAGE:$VERSION . --build-arg package_name=$PACKAGE
       - name: Push Docker Image
