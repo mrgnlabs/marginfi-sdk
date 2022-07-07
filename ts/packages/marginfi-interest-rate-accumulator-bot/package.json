@@ -10,7 +10,7 @@
     "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
     "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check .",
     "clean": "rm -rf dist",
-    "dev": "ts-node index.ts",
+    "dev": "ts-node src/index.ts",
     "start": "node dist/index.js"
   },
   "dependencies": {

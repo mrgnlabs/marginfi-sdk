@@ -601,7 +601,7 @@ export class MarginfiAccount {
       debug("Rebalance withdraw success - sig %s (RBWS)", sig);
     } catch (e) {
       debug("Rebalance withdraw failed (RBWF)");
-      console.error(e);
+      throw e;
     }
   }
 
@@ -658,7 +658,7 @@ export class MarginfiAccount {
         debug("Rebalance success (RBDS) sig %s", sig);
       } catch (e) {
         debug("Rebalance failed (RBDF)");
-        debug(e);
+        throw e;
       }
 
       [marginfiGroupAi, marginfiAccountAi] = await this._program.provider.connection.getMultipleAccountsInfo([
@@ -695,7 +695,7 @@ export class MarginfiAccount {
       debug("Handle bankruptcy success - sig %s (HBS)", sig);
     } catch (e) {
       debug("Handle bankruptcy failed (HBF)");
-      console.error(e);
+      throw e;
     }
   }
 
