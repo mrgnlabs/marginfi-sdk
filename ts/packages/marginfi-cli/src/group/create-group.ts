@@ -16,7 +16,7 @@ import { getEnvironment } from "../common";
 export async function createGroup(_string: string, options: OptionValues) {
   const connection = new Connection(options.url, "confirmed");
   const wallet = new Wallet(loadKeypair(options.keypair));
-  const config = await getConfig(getEnvironment(options.env), connection);
+  const config = await getConfig(getEnvironment(options.environment), connection);
   const program = getMfiProgram(config.programId, connection, wallet);
 
   console.log("Program: %s\nSigner: %s", program.programId, wallet.publicKey);

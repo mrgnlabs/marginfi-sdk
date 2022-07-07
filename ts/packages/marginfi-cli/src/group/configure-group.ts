@@ -6,7 +6,7 @@ import { getEnvironment } from "../common";
 
 export async function configureGroup(marginfiGroupAddress: string, options: OptionValues) {
   const connection = new Connection(options.url, "confirmed");
-  const config = await getConfig(getEnvironment(options.env), connection);
+  const config = await getConfig(getEnvironment(options.environment), connection);
 
   const program = getMfiProgram(config.programId, connection, new Wallet(loadKeypair(options.keypair)));
 
