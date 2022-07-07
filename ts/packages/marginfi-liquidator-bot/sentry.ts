@@ -36,10 +36,9 @@ if (SENTRY_ACTIVE) {
     }
   }, 99);
 
-
-  process.on('unhandledRejection', (e) => {
+  process.on("unhandledRejection", (e) => {
     Sentry.captureException(e);
-  })
+  });
 }
 
 export function captureException(e: any) {
