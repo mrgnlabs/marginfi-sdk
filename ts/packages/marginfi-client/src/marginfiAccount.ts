@@ -264,7 +264,7 @@ export class MarginfiAccount {
    */
   async reload(observe: boolean = false) {
     require("debug")(`mfi:margin-account:${this.publicKey.toString()}:loader`)("Reloading account data");
-    const [marginfiAccountAi, marginfiGroupAi] = await this.loadAccountAndGroupAi()
+    const [marginfiGroupAi, marginfiAccountAi] = await this.loadAccountAndGroupAi()
     const marginfiAccountData = MarginfiAccount.decode(marginfiAccountAi.data)
     if (!marginfiAccountData.marginfiGroup.equals(this._config.groupPk))
       throw Error(

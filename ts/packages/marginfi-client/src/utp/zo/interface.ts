@@ -164,9 +164,7 @@ export class UtpZoAccount implements UtpAccount {
 
     const tx = new Transaction().add(...activateIx.instructions);
     const sig = await processTransaction(this._program.provider, tx, [...activateIx.keys]);
-
     debug("Sig %s", sig);
-
     await this._marginfiAccount.reload(); // Required to update the internal UTP address
     return sig;
   }
@@ -191,7 +189,7 @@ export class UtpZoAccount implements UtpAccount {
     debug("Deactivating 01 UTP");
 
     const sig = await this._marginfiAccount.deactivateUtp(new BN(this.index));
-
+    debug("Sig %s", sig);
     await this._marginfiAccount.reload();
     return sig;
   }
@@ -533,7 +531,6 @@ export class UtpZoAccount implements UtpAccount {
     const ix = await this.makeCancelPerpOrderIx(args);
     const tx = new Transaction().add(...ix.instructions);
     const sig = await processTransaction(this._client.program.provider, tx);
-
     debug("Sig %s", sig);
     return sig;
   }
@@ -574,9 +571,13 @@ export class UtpZoAccount implements UtpAccount {
   }
 
   async settleFunds(symbol: string): Promise<string> {
+    const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:settle-funds`);
+    debug(`Settling funds on market ${symbol}`);
     const ix = await this.makeSettleFundsIx(symbol);
     const tx = new Transaction().add(...ix.instructions);
-    return processTransaction(this._client.program.provider, tx);
+    const sig = processTransaction(this._client.program.provider, tx);
+    debug("Sig %s", sig);
+    return sig;
   }
 
   async getZoState(): Promise<ZoClient.State> {

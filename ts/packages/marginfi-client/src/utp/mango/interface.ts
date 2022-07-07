@@ -160,8 +160,8 @@ export class UtpMangoAccount implements UtpAccount {
 
     const tx = new Transaction().add(...activateIx.instructions);
     const sig = await processTransaction(this._program.provider, tx);
-
     await this._marginfiAccount.reload(); // Required to update the internal UTP address
+    debug("Sig %s", sig);
     return sig;
   }
 
@@ -185,7 +185,7 @@ export class UtpMangoAccount implements UtpAccount {
     debug("Deactivating Mango UTP");
 
     const sig = await this._marginfiAccount.deactivateUtp(new BN(this.index));
-
+    debug("Sig %s", sig);
     await this._marginfiAccount.reload();
     return sig;
   }
@@ -273,7 +273,8 @@ export class UtpMangoAccount implements UtpAccount {
     const depositIx = await this.makeDepositIx(amount);
     const tx = new Transaction().add(...depositIx.instructions);
     const sig = await processTransaction(this._program.provider, tx, [...depositIx.keys]);
-
+    debug("Sig %s", sig);
+    await this._marginfiAccount.reload();
     return sig;
   }
 
@@ -338,7 +339,8 @@ export class UtpMangoAccount implements UtpAccount {
     const depositIx = await this.makeWithdrawIx(amount);
     const tx = new Transaction().add(...depositIx.instructions);
     const sig = await processTransaction(this._program.provider, tx);
-
+    debug("Sig %s", sig);
+    await this._marginfiAccount.reload();
     return sig;
   }
 
@@ -565,6 +567,8 @@ export class UtpMangoAccount implements UtpAccount {
 
     const mangoAccountDecoded = MangoAccountLayout.decode(mangoAccountAi.data)
     const mangoAccount = new MangoAccount(this._utpConfig.address, mangoAccountDecoded)
+
+    console.log('hey', mangoAccount.getAssetsVal(mangoGroup, mangoCache, "Init"));
 
     const totalCollateralInit = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache, "Init").toString())
     const marginRequirementInit = new BigNumber(mangoAccount.getLiabsVal(mangoGroup, mangoCache, "Init").toString())
