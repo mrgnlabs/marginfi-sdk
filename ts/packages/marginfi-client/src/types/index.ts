@@ -1,8 +1,18 @@
 import { BN } from "@project-serum/anchor";
-import { AccountMeta, Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
+import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { UtpObservation } from "../state";
 export * from "./accounts";
+
+export enum UtpIndex {
+  Mango = 0,
+  ZO = 1
+}
+
+export const UTP_NAME = {
+  [UtpIndex.Mango]: "Mango",
+  [UtpIndex.ZO]: "01",
+}
 
 /** @internal */
 export interface GroupConfig {
@@ -32,22 +42,6 @@ export interface UTPAccountConfig {
 export interface UtpData {
   isActive: boolean;
   accountConfig: UTPAccountConfig;
-}
-
-export interface UtpAccount {
-  isActive: boolean;
-  index: UtpIndex;
-  address: PublicKey;
-  cachedObservation: UtpObservation;
-  getObservationAccounts: () => Promise<AccountMeta[]>;
-  observe: () => Promise<UtpObservation>;
-  deposit: (amount: BN) => Promise<string>;
-  withdraw: (amount: BN) => Promise<string>;
-}
-
-export enum UtpIndex {
-  Mango = 0,
-  ZO = 1
 }
 
 export type ObservationCache = Map<UtpIndex, UtpObservation>;

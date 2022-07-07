@@ -17,7 +17,7 @@ import { MarginfiClient } from "../..";
 import { MarginfiAccount } from "../../marginfiAccount";
 import { UtpObservation } from "../../state";
 import { DUST_THRESHOLD } from "../../constants";
-import { InstructionsWrapper, UtpAccount, UTPAccountConfig, UtpData } from "../../types";
+import { InstructionsWrapper, UtpData } from "../../types";
 import { getBankAuthority, getUtpAuthority, processTransaction } from "../../utils";
 import {
   makeActivateIx,
@@ -27,66 +27,18 @@ import {
   makeWithdrawIx,
 } from "./instruction";
 import { ExpiryType, PerpOrderType, Side, UtpMangoPlacePerpOrderOptions } from "./types";
+import { UtpAccount } from "../../state/utpAccount";
 
 /**
  * Class encapsulating Mango-specific interactions (internal)
  */
-export class UtpMangoAccount implements UtpAccount {
+export class UtpMangoAccount extends UtpAccount {
   /** @internal */
-  private _client: MarginfiClient;
-  /** @internal */
-  private _marginfiAccount: MarginfiAccount;
-  /** @internal */
-  private _isActive: boolean;
-  /** @internal */
-  private _utpConfig: UTPAccountConfig;
-  /** @internal */
-  private _cachedObservation: UtpObservation = UtpObservation.EMPTY_OBSERVATION;
-
-  /** @internal */
-  constructor(client: MarginfiClient, mfAccount: MarginfiAccount, accountData: UtpData) {
-    this._client = client;
-
-    this._marginfiAccount = mfAccount;
-
-    this._isActive = accountData.isActive;
-    this._utpConfig = accountData.accountConfig;
-  }
-  /** @internal */
-  public get _config() {
-    return this._client.config;
-  }
-  /** @internal */
-  public get _program() {
-    return this._client.program;
-  }
-  public get address(): PublicKey {
-    return this._utpConfig.address;
-  }
-  get cachedObservation() {
-    const fetchAge = (new Date().getTime() - this._cachedObservation.timestamp.getTime()) / 1000.0
-    if (fetchAge > 5) {
-      console.log(`[WARNNG] Last Mango observation was fetched ${fetchAge} seconds ago`);
-    }
-    return this._cachedObservation;
+  constructor(client: MarginfiClient, marginfiAccount: MarginfiAccount, accountData: UtpData) {
+    super(client, marginfiAccount, accountData.isActive, accountData.accountConfig)
   }
 
-
-  // --- Getters and setters
-
-  /**
-   * UTP index
-   */
-  public get index() {
-    return this._config.mango.utpIndex;
-  }
-
-  /**
-   * Flag indicating if UTP is active or not
-   */
-  public get isActive() {
-    return this._isActive;
-  }
+  // --- Getters / Setters
 
   /**
    * UTP-specific config
@@ -96,14 +48,6 @@ export class UtpMangoAccount implements UtpAccount {
   }
 
   // --- Others
-
-  /**
-   * Update instance data from provided data struct.
-   */
-  update(data: UtpData) {
-    this._isActive = data.isActive;
-    this._utpConfig = data.accountConfig;
-  }
 
   /**
    * Create transaction instruction to activate Mango.

@@ -70,7 +70,7 @@ async function liquidate(liquidateeMarginfiAccount: MarginfiAccount, liquidatorM
 
   debug("Liquidating account %s", liquidateeMarginfiAccount.publicKey);
 
-  await liquidateeMarginfiAccount.observe();
+  await liquidateeMarginfiAccount.observeUtps();
   const { equity: liquidatorEquity } = await liquidatorMarginfiAccount.getBalances();
   debug("Available balance %s", liquidatorEquity.toNumber());
 

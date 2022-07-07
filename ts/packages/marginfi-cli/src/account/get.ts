@@ -1,4 +1,4 @@
-import { MarginfiAccount, MarginRequirementType, UtpIndex } from "@mrgnlabs/marginfi-client";
+import { MarginfiAccount, MarginRequirementType } from "@mrgnlabs/marginfi-client";
 import { PublicKey } from "@solana/web3.js";
 import { OptionValues } from "commander";
 import { getClientFromOptions } from "../common";
@@ -21,13 +21,13 @@ export async function getAccount(accountPk: string, options: OptionValues) {
   try {
     const connection = client.program.provider.connection;
     const account = await MarginfiAccount.get(new PublicKey(accountPk), client);
-    await account.observe()
+    await account.observeUtps()
 
     let { assets, equity, liabilities } = await account.getBalances();
     const deposits = await account.getDeposits();
 
     // const utps = account.allUtps();
-    // const observations = await account.observe();
+    // const observations = await account.observeUtps();
 
     console.log(
       "Marginfi account %s\n\tGA Balance: %s\n\tEquity: %s,\n\tAssets: %s,\n\tLiabilities: %s",
@@ -108,11 +108,9 @@ export async function getAccount(accountPk: string, options: OptionValues) {
     }
 
     if (account.zo.isActive) {
-      const observation = account.observationCache.get(UtpIndex.ZO)!; // 01 UTP index
-
       console.log("------------------");
       console.log("01 Protocol");
-      console.log("Account %s\n\tEquity: %s\n\tFree Collateral: %s", account.zo.address, observation.equity, observation.freeCollateral);
+      console.log("Account %s\n\tEquity: %s\n\tFree Collateral: %s", account.zo.address, account.zo.equity, account.zo.freeCollateral);
 
       const zoState = await account.zo.getZoState();
       const zoMargin = await account.zo.getZoMargin(zoState);

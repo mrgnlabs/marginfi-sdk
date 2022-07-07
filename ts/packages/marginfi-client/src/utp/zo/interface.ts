@@ -2,7 +2,6 @@ import {
   AccountMeta,
   ComputeBudgetProgram,
   Keypair,
-  PublicKey,
   SystemProgram,
   Transaction,
   TransactionInstruction,
@@ -10,7 +9,7 @@ import {
 import { MarginfiClient } from "../../client";
 import { MarginfiAccount } from "../../marginfiAccount";
 import { UtpObservation } from "../../state";
-import { InstructionsWrapper, UtpAccount, UTPAccountConfig, UtpData } from "../../types";
+import { InstructionsWrapper, UtpData } from "../../types";
 import {
   BankVaultType,
   createTempTransferAccounts as createTempTransferAccountIxs,
@@ -33,49 +32,18 @@ import * as ZoClient from "@zero_one/client";
 import { CONTROL_ACCOUNT_SIZE, OrderType } from "@zero_one/client";
 import BigNumber from "bignumber.js";
 import { DUST_THRESHOLD } from "../../constants";
+import { UtpAccount } from "../../state/utpAccount";
 
-export class UtpZoAccount implements UtpAccount {
+/**
+ * Class encapsulating 01-specific interactions (internal)
+ */
+export class UtpZoAccount extends UtpAccount {
   /** @internal */
-  private _client: MarginfiClient;
-  /** @internal */
-  private _marginfiAccount: MarginfiAccount;
-  /** @internal */
-  private _isActive: boolean;
-  /** @internal */
-  utpConfig: UTPAccountConfig;
-  /** @internal */
-  private _cachedObservation: UtpObservation = UtpObservation.EMPTY_OBSERVATION;
-
-  /** @internal */
-  constructor(client: MarginfiClient, mfAccount: MarginfiAccount, accountData: UtpData) {
-    this._client = client;
-    this._marginfiAccount = mfAccount;
-    this._isActive = accountData.isActive;
-    this.utpConfig = accountData.accountConfig;
+  constructor(client: MarginfiClient, marginfiAccount: MarginfiAccount, accountData: UtpData) {
+    super(client, marginfiAccount, accountData.isActive, accountData.accountConfig)
   }
 
-  // --- Getters and setters
-  /** @internal */
-  public get _config() {
-    return this._client.config;
-  }
-  /** @internal */
-  public get _program() {
-    return this._client.program;
-  }
-  public get address(): PublicKey {
-    return this.utpConfig.address;
-  }
-  public get index() {
-    return this._config.zo.utpIndex;
-  }
-
-  /**
-   * Flag indicating if UTP is active or not
-   */
-  public get isActive() {
-    return this._isActive;
-  }
+  // --- Getters / Setters
 
   /**
    * UTP-specific config
@@ -84,23 +52,7 @@ export class UtpZoAccount implements UtpAccount {
     return this._config.zo;
   }
 
-  get cachedObservation() {
-    const fetchAge = (new Date().getTime() - this._cachedObservation.timestamp.getTime()) / 1000.0
-    if (fetchAge > 5) {
-      console.log(`[WARNNG] Last Mango observation was fetched ${fetchAge} seconds ago`);
-    }
-    return this._cachedObservation;
-  }
-
-  /**
-   * Update instance data from provided data struct.
-   *
-   * @internal
-   */
-  update(data: UtpData) {
-    this._isActive = data.isActive;
-    this.utpConfig = data.accountConfig;
-  }
+  // --- Others
 
   async makeActivateIx(): Promise<InstructionsWrapper> {
     const zoControlKey = Keypair.generate();
@@ -199,7 +151,7 @@ export class UtpZoAccount implements UtpAccount {
 
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this.utpConfig.authoritySeed,
+      this._utpConfig.authoritySeed,
       this._program.programId
     );
     const [tempTokenAccountKey, createTokenAccountIx, initTokenAccountIx] = await createTempTransferAccountIxs(
@@ -208,7 +160,7 @@ export class UtpZoAccount implements UtpAccount {
       utpAuthority
     );
 
-    const [utpAuthorityPk] = await getUtpAuthority(zoProgramId, this.utpConfig.authoritySeed, this._program.programId);
+    const [utpAuthorityPk] = await getUtpAuthority(zoProgramId, this._utpConfig.authoritySeed, this._program.programId);
 
     const [bankAuthority] = await getBankAuthority(
       this._config.groupPk,
@@ -242,7 +194,7 @@ export class UtpZoAccount implements UtpAccount {
             zoState: this.config.statePk,
             zoStateSigner: zoStateSigner,
             zoCache: zoState.cache.pubkey,
-            zoMargin: this.utpConfig.address,
+            zoMargin: this._utpConfig.address,
             zoVault: zoVaultPk,
           },
           { amount },
@@ -267,7 +219,7 @@ export class UtpZoAccount implements UtpAccount {
   async makeWithdrawIx(amount: BN): Promise<TransactionInstruction> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this.utpConfig.authoritySeed,
+      this._utpConfig.authoritySeed,
       this._program.programId
     );
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
@@ -320,7 +272,7 @@ export class UtpZoAccount implements UtpAccount {
   async makeCreatePerpOpenOrdersIx(marketSymbol: string): Promise<InstructionsWrapper> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this.utpConfig.authoritySeed,
+      this._utpConfig.authoritySeed,
       this._program.programId
     );
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
@@ -381,7 +333,7 @@ export class UtpZoAccount implements UtpAccount {
   }>): Promise<InstructionsWrapper> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this.utpConfig.authoritySeed,
+      this._utpConfig.authoritySeed,
       this._program.programId
     );
 
@@ -482,7 +434,7 @@ export class UtpZoAccount implements UtpAccount {
   }): Promise<InstructionsWrapper> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this.utpConfig.authoritySeed,
+      this._utpConfig.authoritySeed,
       this._program.programId
     );
 
@@ -538,7 +490,7 @@ export class UtpZoAccount implements UtpAccount {
   async makeSettleFundsIx(symbol: string): Promise<InstructionsWrapper> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this.utpConfig.authoritySeed,
+      this._utpConfig.authoritySeed,
       this._program.programId
     );
 
@@ -588,7 +540,7 @@ export class UtpZoAccount implements UtpAccount {
   async getZoMargin(zoState?: ZoClient.State): Promise<ZoClient.Margin> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
-      this.utpConfig.authoritySeed,
+      this._utpConfig.authoritySeed,
       this._program.programId
     );
 
