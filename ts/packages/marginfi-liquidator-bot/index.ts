@@ -79,7 +79,10 @@ async function liquidate(liquidateeMarginfiAccount: MarginfiAccount, liquidatorM
     utp.computeLiquidationPrices().discountedLiquidatorPrice.lte(liquidatorEquity)
   );
   const cheapestUtp = affordableUtps.sort((utp1, utp2) =>
-    utp1.computeLiquidationPrices().discountedLiquidatorPrice.minus(utp2.computeLiquidationPrices().discountedLiquidatorPrice).toNumber()
+    utp1
+      .computeLiquidationPrices()
+      .discountedLiquidatorPrice.minus(utp2.computeLiquidationPrices().discountedLiquidatorPrice)
+      .toNumber()
   )[0];
 
   if (!cheapestUtp.index) {

@@ -2,7 +2,7 @@ import { AccountMeta, PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 import { format } from "util";
 import { getUtpAuthority, MarginfiAccount, MarginfiClient, UtpConfig } from ".";
-import { LIQUIDATOR_LIQUIDATION_FEE, INSURANCE_VAULT_LIQUIDATION_FEE } from "./constants"
+import { INSURANCE_VAULT_LIQUIDATION_FEE, LIQUIDATOR_LIQUIDATION_FEE } from "./constants";
 import { LiquidationPrices, UTPAccountConfig, UtpData, UtpIndex, UTP_NAME } from "./types";
 import { IUtpObservation, UtpObservation } from "./utpObservation";
 
