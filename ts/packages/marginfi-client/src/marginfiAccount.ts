@@ -41,16 +41,16 @@ import { UtpObservation } from "./utpObservation";
  */
 export class MarginfiAccount {
   public readonly publicKey: PublicKey;
+  public group: MarginfiGroup;
+  public observationCache: ObservationCache = new Map<UtpIndex, UtpObservation>();
 
   private _authority: PublicKey;
-  group: MarginfiGroup;
   private _depositRecord: BigNumber;
   private _borrowRecord: BigNumber;
 
   public readonly mango: UtpMangoAccount;
   public readonly zo: UtpZoAccount;
 
-  observationCache: ObservationCache = new Map<UtpIndex, UtpObservation>();
 
   /**
    * @internal

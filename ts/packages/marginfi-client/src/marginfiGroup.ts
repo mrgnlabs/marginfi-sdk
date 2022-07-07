@@ -11,11 +11,12 @@ import { getBankAuthority, processTransaction } from "./utils";
  * Wrapper class around a specific marginfi group.
  */
 export class MarginfiGroup {
-  private _program: Program<MarginfiIdl>;
-  private _config: MarginfiConfig;
-  bank: Bank;
+  public bank: Bank;
   public readonly publicKey: PublicKey;
   public readonly admin: PublicKey;
+
+  private _program: Program<MarginfiIdl>;
+  private _config: MarginfiConfig;
 
   /**
    * @internal

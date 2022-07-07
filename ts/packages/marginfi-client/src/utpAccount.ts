@@ -6,9 +6,10 @@ import { UTPAccountConfig, UtpData, UtpIndex, UTP_NAME } from "./types";
 import { IUtpObservation, UtpObservation } from "./utpObservation";
 
 export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
-  index: UtpIndex;
-  address: PublicKey;
-  isActive: boolean;
+  public index: UtpIndex;
+  public address: PublicKey;
+  public isActive: boolean;
+
   /** @internal */
   protected _utpConfig: UTPAccountConfig;
   /** @internal */

@@ -16,13 +16,13 @@ export interface IUtpObservation {
  * Contains a UTP health metrics.
  */
 export class UtpObservation implements IUtpObservation {
-  timestamp: Date
-  equity: BigNumber
-  freeCollateral: BigNumber
-  liquidationValue: BigNumber
-  isRebalanceDepositNeeded: boolean
-  maxRebalanceDepositAmount: BigNumber
-  isEmpty: boolean
+  public timestamp: Date
+  public equity: BigNumber
+  public freeCollateral: BigNumber
+  public liquidationValue: BigNumber
+  public isRebalanceDepositNeeded: boolean
+  public maxRebalanceDepositAmount: BigNumber
+  public isEmpty: boolean
 
   static EMPTY_OBSERVATION = new UtpObservation({
     timestamp: new Date(0),
