@@ -11,9 +11,6 @@ on:
         - latest-mainnet
         - latest-devnet
         - latest-test
-  pull_request:
-    branches:
-      - "*"
 jobs:
   build-crank-bot:
     runs-on: ubuntu-latest
