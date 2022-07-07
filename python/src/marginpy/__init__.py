@@ -1,5 +1,5 @@
 """The Marginfi python SDK."""
-from marginpy.provider import MarginfiClient
+from marginpy.marginfi_client import MarginfiClient
 
 
 __all__ = [
