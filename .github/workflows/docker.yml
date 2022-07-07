@@ -1,6 +1,16 @@
 name: main
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag'     
+        required: true
+        default: 'latest-devnet' 
+        type: choice
+        options:
+        - latest-mainnet
+        - latest-devnet
+        - latest-test
   pull_request:
     branches:
       - "*"
@@ -12,7 +22,7 @@ jobs:
         working-directory: ./ts
     env: 
       PACKAGE: marginfi-crank-bot
-      VERSION: latest
+      VERSION: ${{ inputs.tag }}
     steps:
       - uses: actions/checkout@v2  
       - id: 'auth'
@@ -35,7 +45,7 @@ jobs:
         working-directory: ./ts
     env: 
       PACKAGE: marginfi-interest-rate-accumulator-bot
-      VERSION: latest
+      VERSION: ${{ inputs.tag }}
     steps:
       - uses: actions/checkout@v2  
       - id: 'auth'
@@ -58,7 +68,7 @@ jobs:
         working-directory: ./ts
     env: 
       PACKAGE: marginfi-liquidator-bot
-      VERSION: latest
+      VERSION: ${{ inputs.tag }}
     steps:
       - uses: actions/checkout@v2  
       - id: 'auth'
