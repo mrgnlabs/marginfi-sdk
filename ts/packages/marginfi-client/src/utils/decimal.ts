@@ -69,7 +69,7 @@ export class Decimal {
       return nb;
     } else {
       if (nb.length <= this.scale) {
-        nb = nb.padStart(this.scale + 1, '0')
+        nb = nb.padStart(this.scale + 1, "0");
       }
       const integer = nb.slice(0, nb.length - this.scale);
       const fractional = nb.slice(nb.length - this.scale, nb.length);

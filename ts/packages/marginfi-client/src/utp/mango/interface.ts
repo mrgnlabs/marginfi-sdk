@@ -14,10 +14,12 @@ import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { MarginfiClient } from "../..";
-import { MarginfiAccount } from "../../marginfiAccount";
 import { DUST_THRESHOLD } from "../../constants";
+import { MarginfiAccount } from "../../marginfiAccount";
 import { InstructionsWrapper, UtpData } from "../../types";
 import { getBankAuthority, getUtpAuthority, processTransaction } from "../../utils";
+import { UtpAccount } from "../../utpAccount";
+import { UtpObservation } from "../../utpObservation";
 import {
   makeActivateIx,
   makeCancelPerpOrderIx,
@@ -26,8 +28,6 @@ import {
   makeWithdrawIx,
 } from "./instruction";
 import { ExpiryType, PerpOrderType, Side, UtpMangoPlacePerpOrderOptions } from "./types";
-import { UtpAccount } from "../../utpAccount";
-import { UtpObservation } from "../../utpObservation";
 
 /**
  * Class encapsulating Mango-specific interactions (internal)
@@ -35,7 +35,7 @@ import { UtpObservation } from "../../utpObservation";
 export class UtpMangoAccount extends UtpAccount {
   /** @internal */
   constructor(client: MarginfiClient, marginfiAccount: MarginfiAccount, accountData: UtpData) {
-    super(client, marginfiAccount, accountData.isActive, accountData.accountConfig)
+    super(client, marginfiAccount, accountData.isActive, accountData.accountConfig);
   }
 
   // --- Getters / Setters
@@ -496,34 +496,41 @@ export class UtpMangoAccount extends UtpAccount {
     const debug = require("debug")(`mfi:utp:${this.address}:mango:local-observe`);
     debug("Observing Locally");
     const mangoGroup = await this.getMangoGroup();
-    const [mangoAccountAi, mangoCacheAi] =
-      await this._program.provider.connection.getMultipleAccountsInfo([
-        this._utpConfig.address,
-        mangoGroup.mangoCache,
-      ]);
+    const [mangoAccountAi, mangoCacheAi] = await this._program.provider.connection.getMultipleAccountsInfo([
+      this._utpConfig.address,
+      mangoGroup.mangoCache,
+    ]);
 
     if (!mangoAccountAi) throw Error(`Mango account not found: ${this._utpConfig.address}`);
     if (!mangoCacheAi) throw Error(`Mango cache not found: ${mangoGroup.mangoCache}`);
 
-    const mangoCacheDecoded = MangoCacheLayout.decode(mangoCacheAi.data)
-    const mangoCache = new MangoCache(mangoGroup.mangoCache, mangoCacheDecoded)
+    const mangoCacheDecoded = MangoCacheLayout.decode(mangoCacheAi.data);
+    const mangoCache = new MangoCache(mangoGroup.mangoCache, mangoCacheDecoded);
 
-    const mangoAccountDecoded = MangoAccountLayout.decode(mangoAccountAi.data)
-    const mangoAccount = new MangoAccount(this._utpConfig.address, mangoAccountDecoded)
+    const mangoAccountDecoded = MangoAccountLayout.decode(mangoAccountAi.data);
+    const mangoAccount = new MangoAccount(this._utpConfig.address, mangoAccountDecoded);
 
-    const totalCollateralInit = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache, "Init").toString())
-    const marginRequirementInit = new BigNumber(mangoAccount.getLiabsVal(mangoGroup, mangoCache, "Init").toString())
-    const freeCollateral = totalCollateralInit.minus(marginRequirementInit)
+    const totalCollateralInit = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache, "Init").toString());
+    const marginRequirementInit = new BigNumber(mangoAccount.getLiabsVal(mangoGroup, mangoCache, "Init").toString());
+    const freeCollateral = totalCollateralInit.minus(marginRequirementInit);
 
-    const totalCollateralEquity = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache).toString())
-    const marginRequirementEquity = new BigNumber(mangoAccount.getLiabsVal(mangoGroup, mangoCache).toString())
-    const equity = totalCollateralEquity.minus(marginRequirementEquity)
+    const totalCollateralEquity = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache).toString());
+    const marginRequirementEquity = new BigNumber(mangoAccount.getLiabsVal(mangoGroup, mangoCache).toString());
+    const equity = totalCollateralEquity.minus(marginRequirementEquity);
 
-    const isRebalanceDepositNeeded = equity.lt(marginRequirementInit)
-    const maxRebalanceDepositAmount = BigNumber.max(0, marginRequirementInit.minus(totalCollateralInit))
-    const isEmpty = totalCollateralEquity.lt(DUST_THRESHOLD)
+    const isRebalanceDepositNeeded = equity.lt(marginRequirementInit);
+    const maxRebalanceDepositAmount = BigNumber.max(0, marginRequirementInit.minus(totalCollateralInit));
+    const isEmpty = totalCollateralEquity.lt(DUST_THRESHOLD);
 
-    const observation = new UtpObservation({ timestamp: new Date(), equity, freeCollateral, liquidationValue: equity, isRebalanceDepositNeeded, maxRebalanceDepositAmount, isEmpty })
+    const observation = new UtpObservation({
+      timestamp: new Date(),
+      equity,
+      freeCollateral,
+      liquidationValue: equity,
+      isRebalanceDepositNeeded,
+      maxRebalanceDepositAmount,
+      isEmpty,
+    });
     this._cachedObservation = observation;
     return observation;
   }

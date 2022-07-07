@@ -26,9 +26,7 @@ export class Bank {
   public readonly initMarginRatio: BigNumber;
   public readonly maintMarginRatio: BigNumber;
 
-  constructor(
-    data: BankData
-  ) {
+  constructor(data: BankData) {
     this.scalingFactorC = new BigNumber(Decimal.fromAccountData(data.scalingFactorC).toNumber());
     this.fixedFee = new BigNumber(Decimal.fromAccountData(data.fixedFee).toNumber());
     this.interestFee = new BigNumber(Decimal.fromAccountData(data.interestFee).toNumber());
@@ -50,31 +48,31 @@ export class Bank {
 
   getNativeAmount(record: BigNumber, side: LendingSide): BigNumber {
     if (side === LendingSide.Borrow) {
-      return record.times(this.borrowAccumulator)
+      return record.times(this.borrowAccumulator);
     } else if (side === LendingSide.Deposit) {
-      return record.times(this.depositAccumulator)
+      return record.times(this.depositAccumulator);
     } else {
-      throw Error(`Unknown lending side: ${side}`)
+      throw Error(`Unknown lending side: ${side}`);
     }
   }
 
   getRecordAmount(record: BigNumber, side: LendingSide): BigNumber {
     if (side === LendingSide.Borrow) {
-      return record.div(this.borrowAccumulator)
+      return record.div(this.borrowAccumulator);
     } else if (side === LendingSide.Deposit) {
-      return record.div(this.depositAccumulator)
+      return record.div(this.depositAccumulator);
     } else {
-      throw Error(`Unknown lending side: ${side}`)
+      throw Error(`Unknown lending side: ${side}`);
     }
   }
 
   getMarginRatio(type: MarginRequirementType): BigNumber {
     if (type === MarginRequirementType.Init) {
-      return this.initMarginRatio
+      return this.initMarginRatio;
     } else if (type === MarginRequirementType.Maint) {
-      return this.maintMarginRatio
+      return this.maintMarginRatio;
     } else {
-      throw Error(`Unknown margin requirement type: ${type}`)
+      throw Error(`Unknown margin requirement type: ${type}`);
     }
   }
 }

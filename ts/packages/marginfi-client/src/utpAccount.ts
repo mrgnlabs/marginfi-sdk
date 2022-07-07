@@ -21,13 +21,17 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
   abstract withdraw(amount: BN): Promise<string>;
   abstract config: UtpConfig;
 
-  constructor(protected readonly _client: MarginfiClient, protected readonly _marginfiAccount: MarginfiAccount, isActive: boolean, utpConfig: UTPAccountConfig
+  constructor(
+    protected readonly _client: MarginfiClient,
+    protected readonly _marginfiAccount: MarginfiAccount,
+    isActive: boolean,
+    utpConfig: UTPAccountConfig
   ) {
-    this.index = _client.config.mango.utpIndex
-    this.address = utpConfig.address
-    this.isActive = isActive
-    this._utpConfig = utpConfig
-    this._cachedObservation = UtpObservation.EMPTY_OBSERVATION
+    this.index = _client.config.mango.utpIndex;
+    this.address = utpConfig.address;
+    this.isActive = isActive;
+    this._utpConfig = utpConfig;
+    this._cachedObservation = UtpObservation.EMPTY_OBSERVATION;
   }
 
   toString() {
@@ -38,7 +42,7 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
       this.liquidationValue.toString(),
       this.isRebalanceDepositNeeded,
       this.maxRebalanceDepositAmount.toString(),
-      this.isEmpty,
+      this.isEmpty
     );
   }
 
@@ -53,7 +57,7 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
   }
 
   get cachedObservation() {
-    const fetchAge = (new Date().getTime() - this._cachedObservation.timestamp.getTime()) / 1000.0
+    const fetchAge = (new Date().getTime() - this._cachedObservation.timestamp.getTime()) / 1000.0;
     if (fetchAge > 5) {
       console.log(`[WARNNG] Last ${UTP_NAME[this.index]} observation was fetched ${fetchAge} seconds ago`);
     }
@@ -105,4 +109,3 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
     return utpAuthority;
   }
 }
-

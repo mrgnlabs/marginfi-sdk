@@ -17,20 +17,14 @@ import { MarginfiGroup } from "./marginfiGroup";
 import {
   AccountBalances,
   AccountType,
-  ObservationCache,
   InstructionsWrapper,
   MarginfiAccountData,
   MarginRequirementType,
+  ObservationCache,
   UtpData,
   UtpIndex,
 } from "./types";
-import {
-  BankVaultType,
-  getBankAuthority,
-  decimalDataToBigNumber,
-  processTransaction,
-  uiToNative,
-} from "./utils";
+import { BankVaultType, decimalDataToBigNumber, getBankAuthority, processTransaction, uiToNative } from "./utils";
 import { UtpMangoAccount } from "./utp/mango";
 import { UtpZoAccount } from "./utp/zo";
 import { UtpAccount } from "./utpAccount";
@@ -50,7 +44,6 @@ export class MarginfiAccount {
 
   public readonly mango: UtpMangoAccount;
   public readonly zo: UtpZoAccount;
-
 
   /**
    * @internal
@@ -264,16 +257,16 @@ export class MarginfiAccount {
    */
   async reload(observeUtps: boolean = false) {
     require("debug")(`mfi:margin-account:${this.publicKey.toString()}:loader`)("Reloading account data");
-    const [marginfiGroupAi, marginfiAccountAi] = await this.loadAccountAndGroupAi()
-    const marginfiAccountData = MarginfiAccount.decode(marginfiAccountAi.data)
+    const [marginfiGroupAi, marginfiAccountAi] = await this.loadAccountAndGroupAi();
+    const marginfiAccountData = MarginfiAccount.decode(marginfiAccountAi.data);
     if (!marginfiAccountData.marginfiGroup.equals(this._config.groupPk))
       throw Error(
         `Marginfi account tied to group ${marginfiAccountData.marginfiGroup.toBase58()}. Expected: ${this._config.groupPk.toBase58()}`
       );
-    this.group = MarginfiGroup.fromAccountDataRaw(this._config, this._program, marginfiGroupAi.data)
+    this.group = MarginfiGroup.fromAccountDataRaw(this._config, this._program, marginfiGroupAi.data);
     this._updateFromAccountData(marginfiAccountData);
 
-    if (observeUtps) await this.observeUtps()
+    if (observeUtps) await this.observeUtps();
   }
 
   /**
@@ -494,13 +487,13 @@ export class MarginfiAccount {
         utpIndex: utp.index,
         observation: await utp.observe(),
       }))
-    )
+    );
     const observationCache = observations.reduce((acc, o) => {
-      acc.set(o.utpIndex, o.observation)
-      return acc
-    }, new Map<number, UtpObservation>)
+      acc.set(o.utpIndex, o.observation);
+      return acc;
+    }, new Map<number, UtpObservation>());
     this.observationCache = observationCache;
-    return observationCache
+    return observationCache;
   }
 
   /**
@@ -539,18 +532,12 @@ export class MarginfiAccount {
     const richestUtp = this.activeUtps().sort((utp1, utp2) =>
       utp2.freeCollateral.minus(utp1.freeCollateral).toNumber()
     )[0];
-    const withdrawAmount = this.getMaxRebalanceWithdrawAmount(richestUtp)
+    const withdrawAmount = this.getMaxRebalanceWithdrawAmount(richestUtp);
 
-    debug(
-      "Trying to rebalance withdraw UTP:%s, amount %s (RBWA)",
-      richestUtp.index,
-      withdrawAmount
-    );
+    debug("Trying to rebalance withdraw UTP:%s, amount %s (RBWA)", richestUtp.index, withdrawAmount);
 
     try {
-      const sig = await this.utpFromIndex(richestUtp.index).withdraw(
-        uiToNative(withdrawAmount)
-      );
+      const sig = await this.utpFromIndex(richestUtp.index).withdraw(uiToNative(withdrawAmount));
       debug("Rebalance withdraw success - sig %s (RBWS)", sig);
     } catch (e) {
       debug("Rebalance withdraw failed (RBWF)");
@@ -655,7 +642,7 @@ export class MarginfiAccount {
     assets = assets.plus(deposits);
 
     for (let observation of [...this.observationCache.values()]) {
-      console.log('observation.freeCollateral', observation.freeCollateral.toString());
+      console.log("observation.freeCollateral", observation.freeCollateral.toString());
       assets = assets.plus(observation.freeCollateral);
     }
 
@@ -678,37 +665,37 @@ export class MarginfiAccount {
   }
 
   public getMarginRequirement(type: MarginRequirementType): BigNumber {
-    const marginRatio = this.group.bank.getMarginRatio(type)
+    const marginRatio = this.group.bank.getMarginRatio(type);
     const borrows = this.getBorrows();
-    const marginRequirement = borrows.times(marginRatio)
+    const marginRequirement = borrows.times(marginRatio);
     return marginRequirement;
   }
 
   public meetsMarginRequirement(type: MarginRequirementType): boolean {
-    const { equity } = this.getBalances()
-    const marginRequirement = this.getMarginRequirement(type)
+    const { equity } = this.getBalances();
+    const marginRequirement = this.getMarginRequirement(type);
     return equity > marginRequirement;
   }
 
   public isRebalanceWithdrawNeeded(): boolean {
-    const { equity } = this.getBalances()
-    const marginRequirementInit = this.getMarginRequirement(MarginRequirementType.Init)
-    return equity < marginRequirementInit
+    const { equity } = this.getBalances();
+    const marginRequirementInit = this.getMarginRequirement(MarginRequirementType.Init);
+    return equity < marginRequirementInit;
   }
 
   public getMaxRebalanceWithdrawAmount(utp: UtpAccount): BigNumber {
-    const { equity } = this.getBalances()
-    const marginRequirementInit = this.getMarginRequirement(MarginRequirementType.Init)
-    const maxAmountAllowed = BigNumber.max(marginRequirementInit.minus(equity), 0)
-    const availableAmount = utp.freeCollateral || 0
-    return BigNumber.min(maxAmountAllowed, availableAmount)
+    const { equity } = this.getBalances();
+    const marginRequirementInit = this.getMarginRequirement(MarginRequirementType.Init);
+    const maxAmountAllowed = BigNumber.max(marginRequirementInit.minus(equity), 0);
+    const availableAmount = utp.freeCollateral || 0;
+    return BigNumber.min(maxAmountAllowed, availableAmount);
   }
 
   public getMaxRebalanceDepositAmount(utp: UtpAccount): BigNumber {
-    const { equity } = this.getBalances()
-    const marginRequirementInit = this.getMarginRequirement(MarginRequirementType.Init)
-    const accountFreeCollateral = BigNumber.max(0, equity.minus(marginRequirementInit))
-    return BigNumber.min(utp.maxRebalanceDepositAmount, accountFreeCollateral)
+    const { equity } = this.getBalances();
+    const marginRequirementInit = this.getMarginRequirement(MarginRequirementType.Init);
+    const accountFreeCollateral = BigNumber.max(0, equity.minus(marginRequirementInit));
+    return BigNumber.min(utp.maxRebalanceDepositAmount, accountFreeCollateral);
   }
 
   private async loadAccountAndGroupAi(): Promise<AccountInfo<Buffer>[]> {

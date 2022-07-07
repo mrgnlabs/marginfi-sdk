@@ -1,9 +1,9 @@
 import { BorshCoder, Program } from "@project-serum/anchor";
 import { PublicKey, Transaction } from "@solana/web3.js";
+import { Bank } from "./bank";
 import { MarginfiConfig } from "./config";
 import { MarginfiIdl, MARGINFI_IDL } from "./idl";
 import { makeUpdateInterestAccumulatorIx } from "./instruction";
-import { Bank } from "./bank";
 import { AccountType, MarginfiGroupData } from "./types";
 import { getBankAuthority, processTransaction } from "./utils";
 

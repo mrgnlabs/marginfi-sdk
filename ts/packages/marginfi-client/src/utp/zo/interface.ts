@@ -40,7 +40,7 @@ import { UtpObservation } from "../../utpObservation";
 export class UtpZoAccount extends UtpAccount {
   /** @internal */
   constructor(client: MarginfiClient, marginfiAccount: MarginfiAccount, accountData: UtpData) {
-    super(client, marginfiAccount, accountData.isActive, accountData.accountConfig)
+    super(client, marginfiAccount, accountData.isActive, accountData.accountConfig);
   }
 
   // --- Getters / Setters
@@ -351,8 +351,8 @@ export class UtpZoAccount extends UtpAccount {
       market.decoded.perpType.toNumber() === 1
         ? ZoClient.ZO_FUTURE_TAKER_FEE
         : market.decoded.perpType.toNumber() === 2
-          ? ZoClient.ZO_OPTION_TAKER_FEE
-          : ZoClient.ZO_SQUARE_TAKER_FEE;
+        ? ZoClient.ZO_OPTION_TAKER_FEE
+        : ZoClient.ZO_SQUARE_TAKER_FEE;
     const feeMultiplier = isLong ? 1 + takerFee : 1 - takerFee;
     const maxQuoteQtyBn = new BN(
       Math.round(limitPriceBn.mul(maxBaseQtyBn).mul(market.decoded["quoteLotSize"]).toNumber() * feeMultiplier)
@@ -574,12 +574,20 @@ export class UtpZoAccount extends UtpAccount {
 
     const equity = new BigNumber(zoMargin.unweightedAccountValue.toString());
     const marginRequirementInit = new BigNumber(zoMargin.initialMarginInfo(null)[0].toString());
-    const freeCollateral = new BigNumber(zoMargin.freeCollateralValue.toString());;
-    const isRebalanceDepositNeeded = equity.lt(marginRequirementInit) // TODO: Check disconnect between equity/freeCollateral/marginRequirementInit according 01 and our terminology
-    const maxRebalanceDepositAmount = BigNumber.max(0, marginRequirementInit.minus(equity))
+    const freeCollateral = new BigNumber(zoMargin.freeCollateralValue.toString());
+    const isRebalanceDepositNeeded = equity.lt(marginRequirementInit); // TODO: Check disconnect between equity/freeCollateral/marginRequirementInit according 01 and our terminology
+    const maxRebalanceDepositAmount = BigNumber.max(0, marginRequirementInit.minus(equity));
     const isEmpty = equity.lt(DUST_THRESHOLD);
 
-    const observation = new UtpObservation({ timestamp: new Date(), equity, freeCollateral, liquidationValue: equity, isRebalanceDepositNeeded, maxRebalanceDepositAmount, isEmpty })
+    const observation = new UtpObservation({
+      timestamp: new Date(),
+      equity,
+      freeCollateral,
+      liquidationValue: equity,
+      isRebalanceDepositNeeded,
+      maxRebalanceDepositAmount,
+      isEmpty,
+    });
     this._cachedObservation = observation;
     return observation;
   }

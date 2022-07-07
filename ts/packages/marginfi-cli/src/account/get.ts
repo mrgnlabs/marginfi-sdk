@@ -21,7 +21,7 @@ export async function getAccount(accountPk: string, options: OptionValues) {
   try {
     const connection = client.program.provider.connection;
     const account = await MarginfiAccount.get(new PublicKey(accountPk), client);
-    await account.observeUtps()
+    await account.observeUtps();
 
     let { assets, equity, liabilities } = await account.getBalances();
     const deposits = await account.getDeposits();
@@ -56,7 +56,8 @@ export async function getAccount(accountPk: string, options: OptionValues) {
     const marginRequirementMaint = await account.getMarginRequirement(MarginRequirementType.Maint);
 
     const initHealth = marginRequirementInit.toNumber() <= 0 ? Infinity : equity.div(marginRequirementInit.toNumber());
-    const maintHealth = marginRequirementMaint.toNumber() <= 0 ? Infinity : equity.div(marginRequirementMaint.toNumber());
+    const maintHealth =
+      marginRequirementMaint.toNumber() <= 0 ? Infinity : equity.div(marginRequirementMaint.toNumber());
     const marginRatio = liabilities.lte(0) ? Infinity : equity.div(liabilities);
 
     console.log(
@@ -110,7 +111,12 @@ export async function getAccount(accountPk: string, options: OptionValues) {
     if (account.zo.isActive) {
       console.log("------------------");
       console.log("01 Protocol");
-      console.log("Account %s\n\tEquity: %s\n\tFree Collateral: %s", account.zo.address, account.zo.equity, account.zo.freeCollateral);
+      console.log(
+        "Account %s\n\tEquity: %s\n\tFree Collateral: %s",
+        account.zo.address,
+        account.zo.equity,
+        account.zo.freeCollateral
+      );
 
       const zoState = await account.zo.getZoState();
       const zoMargin = await account.zo.getZoMargin(zoState);

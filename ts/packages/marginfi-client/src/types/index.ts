@@ -6,13 +6,13 @@ export * from "./accounts";
 
 export enum UtpIndex {
   Mango = 0,
-  ZO = 1
+  ZO = 1,
 }
 
 export const UTP_NAME = {
   [UtpIndex.Mango]: "Mango",
   [UtpIndex.ZO]: "01",
-}
+};
 
 /** @internal */
 export interface GroupConfig {
@@ -53,7 +53,7 @@ export interface InstructionsWrapper {
 
 export enum MarginRequirementType {
   Init,
-  Maint
+  Maint,
 }
 
 export interface AccountBalances {
@@ -63,7 +63,7 @@ export interface AccountBalances {
 }
 
 export interface LiquidationPrices {
-  finalPrice: BigNumber,
-  discountedLiquidatorPrice: BigNumber,
-  insuranceVaultFee: BigNumber
+  finalPrice: BigNumber;
+  discountedLiquidatorPrice: BigNumber;
+  insuranceVaultFee: BigNumber;
 }

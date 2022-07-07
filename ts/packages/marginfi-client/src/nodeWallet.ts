@@ -11,7 +11,7 @@ export class NodeWallet implements IWallet {
   /**
    * @param payer Keypair of the associated payer
    */
-  constructor(readonly payer: Keypair) { }
+  constructor(readonly payer: Keypair) {}
 
   /**
    * Factory for the local wallet.
@@ -22,9 +22,12 @@ export class NodeWallet implements IWallet {
     const payer = Keypair.fromSecretKey(
       Buffer.from(
         JSON.parse(
-          require('fs').readFileSync(process.env.MARGINFI_WALLET || require('path').join(require('os').homedir(), ".config/solana/id.json"), {
-            encoding: "utf-8",
-          })
+          require("fs").readFileSync(
+            process.env.MARGINFI_WALLET || require("path").join(require("os").homedir(), ".config/solana/id.json"),
+            {
+              encoding: "utf-8",
+            }
+          )
         )
       )
     );

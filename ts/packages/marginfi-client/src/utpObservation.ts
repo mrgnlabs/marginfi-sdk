@@ -2,13 +2,13 @@ import BigNumber from "bignumber.js";
 import { format } from "util";
 
 export interface IUtpObservation {
-  timestamp: Date,
-  equity: BigNumber,
-  freeCollateral: BigNumber,
-  liquidationValue: BigNumber,
-  isRebalanceDepositNeeded: boolean,
-  maxRebalanceDepositAmount: BigNumber,
-  isEmpty: boolean,
+  timestamp: Date;
+  equity: BigNumber;
+  freeCollateral: BigNumber;
+  liquidationValue: BigNumber;
+  isRebalanceDepositNeeded: boolean;
+  maxRebalanceDepositAmount: BigNumber;
+  isEmpty: boolean;
 }
 
 /**
@@ -16,13 +16,13 @@ export interface IUtpObservation {
  * Contains a UTP health metrics.
  */
 export class UtpObservation implements IUtpObservation {
-  public timestamp: Date
-  public equity: BigNumber
-  public freeCollateral: BigNumber
-  public liquidationValue: BigNumber
-  public isRebalanceDepositNeeded: boolean
-  public maxRebalanceDepositAmount: BigNumber
-  public isEmpty: boolean
+  public timestamp: Date;
+  public equity: BigNumber;
+  public freeCollateral: BigNumber;
+  public liquidationValue: BigNumber;
+  public isRebalanceDepositNeeded: boolean;
+  public maxRebalanceDepositAmount: BigNumber;
+  public isEmpty: boolean;
 
   static EMPTY_OBSERVATION = new UtpObservation({
     timestamp: new Date(0),
@@ -32,18 +32,16 @@ export class UtpObservation implements IUtpObservation {
     liquidationValue: new BigNumber(0),
     isEmpty: false,
     isRebalanceDepositNeeded: false,
-  })
+  });
 
-  constructor(
-    data: IUtpObservation
-  ) {
-    this.timestamp = data.timestamp
-    this.equity = data.equity
-    this.freeCollateral = data.freeCollateral
-    this.liquidationValue = data.liquidationValue
-    this.isRebalanceDepositNeeded = data.isRebalanceDepositNeeded
-    this.maxRebalanceDepositAmount = data.maxRebalanceDepositAmount
-    this.isEmpty = data.isEmpty
+  constructor(data: IUtpObservation) {
+    this.timestamp = data.timestamp;
+    this.equity = data.equity;
+    this.freeCollateral = data.freeCollateral;
+    this.liquidationValue = data.liquidationValue;
+    this.isRebalanceDepositNeeded = data.isRebalanceDepositNeeded;
+    this.maxRebalanceDepositAmount = data.maxRebalanceDepositAmount;
+    this.isEmpty = data.isEmpty;
   }
 
   toString() {
@@ -55,8 +53,7 @@ export class UtpObservation implements IUtpObservation {
       this.liquidationValue.toString(),
       this.isRebalanceDepositNeeded,
       this.maxRebalanceDepositAmount.toString(),
-      this.isEmpty,
+      this.isEmpty
     );
   }
 }
-
