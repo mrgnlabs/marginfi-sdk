@@ -3,7 +3,7 @@ import { PublicKey, Transaction } from "@solana/web3.js";
 import { MarginfiConfig } from "./config";
 import { MarginfiIdl, MARGINFI_IDL } from "./idl";
 import { makeUpdateInterestAccumulatorIx } from "./instruction";
-import { Bank } from "./state";
+import { Bank } from "./bank";
 import { AccountType, MarginfiGroupData } from "./types";
 import { getBankAuthority, processTransaction } from "./utils";
 

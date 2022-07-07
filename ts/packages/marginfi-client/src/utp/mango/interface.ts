@@ -15,7 +15,6 @@ import { AccountMeta, Keypair, PublicKey, SystemProgram, Transaction } from "@so
 import BigNumber from "bignumber.js";
 import { MarginfiClient } from "../..";
 import { MarginfiAccount } from "../../marginfiAccount";
-import { UtpObservation } from "../../state";
 import { DUST_THRESHOLD } from "../../constants";
 import { InstructionsWrapper, UtpData } from "../../types";
 import { getBankAuthority, getUtpAuthority, processTransaction } from "../../utils";
@@ -27,7 +26,8 @@ import {
   makeWithdrawIx,
 } from "./instruction";
 import { ExpiryType, PerpOrderType, Side, UtpMangoPlacePerpOrderOptions } from "./types";
-import { UtpAccount } from "../../state/utpAccount";
+import { UtpAccount } from "../../utpAccount";
+import { UtpObservation } from "../../utpObservation";
 
 /**
  * Class encapsulating Mango-specific interactions (internal)

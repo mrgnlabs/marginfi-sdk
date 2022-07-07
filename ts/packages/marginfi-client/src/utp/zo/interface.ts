@@ -8,7 +8,6 @@ import {
 } from "@solana/web3.js";
 import { MarginfiClient } from "../../client";
 import { MarginfiAccount } from "../../marginfiAccount";
-import { UtpObservation } from "../../state";
 import { InstructionsWrapper, UtpData } from "../../types";
 import {
   BankVaultType,
@@ -32,7 +31,8 @@ import * as ZoClient from "@zero_one/client";
 import { CONTROL_ACCOUNT_SIZE, OrderType } from "@zero_one/client";
 import BigNumber from "bignumber.js";
 import { DUST_THRESHOLD } from "../../constants";
-import { UtpAccount } from "../../state/utpAccount";
+import { UtpAccount } from "../../utpAccount";
+import { UtpObservation } from "../../utpObservation";
 
 /**
  * Class encapsulating 01-specific interactions (internal)

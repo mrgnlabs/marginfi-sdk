@@ -3,8 +3,8 @@ import { associatedAddress } from "@project-serum/anchor/dist/cjs/utils/token";
 import { AccountInfo, AccountMeta, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { MarginfiClient } from ".";
+import { LendingSide } from "./bank";
 import { MarginfiConfig } from "./config";
-import { LendingSide, UtpObservation } from "./state";
 import { MarginfiIdl, MARGINFI_IDL } from "./idl";
 import {
   makeDeactivateUtpIx,
@@ -33,7 +33,8 @@ import {
 } from "./utils";
 import { UtpMangoAccount } from "./utp/mango";
 import { UtpZoAccount } from "./utp/zo";
-import { UtpAccount } from "./state/utpAccount";
+import { UtpAccount } from "./utpAccount";
+import { UtpObservation } from "./utpObservation";
 
 /**
  * Wrapper class around a specific marginfi marginfi account.

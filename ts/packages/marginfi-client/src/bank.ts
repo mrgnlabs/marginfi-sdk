@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
-import { BankData, MarginRequirementType } from "../types";
-import { Decimal } from "../utils";
+import { BankData, MarginRequirementType } from "./types";
+import { Decimal } from "./utils";
 
 /**
  * Bank struct mirroring on-chain data

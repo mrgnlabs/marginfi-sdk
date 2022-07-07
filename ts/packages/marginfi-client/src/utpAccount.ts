@@ -1,14 +1,10 @@
 import { AccountMeta, PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 import { format } from "util";
-import { getUtpAuthority, MarginfiAccount, MarginfiClient, UtpConfig } from "..";
-import { UTPAccountConfig, UtpData, UtpIndex, UTP_NAME } from "../types";
+import { getUtpAuthority, MarginfiAccount, MarginfiClient, UtpConfig } from ".";
+import { UTPAccountConfig, UtpData, UtpIndex, UTP_NAME } from "./types";
 import { IUtpObservation, UtpObservation } from "./utpObservation";
 
-/**
- * UtpObservation struct mirroring on-chain data.
- * Contains a UTP health metrics.
- */
 export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
   index: UtpIndex;
   address: PublicKey;

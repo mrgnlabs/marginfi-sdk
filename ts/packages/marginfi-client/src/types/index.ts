@@ -1,7 +1,7 @@
 import { BN } from "@project-serum/anchor";
 import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
-import { UtpObservation } from "../state";
+import { UtpObservation } from "../utpObservation";
 export * from "./accounts";
 
 export enum UtpIndex {
