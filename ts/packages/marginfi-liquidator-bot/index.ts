@@ -43,7 +43,7 @@ const marginfiAccountPk = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 async function checkForActiveUtps(marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:utps");
   await marginfiAccount.reload();
-  if (marginfiAccount.activeUtps().length > 0) {
+  if (marginfiAccount.activeUtps.length > 0) {
     debug("Marginfi account has active UTPs, closing...");
     await closeAllUTPs(marginfiAccount);
   }
@@ -71,24 +71,25 @@ async function liquidate(liquidateeMarginfiAccount: MarginfiAccount, liquidatorM
   debug("Liquidating account %s", liquidateeMarginfiAccount.publicKey);
 
   await liquidateeMarginfiAccount.observeUtps();
-  const { equity: liquidatorEquity } = await liquidatorMarginfiAccount.getBalances();
+
+  const { equity: liquidatorEquity } = await liquidatorMarginfiAccount.computeBalances();
   debug("Available balance %s", liquidatorEquity.toNumber());
 
-  const affordableUtps = [...liquidateeMarginfiAccount.observationCache.entries()].filter(([_, obs]) =>
-    obs.equity.lte(liquidatorEquity)
+  const affordableUtps = liquidateeMarginfiAccount.activeUtps.filter((utp) =>
+    utp.computeLiquidationPrices().discountedLiquidatorPrice.lte(liquidatorEquity)
   );
-  const [cheapestUtpIndex, _] = affordableUtps.sort(([_1, obs1], [_2, obs2]) =>
-    obs1.equity.minus(obs2.equity).toNumber()
+  const cheapestUtp = affordableUtps.sort((utp1, utp2) =>
+    utp1.computeLiquidationPrices().discountedLiquidatorPrice.minus(utp2.computeLiquidationPrices().discountedLiquidatorPrice).toNumber()
   )[0];
 
-  if (!cheapestUtpIndex) {
+  if (!cheapestUtp.index) {
     console.log("Insufficient balance to liquidate any UTP");
     return;
   }
 
-  debug("Liquidating UTP %s", cheapestUtpIndex);
+  debug("Liquidating UTP %s", cheapestUtp.index);
 
-  await liquidatorMarginfiAccount.liquidate(liquidateeMarginfiAccount, cheapestUtpIndex);
+  await liquidatorMarginfiAccount.liquidate(liquidateeMarginfiAccount, cheapestUtp.index);
   await closeAllUTPs(liquidatorMarginfiAccount);
 }
 

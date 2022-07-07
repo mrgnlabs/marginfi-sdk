@@ -73,6 +73,13 @@ export class MarginfiAccount {
 
   // --- Getters / Setters
 
+  /**
+   * Marginfi account authority address
+   */
+  get authority(): PublicKey {
+    return this._authority;
+  }
+
   /** @internal */
   private get _program() {
     return this.client.program;
@@ -83,12 +90,20 @@ export class MarginfiAccount {
     return this.client.config;
   }
 
-  allUtps(): UtpAccount[] {
+  public get allUtps(): UtpAccount[] {
     return [this.mango, this.zo]; // *Must* be sorted according to UTP indices
   }
 
-  activeUtps(): UtpAccount[] {
-    return this.allUtps().filter((utp) => utp.isActive);
+  public get activeUtps(): UtpAccount[] {
+    return this.allUtps.filter((utp) => utp.isActive);
+  }
+
+  public get deposits(): BigNumber {
+    return this.group.bank.computeNativeAmount(this._depositRecord, LendingSide.Deposit);
+  }
+
+  public get borrows(): BigNumber {
+    return this.group.bank.computeNativeAmount(this._borrowRecord, LendingSide.Borrow);
   }
 
   // --- Factories
@@ -182,15 +197,6 @@ export class MarginfiAccount {
     return MarginfiAccount.fromAccountData(marginfiAccountPk, client, marginfiAccountData, marginfiGroup);
   }
 
-  // --- Getters and setters
-
-  /**
-   * Marginfi account authority address
-   */
-  get authority(): PublicKey {
-    return this._authority;
-  }
-
   // --- Others
 
   /**
@@ -257,7 +263,7 @@ export class MarginfiAccount {
    */
   async reload(observeUtps: boolean = false) {
     require("debug")(`mfi:margin-account:${this.publicKey.toString()}:loader`)("Reloading account data");
-    const [marginfiGroupAi, marginfiAccountAi] = await this.loadAccountAndGroupAi();
+    const [marginfiGroupAi, marginfiAccountAi] = await this.loadGroupAndAccountAi();
     const marginfiAccountData = MarginfiAccount.decode(marginfiAccountAi.data);
     if (!marginfiAccountData.marginfiGroup.equals(this._config.groupPk))
       throw Error(
@@ -466,7 +472,7 @@ export class MarginfiAccount {
   async getObservationAccounts(): Promise<AccountMeta[]> {
     const debug = require("debug")("mfi:obs-account-loader");
     let accounts = (
-      await Promise.all(this.activeUtps().map(async (utp) => await utp.getObservationAccounts()))
+      await Promise.all(this.activeUtps.map(async (utp) => await utp.getObservationAccounts()))
     ).flatMap((a) => a);
 
     debug("Loading %s observation accounts", accounts.length);
@@ -483,7 +489,7 @@ export class MarginfiAccount {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:observe`);
     debug("Observing UTP Accounts");
     const observations = await Promise.all(
-      this.activeUtps().map(async (utp) => ({
+      this.activeUtps.map(async (utp) => ({
         utpIndex: utp.index,
         observation: await utp.observe(),
       }))
@@ -503,10 +509,10 @@ export class MarginfiAccount {
    * @returns UTP interface instance
    */
   private utpFromIndex(utpIndex: UtpIndex): UtpAccount {
-    if (utpIndex >= this.allUtps().length) {
-      throw Error(`Unsupported UTP ${utpIndex} (${this.allUtps().length} UTPs supported)`);
+    if (utpIndex >= this.allUtps.length) {
+      throw Error(`Unsupported UTP ${utpIndex} (${this.allUtps.length} UTPs supported)`);
     }
-    return this.allUtps()[utpIndex];
+    return this.allUtps[utpIndex];
   }
 
   async checkRebalance() {
@@ -529,10 +535,10 @@ export class MarginfiAccount {
 
     debug("Rebalance withdraw required");
 
-    const richestUtp = this.activeUtps().sort((utp1, utp2) =>
+    const richestUtp = this.activeUtps.sort((utp1, utp2) =>
       utp2.freeCollateral.minus(utp1.freeCollateral).toNumber()
     )[0];
-    const withdrawAmount = this.getMaxRebalanceWithdrawAmount(richestUtp);
+    const withdrawAmount = this.computeMaxRebalanceWithdrawAmount(richestUtp);
 
     debug("Trying to rebalance withdraw UTP:%s, amount %s (RBWA)", richestUtp.index, withdrawAmount);
 
@@ -551,7 +557,7 @@ export class MarginfiAccount {
 
     await this.reload(true);
     debug("Loaded %s observations", this.observationCache.size);
-    for (let utp of this.activeUtps()) {
+    for (let utp of this.activeUtps) {
       let debug = require("debug")(
         `mfi:margin-account:${this.publicKey.toString()}:rebalance:deposit:utp:${utp.index}`
       );
@@ -561,7 +567,7 @@ export class MarginfiAccount {
         continue;
       }
 
-      let rebalanceAmountDecimal = this.getMaxRebalanceDepositAmount(utp);
+      let rebalanceAmountDecimal = this.computeMaxRebalanceDepositAmount(utp);
       let cappedRebalanceAmount = uiToNative(rebalanceAmountDecimal.times(0.95));
       debug("Trying to rebalance deposit UTP:%s amount %s (RBDA)", utp.index, cappedRebalanceAmount);
 
@@ -627,78 +633,65 @@ export class MarginfiAccount {
     return sig;
   }
 
-  public getDeposits(): BigNumber {
-    return this.group.bank.getNativeAmount(this._depositRecord, LendingSide.Deposit);
-  }
-
-  public getBorrows(): BigNumber {
-    return this.group.bank.getNativeAmount(this._borrowRecord, LendingSide.Borrow);
-  }
-
-  public getBalances(): AccountBalances {
+  public computeBalances(): AccountBalances {
     let assets = new BigNumber(0);
-
-    let deposits = this.getDeposits();
-    assets = assets.plus(deposits);
-
-    for (let observation of [...this.observationCache.values()]) {
-      console.log("observation.freeCollateral", observation.freeCollateral.toString());
-      assets = assets.plus(observation.freeCollateral);
+    assets = assets.plus(this.deposits);
+    for (let utp of this.activeUtps) {
+      assets = assets.plus(utp.freeCollateral);
     }
-
-    let liabilities = this.getBorrows();
+    let liabilities = this.borrows;
     let equity = assets.minus(liabilities);
 
     return { equity, assets, liabilities };
   }
 
-  public isUtpActive(index: number): boolean {
-    return this.allUtps()[index].isActive;
-  }
-
-  public async canBeLiquidated() {
-    return !this.meetsMarginRequirement(MarginRequirementType.Maint);
-  }
-
-  public isBankrupt(): boolean {
-    return this.activeUtps().length === 0 && this._borrowRecord.gt(0);
-  }
-
-  public getMarginRequirement(type: MarginRequirementType): BigNumber {
-    const marginRatio = this.group.bank.getMarginRatio(type);
-    const borrows = this.getBorrows();
+  public computeMarginRequirement(type: MarginRequirementType): BigNumber {
+    const marginRatio = this.group.bank.marginRatio(type);
+    const borrows = this.borrows;
     const marginRequirement = borrows.times(marginRatio);
     return marginRequirement;
   }
 
   public meetsMarginRequirement(type: MarginRequirementType): boolean {
-    const { equity } = this.getBalances();
-    const marginRequirement = this.getMarginRequirement(type);
+    const { equity } = this.computeBalances();
+    const marginRequirement = this.computeMarginRequirement(type);
     return equity > marginRequirement;
   }
 
+  public isUtpActive(utpIndex: UtpIndex): boolean {
+    return this.allUtps[utpIndex].isActive;
+  }
+
+  public canBeLiquidated() {
+    return !this.meetsMarginRequirement(MarginRequirementType.Maint);
+  }
+
+  public isBankrupt(): boolean {
+    return this.activeUtps.length === 0 && this._borrowRecord.gt(0);
+  }
+
   public isRebalanceWithdrawNeeded(): boolean {
-    const { equity } = this.getBalances();
-    const marginRequirementInit = this.getMarginRequirement(MarginRequirementType.Init);
+    const { equity } = this.computeBalances();
+    const marginRequirementInit = this.computeMarginRequirement(MarginRequirementType.Init);
     return equity < marginRequirementInit;
   }
 
-  public getMaxRebalanceWithdrawAmount(utp: UtpAccount): BigNumber {
-    const { equity } = this.getBalances();
-    const marginRequirementInit = this.getMarginRequirement(MarginRequirementType.Init);
+  public computeMaxRebalanceWithdrawAmount(utp: UtpAccount): BigNumber {
+    const { equity } = this.computeBalances();
+    const marginRequirementInit = this.computeMarginRequirement(MarginRequirementType.Init);
     const maxAmountAllowed = BigNumber.max(marginRequirementInit.minus(equity), 0);
     const availableAmount = utp.freeCollateral || 0;
     return BigNumber.min(maxAmountAllowed, availableAmount);
   }
 
-  public getMaxRebalanceDepositAmount(utp: UtpAccount): BigNumber {
-    const { equity } = this.getBalances();
-    const marginRequirementInit = this.getMarginRequirement(MarginRequirementType.Init);
+  public computeMaxRebalanceDepositAmount(utp: UtpAccount): BigNumber {
+    const { equity } = this.computeBalances();
+    const marginRequirementInit = this.computeMarginRequirement(MarginRequirementType.Init);
     const accountFreeCollateral = BigNumber.max(0, equity.minus(marginRequirementInit));
     return BigNumber.min(utp.maxRebalanceDepositAmount, accountFreeCollateral);
   }
 
-  private async loadAccountAndGroupAi(): Promise<AccountInfo<Buffer>[]> {
+  private async loadGroupAndAccountAi(): Promise<AccountInfo<Buffer>[]> {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:loader`);
     debug("Loading marginfi account %s, and group %s", this.publicKey, this._config.groupPk);
 

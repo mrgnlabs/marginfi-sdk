@@ -23,10 +23,10 @@ export async function getAccount(accountPk: string, options: OptionValues) {
     const account = await MarginfiAccount.get(new PublicKey(accountPk), client);
     await account.observeUtps();
 
-    let { assets, equity, liabilities } = await account.getBalances();
-    const deposits = await account.getDeposits();
+    let { assets, equity, liabilities } = await account.computeBalances();
+    const deposits = await account.deposits;
 
-    // const utps = account.allUtps();
+    // const utps = account.allUtps;
     // const observations = await account.observeUtps();
 
     console.log(
@@ -52,8 +52,8 @@ export async function getAccount(accountPk: string, options: OptionValues) {
     //   );
     // }
 
-    const marginRequirementInit = await account.getMarginRequirement(MarginRequirementType.Init);
-    const marginRequirementMaint = await account.getMarginRequirement(MarginRequirementType.Maint);
+    const marginRequirementInit = await account.computeMarginRequirement(MarginRequirementType.Init);
+    const marginRequirementMaint = await account.computeMarginRequirement(MarginRequirementType.Maint);
 
     const initHealth = marginRequirementInit.toNumber() <= 0 ? Infinity : equity.div(marginRequirementInit.toNumber());
     const maintHealth =

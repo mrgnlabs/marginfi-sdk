@@ -518,7 +518,7 @@ export class UtpMangoAccount extends UtpAccount {
     const marginRequirementEquity = new BigNumber(mangoAccount.getLiabsVal(mangoGroup, mangoCache).toString());
     const equity = totalCollateralEquity.minus(marginRequirementEquity);
 
-    const isRebalanceDepositNeeded = equity.lt(marginRequirementInit);
+    const isRebalanceDepositNeeded = totalCollateralInit.lt(marginRequirementInit);
     const maxRebalanceDepositAmount = BigNumber.max(0, marginRequirementInit.minus(totalCollateralInit));
     const isEmpty = totalCollateralEquity.lt(DUST_THRESHOLD);
 

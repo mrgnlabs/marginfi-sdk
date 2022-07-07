@@ -46,7 +46,7 @@ export class Bank {
     this.maintMarginRatio = new BigNumber(Decimal.fromAccountData(data.maintMarginRatio).toNumber());
   }
 
-  getNativeAmount(record: BigNumber, side: LendingSide): BigNumber {
+  public computeNativeAmount(record: BigNumber, side: LendingSide): BigNumber {
     if (side === LendingSide.Borrow) {
       return record.times(this.borrowAccumulator);
     } else if (side === LendingSide.Deposit) {
@@ -56,7 +56,7 @@ export class Bank {
     }
   }
 
-  getRecordAmount(record: BigNumber, side: LendingSide): BigNumber {
+  public computeRecordAmount(record: BigNumber, side: LendingSide): BigNumber {
     if (side === LendingSide.Borrow) {
       return record.div(this.borrowAccumulator);
     } else if (side === LendingSide.Deposit) {
@@ -66,7 +66,7 @@ export class Bank {
     }
   }
 
-  getMarginRatio(type: MarginRequirementType): BigNumber {
+  public marginRatio(type: MarginRequirementType): BigNumber {
     if (type === MarginRequirementType.Init) {
       return this.initMarginRatio;
     } else if (type === MarginRequirementType.Maint) {

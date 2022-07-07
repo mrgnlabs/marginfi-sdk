@@ -2,7 +2,8 @@ import { AccountMeta, PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 import { format } from "util";
 import { getUtpAuthority, MarginfiAccount, MarginfiClient, UtpConfig } from ".";
-import { UTPAccountConfig, UtpData, UtpIndex, UTP_NAME } from "./types";
+import { LIQUIDATOR_LIQUIDATION_FEE, INSURANCE_VAULT_LIQUIDATION_FEE } from "./constants"
+import { LiquidationPrices, UTPAccountConfig, UtpData, UtpIndex, UTP_NAME } from "./types";
 import { IUtpObservation, UtpObservation } from "./utpObservation";
 
 export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
@@ -34,7 +35,7 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
     this._cachedObservation = UtpObservation.EMPTY_OBSERVATION;
   }
 
-  toString() {
+  public toString() {
     return format(
       "Timestamp: %s\nEquity: %s\nFree Collateral: %s\nLiquidation Value: %s\nRebalance Needed: %s\nMax Rebalance: %s\nIs empty: %s",
       this.equity.toString(),
@@ -56,7 +57,7 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
     return this._client.program;
   }
 
-  get cachedObservation() {
+  public get cachedObservation() {
     const fetchAge = (new Date().getTime() - this._cachedObservation.timestamp.getTime()) / 1000.0;
     if (fetchAge > 5) {
       console.log(`[WARNNG] Last ${UTP_NAME[this.index]} observation was fetched ${fetchAge} seconds ago`);
@@ -64,28 +65,45 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
     return this._cachedObservation;
   }
 
-  get equity() {
+  public get equity() {
     return this.cachedObservation.equity;
   }
 
-  get freeCollateral() {
+  public get freeCollateral() {
     return this.cachedObservation.freeCollateral;
   }
 
-  get liquidationValue() {
+  public get liquidationValue() {
     return this.cachedObservation.liquidationValue;
   }
 
-  get isRebalanceDepositNeeded() {
+  public get isRebalanceDepositNeeded() {
     return this.cachedObservation.isRebalanceDepositNeeded;
   }
 
-  get maxRebalanceDepositAmount() {
+  public get maxRebalanceDepositAmount() {
     return this.cachedObservation.maxRebalanceDepositAmount;
   }
 
-  get isEmpty() {
+  public get isEmpty() {
     return this.cachedObservation.isEmpty;
+  }
+
+  /**
+   * Calculates liquidation parameters given an account value.
+   */
+  public computeLiquidationPrices(): LiquidationPrices {
+    let liquidatorFee = this.liquidationValue.times(LIQUIDATOR_LIQUIDATION_FEE);
+    let insuranceVaultFee = this.liquidationValue.times(INSURANCE_VAULT_LIQUIDATION_FEE);
+
+    let discountedLiquidatorPrice = this.liquidationValue.minus(liquidatorFee);
+    let finalPrice = discountedLiquidatorPrice.minus(insuranceVaultFee);
+
+    return {
+      finalPrice,
+      discountedLiquidatorPrice,
+      insuranceVaultFee,
+    };
   }
 
   // --- Others
@@ -95,12 +113,12 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
    *
    * @internal
    */
-  update(data: UtpData) {
+  public update(data: UtpData) {
     this.isActive = data.isActive;
     this._utpConfig = data.accountConfig;
   }
 
-  async getUtpAuthority() {
+  public async getUtpAuthority() {
     const utpAuthority = await getUtpAuthority(
       this.config.programId,
       this._utpConfig.authoritySeed,

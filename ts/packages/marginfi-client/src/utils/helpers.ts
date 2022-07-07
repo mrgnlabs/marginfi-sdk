@@ -16,8 +16,6 @@ import BigNumber from "bignumber.js";
 import { Environment, getConfig, MarginfiClient, Wallet } from "..";
 import {
   COLLATERAL_DECIMALS,
-  INSURANCE_VAULT_LIQUIDATION_FEE,
-  LIQUIDATOR_LIQUIDATION_FEE,
   PDA_BANK_FEE_VAULT_SEED,
   PDA_BANK_INSURANCE_VAULT_SEED,
   PDA_BANK_VAULT_SEED,
@@ -26,7 +24,7 @@ import {
 } from "../constants";
 import { MarginfiIdl, MARGINFI_IDL } from "../idl";
 import { NodeWallet } from "../nodeWallet";
-import { AccountType, DecimalData, LiquidationPrices } from "../types";
+import { AccountType, DecimalData } from "../types";
 import { Decimal } from "./decimal";
 
 /**
@@ -155,24 +153,6 @@ export function uiToNative(amount: BigNumber | number | string, decimals: number
  */
 export function isAccountType(data: Buffer, type: AccountType): boolean {
   return BorshAccountsCoder.accountDiscriminator(type).equals(data.slice(0, 8));
-}
-
-/**
- * Calculates liquidation parameters given an account value.
- * @internal
- */
-export function calculateLiquidationPrices(accountValue: BigNumber): LiquidationPrices {
-  let liquidatorFee = accountValue.times(LIQUIDATOR_LIQUIDATION_FEE);
-  let insuranceVaultFee = accountValue.times(INSURANCE_VAULT_LIQUIDATION_FEE);
-
-  let discountedLiquidatorPrice = accountValue.minus(liquidatorFee);
-  let finalPrice = discountedLiquidatorPrice.minus(insuranceVaultFee);
-
-  return {
-    finalPrice,
-    discountedLiquidatorPrice,
-    insuranceVaultFee,
-  };
 }
 
 /**
