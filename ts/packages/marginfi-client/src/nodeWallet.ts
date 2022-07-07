@@ -1,9 +1,6 @@
 import AnchorNodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import { Wallet as IWallet } from "@project-serum/anchor/dist/cjs/provider";
 import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
-import fs from "fs";
-import os from "os";
-import path from "path";
 
 /**
  * NodeWallet
@@ -14,7 +11,7 @@ export class NodeWallet implements IWallet {
   /**
    * @param payer Keypair of the associated payer
    */
-  constructor(readonly payer: Keypair) {}
+  constructor(readonly payer: Keypair) { }
 
   /**
    * Factory for the local wallet.
@@ -25,7 +22,7 @@ export class NodeWallet implements IWallet {
     const payer = Keypair.fromSecretKey(
       Buffer.from(
         JSON.parse(
-          fs.readFileSync(process.env.MARGINFI_WALLET || path.join(os.homedir(), ".config/solana/id.json"), {
+          require('fs').readFileSync(process.env.MARGINFI_WALLET || require('path').join(require('os').homedir(), ".config/solana/id.json"), {
             encoding: "utf-8",
           })
         )

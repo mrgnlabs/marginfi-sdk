@@ -13,8 +13,6 @@ import {
   TransactionSignature,
 } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
-import * as fs from "fs";
-import path from "path";
 import { Environment, getConfig, MarginfiClient, Wallet } from "..";
 import {
   COLLATERAL_DECIMALS,
@@ -198,6 +196,7 @@ export function sleep(ms: number) {
  * Load Keypair from the provided file.
  */
 export function loadKeypair(keypairPath: string): Keypair {
+  const path = require('path')
   if (!keypairPath || keypairPath == "") {
     throw new Error("Keypair is required!");
   }
@@ -205,7 +204,7 @@ export function loadKeypair(keypairPath: string): Keypair {
     keypairPath = path.join(require("os").homedir(), keypairPath.slice(1));
   }
   const keyPath = path.normalize(keypairPath);
-  const loaded = Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync(keyPath).toString())));
+  const loaded = Keypair.fromSecretKey(new Uint8Array(JSON.parse(require('fs').readFileSync(keyPath).toString())));
   return loaded;
 }
 
