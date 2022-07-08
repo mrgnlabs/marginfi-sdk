@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.2](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-cli@0.3.1...@mrgnlabs/marginfi-cli@0.3.2) (2022-07-08)
+
+
+### Bug Fixes
+
+* correctly parse env ([#25](https://github.com/mrgnlabs/marginfi-sdk/issues/25)) ([ad19a70](https://github.com/mrgnlabs/marginfi-sdk/commit/ad19a708e38eca03991e625e40fb4412c2dfad7a))
+
+
+
+
+
 ## [0.3.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-cli@0.3.0...@mrgnlabs/marginfi-cli@0.3.1) (2022-07-06)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-cli
