@@ -2,11 +2,14 @@ const Sentry = require("@sentry/node");
 // or use es6 import statements
 // import * as Sentry from '@sentry/node';
 
+// @ts-ignore
 const Tracing = require("@sentry/tracing");
 // or use es6 import statements
 // import * as Tracing from '@sentry/tracing';
 
-if (process.env.SENTRY_DSN) {
+const SENTRY_ACTIVE: boolean = !!process.env.SENTRY_DSN;
+
+if (SENTRY_ACTIVE) {
   console.log("Starting Sentry");
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
@@ -32,4 +35,14 @@ if (process.env.SENTRY_DSN) {
       transaction.finish();
     }
   }, 99);
+
+  process.on("unhandledRejection", (e) => {
+    Sentry.captureException(e);
+  });
+}
+
+export function captureException(e: any) {
+  if (SENTRY_ACTIVE) {
+    Sentry.captureException(e);
+  }
 }

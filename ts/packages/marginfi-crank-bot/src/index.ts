@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-import "./sentry";
+import { captureException } from "./sentry";
 
 import { getClientFromEnv, MarginfiAccount, MarginfiAccountData, MarginfiClient } from "@mrgnlabs/marginfi-client";
 import { PublicKey } from "@solana/web3.js";
@@ -16,6 +16,7 @@ const marginfiGroupPk = new PublicKey(process.env.MARGINFI_GROUP!);
     try {
       await loadAllMarginfiAccounts(marginClient);
     } catch (e) {
+      captureException(e);
       debug("Bot crashed");
       debug(e);
     } finally {
@@ -42,7 +43,13 @@ async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
   debug("Loaded %d marginfi accounts", marginfiAccounts.length);
 
   for (let marginfiAccount of marginfiAccounts) {
-    await marginfiAccount.checkRebalance();
-    await marginfiAccount.checkBankruptcy();
+    try {
+      await marginfiAccount.checkRebalance();
+      await marginfiAccount.checkBankruptcy();
+    } catch (e) {
+      captureException(e);
+      debug("Bot crashed");
+      debug(e);
+    }
   }
 }
