@@ -7,7 +7,7 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js";
 import { MarginfiClient } from "../../client";
-import { MarginfiAccount } from "../../marginfiAccount";
+import { MarginfiAccount } from "../../account";
 import { InstructionsWrapper, UtpData } from "../../types";
 import {
   BankVaultType,
@@ -351,8 +351,8 @@ export class UtpZoAccount extends UtpAccount {
       market.decoded.perpType.toNumber() === 1
         ? ZoClient.ZO_FUTURE_TAKER_FEE
         : market.decoded.perpType.toNumber() === 2
-        ? ZoClient.ZO_OPTION_TAKER_FEE
-        : ZoClient.ZO_SQUARE_TAKER_FEE;
+          ? ZoClient.ZO_OPTION_TAKER_FEE
+          : ZoClient.ZO_SQUARE_TAKER_FEE;
     const feeMultiplier = isLong ? 1 + takerFee : 1 - takerFee;
     const maxQuoteQtyBn = new BN(
       Math.round(limitPriceBn.mul(maxBaseQtyBn).mul(market.decoded["quoteLotSize"]).toNumber() * feeMultiplier)

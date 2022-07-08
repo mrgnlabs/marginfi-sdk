@@ -15,7 +15,7 @@ import { AccountMeta, Keypair, PublicKey, SystemProgram, Transaction } from "@so
 import BigNumber from "bignumber.js";
 import { MarginfiClient } from "../..";
 import { DUST_THRESHOLD } from "../../constants";
-import { MarginfiAccount } from "../../marginfiAccount";
+import { MarginfiAccount } from "../../account";
 import { InstructionsWrapper, UtpData } from "../../types";
 import { getBankAuthority, getUtpAuthority, processTransaction } from "../../utils";
 import { UtpAccount } from "../../utpAccount";

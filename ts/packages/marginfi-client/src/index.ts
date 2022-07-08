@@ -15,8 +15,8 @@ export * from "./client";
 export * from "./config";
 export * from "./constants";
 export * from "./idl";
-export * from "./marginfiAccount";
-export * from "./marginfiGroup";
+export * from "./account";
+export * from "./group";
 export * from "./types";
 export * from "./utils";
 export * from "./utp";
@@ -24,7 +24,7 @@ export * from "./utpAccount";
 export * from "./utpObservation";
 export { config, constants, idl, bank, types, utils, utp, instruction };
 
-export declare class Wallet extends NodeWallet {}
+export declare class Wallet extends NodeWallet { }
 if (!IS_BROWSER) {
   exports.Wallet = require("./nodeWallet").NodeWallet;
 }

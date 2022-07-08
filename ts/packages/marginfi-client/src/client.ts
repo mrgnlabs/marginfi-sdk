@@ -5,8 +5,8 @@ import { Wallet } from ".";
 import { MarginfiConfig } from "./config";
 import { MarginfiIdl, MARGINFI_IDL } from "./idl";
 import { makeInitMarginfiAccountIx } from "./instruction";
-import { MarginfiAccount } from "./marginfiAccount";
-import { MarginfiGroup } from "./marginfiGroup";
+import { MarginfiAccount } from "./account";
+import { MarginfiGroup } from "./group";
 import { AccountType, MarginfiAccountData } from "./types";
 import { processTransaction } from "./utils";
 

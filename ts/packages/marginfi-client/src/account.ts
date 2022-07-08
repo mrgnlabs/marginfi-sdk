@@ -13,7 +13,7 @@ import {
   makeLiquidateIx,
   makeWithdrawIx,
 } from "./instruction";
-import { MarginfiGroup } from "./marginfiGroup";
+import { MarginfiGroup } from "./group";
 import {
   AccountBalances,
   AccountType,
