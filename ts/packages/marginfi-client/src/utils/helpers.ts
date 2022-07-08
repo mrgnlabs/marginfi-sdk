@@ -265,5 +265,5 @@ export async function getClientFromEnv(
     programId,
   });
 
-  return MarginfiClient.get(config, wallet, connection);
+  return MarginfiClient.get(config, wallet, connection, { commitment: connection.commitment });
 }
