@@ -20,8 +20,6 @@ export * from "./group";
 export * from "./types";
 export * from "./utils";
 export * from "./utp";
-export * from "./utpAccount";
-export * from "./utpObservation";
 export { config, constants, idl, bank, types, utils, utp, instruction };
 
 export declare class Wallet extends NodeWallet { }

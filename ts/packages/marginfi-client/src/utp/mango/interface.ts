@@ -18,8 +18,8 @@ import { DUST_THRESHOLD } from "../../constants";
 import { MarginfiAccount } from "../../account";
 import { InstructionsWrapper, UtpData } from "../../types";
 import { getBankAuthority, getUtpAuthority, processTransaction } from "../../utils";
-import { UtpAccount } from "../../utpAccount";
-import { UtpObservation } from "../../utpObservation";
+import { UtpAccount } from "../account";
+import { UtpObservation } from "../../utp/observation";
 import {
   makeActivateIx,
   makeCancelPerpOrderIx,

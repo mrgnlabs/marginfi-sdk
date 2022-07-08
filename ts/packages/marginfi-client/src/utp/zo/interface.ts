@@ -31,8 +31,8 @@ import * as ZoClient from "@zero_one/client";
 import { CONTROL_ACCOUNT_SIZE, OrderType } from "@zero_one/client";
 import BigNumber from "bignumber.js";
 import { DUST_THRESHOLD } from "../../constants";
-import { UtpAccount } from "../../utpAccount";
-import { UtpObservation } from "../../utpObservation";
+import { UtpAccount } from "../account";
+import { UtpObservation } from "../../utp/observation";
 
 /**
  * Class encapsulating 01-specific interactions (internal)

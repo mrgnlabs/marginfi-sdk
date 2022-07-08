@@ -1,10 +1,10 @@
 import { AccountMeta, PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 import { format } from "util";
-import { getUtpAuthority, MarginfiAccount, MarginfiClient, UtpConfig } from ".";
-import { INSURANCE_VAULT_LIQUIDATION_FEE, LIQUIDATOR_LIQUIDATION_FEE } from "./constants";
-import { LiquidationPrices, UTPAccountConfig, UtpData, UtpIndex, UTP_NAME } from "./types";
-import { IUtpObservation, UtpObservation } from "./utpObservation";
+import { getUtpAuthority, MarginfiAccount, MarginfiClient, UtpConfig } from "..";
+import { INSURANCE_VAULT_LIQUIDATION_FEE, LIQUIDATOR_LIQUIDATION_FEE } from "../constants";
+import { LiquidationPrices, UTPAccountConfig, UtpData, UtpIndex, UTP_NAME } from "../types";
+import { IUtpObservation, UtpObservation } from "./observation";
 
 export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
   public index: UtpIndex;
@@ -35,17 +35,7 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
     this._cachedObservation = UtpObservation.EMPTY_OBSERVATION;
   }
 
-  public toString() {
-    return format(
-      "Timestamp: %s\nEquity: %s\nFree Collateral: %s\nLiquidation Value: %s\nRebalance Needed: %s\nMax Rebalance: %s\nIs empty: %s",
-      this.equity.toString(),
-      this.freeCollateral.toString(),
-      this.liquidationValue.toString(),
-      this.isRebalanceDepositNeeded,
-      this.maxRebalanceDepositAmount.toString(),
-      this.isEmpty
-    );
-  }
+  // --- Getters / Setters
 
   /** @internal */
   public get _config() {
@@ -89,6 +79,8 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
     return this.cachedObservation.isEmpty;
   }
 
+  // --- Others
+
   /**
    * Calculates liquidation parameters given an account value.
    */
@@ -105,8 +97,6 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
       insuranceVaultFee,
     };
   }
-
-  // --- Others
 
   /**
    * Update instance data from provided data struct.
@@ -125,5 +115,17 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
       this._program.programId
     );
     return utpAuthority;
+  }
+
+  public toString() {
+    return format(
+      "Timestamp: %s\nEquity: %s\nFree Collateral: %s\nLiquidation Value: %s\nRebalance Needed: %s\nMax Rebalance: %s\nIs empty: %s",
+      this.equity.toString(),
+      this.freeCollateral.toString(),
+      this.liquidationValue.toString(),
+      this.isRebalanceDepositNeeded,
+      this.maxRebalanceDepositAmount.toString(),
+      this.isEmpty
+    );
   }
 }

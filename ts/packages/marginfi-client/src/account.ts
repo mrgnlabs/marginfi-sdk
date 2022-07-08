@@ -27,8 +27,8 @@ import {
 import { BankVaultType, decimalDataToBigNumber, getBankAuthority, processTransaction, uiToNative } from "./utils";
 import { UtpMangoAccount } from "./utp/mango";
 import { UtpZoAccount } from "./utp/zo";
-import { UtpAccount } from "./utpAccount";
-import { UtpObservation } from "./utpObservation";
+import { UtpAccount } from "./utp/account";
+import { UtpObservation } from "./utp/observation";
 
 /**
  * Wrapper class around a specific marginfi marginfi account.
