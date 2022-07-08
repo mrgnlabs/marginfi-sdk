@@ -1,46 +1,14 @@
 import { Connection, PublicKey } from "@solana/web3.js";
-import { UtpIndex } from "./types";
-import { getMangoConfig, MangoConfig } from "./utp/mango/config";
-import { getZoConfig, ZoConfig } from "./utp/zo";
-
-/**
- * Supported config environments.
- */
-export enum Environment {
-  DEVNET = "devnet",
-  MAINNET = "mainnet",
-}
-
-export interface MarginfiDedicatedConfig {
-  environment: Environment;
-  programId: PublicKey;
-  groupPk: PublicKey;
-  collateralMintPk: PublicKey;
-}
-
-/**
- * Marginfi config.
- * Aggregated data required to conveniently interact with the program
- */
-export interface MarginfiConfig extends MarginfiDedicatedConfig {
-  mango: MangoConfig;
-  zo: ZoConfig;
-}
-
-/**
- * Marginfi generic UTP config.
- */
-export interface UtpConfig {
-  utpIndex: UtpIndex;
-  programId: PublicKey;
-}
+import { Environment, MarginfiConfig, MarginfiDedicatedConfig } from "./types";
+import { getMangoConfig } from "./utp/mango/config";
+import { getZoConfig } from "./utp/zo";
 
 /**
  * Define marginfi-specific config per profile
  *
  * @internal
  */
-export function getMarginfiConfig(
+function getMarginfiConfig(
   environment: Environment,
   overrides?: Partial<Omit<MarginfiDedicatedConfig, "environment" | "mango" | "zo">>
 ): MarginfiDedicatedConfig {
@@ -65,7 +33,7 @@ export function getMarginfiConfig(
 }
 
 /**
- * Retrieve
+ * Retrieve config per environment
  */
 export async function getConfig(
   environment: Environment,

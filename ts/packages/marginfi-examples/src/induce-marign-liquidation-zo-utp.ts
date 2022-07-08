@@ -6,12 +6,12 @@ import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import {
   Environment,
   getConfig,
+  instructions,
   loadKeypair,
   MarginfiClient,
   processTransaction,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
-import { makeConfigureMarginfiGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
 import * as zoClient from "@zero_one/client";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!);
@@ -26,7 +26,7 @@ async function configureMarginReq(client: MarginfiClient, initMReq: number, main
     },
   };
 
-  const ix = await makeConfigureMarginfiGroupIx(
+  const ix = await instructions.makeConfigureMarginfiGroupIx(
     client.program,
     {
       adminPk: wallet.publicKey,
@@ -52,16 +52,16 @@ const MARKET_SYMBOL = "SOL-PERP";
   });
 
   // Setup the client
-  const client = await MarginfiClient.get(config, wallet, connection);
+  const client = await MarginfiClient.fetch(config, wallet, connection);
 
   await configureMarginReq(client, 0.075, 0.05);
 
   // Prepare user accounts
   const marginfiAccount = await client.createMarginfiAccount();
-  await marginfiAccount.deposit(numberToQuote(depositAmount));
+  await marginfiAccount.deposit(depositAmount);
 
   await marginfiAccount.zo.activate();
-  await marginfiAccount.zo.deposit(numberToQuote(depositAmount * 2));
+  await marginfiAccount.zo.deposit(depositAmount * 2);
 
   const state = await marginfiAccount.zo.getZoState();
   const margin = await marginfiAccount.zo.getZoMargin(state);

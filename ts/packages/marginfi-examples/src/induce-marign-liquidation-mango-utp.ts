@@ -1,20 +1,21 @@
 require("dotenv").config();
 
-import { BN } from "@project-serum/anchor";
 import { Connection, Transaction } from "@solana/web3.js";
 
 import {
   Environment,
   getConfig,
+  instructions,
   loadKeypair,
+  MangoOrderSide,
+  MangoPerpOrderType,
   MarginfiClient,
   processTransaction,
+  uiToNative,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
 
 import { getMarketByBaseSymbolAndKind, I80F48, QUOTE_INDEX } from "@blockworks-foundation/mango-client";
-import { makeConfigureMarginfiGroupIx } from "@mrgnlabs/marginfi-client/src/instruction";
-import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/src/utp/mango/types";
 
 // const MARGINFI_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 const connection = new Connection(process.env.RPC_ENDPOINT!);
@@ -24,12 +25,12 @@ async function configureMarginReq(client: MarginfiClient, initMReq: number, main
   const program = client.program;
   const args = {
     bank: {
-      initMarginRatio: numberToQuote(initMReq),
-      maintMarginRatio: numberToQuote(maintMReq),
+      initMarginRatio: uiToNative(initMReq),
+      maintMarginRatio: uiToNative(maintMReq),
     },
   };
 
-  const ix = await makeConfigureMarginfiGroupIx(
+  const ix = await instructions.makeConfigureMarginfiGroupIx(
     client.program,
     {
       adminPk: wallet.publicKey,
@@ -50,16 +51,16 @@ const depositAmount = 100;
   const config = await getConfig(Environment.DEVNET, connection);
 
   // Setup the client
-  const client = await MarginfiClient.get(config, wallet, connection);
+  const client = await MarginfiClient.fetch(config, wallet, connection);
 
   await configureMarginReq(client, 0.075, 0.05);
 
   // Prepare user accounts
   const marginfiAccount = await client.createMarginfiAccount();
-  await marginfiAccount.deposit(numberToQuote(depositAmount));
+  await marginfiAccount.deposit(depositAmount);
 
   await marginfiAccount.mango.activate();
-  await marginfiAccount.mango.deposit(numberToQuote(depositAmount * 2));
+  await marginfiAccount.mango.deposit(depositAmount * 2);
 
   // Open counterpart BTC LONG on Mango
   const mangoGroup = await marginfiAccount.mango.getMangoGroup();
@@ -85,13 +86,15 @@ const depositAmount = 100;
 
   console.log("Balance: %s, price: %s, amount %s", balance.toNumber(), price.toNumber(), baseAssetAmount.toNumber());
 
-  await marginfiAccount.mango.placePerpOrder(mangoBtcMarket, Side.Ask, price.toNumber(), baseAssetAmount.toNumber(), {
-    orderType: PerpOrderType.Market,
-  }); // TODO: probably wrong parameters to open symmetrical LONG
+  await marginfiAccount.mango.placePerpOrder(
+    mangoBtcMarket,
+    MangoOrderSide.Ask,
+    price.toNumber(),
+    baseAssetAmount.toNumber(),
+    {
+      orderType: MangoPerpOrderType.Market,
+    }
+  ); // TODO: probably wrong parameters to open symmetrical LONG
 
   await configureMarginReq(client, 1, 0.5);
 })();
-
-function numberToQuote(num: number): BN {
-  return new BN(num * 10 ** 6);
-}

@@ -1,39 +1,34 @@
-import { BN, BorshCoder, Program } from "@project-serum/anchor";
+import { BorshCoder, Program } from "@project-serum/anchor";
 import { associatedAddress } from "@project-serum/anchor/dist/cjs/utils/token";
 import { AccountInfo, AccountMeta, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { MarginfiClient } from ".";
-import { LendingSide } from "./bank";
-import { MarginfiConfig } from "./config";
+import MarginfiGroup from "./group";
 import { MarginfiIdl, MARGINFI_IDL } from "./idl";
-import {
-  makeDeactivateUtpIx,
-  makeDepositIx,
-  makeHandleBankruptcyIx,
-  makeLiquidateIx,
-  makeWithdrawIx,
-} from "./instruction";
-import { MarginfiGroup } from "./group";
+import instructions from "./instructions";
 import {
   AccountBalances,
   AccountType,
   InstructionsWrapper,
+  LendingSide,
   MarginfiAccountData,
+  MarginfiConfig,
   MarginRequirementType,
   ObservationCache,
+  UiAmount,
   UtpData,
   UtpIndex,
 } from "./types";
 import { BankVaultType, decimalDataToBigNumber, getBankAuthority, processTransaction, uiToNative } from "./utils";
+import UtpAccount from "./utp/account";
 import { UtpMangoAccount } from "./utp/mango";
-import { UtpZoAccount } from "./utp/zo";
-import { UtpAccount } from "./utp/account";
 import { UtpObservation } from "./utp/observation";
+import { UtpZoAccount } from "./utp/zo";
 
 /**
  * Wrapper class around a specific marginfi marginfi account.
  */
-export class MarginfiAccount {
+class MarginfiAccount {
   public readonly publicKey: PublicKey;
   public group: MarginfiGroup;
   public observationCache: ObservationCache = new Map<UtpIndex, UtpObservation>();
@@ -117,7 +112,7 @@ export class MarginfiAccount {
    * @param client marginfi client
    * @returns MarginfiAccount instance
    */
-  static async get(marginfiAccountPk: PublicKey, client: MarginfiClient): Promise<MarginfiAccount> {
+  static async fetch(marginfiAccountPk: PublicKey, client: MarginfiClient): Promise<MarginfiAccount> {
     const { config, program } = client;
 
     const accountData = await MarginfiAccount._fetchAccountData(marginfiAccountPk, config, program);
@@ -295,14 +290,14 @@ export class MarginfiAccount {
    * @param amount Amount to deposit (mint native unit)
    * @returns `MarginDepositCollateral` transaction instruction
    */
-  async makeDepositIx(amount: BN): Promise<TransactionInstruction[]> {
+  async makeDepositIx(amount: UiAmount): Promise<TransactionInstruction[]> {
     const userTokenAtaPk = await associatedAddress({
       mint: this.group.bank.mint,
       owner: this._program.provider.wallet.publicKey,
     });
     const remainingAccounts = await this.getObservationAccounts();
     return [
-      await makeDepositIx(
+      await instructions.makeDepositIx(
         this._program,
         {
           marginfiGroupPk: this.group.publicKey,
@@ -311,7 +306,7 @@ export class MarginfiAccount {
           userTokenAtaPk,
           bankVaultPk: this.group.bank.vault,
         },
-        { amount },
+        { amount: uiToNative(amount) },
         remainingAccounts
       ),
     ];
@@ -323,7 +318,7 @@ export class MarginfiAccount {
    * @param amount Amount to deposit (mint native unit)
    * @returns Transaction signature
    */
-  async deposit(amount: BN): Promise<string> {
+  async deposit(amount: UiAmount): Promise<string> {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:deposit`);
 
     debug("Depositing %s into marginfi account", amount);
@@ -341,7 +336,7 @@ export class MarginfiAccount {
    * @param amount Amount to withdraw (mint native unit)
    * @returns `MarginWithdrawCollateral` transaction instruction
    */
-  async makeWithdrawIx(amount: BN): Promise<TransactionInstruction[]> {
+  async makeWithdrawIx(amount: UiAmount): Promise<TransactionInstruction[]> {
     const userTokenAtaPk = await associatedAddress({
       mint: this.group.bank.mint,
       owner: this._program.provider.wallet.publicKey,
@@ -349,7 +344,7 @@ export class MarginfiAccount {
     const [marginBankAuthorityPk] = await getBankAuthority(this._config.groupPk, this._program.programId);
     const remainingAccounts = await this.getObservationAccounts();
     return [
-      await makeWithdrawIx(
+      await instructions.makeWithdrawIx(
         this._program,
         {
           marginfiGroupPk: this.group.publicKey,
@@ -359,7 +354,7 @@ export class MarginfiAccount {
           bankVaultPk: this.group.bank.vault,
           bankVaultAuthorityPk: marginBankAuthorityPk,
         },
-        { amount },
+        { amount: uiToNative(amount) },
         remainingAccounts
       ),
     ];
@@ -371,7 +366,7 @@ export class MarginfiAccount {
    * @param amount Amount to withdraw (mint native unit)
    * @returns Transaction signature
    */
-  async withdraw(amount: BN): Promise<string> {
+  async withdraw(amount: UiAmount): Promise<string> {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:withdraw`);
 
     debug("Withdrawing %s from marginfi account", amount);
@@ -391,12 +386,12 @@ export class MarginfiAccount {
    *
    * @internal
    */
-  async makeDeactivateUtpIx(utpIndex: BN): Promise<InstructionsWrapper> {
+  async makeDeactivateUtpIx(utpIndex: UtpIndex): Promise<InstructionsWrapper> {
     const remainingAccounts = await this.getObservationAccounts();
 
     return {
       instructions: [
-        await makeDeactivateUtpIx(
+        await instructions.makeDeactivateUtpIx(
           this._program,
           {
             marginfiAccountPk: this.publicKey,
@@ -418,7 +413,7 @@ export class MarginfiAccount {
    *
    * @internal
    */
-  async deactivateUtp(utpIndex: BN) {
+  async deactivateUtp(utpIndex: UtpIndex) {
     const verifyIx = await this.makeDeactivateUtpIx(utpIndex);
     const tx = new Transaction().add(...verifyIx.instructions);
     return processTransaction(this._program.provider, tx);
@@ -437,7 +432,7 @@ export class MarginfiAccount {
 
     return {
       instructions: [
-        await makeHandleBankruptcyIx(
+        await instructions.makeHandleBankruptcyIx(
           this._program,
           {
             marginfiAccountPk: this.publicKey,
@@ -543,7 +538,7 @@ export class MarginfiAccount {
     debug("Trying to rebalance withdraw UTP:%s, amount %s (RBWA)", richestUtp.index, withdrawAmount);
 
     try {
-      const sig = await this.utpFromIndex(richestUtp.index).withdraw(uiToNative(withdrawAmount));
+      const sig = await this.utpFromIndex(richestUtp.index).withdraw(withdrawAmount);
       debug("Rebalance withdraw success - sig %s (RBWS)", sig);
     } catch (e) {
       debug("Rebalance withdraw failed (RBWF)");
@@ -568,7 +563,7 @@ export class MarginfiAccount {
       }
 
       let rebalanceAmountDecimal = this.computeMaxRebalanceDepositAmount(utp);
-      let cappedRebalanceAmount = uiToNative(rebalanceAmountDecimal.times(0.95));
+      let cappedRebalanceAmount = rebalanceAmountDecimal.times(0.95);
       debug("Trying to rebalance deposit UTP:%s amount %s (RBDA)", utp.index, cappedRebalanceAmount);
 
       try {
@@ -609,7 +604,7 @@ export class MarginfiAccount {
 
     const remainingAccounts = await marginfiAccountLiquidatee.getObservationAccounts();
 
-    let liquidateIx = await makeLiquidateIx(
+    let liquidateIx = await instructions.makeLiquidateIx(
       this._program,
       {
         marginfiAccountPk: this.publicKey,
@@ -620,7 +615,7 @@ export class MarginfiAccount {
         bankAuthority,
         bankInsuranceVault: this.group.bank.insuranceVault,
       },
-      { utpIndex: new BN(utpIndex) },
+      { utpIndex },
       remainingAccounts
     );
 
@@ -710,3 +705,5 @@ export class MarginfiAccount {
     return [marginfiGroupAi, marginfiAccountAi];
   }
 }
+
+export default MarginfiAccount;

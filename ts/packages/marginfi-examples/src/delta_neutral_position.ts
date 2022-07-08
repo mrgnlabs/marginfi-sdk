@@ -2,13 +2,20 @@ require("dotenv").config();
 
 import { Connection } from "@solana/web3.js";
 
-import { Environment, getConfig, loadKeypair, MarginfiClient, uiToNative, Wallet } from "@mrgnlabs/marginfi-client";
+import {
+  Environment,
+  getConfig,
+  loadKeypair,
+  MangoOrderSide,
+  MangoPerpOrderType,
+  MarginfiClient,
+  Wallet,
+  ZoPerpOrderType,
+} from "@mrgnlabs/marginfi-client";
 
 import { getMarketByBaseSymbolAndKind, I80F48, QUOTE_INDEX } from "@blockworks-foundation/mango-client";
-import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/dist/utp/mango/types";
 // import { airdropCollateral } from "./utils";
 // import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { OrderType } from "@mrgnlabs/marginfi-client/dist/utp/zo/types";
 import * as ZoClient from "@zero_one/client";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, {
@@ -20,23 +27,22 @@ const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const depositAmountUi = 2;
 
 (async function () {
-  // const depositAmount = uiToNative(depositAmountUi);
   const config = await getConfig(Environment.MAINNET, connection);
 
   // Setup the client
-  const client = await MarginfiClient.get(config, wallet, connection);
+  const client = await MarginfiClient.fetch(config, wallet, connection);
 
   const mfiAccount = await client.createMarginfiAccount();
 
   // // Fund margin account
-  await mfiAccount.deposit(uiToNative(depositAmountUi));
+  await mfiAccount.deposit(depositAmountUi);
 
   // // Activate Drift and Mango UTPs
   await mfiAccount.zo.activate();
   await mfiAccount.mango.activate();
   // Deposit collateral to Mango and 01
-  await mfiAccount.zo.deposit(uiToNative(depositAmountUi / 2));
-  await mfiAccount.mango.deposit(uiToNative(depositAmountUi / 2));
+  await mfiAccount.zo.deposit(depositAmountUi / 2);
+  await mfiAccount.mango.deposit(depositAmountUi / 2);
 
   // ---------------------------------------------------------------------
   // Open BTC SHORT on 01
@@ -57,7 +63,7 @@ const depositAmountUi = 2;
   }
   await mfiAccount.zo.placePerpOrder({
     symbol: marketKey,
-    orderType: OrderType.ImmediateOrCancel,
+    orderType: ZoPerpOrderType.ImmediateOrCancel,
     isLong: false,
     price: zoPrice,
     size: zoSize.toNumber(),
@@ -84,9 +90,15 @@ const depositAmountUi = 2;
 
   const mangoPrice = mangoGroup.getPrice(perpMarketConfig.marketIndex, mangoCache);
   const mangoSize = balance.div(mangoPrice);
-  await mfiAccount.mango.placePerpOrder(mangoBtcMarket, Side.Bid, mangoPrice.toNumber(), mangoSize.toNumber(), {
-    orderType: PerpOrderType.Market,
-  });
+  await mfiAccount.mango.placePerpOrder(
+    mangoBtcMarket,
+    MangoOrderSide.Bid,
+    mangoPrice.toNumber(),
+    mangoSize.toNumber(),
+    {
+      orderType: MangoPerpOrderType.Market,
+    }
+  );
 
   process.exit();
 })();

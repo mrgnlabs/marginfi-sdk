@@ -1,12 +1,11 @@
 import { AccountMeta, PublicKey } from "@solana/web3.js";
-import BN from "bn.js";
 import { format } from "util";
 import { getUtpAuthority, MarginfiAccount, MarginfiClient, UtpConfig } from "..";
 import { INSURANCE_VAULT_LIQUIDATION_FEE, LIQUIDATOR_LIQUIDATION_FEE } from "../constants";
-import { LiquidationPrices, UTPAccountConfig, UtpData, UtpIndex, UTP_NAME } from "../types";
+import { LiquidationPrices, UiAmount, UTPAccountConfig, UtpData, UtpIndex, UTP_NAME } from "../types";
 import { IUtpObservation, UtpObservation } from "./observation";
 
-export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
+abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
   public index: UtpIndex;
   public address: PublicKey;
   public isActive: boolean;
@@ -18,8 +17,8 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
 
   abstract getObservationAccounts(): Promise<AccountMeta[]>;
   abstract observe(): Promise<UtpObservation>;
-  abstract deposit(amount: BN): Promise<string>;
-  abstract withdraw(amount: BN): Promise<string>;
+  abstract deposit(amount: UiAmount): Promise<string>;
+  abstract withdraw(amount: UiAmount): Promise<string>;
   abstract config: UtpConfig;
 
   constructor(
@@ -129,3 +128,5 @@ export abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
     );
   }
 }
+
+export default UtpAccount;

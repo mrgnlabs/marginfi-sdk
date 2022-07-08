@@ -1,4 +1,4 @@
-import { getConfig, getMfiProgram, instruction, loadKeypair, processTransaction } from "@mrgnlabs/marginfi-client";
+import { getConfig, getMfiProgram, instructions, loadKeypair, processTransaction } from "@mrgnlabs/marginfi-client";
 import { BN, Wallet } from "@project-serum/anchor";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { OptionValues } from "commander";
@@ -26,7 +26,7 @@ export async function configureGroup(marginfiGroupAddress: string, options: Opti
     paused: parsePaused(options.paused),
   };
 
-  const ix = await instruction.makeConfigureMarginfiGroupIx(
+  const ix = await instructions.makeConfigureMarginfiGroupIx(
     program,
     {
       adminPk: wallet.publicKey,

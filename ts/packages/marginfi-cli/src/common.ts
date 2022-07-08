@@ -25,7 +25,7 @@ export async function getClientFromOptions(options: OptionValues): Promise<Margi
   }
 
   const config = await getConfig(getEnvironment(options.environment), connection, overrides);
-  return MarginfiClient.get(config, new Wallet(loadKeypair(options.keypair)), connection);
+  return MarginfiClient.fetch(config, new Wallet(loadKeypair(options.keypair)), connection);
 }
 
 export function parseDecimal(m: DecimalData): number {

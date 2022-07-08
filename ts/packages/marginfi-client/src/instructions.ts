@@ -1,10 +1,11 @@
-import { BN, Program } from "@project-serum/anchor";
+import { Program } from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, PublicKey, SystemProgram } from "@solana/web3.js";
+import BN from "bn.js";
 import { MarginfiIdl } from "./idl";
-import { GroupConfig } from "./types";
+import { GroupConfig, UtpIndex } from "./types";
 
-export async function makeInitMarginfiGroupIx(
+async function makeInitMarginfiGroupIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
@@ -40,7 +41,7 @@ export async function makeInitMarginfiGroupIx(
     .instruction();
 }
 
-export async function makeConfigureMarginfiGroupIx(
+async function makeConfigureMarginfiGroupIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
@@ -71,7 +72,7 @@ export async function makeConfigureMarginfiGroupIx(
     .instruction();
 }
 
-export async function makeInitMarginfiAccountIx(
+async function makeInitMarginfiAccountIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
@@ -90,7 +91,7 @@ export async function makeInitMarginfiAccountIx(
     .instruction();
 }
 
-export async function makeDepositIx(
+async function makeDepositIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
@@ -118,7 +119,7 @@ export async function makeDepositIx(
     .instruction();
 }
 
-export async function makeWithdrawIx(
+async function makeWithdrawIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
@@ -148,7 +149,7 @@ export async function makeWithdrawIx(
     .instruction();
 }
 
-export async function makeUpdateInterestAccumulatorIx(
+async function makeUpdateInterestAccumulatorIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
@@ -169,19 +170,19 @@ export async function makeUpdateInterestAccumulatorIx(
     .instruction();
 }
 
-export async function makeDeactivateUtpIx(
+async function makeDeactivateUtpIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccountPk: PublicKey;
     authorityPk: PublicKey;
   },
   args: {
-    utpIndex: BN;
+    utpIndex: UtpIndex;
   },
   remainingAccounts: AccountMeta[] = []
 ) {
   return mfProgram.methods
-    .deactivateUtp(args.utpIndex)
+    .deactivateUtp(new BN(args.utpIndex))
     .accounts({
       marginfiAccount: accounts.marginfiAccountPk,
       authority: accounts.authorityPk,
@@ -190,7 +191,7 @@ export async function makeDeactivateUtpIx(
     .instruction();
 }
 
-export async function makeLiquidateIx(
+async function makeLiquidateIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccountPk: PublicKey;
@@ -202,12 +203,12 @@ export async function makeLiquidateIx(
     signerPk: PublicKey;
   },
   args: {
-    utpIndex: BN;
+    utpIndex: UtpIndex;
   },
   remainingAccounts: AccountMeta[] = []
 ) {
   return mfProgram.methods
-    .liquidate(args.utpIndex)
+    .liquidate(new BN(args.utpIndex))
     .accounts({
       marginfiAccount: accounts.marginfiAccountPk,
       marginfiAccountLiquidatee: accounts.marginfiAccountLiquidateePk,
@@ -222,7 +223,7 @@ export async function makeLiquidateIx(
     .instruction();
 }
 
-export async function makeHandleBankruptcyIx(
+async function makeHandleBankruptcyIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccountPk: PublicKey;
@@ -246,3 +247,15 @@ export async function makeHandleBankruptcyIx(
     .remainingAccounts(remainingAccounts)
     .instruction();
 }
+
+export default {
+  makeInitMarginfiGroupIx,
+  makeConfigureMarginfiGroupIx,
+  makeDeactivateUtpIx,
+  makeDepositIx,
+  makeHandleBankruptcyIx,
+  makeInitMarginfiAccountIx,
+  makeWithdrawIx,
+  makeUpdateInterestAccumulatorIx,
+  makeLiquidateIx,
+};

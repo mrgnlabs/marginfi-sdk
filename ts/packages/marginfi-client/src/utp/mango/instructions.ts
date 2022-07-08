@@ -3,9 +3,9 @@ import { BN, Program } from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, PublicKey, SystemProgram } from "@solana/web3.js";
 import { MarginfiIdl } from "../../idl";
-import { ExpiryType, PerpOrderType, Side, toProgramExpiryType, toProgramPerpOrderType, toProgramSide } from "./types";
+import { toProgramExpiryType, toProgramPerpOrderType, toProgramSide, UtpMangoPlacePerpOrderArgs } from "./types";
 
-export async function makeActivateIx(
+async function makeActivateIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
@@ -36,7 +36,7 @@ export async function makeActivateIx(
     .instruction();
 }
 
-export async function makeDepositIx(
+async function makeDepositIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
@@ -80,7 +80,7 @@ export async function makeDepositIx(
     .instruction();
 }
 
-export async function makeWithdrawIx(
+async function makeWithdrawIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiGroupPk: PublicKey;
@@ -120,7 +120,7 @@ export async function makeWithdrawIx(
     .instruction();
 }
 
-export async function makePlacePerpOrderIx(
+async function makePlacePerpOrderIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccountPk: PublicKey;
@@ -137,18 +137,7 @@ export async function makePlacePerpOrderIx(
     mangoEventQueuePk: PublicKey;
   },
   args: {
-    args: {
-      side: Side;
-      price: BN;
-      maxBaseQuantity: BN;
-      maxQuoteQuantity: BN;
-      clientOrderId: BN;
-      orderType: PerpOrderType;
-      reduceOnly?: boolean;
-      expiryTimestamp?: BN;
-      limit: BN; // one byte; max 255
-      expiryType: ExpiryType;
-    };
+    args: UtpMangoPlacePerpOrderArgs;
   },
   remainingAccounts: AccountMeta[] = []
 ) {
@@ -183,7 +172,7 @@ export async function makePlacePerpOrderIx(
     .instruction();
 }
 
-export async function makeCancelPerpOrderIx(
+async function makeCancelPerpOrderIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccountPk: PublicKey;
@@ -218,3 +207,11 @@ export async function makeCancelPerpOrderIx(
     .remainingAccounts(remainingAccounts)
     .instruction();
 }
+
+export default {
+  makeActivateIx,
+  makeDepositIx,
+  makeWithdrawIx,
+  makePlacePerpOrderIx,
+  makeCancelPerpOrderIx,
+};

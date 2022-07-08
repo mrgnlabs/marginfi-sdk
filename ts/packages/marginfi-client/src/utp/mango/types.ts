@@ -1,16 +1,30 @@
+import BN from "bn.js";
+import { UiAmount } from "../../types";
+
 export interface UtpMangoPlacePerpOrderOptions {
-  maxQuoteQuantity?: number;
+  maxQuoteQuantity?: UiAmount;
   limit?: number;
-  orderType?: PerpOrderType;
+  orderType?: MangoPerpOrderType;
   clientOrderId?: number;
-  //   bookSideInfo?: AccountInfo<Buffer>;
   reduceOnly?: boolean;
-  //   referrerMangoAccountPk?: PublicKey;
   expiryTimestamp?: number;
   expiryType?: ExpiryType;
 }
 
-export enum Side {
+export interface UtpMangoPlacePerpOrderArgs {
+  side: MangoOrderSide;
+  price: BN;
+  maxBaseQuantity: BN;
+  maxQuoteQuantity: BN;
+  clientOrderId: BN;
+  orderType: MangoPerpOrderType;
+  reduceOnly?: boolean;
+  expiryTimestamp?: BN;
+  limit: BN; // one byte; max 255
+  expiryType: ExpiryType;
+}
+
+export enum MangoOrderSide {
   Bid = "bid",
   Ask = "ask",
 }
@@ -18,13 +32,30 @@ export enum Side {
 /**
  * @internal
  */
-export function toProgramSide(side: Side) {
-  if (side == Side.Bid) return { bid: {} };
-  if (side == Side.Ask) return { ask: {} };
+export function toProgramSide(side: MangoOrderSide) {
+  if (side == MangoOrderSide.Bid) return { bid: {} };
+  if (side == MangoOrderSide.Ask) return { ask: {} };
   throw Error("Invalid side");
 }
 
-export enum PerpOrderType {
+export type IMangoOrderType =
+  | {
+      limit: {};
+    }
+  | {
+      immediateOrCancel: {};
+    }
+  | {
+      postOnly: {};
+    }
+  | {
+      market: {};
+    }
+  | {
+      postOnlySlide: {};
+    };
+
+export enum MangoPerpOrderType {
   Limit,
   ImmediateOrCancel,
   PostOnly,
@@ -35,12 +66,12 @@ export enum PerpOrderType {
 /**
  * @internal
  */
-export function toProgramPerpOrderType(orderType: PerpOrderType) {
-  if (orderType == PerpOrderType.Limit) return { limit: {} };
-  if (orderType == PerpOrderType.ImmediateOrCancel) return { immediateOrCancel: {} };
-  if (orderType == PerpOrderType.PostOnly) return { postOnly: {} };
-  if (orderType == PerpOrderType.Market) return { market: {} };
-  if (orderType == PerpOrderType.PostOnlySlide) return { postOnlySlide: {} };
+export function toProgramPerpOrderType(orderType: MangoPerpOrderType): IMangoOrderType {
+  if (orderType == MangoPerpOrderType.Limit) return { limit: {} };
+  if (orderType == MangoPerpOrderType.ImmediateOrCancel) return { immediateOrCancel: {} };
+  if (orderType == MangoPerpOrderType.PostOnly) return { postOnly: {} };
+  if (orderType == MangoPerpOrderType.Market) return { market: {} };
+  if (orderType == MangoPerpOrderType.PostOnlySlide) return { postOnlySlide: {} };
   throw Error("Invalid side");
 }
 

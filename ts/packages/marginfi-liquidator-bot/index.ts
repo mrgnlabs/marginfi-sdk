@@ -2,17 +2,16 @@ require("dotenv").config();
 
 import "./sentry";
 
-import { BN, ONE_I80F48, QUOTE_INDEX, sleep, ZERO_BN, ZERO_I80F48 } from "@blockworks-foundation/mango-client";
+import { ONE_I80F48, QUOTE_INDEX, sleep, ZERO_BN, ZERO_I80F48 } from "@blockworks-foundation/mango-client";
 import {
-  getClientFromEnv,
+  MangoOrderSide,
+  MangoPerpOrderType,
   MarginfiAccount,
   MarginfiAccountData,
   MarginfiClient,
-  uiToNative,
   Wallet,
+  ZoPerpOrderType,
 } from "@mrgnlabs/marginfi-client";
-import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/dist/utp/mango";
-import { OrderType } from "@mrgnlabs/marginfi-client/dist/utp/zo/types";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import debugBuilder from "debug";
 
@@ -23,13 +22,13 @@ const marginfiAccountPk = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
 (async function () {
   const debug = debugBuilder("liquidator");
-  const marginClient = await getClientFromEnv();
+  const marginClient = await MarginfiClient.fromEnv();
 
   const marginfiGroupPk = marginClient.config.groupPk;
 
   debug("Starting liquidator for group %s", marginfiGroupPk);
 
-  const marginfiAccount = await MarginfiAccount.get(marginfiAccountPk, marginClient);
+  const marginfiAccount = await MarginfiAccount.fetch(marginfiAccountPk, marginClient);
 
   const round = async function () {
     await checkForActiveUtps(marginfiAccount);
@@ -160,7 +159,7 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
     }
     await marginfiAccount.zo.placePerpOrder({
       symbol: position.marketKey,
-      orderType: OrderType.ReduceOnlyIoc,
+      orderType: ZoPerpOrderType.ReduceOnlyIoc,
       isLong: closeDirectionLong,
       price: price,
       size: position.coins.number,
@@ -179,9 +178,9 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
   }
 
   const observation = await marginfiAccount.zo.observe();
-  let withdrawableAmount = uiToNative(observation.freeCollateral).sub(new BN(100));
+  let withdrawableAmount = observation.freeCollateral.minus(0.0001);
 
-  debug("Withdrawing %s from ZO", bnToNumber(withdrawableAmount));
+  debug("Withdrawing %s from ZO", withdrawableAmount.toString());
   await marginfiAccount.zo.withdraw(withdrawableAmount);
 
   debug("Deactivating ZO");
@@ -205,18 +204,14 @@ async function withdrawFromMango(marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:utp:mango:withdraw");
   debug("Trying to withdraw from Mango");
   let observation = await marginfiAccount.mango.observe();
-  let withdrawAmount = uiToNative(observation.freeCollateral).sub(new BN(1));
+  let withdrawAmount = observation.freeCollateral.minus(0.000001);
 
-  if (withdrawAmount.lte(ZERO_BN)) {
+  if (withdrawAmount.lte(0)) {
     return;
   }
 
-  debug("Withdrawing %d from Mango", bnToNumber(withdrawAmount));
+  debug("Withdrawing %d from Mango", withdrawAmount.toString());
   await marginfiAccount.mango.withdraw(withdrawAmount);
-}
-
-function bnToNumber(bn: BN, decimal: number = 6): number {
-  return bn.toNumber() / 10 ** decimal;
 }
 
 async function closeMangoPositions(marginfiAccount: MarginfiAccount) {
@@ -263,17 +258,17 @@ async function closeMangoPositions(marginfiAccount: MarginfiAccount) {
         const price = mangoGroup.getPrice(index, cache);
 
         if (basePositionSize != 0) {
-          const side = perpAccount.basePosition.gt(ZERO_BN) ? Side.Ask : Side.Bid;
+          const side = perpAccount.basePosition.gt(ZERO_BN) ? MangoOrderSide.Ask : MangoOrderSide.Bid;
           const liquidationFee = mangoGroup.perpMarkets[index].liquidationFee;
           const orderPrice =
-            side == Side.Ask
+            side == MangoOrderSide.Ask
               ? price.mul(ONE_I80F48.sub(liquidationFee)).toNumber()
               : price.mul(ONE_I80F48.add(liquidationFee)).toNumber();
 
           debug(`${side}ing ${basePositionSize} of ${groupIds?.perpMarkets[i].baseSymbol}-PERP for $${orderPrice}`);
 
           await mangoUtp.placePerpOrder(perpMarket, side, orderPrice, basePositionSize, {
-            orderType: PerpOrderType.Market,
+            orderType: MangoPerpOrderType.Market,
             reduceOnly: true,
           });
         }

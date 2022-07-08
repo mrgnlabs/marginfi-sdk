@@ -3,7 +3,7 @@ import {
   getBankAuthority,
   getConfig,
   getMfiProgram,
-  instruction,
+  instructions,
   loadKeypair,
   processTransaction,
   Wallet,
@@ -58,7 +58,7 @@ export async function createGroup(_string: string, options: OptionValues) {
     connection
   );
 
-  const createMarginfiGroupIx = await instruction.makeInitMarginfiGroupIx(
+  const createMarginfiGroupIx = await instructions.makeInitMarginfiGroupIx(
     program,
     {
       marginfiGroupPk: mfiGroupKey.publicKey,

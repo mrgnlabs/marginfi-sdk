@@ -13,7 +13,7 @@ import {
   TransactionSignature,
 } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
-import { Environment, getConfig, MarginfiClient, Wallet } from "..";
+import { Environment, Wallet } from "..";
 import {
   COLLATERAL_DECIMALS,
   PDA_BANK_FEE_VAULT_SEED,
@@ -23,8 +23,7 @@ import {
   VERY_VERBOSE_ERROR,
 } from "../constants";
 import { MarginfiIdl, MARGINFI_IDL } from "../idl";
-import { NodeWallet } from "../nodeWallet";
-import { AccountType, DecimalData } from "../types";
+import { AccountType, DecimalData, UiAmount } from "../types";
 import { Decimal } from "./decimal";
 
 /**
@@ -137,13 +136,36 @@ export function decimalDataToBigNumber(amount: DecimalData): BigNumber {
 /**
  * Converts a ui representation of a token amount into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
  */
-export function uiToNative(amount: BigNumber | number | string, decimals: number = COLLATERAL_DECIMALS): BN {
-  let amt: BigNumber;
-  if (typeof amount === "number" || typeof amount === "string") {
-    amt = new BigNumber(amount);
-  } else {
+export function toNumber(amount: UiAmount): number {
+  let amt: number;
+  if (typeof amount === "number") {
     amt = amount;
+  } else if (typeof amount === "string") {
+    amt = Number(amount);
+  } else {
+    amt = amount.toNumber();
   }
+  return amt;
+}
+
+/**
+ * Converts a ui representation of a token amount into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
+ */
+export function toBigNumber(amount: UiAmount): BigNumber {
+  let amt: BigNumber;
+  if (amount instanceof BigNumber) {
+    amt = amount;
+  } else {
+    amt = new BigNumber(amount.toString());
+  }
+  return amt;
+}
+
+/**
+ * Converts a ui representation of a token amount into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
+ */
+export function uiToNative(amount: UiAmount | string, decimals: number = COLLATERAL_DECIMALS): BN {
+  let amt = toBigNumber(amount);
   return new BN(amt.times(decimals).toFixed(0, BigNumber.ROUND_FLOOR));
 }
 
@@ -235,39 +257,4 @@ export function getEnvFromStr(envString: string = "devnet"): Environment {
     default:
       return Environment.DEVNET;
   }
-}
-
-export async function getClientFromEnv(
-  overrides?: Partial<{
-    env: Environment;
-    connection: Connection;
-    program_id: PublicKey;
-    marginfi_group: PublicKey;
-    wallet: Wallet;
-  }>
-): Promise<MarginfiClient> {
-  const debug = require("debug")("mfi:utils");
-  const env = overrides?.env ?? getEnvFromStr(process.env.ENV!);
-  const connection = overrides?.connection ?? new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
-  const programId = overrides?.program_id ?? new PublicKey(process.env.MARGINFI_PROGRAM!);
-  const groupPk =
-    overrides?.marginfi_group ??
-    (process.env.MARGINFI_GROUP ? new PublicKey(process.env.MARGINFI_GROUP) : PublicKey.default);
-  const wallet =
-    overrides?.wallet ??
-    new NodeWallet(
-      process.env.WALLET_KEY
-        ? Keypair.fromSecretKey(new Uint8Array(JSON.parse(process.env.WALLET_KEY)))
-        : loadKeypair(process.env.WALLET!)
-    );
-
-  debug("Loading the marginfi client from env vars");
-  debug("Env: %s\nProgram: %s\nGroup: %s\nSigner: %s", env, programId, groupPk, wallet.publicKey);
-
-  const config = await getConfig(env, connection, {
-    groupPk,
-    programId,
-  });
-
-  return MarginfiClient.get(config, wallet, connection, { commitment: connection.commitment });
 }

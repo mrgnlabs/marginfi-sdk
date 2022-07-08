@@ -1,16 +1,15 @@
 import { BorshCoder, Program } from "@project-serum/anchor";
 import { PublicKey, Transaction } from "@solana/web3.js";
-import { Bank } from "./bank";
-import { MarginfiConfig } from "./config";
+import Bank from "./bank";
 import { MarginfiIdl, MARGINFI_IDL } from "./idl";
-import { makeUpdateInterestAccumulatorIx } from "./instruction";
-import { AccountType, MarginfiGroupData } from "./types";
+import instructions from "./instructions";
+import { AccountType, MarginfiConfig, MarginfiGroupData } from "./types";
 import { getBankAuthority, processTransaction } from "./utils";
 
 /**
  * Wrapper class around a specific marginfi group.
  */
-export class MarginfiGroup {
+class MarginfiGroup {
   public bank: Bank;
   public readonly publicKey: PublicKey;
   public readonly admin: PublicKey;
@@ -143,7 +142,7 @@ export class MarginfiGroup {
    */
   async makeUpdateInterestAccumulatorIx() {
     let [bankAuthority, _] = await getBankAuthority(this._config.groupPk, this._program.programId);
-    return makeUpdateInterestAccumulatorIx(this._program, {
+    return instructions.makeUpdateInterestAccumulatorIx(this._program, {
       marginfiGroupPk: this.publicKey,
       bankVault: this.bank.vault,
       bankAuthority,
@@ -159,3 +158,5 @@ export class MarginfiGroup {
     return await processTransaction(this._program.provider, tx);
   }
 }
+
+export default MarginfiGroup;

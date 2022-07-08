@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@blockworks-foundation/mango-client": "^3.6.7",
-    "@drift-labs/sdk": "^0.1.36-master.2",
     "@project-serum/anchor": "^0.23.0",
     "@solana/web3.js": "^1.37.0",
     "@zero_one/client": "^0.8.7",

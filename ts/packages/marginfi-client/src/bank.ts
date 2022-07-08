@@ -1,13 +1,13 @@
 import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
-import { BankData, MarginRequirementType } from "./types";
+import { BankData, LendingSide, MarginRequirementType } from "./types";
 import { Decimal } from "./utils";
 
 /**
  * Bank struct mirroring on-chain data
  * Contains the state of the marginfi group.
  */
-export class Bank {
+class Bank {
   public readonly scalingFactorC: BigNumber;
   public readonly fixedFee: BigNumber;
   public readonly interestFee: BigNumber;
@@ -77,7 +77,4 @@ export class Bank {
   }
 }
 
-export enum LendingSide {
-  Borrow,
-  Deposit,
-}
+export default Bank;

@@ -1,10 +1,10 @@
 import { BN, Program } from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, TransactionInstruction } from "@solana/web3.js";
-import { OrderType } from "@zero_one/client";
 import { MarginfiIdl } from "../../idl";
+import { UtpZoPlacePerpOrderArgs } from "./types";
 
-export async function makeActivateIx(
+async function makeActivateIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccount: PublicKey;
@@ -39,7 +39,7 @@ export async function makeActivateIx(
     .instruction();
 }
 
-export async function makeDepositIx(
+async function makeDepositIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccount: PublicKey;
@@ -85,7 +85,7 @@ export async function makeDepositIx(
     .instruction();
 }
 
-export async function makeWithdrawIx(
+async function makeWithdrawIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccount: PublicKey;
@@ -127,7 +127,7 @@ export async function makeWithdrawIx(
     .instruction();
 }
 
-export async function makeCreatePerpOpenOrdersIx(
+async function makeCreatePerpOpenOrdersIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccount: PublicKey;
@@ -167,7 +167,7 @@ export async function makeCreatePerpOpenOrdersIx(
     .instruction();
 }
 
-export async function makePlacePerpOrderIx(
+async function makePlacePerpOrderIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccount: PublicKey;
@@ -189,15 +189,7 @@ export async function makePlacePerpOrderIx(
     dexProgram: PublicKey;
   },
   args: {
-    args: Readonly<{
-      isLong: boolean;
-      limitPrice: BN;
-      maxBaseQuantity: BN;
-      maxQuoteQuantity: BN;
-      orderType: OrderType;
-      limit: number;
-      clientId: BN;
-    }>;
+    args: UtpZoPlacePerpOrderArgs;
   },
   remainingAccounts: AccountMeta[] = []
 ): Promise<TransactionInstruction> {
@@ -229,7 +221,7 @@ export async function makePlacePerpOrderIx(
     .instruction();
 }
 
-export async function makeCancelPerpOrderIx(
+async function makeCancelPerpOrderIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccount: PublicKey;
@@ -278,7 +270,7 @@ export async function makeCancelPerpOrderIx(
     .instruction();
 }
 
-export async function makeSettleFundsIx(
+async function makeSettleFundsIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccount: PublicKey;
@@ -317,3 +309,13 @@ export async function makeSettleFundsIx(
     })
     .instruction();
 }
+
+export default {
+  makeActivateIx,
+  makeDepositIx,
+  makeWithdrawIx,
+  makePlacePerpOrderIx,
+  makeCancelPerpOrderIx,
+  makeCreatePerpOpenOrdersIx,
+  makeSettleFundsIx,
+};

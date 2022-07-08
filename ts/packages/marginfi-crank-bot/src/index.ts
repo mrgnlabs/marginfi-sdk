@@ -2,7 +2,7 @@ require("dotenv").config();
 
 import { captureException } from "./sentry";
 
-import { getClientFromEnv, MarginfiAccount, MarginfiAccountData, MarginfiClient } from "@mrgnlabs/marginfi-client";
+import { MarginfiAccount, MarginfiAccountData, MarginfiClient } from "@mrgnlabs/marginfi-client";
 import { PublicKey } from "@solana/web3.js";
 
 const marginfiGroupPk = new PublicKey(process.env.MARGINFI_GROUP!);
@@ -11,7 +11,7 @@ const marginfiGroupPk = new PublicKey(process.env.MARGINFI_GROUP!);
   console.log("Running crank bot, use DEBUG=* to see logs");
   const debug = require("debug")("crank-bot");
   debug("Running crank bot for group %s", marginfiGroupPk);
-  const marginClient = await getClientFromEnv();
+  const marginClient = await MarginfiClient.fromEnv();
   const round = async function () {
     try {
       await loadAllMarginfiAccounts(marginClient);

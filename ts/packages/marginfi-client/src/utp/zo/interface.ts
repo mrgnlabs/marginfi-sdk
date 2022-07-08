@@ -6,33 +6,27 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { MarginfiClient } from "../../client";
-import { MarginfiAccount } from "../../account";
-import { InstructionsWrapper, UtpData } from "../../types";
+import MarginfiAccount from "../../account";
+import MarginfiClient from "../../client";
+import { InstructionsWrapper, UiAmount, UtpData } from "../../types";
 import {
   BankVaultType,
   createTempTransferAccounts as createTempTransferAccountIxs,
   getBankAuthority,
   getUtpAuthority,
   processTransaction,
+  uiToNative,
 } from "../../utils";
-import {
-  makeActivateIx,
-  makeCancelPerpOrderIx,
-  makeCreatePerpOpenOrdersIx,
-  makeDepositIx,
-  makePlacePerpOrderIx,
-  makeSettleFundsIx,
-  makeWithdrawIx,
-} from "./instruction";
+import instructions from "./account";
 
 import { BN } from "@project-serum/anchor";
 import * as ZoClient from "@zero_one/client";
 import { CONTROL_ACCOUNT_SIZE, OrderType } from "@zero_one/client";
 import BigNumber from "bignumber.js";
 import { DUST_THRESHOLD } from "../../constants";
-import { UtpAccount } from "../account";
 import { UtpObservation } from "../../utp/observation";
+import UtpAccount from "../account";
+import { UtpZoPlacePerpOrderArgs } from "./types";
 
 /**
  * Class encapsulating 01-specific interactions (internal)
@@ -83,7 +77,7 @@ export class UtpZoAccount extends UtpAccount {
     const state = await ZoClient.State.load(zoProgram, this._config.zo.statePk);
     const [zoMarginPubkey, zoMarginNonce] = await ZoClient.Margin.getMarginKey(state, utpAuthorityPk, zoProgram);
 
-    const activateZoIx = await makeActivateIx(
+    const activateZoIx = await instructions.makeActivateIx(
       this._program,
       {
         marginfiGroup: this._config.groupPk,
@@ -127,7 +121,7 @@ export class UtpZoAccount extends UtpAccount {
    * @returns `DeactivateUtp` transaction instruction
    */
   async makeDeactivateIx(): Promise<InstructionsWrapper> {
-    return this._marginfiAccount.makeDeactivateUtpIx(new BN(this.index));
+    return this._marginfiAccount.makeDeactivateUtpIx(this.index);
   }
 
   /**
@@ -140,13 +134,13 @@ export class UtpZoAccount extends UtpAccount {
     this.verifyActive();
     debug("Deactivating 01 UTP");
 
-    const sig = await this._marginfiAccount.deactivateUtp(new BN(this.index));
+    const sig = await this._marginfiAccount.deactivateUtp(this.index);
     debug("Sig %s", sig);
     await this._marginfiAccount.reload();
     return sig;
   }
 
-  async makeDepositIx(amount: BN): Promise<InstructionsWrapper> {
+  async makeDepositIx(amount: UiAmount): Promise<InstructionsWrapper> {
     const zoProgramId = this._config.zo.programId;
 
     const [utpAuthority] = await getUtpAuthority(
@@ -180,7 +174,7 @@ export class UtpZoAccount extends UtpAccount {
       instructions: [
         createTokenAccountIx,
         initTokenAccountIx,
-        await makeDepositIx(
+        await instructions.makeDepositIx(
           this._program,
           {
             marginfiGroup: this._config.groupPk,
@@ -197,7 +191,7 @@ export class UtpZoAccount extends UtpAccount {
             zoMargin: this._utpConfig.address,
             zoVault: zoVaultPk,
           },
-          { amount },
+          { amount: uiToNative(amount) },
           remainingAccounts
         ),
       ],
@@ -205,7 +199,7 @@ export class UtpZoAccount extends UtpAccount {
     };
   }
 
-  async deposit(amount: BN): Promise<string> {
+  async deposit(amount: UiAmount): Promise<string> {
     const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:deposit`);
     debug("Depositing %s into 01", amount);
 
@@ -216,7 +210,7 @@ export class UtpZoAccount extends UtpAccount {
     return sig;
   }
 
-  async makeWithdrawIx(amount: BN): Promise<TransactionInstruction> {
+  async makeWithdrawIx(amount: UiAmount): Promise<TransactionInstruction> {
     const [utpAuthority] = await getUtpAuthority(
       this.config.programId,
       this._utpConfig.authoritySeed,
@@ -228,7 +222,7 @@ export class UtpZoAccount extends UtpAccount {
     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
     const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
-    return makeWithdrawIx(
+    return instructions.makeWithdrawIx(
       this._program,
       {
         marginfiAccount: this._marginfiAccount.publicKey,
@@ -244,12 +238,12 @@ export class UtpZoAccount extends UtpAccount {
         zoControl: zoMargin.control.pubkey,
         zoVault: zoVaultPk,
       },
-      { amount },
+      { amount: uiToNative(amount) },
       remainingAccounts
     );
   }
 
-  async withdraw(amount: BN): Promise<string> {
+  async withdraw(amount: UiAmount): Promise<string> {
     const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:withdraw`);
     debug("Withdrawing %s from 01", amount);
 
@@ -282,7 +276,7 @@ export class UtpZoAccount extends UtpAccount {
 
     return {
       instructions: [
-        await makeCreatePerpOpenOrdersIx(this._program, {
+        await instructions.makeCreatePerpOpenOrdersIx(this._program, {
           marginfiAccount: this._marginfiAccount.publicKey,
           marginfiGroup: this._client.group.publicKey,
           utpAuthority,
@@ -351,15 +345,15 @@ export class UtpZoAccount extends UtpAccount {
       market.decoded.perpType.toNumber() === 1
         ? ZoClient.ZO_FUTURE_TAKER_FEE
         : market.decoded.perpType.toNumber() === 2
-          ? ZoClient.ZO_OPTION_TAKER_FEE
-          : ZoClient.ZO_SQUARE_TAKER_FEE;
+        ? ZoClient.ZO_OPTION_TAKER_FEE
+        : ZoClient.ZO_SQUARE_TAKER_FEE;
     const feeMultiplier = isLong ? 1 + takerFee : 1 - takerFee;
     const maxQuoteQtyBn = new BN(
       Math.round(limitPriceBn.mul(maxBaseQtyBn).mul(market.decoded["quoteLotSize"]).toNumber() * feeMultiplier)
     );
     const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
-    const args = {
+    const args: UtpZoPlacePerpOrderArgs = {
       isLong,
       limitPrice: limitPriceBn,
       maxBaseQuantity: maxBaseQtyBn,
@@ -371,7 +365,7 @@ export class UtpZoAccount extends UtpAccount {
 
     return {
       instructions: [
-        await makePlacePerpOrderIx(
+        await instructions.makePlacePerpOrderIx(
           this._client.program,
           {
             marginfiAccount: this._marginfiAccount.publicKey,
@@ -446,7 +440,7 @@ export class UtpZoAccount extends UtpAccount {
 
     return {
       instructions: [
-        await makeCancelPerpOrderIx(
+        await instructions.makeCancelPerpOrderIx(
           this._client.program,
           {
             marginfiAccount: this._marginfiAccount.publicKey,
@@ -502,7 +496,7 @@ export class UtpZoAccount extends UtpAccount {
 
     return {
       instructions: [
-        await makeSettleFundsIx(this._client.program, {
+        await instructions.makeSettleFundsIx(this._client.program, {
           marginfiAccount: this._marginfiAccount.publicKey,
           marginfiGroup: this._client.group.publicKey,
           utpAuthority: utpAuthority,
