@@ -9,6 +9,7 @@ import instructions from "./instructions";
 import {
   AccountBalances,
   AccountType,
+  EquityType,
   InstructionsWrapper,
   LendingSide,
   MarginfiAccountData,
@@ -628,11 +629,11 @@ class MarginfiAccount {
     return sig;
   }
 
-  public computeBalances(): AccountBalances {
+  public computeBalances(equityType: EquityType = EquityType.InitReqAdjusted): AccountBalances {
     let assets = new BigNumber(0);
     assets = assets.plus(this.deposits);
     for (let utp of this.activeUtps) {
-      assets = assets.plus(utp.freeCollateral);
+      assets = assets.plus(equityType === EquityType.InitReqAdjusted ? utp.freeCollateral : utp.equity);
     }
     let liabilities = this.borrows;
     let equity = assets.minus(liabilities);

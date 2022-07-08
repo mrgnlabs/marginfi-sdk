@@ -90,6 +90,11 @@ export interface InstructionsWrapper {
   keys: Keypair[];
 }
 
+export enum EquityType {
+  InitReqAdjusted,
+  Total,
+}
+
 export enum MarginRequirementType {
   Init,
   Maint,
