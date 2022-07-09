@@ -17,7 +17,7 @@ import { MarginfiClient } from "../..";
 import MarginfiAccount from "../../account";
 import { DUST_THRESHOLD } from "../../constants";
 import { InstructionsWrapper, UiAmount, UtpData } from "../../types";
-import { getBankAuthority, getUtpAuthority, processTransaction, toNumber, uiToNative } from "../../utils";
+import { getBankAuthority, getUtpAuthority, nativetoUi, processTransaction, toNumber, uiToNative } from "../../utils";
 import UtpAccount from "../account";
 import { UtpObservation } from "../observation";
 import instructions from "./instructions";
@@ -513,8 +513,17 @@ export class UtpMangoAccount extends UtpAccount {
     const mangoAccountDecoded = MangoAccountLayout.decode(mangoAccountAi.data);
     const mangoAccount = new MangoAccount(this._utpConfig.address, mangoAccountDecoded);
 
-    const totalCollateralInit = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache, "Init").toString());
-    const marginRequirementInit = new BigNumber(mangoAccount.getLiabsVal(mangoGroup, mangoCache, "Init").toString());
+    const { spot, perps, quote } = mangoAccount.getHealthComponents(mangoGroup, mangoCache);
+    const { assets, liabs } = mangoAccount.getWeightedAssetsLiabsVals(
+      mangoGroup,
+      mangoCache,
+      spot,
+      perps,
+      quote,
+      "Init"
+    );
+    const totalCollateralInit = new BigNumber(nativetoUi(assets).toString());
+    const marginRequirementInit = new BigNumber(nativetoUi(liabs).toString());
     const freeCollateral = totalCollateralInit.minus(marginRequirementInit);
 
     const totalCollateralEquity = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache).toString());

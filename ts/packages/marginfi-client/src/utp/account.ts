@@ -2,11 +2,10 @@ import { AccountMeta, PublicKey } from "@solana/web3.js";
 import { format } from "util";
 import { getUtpAuthority, MarginfiAccount, MarginfiClient, UtpConfig } from "..";
 import { INSURANCE_VAULT_LIQUIDATION_FEE, LIQUIDATOR_LIQUIDATION_FEE } from "../constants";
-import { LiquidationPrices, UiAmount, UTPAccountConfig, UtpData, UtpIndex, UTP_NAME } from "../types";
+import { LiquidationPrices, UiAmount, UTPAccountConfig, UtpData, UTP_NAME } from "../types";
 import { IUtpObservation, UtpObservation } from "./observation";
 
 abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
-  public index: UtpIndex;
   public address: PublicKey;
   public isActive: boolean;
 
@@ -27,7 +26,6 @@ abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
     isActive: boolean,
     utpConfig: UTPAccountConfig
   ) {
-    this.index = _client.config.mango.utpIndex;
     this.address = utpConfig.address;
     this.isActive = isActive;
     this._utpConfig = utpConfig;
@@ -35,6 +33,10 @@ abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
   }
 
   // --- Getters / Setters
+
+  public get index() {
+    return this.config.utpIndex;
+  }
 
   /** @internal */
   public get _config() {

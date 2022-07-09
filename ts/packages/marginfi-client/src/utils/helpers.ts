@@ -151,7 +151,7 @@ export function toNumber(amount: UiAmount): number {
 /**
  * Converts a ui representation of a token amount into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
  */
-export function toBigNumber(amount: UiAmount): BigNumber {
+export function toBigNumber(amount: UiAmount | BN): BigNumber {
   let amt: BigNumber;
   if (amount instanceof BigNumber) {
     amt = amount;
@@ -162,11 +162,19 @@ export function toBigNumber(amount: UiAmount): BigNumber {
 }
 
 /**
- * Converts a ui representation of a token amount into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
+ * Converts a UI representation of a token amount into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
  */
-export function uiToNative(amount: UiAmount | string, decimals: number = COLLATERAL_DECIMALS): BN {
+export function uiToNative(amount: UiAmount, decimals: number = COLLATERAL_DECIMALS): BN {
   let amt = toBigNumber(amount);
-  return new BN(amt.times(decimals).toFixed(0, BigNumber.ROUND_FLOOR));
+  return new BN(amt.times(10 ** decimals).toFixed(0, BigNumber.ROUND_FLOOR));
+}
+
+/**
+ * Converts a native representation of a token amount into its UI value as `number`, given the specified mint decimal amount (default to 6 for USDC).
+ */
+export function nativetoUi(amount: UiAmount | BN, decimals: number = COLLATERAL_DECIMALS): number {
+  let amt = toBigNumber(amount);
+  return amt.div(10 ** decimals).toNumber();
 }
 
 /**
