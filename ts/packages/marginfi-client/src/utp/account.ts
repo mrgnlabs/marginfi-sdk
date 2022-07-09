@@ -84,6 +84,13 @@ abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
     return this.cachedObservation.isEmpty;
   }
 
+  /**
+   * UTP authority (PDA)
+   */
+  public async authority(seed?: PublicKey): Promise<[PublicKey, number]> {
+    return getUtpAuthority(this.config.programId, seed || this._utpConfig.authoritySeed, this._program.programId);
+  }
+
   // --- Others
 
   /**
@@ -111,15 +118,6 @@ abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
   public update(data: UtpData) {
     this.isActive = data.isActive;
     this._utpConfig = data.accountConfig;
-  }
-
-  public async getUtpAuthority() {
-    const utpAuthority = await getUtpAuthority(
-      this.config.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
-    return utpAuthority;
   }
 
   public toString() {

@@ -40,7 +40,7 @@ class MarginfiGroup {
    * @param program marginfi Anchor program
    * @return MarginfiGroup instance
    */
-  static async get(config: MarginfiConfig, program: Program<MarginfiIdl>) {
+  static async fetch(config: MarginfiConfig, program: Program<MarginfiIdl>) {
     const debug = require("debug")(`mfi:margin-group`);
     debug("Loading Marginfi Group %s", config.groupPk);
     const accountData = await MarginfiGroup._fetchAccountData(config, program);

@@ -13,7 +13,6 @@ import {
   BankVaultType,
   createTempTransferAccounts as createTempTransferAccountIxs,
   getBankAuthority,
-  getUtpAuthority,
   processTransaction,
   uiToNative,
 } from "../../utils";
@@ -67,11 +66,7 @@ export class UtpZoAccount extends UtpAccount {
     const utpAuthoritySeed = Keypair.generate().publicKey;
 
     const zoProgramId = this._config.zo.programId;
-    const [utpAuthorityPk, utpAuthorityBump] = await getUtpAuthority(
-      zoProgramId,
-      utpAuthoritySeed,
-      this._program.programId
-    );
+    const [utpAuthorityPk, utpAuthorityBump] = await this.authority(utpAuthoritySeed);
 
     const zoProgram = ZoClient.createProgram(this._client.program.provider, this._config.zo.cluster);
     const state = await ZoClient.State.load(zoProgram, this._config.zo.statePk);
@@ -143,18 +138,12 @@ export class UtpZoAccount extends UtpAccount {
   async makeDepositIx(amount: UiAmount): Promise<InstructionsWrapper> {
     const zoProgramId = this._config.zo.programId;
 
-    const [utpAuthority] = await getUtpAuthority(
-      this.config.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
+    const [utpAuthorityPk] = await this.authority();
     const [tempTokenAccountKey, createTokenAccountIx, initTokenAccountIx] = await createTempTransferAccountIxs(
       this._client.program.provider,
       this._client.group.bank.mint,
-      utpAuthority
+      utpAuthorityPk
     );
-
-    const [utpAuthorityPk] = await getUtpAuthority(zoProgramId, this._utpConfig.authoritySeed, this._program.programId);
 
     const [bankAuthority] = await getBankAuthority(
       this._config.groupPk,
@@ -211,11 +200,7 @@ export class UtpZoAccount extends UtpAccount {
   }
 
   async makeWithdrawIx(amount: UiAmount): Promise<TransactionInstruction> {
-    const [utpAuthority] = await getUtpAuthority(
-      this.config.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
+    const [utpAuthority] = await this.authority();
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
     const [zoVaultPk] = await zoState.getVaultCollateralByMint(this._client.group.bank.mint);
@@ -264,11 +249,7 @@ export class UtpZoAccount extends UtpAccount {
   }
 
   async makeCreatePerpOpenOrdersIx(marketSymbol: string): Promise<InstructionsWrapper> {
-    const [utpAuthority] = await getUtpAuthority(
-      this.config.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
+    const [utpAuthority] = await this.authority();
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, zoState.cache, utpAuthority);
@@ -325,11 +306,7 @@ export class UtpZoAccount extends UtpAccount {
     limit?: number;
     clientId?: BN;
   }>): Promise<InstructionsWrapper> {
-    const [utpAuthority] = await getUtpAuthority(
-      this.config.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
+    const [utpAuthority] = await this.authority();
 
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
@@ -426,11 +403,7 @@ export class UtpZoAccount extends UtpAccount {
     orderId?: BN;
     clientId?: BN;
   }): Promise<InstructionsWrapper> {
-    const [utpAuthority] = await getUtpAuthority(
-      this.config.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
+    const [utpAuthority] = await this.authority();
 
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
@@ -482,11 +455,7 @@ export class UtpZoAccount extends UtpAccount {
   }
 
   async makeSettleFundsIx(symbol: string): Promise<InstructionsWrapper> {
-    const [utpAuthority] = await getUtpAuthority(
-      this.config.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
+    const [utpAuthority] = await await this.authority();
 
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
@@ -532,11 +501,7 @@ export class UtpZoAccount extends UtpAccount {
   }
 
   async getZoMargin(zoState?: ZoClient.State): Promise<ZoClient.Margin> {
-    const [utpAuthority] = await getUtpAuthority(
-      this.config.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
+    const [utpAuthority] = await this.authority();
 
     if (!zoState) {
       zoState = await this.getZoState();

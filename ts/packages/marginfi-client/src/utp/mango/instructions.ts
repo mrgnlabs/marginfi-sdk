@@ -176,6 +176,7 @@ async function makeCancelPerpOrderIx(
   mfProgram: Program<MarginfiIdl>,
   accounts: {
     marginfiAccountPk: PublicKey;
+    marginfiGroupPk: PublicKey;
     authorityPk: PublicKey;
     mangoAuthorityPk: PublicKey;
     mangoProgramId: PublicKey;
@@ -195,6 +196,7 @@ async function makeCancelPerpOrderIx(
     .utpMangoUseCancelPerpOrder(args.orderId, args.invalidIdOk)
     .accounts({
       marginfiAccount: accounts.marginfiAccountPk,
+      marginfiGroup: accounts.marginfiGroupPk,
       authority: accounts.authorityPk,
       mangoAuthority: accounts.mangoAuthorityPk,
       mangoProgram: accounts.mangoProgramId,

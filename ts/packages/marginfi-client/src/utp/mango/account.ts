@@ -17,7 +17,7 @@ import { MarginfiClient } from "../..";
 import MarginfiAccount from "../../account";
 import { DUST_THRESHOLD } from "../../constants";
 import { InstructionsWrapper, UiAmount, UtpData } from "../../types";
-import { getBankAuthority, getUtpAuthority, nativetoUi, processTransaction, toNumber, uiToNative } from "../../utils";
+import { getBankAuthority, nativetoUi, processTransaction, toNumber, uiToNative } from "../../utils";
 import UtpAccount from "../account";
 import { UtpObservation } from "../observation";
 import instructions from "./instructions";
@@ -57,11 +57,7 @@ export class UtpMangoAccount extends UtpAccount {
   async makeActivateIx(): Promise<InstructionsWrapper> {
     const authoritySeed = Keypair.generate();
 
-    const [mangoAuthorityPk, mangAuthorityBump] = await getUtpAuthority(
-      this._config.mango.programId,
-      authoritySeed.publicKey,
-      this._program.programId
-    );
+    const [mangoAuthorityPk, mangAuthorityBump] = await this.authority(authoritySeed.publicKey);
     const [mangoAccountPk] = await getMangoAccountPda(
       this._config.mango.groupConfig.publicKey,
       mangoAuthorityPk,
@@ -142,11 +138,7 @@ export class UtpMangoAccount extends UtpAccount {
    */
   async makeDepositIx(amount: UiAmount): Promise<InstructionsWrapper> {
     const proxyTokenAccountKey = Keypair.generate();
-    const [mangoAuthorityPk] = await getUtpAuthority(
-      this._config.mango.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
+    const [mangoAuthorityPk] = await this.authority();
 
     const [marginBankAuthorityPk] = await getBankAuthority(this._config.groupPk, this._program.programId);
     const mangoGroup = await this.getMangoGroup();
@@ -229,12 +221,7 @@ export class UtpMangoAccount extends UtpAccount {
    * @returns `MangoWithdrawCollateral` transaction instruction
    */
   async makeWithdrawIx(amount: UiAmount): Promise<InstructionsWrapper> {
-    const [mangoAuthorityPk] = await getUtpAuthority(
-      this._config.mango.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
-
+    const [mangoAuthorityPk] = await await this.authority();
     const mangoGroup = await this.getMangoGroup();
     const collateralMintIndex = mangoGroup.getTokenIndex(this._config.collateralMintPk);
 
@@ -336,11 +323,7 @@ export class UtpMangoAccount extends UtpAccount {
     const [nativePrice, nativeQuantity] = market.uiToNativePriceQuantity(priceNb, quantityNb);
     const maxQuoteQuantityLots = maxQuoteQuantity ? market.uiQuoteToLots(maxQuoteQuantity) : I64_MAX_BN;
 
-    const [mangoAuthorityPk] = await getUtpAuthority(
-      this._config.mango.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
+    const [mangoAuthorityPk] = await this.authority();
     const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     const args: UtpMangoPlacePerpOrderArgs = {
@@ -414,11 +397,8 @@ export class UtpMangoAccount extends UtpAccount {
    * @returns `MangoCancelPerpOrder` transaction instruction
    */
   async makeCancelPerpOrderIx(market: PerpMarket, orderId: BN, invalidIdOk: boolean) {
-    const [mangoAuthorityPk] = await getUtpAuthority(
-      this._config.mango.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
+    const [mangoAuthorityPk] = await this.authority();
+    const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     return {
       instructions: [
@@ -426,6 +406,7 @@ export class UtpMangoAccount extends UtpAccount {
           this._program,
           {
             marginfiAccountPk: this._marginfiAccount.publicKey,
+            marginfiGroupPk: this._marginfiAccount.group.publicKey,
             authorityPk: this._program.provider.wallet.publicKey,
             mangoAuthorityPk,
             mangoProgramId: this._config.mango.programId,
@@ -435,7 +416,8 @@ export class UtpMangoAccount extends UtpAccount {
             mangoBidsPk: market.bids,
             mangoAsksPk: market.asks,
           },
-          { orderId, invalidIdOk }
+          { orderId, invalidIdOk },
+          remainingAccounts
         ),
       ],
       keys: [],
@@ -469,18 +451,9 @@ export class UtpMangoAccount extends UtpAccount {
     }
   }
 
-  async getUtpAuthority() {
-    const utpAuthority = await getUtpAuthority(
-      this._config.mango.programId,
-      this._utpConfig.authoritySeed,
-      this._program.programId
-    );
-    return utpAuthority;
-  }
-
   /** @internal */
   async getUtpAccountAddress(accountNumber: BN = new BN(0)) {
-    const [utpAuthorityPk] = await this.getUtpAuthority();
+    const [utpAuthorityPk] = await this.authority();
     const [utpAccountPk] = await getMangoAccountPda(
       this._config.mango.groupConfig.publicKey,
       utpAuthorityPk,

@@ -124,7 +124,7 @@ class MarginfiAccount {
       marginfiAccountPk,
       accountData.authority,
       client,
-      await MarginfiGroup.get(config, program),
+      await MarginfiGroup.fetch(config, program),
       decimalDataToBigNumber(accountData.depositRecord),
       decimalDataToBigNumber(accountData.borrowRecord),
       MarginfiAccount._packUtpData(accountData, config.mango.utpIndex),
@@ -371,7 +371,6 @@ class MarginfiAccount {
    */
   async withdraw(amount: UiAmount): Promise<string> {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:withdraw`);
-
     debug("Withdrawing %s from marginfi account", amount);
     const withdrawIx = await this.makeWithdrawIx(amount);
     const tx = new Transaction().add(...withdrawIx);

@@ -54,7 +54,7 @@ class MarginfiClient {
     );
     const provider = new Provider(connection, wallet, opts || Provider.defaultOptions());
     const program = new Program(MARGINFI_IDL, config.programId, provider) as Program<MarginfiIdl>;
-    return new MarginfiClient(config, program, await MarginfiGroup.get(config, program));
+    return new MarginfiClient(config, program, await MarginfiGroup.fetch(config, program));
   }
 
   static async fromEnv(
@@ -139,7 +139,7 @@ class MarginfiClient {
    * @returns MarginfiAccount instances
    */
   async getOwnMarginfiAccounts(): Promise<MarginfiAccount[]> {
-    const marginfiGroup = await MarginfiGroup.get(this.config, this.program);
+    const marginfiGroup = await MarginfiGroup.fetch(this.config, this.program);
     return (
       await this.program.account.marginfiAccount.all([
         {
@@ -164,7 +164,7 @@ class MarginfiClient {
    * @returns MarginfiAccount instances
    */
   async getAllMarginfiAccounts(): Promise<MarginfiAccount[]> {
-    const marginfiGroup = await MarginfiGroup.get(this.config, this.program);
+    const marginfiGroup = await MarginfiGroup.fetch(this.config, this.program);
     const marginfiAccountAddresses = await this.getAllMarginfiAccountAddresses();
 
     return (await this.program.account.marginfiAccount.fetchMultiple(marginfiAccountAddresses))
