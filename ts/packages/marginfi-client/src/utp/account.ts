@@ -64,6 +64,10 @@ abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
     return this.cachedObservation.freeCollateral;
   }
 
+  public get initMarginRequirement() {
+    return this.cachedObservation.initMarginRequirement;
+  }
+
   public get liquidationValue() {
     return this.cachedObservation.liquidationValue;
   }

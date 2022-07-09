@@ -513,31 +513,50 @@ export class UtpMangoAccount extends UtpAccount {
     const mangoAccountDecoded = MangoAccountLayout.decode(mangoAccountAi.data);
     const mangoAccount = new MangoAccount(this._utpConfig.address, mangoAccountDecoded);
 
-    const { spot, perps, quote } = mangoAccount.getHealthComponents(mangoGroup, mangoCache);
-    const { assets, liabs } = mangoAccount.getWeightedAssetsLiabsVals(
-      mangoGroup,
-      mangoCache,
-      spot,
-      perps,
-      quote,
-      "Init"
-    );
-    const totalCollateralInit = new BigNumber(nativetoUi(assets).toString());
-    const marginRequirementInit = new BigNumber(nativetoUi(liabs).toString());
-    const freeCollateral = totalCollateralInit.minus(marginRequirementInit);
+    let initWeightedAssets, initWeightedLiabilities: BigNumber;
+    {
+      const { spot, perps, quote } = mangoAccount.getHealthComponents(mangoGroup, mangoCache);
+      const { assets, liabs } = mangoAccount.getWeightedAssetsLiabsVals(
+        mangoGroup,
+        mangoCache,
+        spot,
+        perps,
+        quote,
+        "Init"
+      );
+      initWeightedAssets = new BigNumber(nativetoUi(assets).toString());
+      initWeightedLiabilities = new BigNumber(nativetoUi(liabs).toString());
+    }
+    const freeCollateral = initWeightedAssets.minus(initWeightedLiabilities);
 
-    const totalCollateralEquity = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache).toString());
-    const marginRequirementEquity = new BigNumber(mangoAccount.getLiabsVal(mangoGroup, mangoCache).toString());
-    const equity = totalCollateralEquity.minus(marginRequirementEquity);
+    // let maintWeightedAssets, maintWeightedLiabilities: BigNumber;
+    // {
+    //   const { spot, perps, quote } = mangoAccount.getHealthComponents(mangoGroup, mangoCache);
+    //   const { assets, liabs } = mangoAccount.getWeightedAssetsLiabsVals(
+    //     mangoGroup,
+    //     mangoCache,
+    //     spot,
+    //     perps,
+    //     quote,
+    //     "Maint"
+    //   );
+    //   maintWeightedAssets = new BigNumber(nativetoUi(assets).toString());
+    //   maintWeightedLiabilities = new BigNumber(nativetoUi(liabs).toString());
+    // }
 
-    const isRebalanceDepositNeeded = totalCollateralInit.lt(marginRequirementInit);
-    const maxRebalanceDepositAmount = BigNumber.max(0, marginRequirementInit.minus(totalCollateralInit));
-    const isEmpty = totalCollateralEquity.lt(DUST_THRESHOLD);
+    const unweightedAssets = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache).toString());
+    const unweightedLiabilities = new BigNumber(mangoAccount.getLiabsVal(mangoGroup, mangoCache).toString());
+    const equity = unweightedAssets.minus(unweightedLiabilities);
+
+    const isRebalanceDepositNeeded = initWeightedAssets.lt(initWeightedLiabilities);
+    const maxRebalanceDepositAmount = BigNumber.max(0, initWeightedLiabilities.minus(initWeightedAssets));
+    const isEmpty = unweightedAssets.lt(DUST_THRESHOLD);
 
     const observation = new UtpObservation({
       timestamp: new Date(),
       equity,
       freeCollateral,
+      initMarginRequirement: initWeightedLiabilities,
       liquidationValue: equity,
       isRebalanceDepositNeeded,
       maxRebalanceDepositAmount,
