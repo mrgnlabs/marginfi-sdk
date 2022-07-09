@@ -131,7 +131,7 @@ export class UtpZoAccount extends UtpAccount {
 
     const sig = await this._marginfiAccount.deactivateUtp(this.index);
     debug("Sig %s", sig);
-    await this._marginfiAccount.reload();
+    await this._marginfiAccount.reload(); // Required to update the internal UTP address
     return sig;
   }
 

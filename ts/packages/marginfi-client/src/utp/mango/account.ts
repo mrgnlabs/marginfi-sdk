@@ -123,10 +123,9 @@ export class UtpMangoAccount extends UtpAccount {
     const debug = require("debug")(`mfi:utp:${this.address}:mango:deactivate`);
     this.verifyActive();
     debug("Deactivating Mango UTP");
-
     const sig = await this._marginfiAccount.deactivateUtp(this.index);
     debug("Sig %s", sig);
-    await this._marginfiAccount.reload();
+    await this._marginfiAccount.reload(); // Required to update the internal UTP address
     return sig;
   }
 
@@ -210,7 +209,6 @@ export class UtpMangoAccount extends UtpAccount {
     const tx = new Transaction().add(...depositIx.instructions);
     const sig = await processTransaction(this._program.provider, tx, [...depositIx.keys]);
     debug("Sig %s", sig);
-    await this._marginfiAccount.reload();
     return sig;
   }
 
@@ -271,7 +269,6 @@ export class UtpMangoAccount extends UtpAccount {
     const tx = new Transaction().add(...depositIx.instructions);
     const sig = await processTransaction(this._program.provider, tx);
     debug("Sig %s", sig);
-    await this._marginfiAccount.reload();
     return sig;
   }
 
@@ -452,7 +449,7 @@ export class UtpMangoAccount extends UtpAccount {
   }
 
   /** @internal */
-  async getUtpAccountAddress(accountNumber: BN = new BN(0)) {
+  async computeUtpAccountAddress(accountNumber: BN = new BN(0)) {
     const [utpAuthorityPk] = await this.authority();
     const [utpAccountPk] = await getMangoAccountPda(
       this._config.mango.groupConfig.publicKey,
