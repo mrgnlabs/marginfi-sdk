@@ -5,7 +5,10 @@ class Environment(Enum):
     DEVNET = "devnet"
     MAINNET = "mainnet"
 
-# Note: class instantiation vs. `get` function
+# @todo right now MarginfiConfig
+# has no `get` like in js, just `init`
+# but e.g. MarginfiGroup is written with a `get`
+# see if we can just init
 class MarginfiConfig:
 
     def __init__(
@@ -22,12 +25,12 @@ class MarginfiConfig:
             self.program_id = handle_override(overrides.program_id, PublicKey.from_string("mrgnfD8pJKsw4AxCDquyUBjgABNEaZ79iTLgtov2Yff"))
             self.group_pk = handle_override(overrides.group_pk, PublicKey.from_string("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba"))
             self.collateral_mint_pk = handle_override(overrides.collateral_mint_pk, PublicKey.from_string("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"))
-        else if (environment == Environment.DEVNET):
+        elif (environment == Environment.DEVNET):
             self.environment = environment
             self.program_id = handle_override(overrides.program_id, PublicKey.from_string("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK"))
             self.group_pk = handle_override(overrides.group_pk, PublicKey.from_string("7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg"))
             self.collateral_mint_pk = handle_override(overrides.collateral_mint_pk, PublicKey.from_string("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"))
-        else if (environment == Environment.LOCALNET):
+        elif (environment == Environment.LOCALNET):
             if ((overrides.program_id and overrides.group_pk and overrides.collateral_mint_pk) == None):
                 raise Exception(
                     "program_id, group_pk, and collateral_mint_pk need to be explicitly input for localnet."

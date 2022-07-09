@@ -1,6 +1,7 @@
 """This module contains the Provider class and associated utilities."""
 from __future__ import annotations
 
+import json
 import os
 
 from anchorpy import Wallet, Provider, Program, Idl
@@ -10,6 +11,7 @@ from solana.rpc import types
 from solana.rpc.async_api import AsyncClient
 
 from instruction import make_init_marginfi_account_ix
+from config import MarginfiConfig
 
 class MarginfiClient:
     program: Program
@@ -17,6 +19,7 @@ class MarginfiClient:
     group: MarginfiGroup
 
     def __init__(
+        self,
         config: MarginfiConfig, 
         wallet: Wallet,
         rpc_client: AsyncClient, # @todo not anchorpy.Connection?
@@ -33,7 +36,7 @@ class MarginfiClient:
         self.program = Program(idl, config.program_id, provider=self.provider)
 
         # Group
-        self._group = MarginfiGroup(config, program)
+        self._group = MarginfiGroup(config, self.program)
 
     # --- Getters and setters
 
@@ -46,7 +49,7 @@ class MarginfiClient:
 
     # --- Others
 
-    async def create_marginfi_account():
+    async def create_marginfi_account(self):
         """
         * Create a new marginfi account under the authority of the user.
         *
@@ -59,16 +62,16 @@ class MarginfiClient:
             )
         )
 
-        create_marginfi_account_account_ix = await this.program.account.marginfiAccount.createInstruction(
+        create_marginfi_account_account_ix = await self.program.account.marginfiAccount.createInstruction(
             marginfi_account_key
         )
 
         init_marginfi_account_ix = await make_init_marginfi_account_ix(
-            this.program, 
+            self.program, 
             {
-                marginfiGroupPk: this._group.public_key,
-                marginfiAccountPk: marginfiAccountKey.public_key,
-                authorityPk: this.program.provider.wallet.public_key,
+                "marginfiGroupPk": self._group.public_key,
+                "marginfiAccountPk": marginfi_account_key.public_key,
+                "authorityPk": self.program.provider.wallet.public_key,
             }
         )
 
