@@ -4,6 +4,7 @@ import "./sentry";
 
 import { ONE_I80F48, QUOTE_INDEX, sleep, ZERO_BN, ZERO_I80F48 } from "@blockworks-foundation/mango-client";
 import {
+  loadKeypair,
   MangoOrderSide,
   MangoPerpOrderType,
   MarginfiAccount,
@@ -16,7 +17,11 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import debugBuilder from "debug";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
-const wallet = new Wallet(Keypair.fromSecretKey(new Uint8Array(JSON.parse(process.env.WALLET_KEY!))));
+const wallet = new Wallet(
+  process.env.WALLET_KEY
+    ? Keypair.fromSecretKey(new Uint8Array(JSON.parse(process.env.WALLET_KEY)))
+    : loadKeypair(process.env.WALLET!)
+);
 const marginfiGroupPk = new PublicKey(process.env.MARGINFI_GROUP!);
 const marginfiAccountPk = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
