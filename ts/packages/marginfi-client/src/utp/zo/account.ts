@@ -177,7 +177,7 @@ export class UtpZoAccount extends UtpAccount {
             zoState: this.config.statePk,
             zoStateSigner: zoStateSigner,
             zoCache: zoState.cache.pubkey,
-            zoMargin: this._utpConfig.address,
+            zoMargin: this.address,
             zoVault: zoVaultPk,
           },
           { amount: uiToNative(amount) },

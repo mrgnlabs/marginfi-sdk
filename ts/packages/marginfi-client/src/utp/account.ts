@@ -6,7 +6,6 @@ import { LiquidationPrices, UiAmount, UTPAccountConfig, UtpData, UTP_NAME } from
 import { IUtpObservation, UtpObservation } from "./observation";
 
 abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
-  public address: PublicKey;
   public isActive: boolean;
 
   /** @internal */
@@ -26,7 +25,6 @@ abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
     isActive: boolean,
     utpConfig: UTPAccountConfig
   ) {
-    this.address = utpConfig.address;
     this.isActive = isActive;
     this._utpConfig = utpConfig;
     this._cachedObservation = UtpObservation.EMPTY_OBSERVATION;
@@ -82,6 +80,10 @@ abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
 
   public get isEmpty() {
     return this.cachedObservation.isEmpty;
+  }
+
+  public get address() {
+    return this._utpConfig.address;
   }
 
   /**

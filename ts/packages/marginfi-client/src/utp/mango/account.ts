@@ -182,7 +182,7 @@ export class UtpMangoAccount extends UtpAccount {
             mangoVaultPk: vaultPk,
             mangoGroupPk: mangoGroup.publicKey,
             mangoCachePk: mangoGroup.mangoCache,
-            mangoAccountPk: this._utpConfig.address,
+            mangoAccountPk: this.address,
             mangoAuthorityPk,
             mangoProgramId: this._config.mango.programId,
           },
@@ -245,7 +245,7 @@ export class UtpMangoAccount extends UtpAccount {
             mangoVaultAuthorityPk: mangoGroup.signerKey,
             mangoGroupPk: mangoGroup.publicKey,
             mangoCachePk: mangoGroup.mangoCache,
-            mangoAccountPk: this._utpConfig.address,
+            mangoAccountPk: this.address,
             mangoAuthorityPk,
             mangoProgramId: this._config.mango.programId,
           },
@@ -283,7 +283,7 @@ export class UtpMangoAccount extends UtpAccount {
   async getObservationAccounts(): Promise<AccountMeta[]> {
     const mangoGroup = await this.getMangoGroup();
     return [
-      { pubkey: this._utpConfig.address, isSigner: false, isWritable: false },
+      { pubkey: this.address, isSigner: false, isWritable: false },
       {
         pubkey: mangoGroup.publicKey,
         isSigner: false,
@@ -352,7 +352,7 @@ export class UtpMangoAccount extends UtpAccount {
             mangoAuthorityPk,
             mangoProgramId: this._config.mango.programId,
             mangoGroupPk: mangoGroup.publicKey,
-            mangoAccountPk: this._utpConfig.address,
+            mangoAccountPk: this.address,
             mangoCachePk: mangoGroup.mangoCache,
             mangoPerpMarketPk: market.publicKey,
             mangoBidsPk: market.bids,
@@ -411,7 +411,7 @@ export class UtpMangoAccount extends UtpAccount {
             mangoAuthorityPk,
             mangoProgramId: this._config.mango.programId,
             mangoGroupPk: this._config.mango.groupConfig.publicKey,
-            mangoAccountPk: this._utpConfig.address,
+            mangoAccountPk: this.address,
             mangoPerpMarketPk: market.publicKey,
             mangoBidsPk: market.bids,
             mangoAsksPk: market.asks,
@@ -473,18 +473,18 @@ export class UtpMangoAccount extends UtpAccount {
     debug("Observing Locally");
     const mangoGroup = await this.getMangoGroup();
     const [mangoAccountAi, mangoCacheAi] = await this._program.provider.connection.getMultipleAccountsInfo([
-      this._utpConfig.address,
+      this.address,
       mangoGroup.mangoCache,
     ]);
 
-    if (!mangoAccountAi) throw Error(`Mango account not found: ${this._utpConfig.address}`);
+    if (!mangoAccountAi) throw Error(`Mango account not found: ${this.address}`);
     if (!mangoCacheAi) throw Error(`Mango cache not found: ${mangoGroup.mangoCache}`);
 
     const mangoCacheDecoded = MangoCacheLayout.decode(mangoCacheAi.data);
     const mangoCache = new MangoCache(mangoGroup.mangoCache, mangoCacheDecoded);
 
     const mangoAccountDecoded = MangoAccountLayout.decode(mangoAccountAi.data);
-    const mangoAccount = new MangoAccount(this._utpConfig.address, mangoAccountDecoded);
+    const mangoAccount = new MangoAccount(this.address, mangoAccountDecoded);
 
     let initWeightedAssets, initWeightedLiabilities: BigNumber;
     {
@@ -549,7 +549,7 @@ export class UtpMangoAccount extends UtpAccount {
     }
 
     const mangoClient = this.getMangoClient();
-    const mangoAccount = await mangoClient.getMangoAccount(this._utpConfig.address, mangoGroup.dexProgramId);
+    const mangoAccount = await mangoClient.getMangoAccount(this.address, mangoGroup.dexProgramId);
 
     return mangoAccount;
   }
