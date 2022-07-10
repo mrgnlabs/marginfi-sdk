@@ -1,4 +1,4 @@
-const Sentry = require("@sentry/node");
+export const Sentry = require("@sentry/node");
 // or use es6 import statements
 // import * as Sentry from '@sentry/node';
 
@@ -36,8 +36,24 @@ if (SENTRY_ACTIVE) {
     }
   }, 99);
 
-  process.on("unhandledRejection", (e) => {
-    Sentry.captureException(e);
+  process.on("unhandledRejection", (e: Error, promise: any) => {
+    Sentry.captureException(e, {
+      tags: {
+        name: e.name,
+        message: e.message,
+        promise,
+      },
+    });
+  });
+
+  process.on("uncaughtException", (e: Error, origin: any) => {
+    Sentry.captureException(e, {
+      tags: {
+        name: e.name,
+        message: e.message,
+        origin,
+      },
+    });
   });
 }
 

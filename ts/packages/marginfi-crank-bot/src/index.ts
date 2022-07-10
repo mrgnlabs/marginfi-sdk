@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-import { captureException } from "./sentry";
+import { captureException, Sentry } from "./sentry";
 
 import { getClientFromEnv, MarginfiAccount, MarginfiAccountData, MarginfiClient } from "@mrgnlabs/marginfi-client";
 import { PublicKey } from "@solana/web3.js";
@@ -44,6 +44,9 @@ async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
 
   for (let marginfiAccount of marginfiAccounts) {
     try {
+      const scope = new Sentry.Scope();
+      scope.setTag("Marginfi Account", marginfiAccount.publicKey.toBase58());
+
       await marginfiAccount.checkRebalance();
       await marginfiAccount.checkBankruptcy();
     } catch (e) {
