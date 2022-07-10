@@ -2088,6 +2088,71 @@ export type Marginfi = {
           index: false;
         }
       ];
+    },
+    {
+      name: "MarginRequirementCheck";
+      fields: [
+        {
+          name: "inti";
+          type: "bool";
+          index: false;
+        },
+        {
+          name: "equity";
+          type: {
+            defined: "MDecimal";
+          };
+          index: false;
+        },
+        {
+          name: "marginRequirement";
+          type: {
+            defined: "MDecimal";
+          };
+          index: false;
+        }
+      ];
+    },
+    {
+      name: "UptObservationFreeCollateral";
+      fields: [
+        {
+          name: "utpIndex";
+          type: "u8";
+          index: false;
+        },
+        {
+          name: "value";
+          type: {
+            defined: "MDecimal";
+          };
+          index: false;
+        }
+      ];
+    },
+    {
+      name: "UptObservationNeedsRebalance";
+      fields: [
+        {
+          name: "utpIndex";
+          type: "u8";
+          index: false;
+        },
+        {
+          name: "collateralOrEquity";
+          type: {
+            defined: "MDecimal";
+          };
+          index: false;
+        },
+        {
+          name: "marginRequirement";
+          type: {
+            defined: "MDecimal";
+          };
+          index: false;
+        }
+      ];
     }
   ];
   errors: [
@@ -4298,6 +4363,71 @@ export const IDL: Marginfi = {
         },
         {
           name: "interestRate",
+          type: {
+            defined: "MDecimal",
+          },
+          index: false,
+        },
+      ],
+    },
+    {
+      name: "MarginRequirementCheck",
+      fields: [
+        {
+          name: "inti",
+          type: "bool",
+          index: false,
+        },
+        {
+          name: "equity",
+          type: {
+            defined: "MDecimal",
+          },
+          index: false,
+        },
+        {
+          name: "marginRequirement",
+          type: {
+            defined: "MDecimal",
+          },
+          index: false,
+        },
+      ],
+    },
+    {
+      name: "UptObservationFreeCollateral",
+      fields: [
+        {
+          name: "utpIndex",
+          type: "u8",
+          index: false,
+        },
+        {
+          name: "value",
+          type: {
+            defined: "MDecimal",
+          },
+          index: false,
+        },
+      ],
+    },
+    {
+      name: "UptObservationNeedsRebalance",
+      fields: [
+        {
+          name: "utpIndex",
+          type: "u8",
+          index: false,
+        },
+        {
+          name: "collateralOrEquity",
+          type: {
+            defined: "MDecimal",
+          },
+          index: false,
+        },
+        {
+          name: "marginRequirement",
           type: {
             defined: "MDecimal",
           },
