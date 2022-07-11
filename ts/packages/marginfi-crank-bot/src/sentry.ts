@@ -13,7 +13,10 @@ if (SENTRY_ACTIVE) {
   console.log("Starting Sentry");
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
-
+    integrations: [
+      // enable HTTP calls tracing
+      new Sentry.Integrations.Http({ tracing: true }),
+    ],
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
     // We recommend adjusting this value in production

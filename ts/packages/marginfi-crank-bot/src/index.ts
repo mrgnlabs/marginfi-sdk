@@ -43,6 +43,12 @@ async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
   debug("Loaded %d marginfi accounts", marginfiAccounts.length);
 
   for (let marginfiAccount of marginfiAccounts) {
+    const transaction = Sentry.startTransaction({
+      op: "crank",
+      name: `Crank account ${marginfiAccount.publicKey.toBase58()}`,
+    });
+    const scope = new Sentry.Scope();
+    scope.setTag("Marginfi Account", marginfiAccount.publicKey.toBase58());
     try {
       const scope = new Sentry.Scope();
       scope.setTag("Marginfi Account", marginfiAccount.publicKey.toBase58());
@@ -53,6 +59,8 @@ async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
       captureException(e);
       debug("Bot crashed");
       debug(e);
+    } finally {
+      transaction.finish();
     }
   }
 }
