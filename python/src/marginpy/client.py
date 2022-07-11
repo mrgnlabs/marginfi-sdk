@@ -9,9 +9,13 @@ from anchorpy.provider import DEFAULT_OPTIONS
 from solana.keypair import Keypair
 from solana.rpc import types
 from solana.rpc.async_api import AsyncClient
+from solana.system_program import SYS_PROGRAM_ID
 
-from instruction import make_init_marginfi_account_ix
-from config import MarginfiConfig
+from marginpy.generated_client.instructions import InitMarginfiAccountAccounts
+from marginpy.instruction import make_init_marginfi_account_ix
+from marginpy.config import MarginfiConfig
+from marginpy.group import MarginfiGroup
+
 
 class MarginfiClient:
     program: Program
@@ -19,33 +23,20 @@ class MarginfiClient:
     group: MarginfiGroup
 
     def __init__(
-        self,
-        config: MarginfiConfig, 
-        wallet: Wallet,
-        rpc_client: AsyncClient, # @todo not anchorpy.Connection?
-        opts: types.TxOpts = DEFAULT_OPTIONS,
+            self,
+            config: MarginfiConfig,
+            wallet: Wallet,
+            rpc_client: AsyncClient,
+            opts: types.TxOpts = DEFAULT_OPTIONS,
     ) -> None:
-        # Provider
         self.provider = Provider(rpc_client, wallet, opts)
+        self.config = config
 
-        # Program
         idl_path = os.path.join(os.path.dirname(__file__), "idl.json")
         with open(idl_path) as f:
             raw_idl = json.load(f)
         idl = Idl.from_json(raw_idl)
         self.program = Program(idl, config.program_id, provider=self.provider)
-
-        # Group
-        self._group = MarginfiGroup(config, self.program)
-
-    # --- Getters and setters
-
-    @property
-    def group(self):
-        """
-        Marginfi account group address
-        """
-        return self._group
 
     # --- Others
 
@@ -67,12 +58,11 @@ class MarginfiClient:
         )
 
         init_marginfi_account_ix = await make_init_marginfi_account_ix(
-            self.program, 
-            {
-                "marginfiGroupPk": self._group.public_key,
-                "marginfiAccountPk": marginfi_account_key.public_key,
-                "authorityPk": self.program.provider.wallet.public_key,
-            }
+            InitMarginfiAccountAccounts(
+                marginfi_group=self.group.public_key,
+                marginfi_account=marginfi_account_key.public_key,
+                authority=self.program.provider.wallet.public_key,
+                system_program=SYS_PROGRAM_ID)
         )
 
         # const createMarginfiAccountAccountIx = await this.program.account.marginfiAccount.createInstruction(
@@ -93,4 +83,6 @@ class MarginfiClient:
 
         # return MarginfiAccount.get(marginfiAccountKey.publicKey, this);
         return None
-    
+
+    async def terminate(self):
+        await self.program.close()
