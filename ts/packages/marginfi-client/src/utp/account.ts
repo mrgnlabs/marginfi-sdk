@@ -125,6 +125,7 @@ abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
   public toString() {
     return format(
       "Timestamp: %s\nEquity: %s\nFree Collateral: %s\nLiquidation Value: %s\nRebalance Needed: %s\nMax Rebalance: %s\nIs empty: %s",
+      this._cachedObservation.timestamp.toString(),
       this.equity.toString(),
       this.freeCollateral.toString(),
       this.liquidationValue.toString(),
