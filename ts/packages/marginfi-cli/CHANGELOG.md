@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.4.0](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-cli@0.3.2...@mrgnlabs/marginfi-cli@0.4.0) (2022-07-10)
+
+
+### Features
+
+* new events ([#32](https://github.com/mrgnlabs/marginfi-sdk/issues/32)) ([5a01e5d](https://github.com/mrgnlabs/marginfi-sdk/commit/5a01e5d29a951c1bb224f2f3a261a935d9ef7999))
+
+
+
+
+
 ## [0.3.2](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-cli@0.3.1...@mrgnlabs/marginfi-cli@0.3.2) (2022-07-08)
 
 
