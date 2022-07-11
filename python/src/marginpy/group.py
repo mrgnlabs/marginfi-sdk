@@ -1,16 +1,19 @@
-from anchorpy import Program
+from anchorpy import Program, AccountsCoder
 from solana.publickey import PublicKey
+from marginpy.bank import Bank
+from marginpy.config import MarginfiConfig
+from marginpy.generated_client.accounts import MarginfiGroup as MarginfiGroupDecoded
 
-from config import MarginfiConfig
 
 class MarginfiGroup:
+    public_key: PublicKey
 
     def __init__(
-        self,
-        config: MarginfiConfig,
-        program: Program,
-        admin: PublicKey,
-        bank: Bank,
+            self,
+            config: MarginfiConfig,
+            program: Program,
+            admin: PublicKey,
+            bank: Bank,
     ) -> None:
         self.public_key = config.group_pk
         self._config = config
@@ -31,17 +34,15 @@ class MarginfiGroup:
     ###
     @staticmethod
     async def get(
-        config: MarginfiConfig,
-        program: Program,
+            config: MarginfiConfig,
+            program: Program,
     ):
         account_data = await MarginfiGroup.__fetch_account_data(config, program)
-        
         return MarginfiGroup(
             config,
             program,
             account_data.admin,
-            # @todo `from` doesn't work here bc python
-            Bank._from(account_data.bank)
+            Bank(account_data.bank)
         )
 
     ###
@@ -57,25 +58,23 @@ class MarginfiGroup:
     ###
     @staticmethod
     def from_account_data(
-        config: MarginfiConfig,
-        program: Program,
-        account_data: MarginfiGroupData
+            config: MarginfiConfig,
+            program: Program,
+            account_raw: MarginfiGroupDecoded
     ):
-        if not (account_data.bank.mint == config.collateral_mint_pk):
+        if not (account_raw.bank.mint == config.collateral_mint_pk):
             raise Exception(
                 "Marginfi group uses collateral {}. Expected: {}".format(
-                    account_data.bank.mint.toBase58(),
+                    account_raw.bank.mint.to_base58(),
                     config.collateral_mint_pk.toBase58()
                 )
             )
-        
+
         return MarginfiGroup(
             config,
             program,
-            account_data.admin,
-            Bank._from(
-                account_data.bank
-            )
+            account_raw.admin,
+            Bank(account_raw.bank)
         )
 
     ###
@@ -91,13 +90,13 @@ class MarginfiGroup:
     ###
     @staticmethod
     def from_account_data_raw(
-        config: MarginfiConfig,
-        program: Program,
-        rawData #@todo figure out what `Buffer` python type is
+            config: MarginfiConfig,
+            program: Program,
+            buffer: bytes
     ):
-        data = MarginfiGroup.decode(rawData)
+        data = MarginfiGroup.decode(buffer)
         return MarginfiGroup.from_account_data(config, program, data)
-    
+
     # --- Getters and setters
 
     ###
@@ -113,7 +112,7 @@ class MarginfiGroup:
     @property
     def bank(self) -> Bank:
         return self._bank
-    
+
     # --- Others
 
     ###
@@ -126,20 +125,17 @@ class MarginfiGroup:
     ###
     @staticmethod
     async def __fetch_account_data(
-        config: MarginfiConfig,
-        program: Program
-    ) -> MarginfiGroupData:
-        # @todo this will need to be rewritten
-        data = await program.account.marginfi_group.fetch(config.group_pk)
-
-        if not (data.bank.mint == config.collateral_mint_pk):
+            config: MarginfiConfig,
+            program: Program
+    ) -> MarginfiGroupDecoded:
+        data = await MarginfiGroupDecoded.fetch(program.provider.connection, config.group_pk)
+        if data.bank.mint != config.collateral_mint_pk:
             raise Exception(
                 "Marginfi group uses collateral {}. Expected: {}".format(
-                    data.bank.mint.toBase58(),
-                    config.collateralMintPk.toBase58()
+                    data.bank.mint.to_base58(),
+                    config.collateral_mint_pk.toBase58()
                 )
             )
-
         return data
 
     ###
@@ -149,15 +145,9 @@ class MarginfiGroup:
     # @return Decoded marginfi group account data struct
     ###
     @staticmethod
-    def decode(
-        encoded #@todo figure out Buffer type in python
-    ) -> MarginfiGroupData:
-        #@todo no BorshCoder
-        coder = BorshCoder(MARGINFI_IDL)
-        return coder.accounts.decode(
-            AccountType.MarginfiGroup, encoded
-        )
-  
+    def decode(buffer: bytes) -> MarginfiGroupDecoded:
+        return MarginfiGroupDecoded.decode(buffer)
+
     ###
     # Encode marginfi group account data according to the Anchor IDL.
     #
@@ -165,48 +155,13 @@ class MarginfiGroup:
     # @return Raw data buffer
     ###
     @staticmethod
-    async def encode(
-        decoded: MarginfiGroupData
-    ):
-        coder = BorshCoder(MARGINFI_IDL);
-        return await coder.accounts.encode(
-            AccountType.MarginfiGroup, decoded
-        )
-  
+    def encode(decoded: MarginfiGroupDecoded) -> bytes:
+        return AccountsCoder.build(decoded)
+
     ###
     # Update instance data by fetching and storing the latest on-chain state.
     ###
     async def fetch(self):
-        data = await MarginfiGroup._fetchAccountData(self._config, self._program)
-        self._admin = data.admin
-        self._bank = Bank._from(data.bank) #@todo fix Bank `from` issue
-
-    ###
-    # Create `UpdateInterestAccumulator` transaction instruction.
-    ###
-    async def make_update_interest_accumulator_ix(self):
-        bank_authority, _ = await get_bank_authority(
-            self._config.group_pk,
-            self._program.program_id,
-        )
-        # @todo this pattern was pretty confusing
-        return make_update_interest_accumulator_ix(
-            self._program,
-            {
-                "marginfiGroupPk": self.public_key,
-                "bankVault": self.bank.vault,
-                "bankAuthority": bank_authority,
-                "bankFeeVault": self.bank.fee_vault,
-            }
-        )
-    
-    ###
-    # Update interest accumulator.
-    ###
-    async def update_interest_accumulator():
-        tx = Transaction().add(
-            await self.make_update_interest_accumulator_ix()
-        )
-        return await process_transaction(
-            self._program.provider, tx
-        )
+        group_decoded = await MarginfiGroup.__fetch_account_data(self._config, self._program)
+        self._admin = group_decoded.admin
+        self._bank = Bank(group_decoded.bank)
