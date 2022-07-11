@@ -50,6 +50,9 @@ async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
     const scope = new Sentry.Scope();
     scope.setTag("Marginfi Account", marginfiAccount.publicKey.toBase58());
     try {
+      const scope = new Sentry.Scope();
+      scope.setTag("Marginfi Account", marginfiAccount.publicKey.toBase58());
+
       await marginfiAccount.checkRebalance();
       await marginfiAccount.checkBankruptcy();
     } catch (e) {
