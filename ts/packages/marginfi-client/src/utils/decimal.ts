@@ -1,8 +1,7 @@
 // Typescript port for rust decimal deserialization.
 
-import { WasmDecimal } from "@mrgnlabs/marginfi-wasm-tools";
 import { BN } from "@project-serum/anchor";
-import { MDecimalRaw } from "../types";
+import { DecimalData } from "../types";
 
 const SCALE_SHIFT: number = 16;
 const SIGN_SHIFT: number = 31;
@@ -30,11 +29,7 @@ export class Decimal {
 
   static ZERO = new Decimal(0, 0, 0, 0);
 
-  public static fromMDecimal(decimal: MDecimalRaw): Decimal {
-    return new Decimal(decimal.flags, decimal.hi, decimal.lo, decimal.mid);
-  }
-
-  public static fromWasm(decimal: WasmDecimal): Decimal {
+  public static fromAccountData(decimal: DecimalData): Decimal {
     return new Decimal(decimal.flags, decimal.hi, decimal.lo, decimal.mid);
   }
 
@@ -67,16 +62,15 @@ export class Decimal {
     return (this.flags & SCALE_MASK) >> SCALE_SHIFT;
   }
 
-  toWasm(): WasmDecimal {
-    return WasmDecimal.new(this.flags, this.hi, this.lo, this.mid);
-  }
-
   toString() {
-    const nb = this.toBN().toString();
+    let nb = this.toBN().toString();
     const scale = this.scale;
     if (scale == 0) {
       return nb;
     } else {
+      if (nb.length <= this.scale) {
+        nb = nb.padStart(this.scale + 1, "0");
+      }
       const integer = nb.slice(0, nb.length - this.scale);
       const fractional = nb.slice(nb.length - this.scale, nb.length);
       return `${integer}.${fractional}`;

@@ -6,15 +6,15 @@ import {
   Environment,
   getConfig,
   loadKeypair,
+  MangoOrderSide,
+  MangoPerpOrderType,
   MarginfiClient,
   processTransaction,
-  uiToNative,
   Wallet,
+  ZoPerpOrderType,
 } from "@mrgnlabs/marginfi-client";
 
 import { getMarketByBaseSymbolAndKind, I80F48 } from "@blockworks-foundation/mango-client";
-import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/dist/utp/mango/types";
-import { OrderType } from "@mrgnlabs/marginfi-client/dist/utp/zo/types";
 import * as ZoClient from "@zero_one/client";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, {
@@ -32,15 +32,12 @@ const zoMarketKey = "BTC-PERP";
   const config = await getConfig(Environment.MAINNET, connection);
 
   // Setup the client
-  const client = await MarginfiClient.get(config, wallet, connection);
+  const client = await MarginfiClient.fetch(config, wallet, connection);
 
   const mfiAccount = await client.getMarginfiAccount(MARGIN_ACCOUNT_PK);
 
   // Fund accounts
-  await Promise.all([
-    mfiAccount.zo.deposit(uiToNative(posAmountUi / 2)),
-    mfiAccount.mango.deposit(uiToNative(posAmountUi / 2)),
-  ]);
+  await Promise.all([mfiAccount.zo.deposit(posAmountUi / 2), mfiAccount.mango.deposit(posAmountUi / 2)]);
 
   // ---------------------------------------------------------------------
   // Open BTC SHORT on 01
@@ -58,7 +55,7 @@ const zoMarketKey = "BTC-PERP";
   }
   const zoIx = await mfiAccount.zo.makePlacePerpOrderIx({
     symbol: zoMarketKey,
-    orderType: OrderType.ImmediateOrCancel,
+    orderType: ZoPerpOrderType.ImmediateOrCancel,
     isLong: false,
     price: zoPrice,
     size: zoSize,
@@ -84,11 +81,11 @@ const zoMarketKey = "BTC-PERP";
   const mangoSize = balance.div(mangoPrice);
   const mangoIx = await mfiAccount.mango.makePlacePerpOrderIx(
     mangoBtcMarket,
-    Side.Bid,
+    MangoOrderSide.Bid,
     mangoPrice.toNumber(),
     mangoSize.toNumber(),
     {
-      orderType: PerpOrderType.Market,
+      orderType: MangoPerpOrderType.Market,
     }
   );
 

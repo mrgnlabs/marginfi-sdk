@@ -1,4 +1,6 @@
-import * as mango from "./mango";
-import * as zo from "./zo";
+import mangoInstructions from "./mango/instructions";
+import zoInstructions from "./zo/instructions";
 
-export { mango, zo };
+export * from "./account";
+export * from "./observation";
+export { mangoInstructions, zoInstructions };

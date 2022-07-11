@@ -5,7 +5,7 @@
   "author": "MRGN Labs",
   "license": "Apache-2.0",
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc",
     "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
     "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check .",
     "clean": "rm -rf dist",
@@ -13,7 +13,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@blockworks-foundation/mango-client": "^3.3.28",
+    "@blockworks-foundation/mango-client": "^3.6.7",
     "@mrgnlabs/marginfi-client": "^0.6.0",
     "@project-serum/anchor": "^0.23.0",
     "@sentry/node": "^7.5.0",

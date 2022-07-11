@@ -2,33 +2,38 @@ require("dotenv").config();
 
 import "./sentry";
 
-import { BN, ONE_I80F48, QUOTE_INDEX, sleep, ZERO_BN, ZERO_I80F48 } from "@blockworks-foundation/mango-client";
+import { ONE_I80F48, QUOTE_INDEX, sleep, ZERO_BN, ZERO_I80F48 } from "@blockworks-foundation/mango-client";
 import {
-  getClientFromEnv,
+  loadKeypair,
+  MangoOrderSide,
+  MangoPerpOrderType,
   MarginfiAccount,
   MarginfiAccountData,
   MarginfiClient,
   Wallet,
+  ZoPerpOrderType,
 } from "@mrgnlabs/marginfi-client";
-import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/dist/utp/mango";
-import { OrderType } from "@mrgnlabs/marginfi-client/dist/utp/zo/types";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import debugBuilder from "debug";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
-const wallet = new Wallet(Keypair.fromSecretKey(new Uint8Array(JSON.parse(process.env.WALLET_KEY!))));
+const wallet = new Wallet(
+  process.env.WALLET_KEY
+    ? Keypair.fromSecretKey(new Uint8Array(JSON.parse(process.env.WALLET_KEY)))
+    : loadKeypair(process.env.WALLET!)
+);
 const marginfiGroupPk = new PublicKey(process.env.MARGINFI_GROUP!);
 const marginfiAccountPk = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
 (async function () {
   const debug = debugBuilder("liquidator");
-  const marginClient = await getClientFromEnv();
+  const marginClient = await MarginfiClient.fromEnv();
 
   const marginfiGroupPk = marginClient.config.groupPk;
 
   debug("Starting liquidator for group %s", marginfiGroupPk);
 
-  const marginfiAccount = await MarginfiAccount.get(marginfiAccountPk, marginClient);
+  const marginfiAccount = await MarginfiAccount.fetch(marginfiAccountPk, marginClient);
 
   const round = async function () {
     await checkForActiveUtps(marginfiAccount);
@@ -42,7 +47,7 @@ const marginfiAccountPk = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 async function checkForActiveUtps(marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:utps");
   await marginfiAccount.reload();
-  if (marginfiAccount.activeUtps().length > 0) {
+  if (marginfiAccount.activeUtps.length > 0) {
     debug("Marginfi account has active UTPs, closing...");
     await closeAllUTPs(marginfiAccount);
   }
@@ -69,22 +74,29 @@ async function liquidate(liquidateeMarginfiAccount: MarginfiAccount, liquidatorM
 
   debug("Liquidating account %s", liquidateeMarginfiAccount.publicKey);
 
-  const utpObservations = await liquidateeMarginfiAccount.observe();
-  const [balance] = await liquidatorMarginfiAccount.getBalance();
-  debug("Available balance %s", balance.toNumber() / 1_000_000);
+  await liquidateeMarginfiAccount.observeUtps();
 
-  const utp = utpObservations
-    .filter((a) => a.observation.totalCollateral.lte(balance))
-    .sort((a, b) => (a.observation.totalCollateral > b.observation.totalCollateral ? 1 : -1))[0];
+  const { equity: liquidatorEquity } = await liquidatorMarginfiAccount.computeBalances();
+  debug("Available balance %s", liquidatorEquity.toNumber());
 
-  if (!utp) {
-    debug("Can't liquidate any UTP");
+  const affordableUtps = liquidateeMarginfiAccount.activeUtps.filter((utp) =>
+    utp.computeLiquidationPrices().discountedLiquidatorPrice.lte(liquidatorEquity)
+  );
+  const cheapestUtp = affordableUtps.sort((utp1, utp2) =>
+    utp1
+      .computeLiquidationPrices()
+      .discountedLiquidatorPrice.minus(utp2.computeLiquidationPrices().discountedLiquidatorPrice)
+      .toNumber()
+  )[0];
+
+  if (!cheapestUtp.index) {
+    console.log("Insufficient balance to liquidate any UTP");
     return;
   }
 
-  debug("Liquidating UTP %s", utp.utp_index);
+  debug("Liquidating UTP %s", cheapestUtp.index);
 
-  await liquidatorMarginfiAccount.liquidate(liquidateeMarginfiAccount, utp.utp_index);
+  await liquidatorMarginfiAccount.liquidate(liquidateeMarginfiAccount, cheapestUtp.index);
   await closeAllUTPs(liquidatorMarginfiAccount);
 }
 
@@ -152,7 +164,7 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
     }
     await marginfiAccount.zo.placePerpOrder({
       symbol: position.marketKey,
-      orderType: OrderType.ReduceOnlyIoc,
+      orderType: ZoPerpOrderType.ReduceOnlyIoc,
       isLong: closeDirectionLong,
       price: price,
       size: position.coins.number,
@@ -160,20 +172,20 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
   }
 
   /// Settle funds
-  for (let sym of marketSymbols) {
-    let oo = await zoMargin.getOpenOrdersInfoBySymbol(sym);
+  for (let symbol of marketSymbols) {
+    let oo = await zoMargin.getOpenOrdersInfoBySymbol(symbol);
 
     if (!oo) {
       continue;
     }
 
-    await marginfiAccount.zo.settleFunds(sym);
+    await marginfiAccount.zo.settleFunds(symbol);
   }
 
-  let observation = await marginfiAccount.zo.observe();
-  let withdrawableAmount = observation.freeCollateral.sub(new BN(100));
+  const observation = await marginfiAccount.zo.observe();
+  let withdrawableAmount = observation.freeCollateral.minus(0.0001);
 
-  debug("Withdrawing %s from ZO", bnToNumber(withdrawableAmount));
+  debug("Withdrawing %s from ZO", withdrawableAmount.toString());
   await marginfiAccount.zo.withdraw(withdrawableAmount);
 
   debug("Deactivating ZO");
@@ -197,18 +209,14 @@ async function withdrawFromMango(marginfiAccount: MarginfiAccount) {
   const debug = debugBuilder("liquidator:utp:mango:withdraw");
   debug("Trying to withdraw from Mango");
   let observation = await marginfiAccount.mango.observe();
-  let withdrawAmount = observation.freeCollateral.sub(new BN(1));
+  let withdrawAmount = observation.freeCollateral.minus(0.000001);
 
-  if (withdrawAmount.lte(ZERO_BN)) {
+  if (withdrawAmount.lte(0)) {
     return;
   }
 
-  debug("Withdrawing %d from Mango", bnToNumber(withdrawAmount));
+  debug("Withdrawing %d from Mango", withdrawAmount.toString());
   await marginfiAccount.mango.withdraw(withdrawAmount);
-}
-
-function bnToNumber(bn: BN, decimal: number = 6): number {
-  return bn.toNumber() / 10 ** decimal;
 }
 
 async function closeMangoPositions(marginfiAccount: MarginfiAccount) {
@@ -255,17 +263,17 @@ async function closeMangoPositions(marginfiAccount: MarginfiAccount) {
         const price = mangoGroup.getPrice(index, cache);
 
         if (basePositionSize != 0) {
-          const side = perpAccount.basePosition.gt(ZERO_BN) ? Side.Ask : Side.Bid;
+          const side = perpAccount.basePosition.gt(ZERO_BN) ? MangoOrderSide.Ask : MangoOrderSide.Bid;
           const liquidationFee = mangoGroup.perpMarkets[index].liquidationFee;
           const orderPrice =
-            side == Side.Ask
+            side == MangoOrderSide.Ask
               ? price.mul(ONE_I80F48.sub(liquidationFee)).toNumber()
               : price.mul(ONE_I80F48.add(liquidationFee)).toNumber();
 
           debug(`${side}ing ${basePositionSize} of ${groupIds?.perpMarkets[i].baseSymbol}-PERP for $${orderPrice}`);
 
           await mangoUtp.placePerpOrder(perpMarket, side, orderPrice, basePositionSize, {
-            orderType: PerpOrderType.Market,
+            orderType: MangoPerpOrderType.Market,
             reduceOnly: true,
           });
         }

@@ -6,7 +6,7 @@ import {
   ZO_DEX_MAINNET_PROGRAM_ID,
   ZO_MAINNET_STATE_KEY,
 } from "@zero_one/client";
-import { Environment, UtpConfig } from "../../config";
+import { Environment, UtpConfig } from "../../types";
 
 /**
  * Mango-specific config.

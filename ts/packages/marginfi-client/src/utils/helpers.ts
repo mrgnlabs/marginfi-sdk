@@ -1,4 +1,3 @@
-import { WasmDecimal } from "@mrgnlabs/marginfi-wasm-tools";
 import { BN, BorshAccountsCoder, Program, Provider } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
@@ -13,9 +12,8 @@ import {
   TransactionInstruction,
   TransactionSignature,
 } from "@solana/web3.js";
-import * as fs from "fs";
-import path from "path";
-import { Environment, getConfig, MarginfiClient, Wallet } from "..";
+import BigNumber from "bignumber.js";
+import { Environment, Wallet } from "..";
 import {
   COLLATERAL_DECIMALS,
   PDA_BANK_FEE_VAULT_SEED,
@@ -25,8 +23,7 @@ import {
   VERY_VERBOSE_ERROR,
 } from "../constants";
 import { MarginfiIdl, MARGINFI_IDL } from "../idl";
-import { NodeWallet } from "../nodeWallet";
-import { AccountType, MDecimalRaw } from "../types";
+import { AccountType, DecimalData, UiAmount } from "../types";
 import { Decimal } from "./decimal";
 
 /**
@@ -125,23 +122,59 @@ export function decimalToNative(amount: Decimal, decimals: number = COLLATERAL_D
 /**
  * Converts a token amount stored as `MDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
  */
-export function mDecimalToNative(amount: MDecimalRaw, decimals: number = COLLATERAL_DECIMALS): BN {
-  return decimalToNative(Decimal.fromMDecimal(amount), decimals);
+export function decimalDataToNative(amount: DecimalData, decimals: number = COLLATERAL_DECIMALS): BN {
+  return decimalToNative(Decimal.fromAccountData(amount), decimals);
+}
+
+/**
+ * Converts a token amount stored as `MDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
+ */
+export function decimalDataToBigNumber(amount: DecimalData): BigNumber {
+  return new BigNumber(Decimal.fromAccountData(amount).toString());
 }
 
 /**
  * Converts a ui representation of a token amount into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
  */
-export function uiToNative(amount: number, decimals: number = COLLATERAL_DECIMALS): BN {
-  return new BN(amount * 10 ** decimals);
+export function toNumber(amount: UiAmount): number {
+  let amt: number;
+  if (typeof amount === "number") {
+    amt = amount;
+  } else if (typeof amount === "string") {
+    amt = Number(amount);
+  } else {
+    amt = amount.toNumber();
+  }
+  return amt;
 }
 
 /**
- * Converts a token amount stored as `WasmDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
- * @internal
+ * Converts a ui representation of a token amount into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
  */
-export function wasmDecimalToNative(amount: WasmDecimal, decimals: number = COLLATERAL_DECIMALS): BN {
-  return decimalToNative(Decimal.fromWasm(amount), decimals);
+export function toBigNumber(amount: UiAmount | BN): BigNumber {
+  let amt: BigNumber;
+  if (amount instanceof BigNumber) {
+    amt = amount;
+  } else {
+    amt = new BigNumber(amount.toString());
+  }
+  return amt;
+}
+
+/**
+ * Converts a UI representation of a token amount into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
+ */
+export function uiToNative(amount: UiAmount, decimals: number = COLLATERAL_DECIMALS): BN {
+  let amt = toBigNumber(amount);
+  return new BN(amt.times(10 ** decimals).toFixed(0, BigNumber.ROUND_FLOOR));
+}
+
+/**
+ * Converts a native representation of a token amount into its UI value as `number`, given the specified mint decimal amount (default to 6 for USDC).
+ */
+export function nativetoUi(amount: UiAmount | BN, decimals: number = COLLATERAL_DECIMALS): number {
+  let amt = toBigNumber(amount);
+  return amt.div(10 ** decimals).toNumber();
 }
 
 /**
@@ -173,6 +206,7 @@ export function sleep(ms: number) {
  * Load Keypair from the provided file.
  */
 export function loadKeypair(keypairPath: string): Keypair {
+  const path = require("path");
   if (!keypairPath || keypairPath == "") {
     throw new Error("Keypair is required!");
   }
@@ -180,7 +214,7 @@ export function loadKeypair(keypairPath: string): Keypair {
     keypairPath = path.join(require("os").homedir(), keypairPath.slice(1));
   }
   const keyPath = path.normalize(keypairPath);
-  const loaded = Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync(keyPath).toString())));
+  const loaded = Keypair.fromSecretKey(new Uint8Array(JSON.parse(require("fs").readFileSync(keyPath).toString())));
   return loaded;
 }
 
@@ -231,39 +265,4 @@ export function getEnvFromStr(envString: string = "devnet"): Environment {
     default:
       return Environment.DEVNET;
   }
-}
-
-export async function getClientFromEnv(
-  overrides?: Partial<{
-    env: Environment;
-    connection: Connection;
-    program_id: PublicKey;
-    marginfi_group: PublicKey;
-    wallet: Wallet;
-  }>
-): Promise<MarginfiClient> {
-  const debug = require("debug")("mfi:utils");
-  const env = overrides?.env ?? getEnvFromStr(process.env.ENV!);
-  const connection = overrides?.connection ?? new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
-  const programId = overrides?.program_id ?? new PublicKey(process.env.MARGINFI_PROGRAM!);
-  const groupPk =
-    overrides?.marginfi_group ??
-    (process.env.MARGINFI_GROUP ? new PublicKey(process.env.MARGINFI_GROUP) : PublicKey.default);
-  const wallet =
-    overrides?.wallet ??
-    new NodeWallet(
-      process.env.WALLET_KEY
-        ? Keypair.fromSecretKey(new Uint8Array(JSON.parse(process.env.WALLET_KEY)))
-        : loadKeypair(process.env.WALLET!)
-    );
-
-  debug("Loading the marginfi client from env vars");
-  debug("Env: %s\nProgram: %s\nGroup: %s\nSigner: %s", env, programId, groupPk, wallet.publicKey);
-
-  const config = await getConfig(env, connection, {
-    groupPk,
-    programId,
-  });
-
-  return MarginfiClient.get(config, wallet, connection, { commitment: connection.commitment });
 }

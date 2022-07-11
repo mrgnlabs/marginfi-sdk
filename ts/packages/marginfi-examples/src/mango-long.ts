@@ -2,9 +2,15 @@ require("dotenv").config();
 
 import { Connection, PublicKey } from "@solana/web3.js";
 
-import { Environment, getConfig, loadKeypair, MarginfiClient, uiToNative, Wallet } from "@mrgnlabs/marginfi-client";
-
-import { PerpOrderType, Side } from "@mrgnlabs/marginfi-client/dist/utp/mango/types";
+import {
+  Environment,
+  getConfig,
+  loadKeypair,
+  MangoOrderSide,
+  MangoPerpOrderType,
+  MarginfiClient,
+  Wallet,
+} from "@mrgnlabs/marginfi-client";
 
 import { getMarketByBaseSymbolAndKind, I80F48, QUOTE_INDEX } from "@blockworks-foundation/mango-client";
 
@@ -20,12 +26,12 @@ const depositAmount = 5;
 (async function () {
   const config = await getConfig(Environment.MAINNET, connection);
   // Setup the client
-  const client = await MarginfiClient.get(config, wallet, connection);
+  const client = await MarginfiClient.fetch(config, wallet, connection);
 
   // Prepare user accounts
   const mfiAccount = await client.getMarginfiAccount(MARGIN_ACCOUNT_PK);
 
-  await mfiAccount.mango.deposit(uiToNative(depositAmount));
+  await mfiAccount.mango.deposit(depositAmount);
 
   // Open counterpart BTC LONG on Mango
 
@@ -50,7 +56,7 @@ const depositAmount = 5;
 
   console.log("Balance %s, base asset amount %s, price %s", balance, baseAssetAmount, price);
 
-  await mfiAccount.mango.placePerpOrder(mangoBtcMarket, Side.Bid, price.toNumber(), baseAssetAmount.toNumber(), {
-    orderType: PerpOrderType.Market,
+  await mfiAccount.mango.placePerpOrder(mangoBtcMarket, MangoOrderSide.Bid, price, baseAssetAmount, {
+    orderType: MangoPerpOrderType.Market,
   });
 })();

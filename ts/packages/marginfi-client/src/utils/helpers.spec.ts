@@ -14,7 +14,7 @@ const SAMPLE_MARGINFI_GROUP_PARTIAL = Buffer.from([
   18, 132, 239, 35, 13, 77, 7, 124, 205, 84, 8, 70, 98, 53, 125, 0, 0, 0, 0, 0, 0, 0, 0,
 ]);
 
-describe("deserialization", () => {
+describe.skip("deserialization", () => {
   it("detects MarginfiAccount account type", async function () {
     assert.isTrue(isAccountType(SAMPLE_MARGINFI_ACCOUNT_PARTIAL, AccountType.MarginfiAccount));
 
