@@ -1,4 +1,4 @@
-import { Decimal, MDecimalRaw } from "@mrgnlabs/marginfi-client";
+import { Decimal, DecimalData } from "@mrgnlabs/marginfi-client";
 
 import { Environment, getConfig, loadKeypair, MarginfiClient, Wallet } from "@mrgnlabs/marginfi-client";
 import { Connection, PublicKey } from "@solana/web3.js";
@@ -25,11 +25,11 @@ export async function getClientFromOptions(options: OptionValues): Promise<Margi
   }
 
   const config = await getConfig(getEnvironment(options.environment), connection, overrides);
-  return MarginfiClient.get(config, new Wallet(loadKeypair(options.keypair)), connection);
+  return MarginfiClient.fetch(config, new Wallet(loadKeypair(options.keypair)), connection);
 }
 
-export function parseDecimal(m: MDecimalRaw): number {
-  let decimal = Decimal.fromMDecimal(m);
+export function parseDecimal(m: DecimalData): number {
+  let decimal = Decimal.fromAccountData(m);
   let num = decimal.toNumber();
   return num;
 }

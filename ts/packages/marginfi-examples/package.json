@@ -7,14 +7,13 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc",
     "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
     "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check .",
     "clean": "rm -rf dist"
   },
   "dependencies": {
     "@blockworks-foundation/mango-client": "^3.3.28",
-    "@drift-labs/sdk": "^0.1.30-master.1",
     "@mrgnlabs/marginfi-client": "^0.6.0",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.37.0",

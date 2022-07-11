@@ -2,11 +2,11 @@ require("dotenv").config();
 
 import "./sentry";
 
-import { getClientFromEnv } from "@mrgnlabs/marginfi-client";
+import { MarginfiClient } from "@mrgnlabs/marginfi-client";
 
 (async function () {
   const debug = require("debug")("interest-rate-accumulator-bot");
-  const client = await getClientFromEnv();
+  const client = await MarginfiClient.fromEnv();
   const config = client.config;
   const group = client.group;
 

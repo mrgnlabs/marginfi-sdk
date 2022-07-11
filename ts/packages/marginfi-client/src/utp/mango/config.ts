@@ -1,5 +1,5 @@
 import { Config, GroupConfig, IDS } from "@blockworks-foundation/mango-client";
-import { Environment, UtpConfig } from "../../config";
+import { Environment, UtpConfig } from "../../types";
 
 /**
  * Mango-specific config.

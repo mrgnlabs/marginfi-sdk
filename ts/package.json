@@ -7,7 +7,7 @@
     "build": "lerna run build",
     "watch": "lerna run watch",
     "lint": "lerna run format:check",
-    "format": "lerna run format",
+    "lint:fix": "lerna run format",
     "changed": "lerna changed",
     "docs": "lerna run generate-docs",
     "bump": "lerna version --conventional-commits --conventional-graduate --create-release --no-changelog",
