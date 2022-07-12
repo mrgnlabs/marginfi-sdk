@@ -1,4 +1,5 @@
 import pytest
+from testfixtures import compare
 
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
@@ -71,7 +72,7 @@ class TestMarginfiAccount():
     # @param client marginfi client
     # @returns MarginfiAccount instance
     ###
-    # @todo this one could probably be better
+    # @todo fails because of bank
     async def test_fetch(self):
         config = MarginfiConfig(Environment.MAINNET)
         wallet = Wallet.local()
@@ -82,7 +83,7 @@ class TestMarginfiAccount():
         res_exp = account
         res_actual = await MarginfiAccount.fetch(PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9"), client)
 
-        assert res_exp == res_actual
+        compare(res_exp, res_actual)
     
     async def test__program(self):
         config = MarginfiConfig(Environment.MAINNET)
@@ -95,3 +96,4 @@ class TestMarginfiAccount():
         res_actual = account._program()
         
         assert res_exp == res_actual
+    
