@@ -44,7 +44,8 @@ class MarginfiAccount:
         ]
 
     def active_utps(self):
-        return filter(lambda x: x.is_active, self.all_utps())
+        filtered = filter(lambda x: x.is_active, self.all_utps())
+        return list(filtered)
 
     # --- Factories
 

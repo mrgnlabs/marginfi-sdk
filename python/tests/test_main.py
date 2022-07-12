@@ -1,3 +1,4 @@
+import pytest
 import asyncio
 
 from solana.publickey import PublicKey
@@ -6,8 +7,8 @@ from anchorpy import Wallet
 
 from marginpy import MarginfiConfig, Environment, MarginfiClient, MarginfiAccount
 
-
-async def main():
+@pytest.mark.asyncio
+async def test_main():
     try:
         config = MarginfiConfig(Environment.MAINNET)
         wallet = Wallet.local()
@@ -18,4 +19,3 @@ async def main():
     finally:
         await client.terminate()  # Required for clean process exit
 
-asyncio.run(main())
