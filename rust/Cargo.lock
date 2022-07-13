@@ -1774,6 +1774,7 @@ dependencies = [
  "anchor-lang",
  "anchor-spl",
  "arrayref",
+ "bytemuck",
  "fixed",
  "fixed-macro",
  "mango",
@@ -1793,6 +1794,7 @@ version = "0.1.0"
 dependencies = [
  "anchor-client",
  "anyhow",
+ "bytemuck",
  "clap 3.2.10",
  "dirs",
  "dotenv",

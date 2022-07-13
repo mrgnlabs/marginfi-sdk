@@ -25,3 +25,4 @@ shellexpand = "2.1.0"
 marginfi = { path = "../../../programs/marginfi", features = ["client"] }
 mango-protocol = { git = "https://github.com/mrgnlabs/mango-v3.git", rev="feac29b69834051671752bc316d9ee4fbb61ae9b", package= "mango", features = ["no-entrypoint", "client"] }
 zo-abi = { git = "https://github.com/01protocol/zo-abi.git", rev = "3ff8def2c747899c9d534f5de36988b6f0a0d46c", features = [ "cpi" ] }
+bytemuck="1.9.1"

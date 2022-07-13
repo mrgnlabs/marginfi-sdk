@@ -1,17 +1,23 @@
 use crate::config::WalletPath;
 use anchor_client::{Client, Cluster, Program};
 use anyhow::Result;
-use mango_protocol::state::MangoGroup;
+use bytemuck::{from_bytes, Pod};
+use mango_protocol::state::{MangoAccount, MangoCache, MangoGroup};
+use marginfi::constants::{MANGO_UTP_INDEX, ZO_UTP_INDEX};
 use marginfi::prelude::MarginfiAccount;
-use marginfi::state::utp_observation::{Observable, UtpObserver};
+use marginfi::state::utp_observation::Observable;
+use marginfi::state::{mango_state::MangoObserver, zo_state::ZoObserver};
 use solana_client::rpc_filter::{Memcmp, MemcmpEncodedBytes, RpcFilterType};
 use solana_program::pubkey;
 use solana_sdk::account::Account;
-use solana_sdk::account_info::{Account as AccountInfoAccount, AccountInfo};
+use solana_sdk::account_info::AccountInfo;
+use solana_sdk::program_error::ProgramError;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::Keypair;
 use solana_sdk::{commitment_config::CommitmentConfig, signature::read_keypair_file};
+use std::cell::Ref;
 use std::{rc::Rc, str::FromStr, thread::sleep, time::Duration};
+use zo_abi::{Cache, Control, Margin, State};
 
 pub struct Bot {
     pub payer: Keypair,
@@ -19,6 +25,7 @@ pub struct Bot {
     pub program: Program,
     pub cluster: Cluster,
 
+    pub mango_program_pk: Pubkey,
     pub mango_group_pk: Pubkey,
     pub mango_cache_pk: Pubkey,
 
@@ -75,21 +82,11 @@ impl Bot {
             .map(Option::<Account>::unwrap)
             .collect();
 
-        let mut mango_group_account = accounts_raw[0].clone();
-        let mango_group_account = mango_group_account.get();
-        let mango_group_ai = AccountInfo::new(
-            &mango_group_pk,
-            false,
-            false,
-            mango_group_account.0,
-            mango_group_account.1,
-            mango_group_account.2,
-            mango_group_account.3,
-            mango_group_account.4,
-        );
+        let mango_group_account = &mut (mango_group_pk, accounts_raw[0].clone());
+        let mango_group_ai = AccountInfo::from(mango_group_account);
         let mango_group = MangoGroup::load_checked(&mango_group_ai, &mango_program_pk).unwrap();
 
-        let zo_state: zo_abi::State = program.account(zo_state_pk).unwrap();
+        let zo_state: State = program.account(zo_state_pk).unwrap();
 
         let payer = read_keypair_file(&*shellexpand::tilde(&wallet_path.to_string()))
             .expect("Example requires a keypair file");
@@ -99,6 +96,7 @@ impl Bot {
             client,
             program,
             cluster,
+            mango_program_pk,
             mango_group_pk,
             mango_cache_pk: mango_group.mango_cache,
             zo_state_pk,
@@ -139,10 +137,7 @@ impl Bot {
     }
 
     fn deposit_if_needed(&self, marginfi_account: &MarginfiAccount) -> Result<()> {
-        let observation_account_ais = self.get_observation_account_infos(marginfi_account);
-        let utp_observer = UtpObserver::new(observation_account_ais.as_slice());
-        // let utp_observer = UtpObserver::new(observation_account_ais.as_slice());
-        for (utp_index, observation) in self.get_observations(marginfi_account, &utp_observer) {
+        for (utp_index, observation) in self.get_observations(marginfi_account)? {
             if !observation.is_rebalance_deposit_valid()? {
                 continue;
             };
@@ -172,61 +167,110 @@ impl Bot {
     fn get_observations<'a>(
         &self,
         marginfi_account: &MarginfiAccount,
-        utp_observer: &UtpObserver<'a, '_>,
-    ) -> Vec<(usize, Box<dyn Observable + 'a>)> {
-        self.get_active_utps(marginfi_account)
-            .iter()
+    ) -> Result<Vec<(usize, Box<dyn Observable + 'a>)>> {
+        Ok(self
+            .get_active_utps(marginfi_account)
+            .into_iter()
             .map(|utp_index| {
                 (
                     utp_index.to_owned(),
-                    utp_observer
-                        .observation(marginfi_account, utp_index.to_owned())
-                        .unwrap(),
+                    match utp_index {
+                        MANGO_UTP_INDEX => self.get_mango_observer(marginfi_account).unwrap(),
+                        ZO_UTP_INDEX => self.get_zo_observer(marginfi_account).unwrap(),
+                        _ => panic!("utp index not supported"),
+                    },
                 )
             })
-            .collect::<Vec<(usize, Box<dyn Observable>)>>()
+            .collect::<Vec<(usize, Box<dyn Observable>)>>())
     }
 
-    fn get_observation_account_infos(
+    fn get_mango_observer<'a>(
         &self,
         marginfi_account: &MarginfiAccount,
-    ) -> Vec<AccountInfo> {
-        // ) {
-        self.get_active_utps(marginfi_account)
-            .iter()
-            .flat_map(|utp_index| match utp_index {
-                MANGO_UTP_INDEX => self.get_mango_observation_accounts().to_vec(),
-                ZO_UTP_INDEX => self.get_zo_observation_accounts().to_vec(),
-                _ => panic!("utp index not supported"),
-            })
-            .collect()
-    }
+    ) -> Result<Box<dyn Observable + 'a>> {
+        let mango_account_pk = marginfi_account.utp_account_config[MANGO_UTP_INDEX].address;
 
-    fn get_mango_observation_accounts<'a, 'b>(&self) -> &'a [AccountInfo<'b>] {
-        // fetch and deser group
         let accounts_raw: Vec<Account> = self
             .program
             .rpc()
-            .get_multiple_accounts(&[self.mango_group_pk, self.mango_cache_pk])
+            .get_multiple_accounts(&[mango_account_pk, self.mango_group_pk, self.mango_cache_pk])
             .unwrap()
             .into_iter()
             .map(Option::<Account>::unwrap)
             .collect();
 
-        let mango_group_account = &mut (self.mango_group_pk, accounts_raw[0].clone());
-        let mango_group_ai = AccountInfo::from(mango_group_account);
+        let mango_account_raw = &mut (mango_account_pk, accounts_raw[1].clone());
+        let mango_account_ai = AccountInfo::from(mango_account_raw);
+        let mango_account = MangoAccount::load_checked(
+            &mango_account_ai,
+            &self.mango_program_pk,
+            &self.mango_group_pk,
+        )
+        .unwrap();
 
-        let mango_cache_account = &mut (self.mango_group_pk, accounts_raw[0].clone());
-        let mango_cache_ai = AccountInfo::from(mango_cache_account);
+        let mango_group_raw = &mut (self.mango_group_pk, accounts_raw[1].clone());
+        let mango_group_ai = AccountInfo::from(mango_group_raw);
+        let mango_group =
+            MangoGroup::load_checked(&mango_group_ai, &self.mango_program_pk).unwrap();
 
-        &[mango_group_ai, mango_cache_ai]
+        let mango_cache_raw = &mut (self.mango_cache_pk, accounts_raw[2].clone());
+        let mango_cache_ai = AccountInfo::from(mango_cache_raw);
+        let mango_cache =
+            MangoCache::load_checked(&mango_cache_ai, &self.mango_program_pk, &mango_group)
+                .unwrap();
+
+        Ok(Box::new(MangoObserver {
+            mango_account,
+            mango_group,
+            mango_cache,
+        }))
     }
 
-    fn get_zo_observation_accounts(&self) -> &[AccountInfo] {
-        // fetch and deser state
-        // fetch remaining accounts
-        // convert all to AccountInfo
+    fn get_zo_observer<'a>(
+        &self,
+        marginfi_account: &MarginfiAccount,
+    ) -> Result<Box<dyn Observable + 'a>> {
+        let zo_margin_pk = marginfi_account.utp_account_config[ZO_UTP_INDEX].address;
 
-        &[]
+        let accounts_raw: Vec<Account> = self
+            .program
+            .rpc()
+            .get_multiple_accounts(&[zo_margin_pk, self.zo_state_pk, self.zo_cache_pk])
+            .unwrap()
+            .into_iter()
+            .map(Option::<Account>::unwrap)
+            .collect();
+
+        let zo_margin_raw = &mut (zo_margin_pk, accounts_raw[0].clone());
+        let zo_margin_ai = AccountInfo::from(zo_margin_raw);
+        let zo_margin: Ref<Margin> = load(&zo_margin_ai)?;
+
+        let zo_state_raw = &mut (self.zo_state_pk, accounts_raw[1].clone());
+        let zo_state_ai = AccountInfo::from(zo_state_raw);
+        let zo_state: Ref<State> = load(&zo_state_ai)?;
+
+        let zo_cache_raw = &mut (self.zo_cache_pk, accounts_raw[2].clone());
+        let zo_cache_ai = AccountInfo::from(zo_cache_raw);
+        let zo_cache: Ref<Cache> = load(&zo_cache_ai)?;
+
+        let zo_control_pk = zo_margin.control;
+
+        let zo_control_tmp = self.program.rpc().get_account(&zo_control_pk).unwrap();
+        let zo_control_raw = &mut (self.zo_cache_pk, zo_control_tmp);
+        let zo_control_ai = AccountInfo::from(zo_control_raw);
+        let zo_control: Ref<Control> = load(&zo_control_ai)?;
+
+        Ok(Box::new(ZoObserver {
+            zo_margin,
+            zo_control,
+            zo_state,
+            zo_cache,
+        }))
     }
+}
+
+pub fn load<'a, T: Pod>(account: &'a AccountInfo) -> Result<Ref<'a, T>, ProgramError> {
+    Ok(Ref::map(account.try_borrow_data()?, |data| {
+        from_bytes(&data[8..])
+    }))
 }
