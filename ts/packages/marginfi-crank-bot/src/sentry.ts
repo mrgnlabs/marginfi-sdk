@@ -1,4 +1,5 @@
-export const Sentry = require("@sentry/node");
+import * as Sentry from "@sentry/node";
+import { ScopeContext } from "@sentry/types";
 // or use es6 import statements
 // import * as Sentry from '@sentry/node';
 
@@ -60,8 +61,8 @@ if (SENTRY_ACTIVE) {
   });
 }
 
-export function captureException(e: any) {
+export function captureException(e: any, ctx?: Partial<ScopeContext>) {
   if (SENTRY_ACTIVE) {
-    Sentry.captureException(e);
+    Sentry.captureException(e, ctx);
   }
 }

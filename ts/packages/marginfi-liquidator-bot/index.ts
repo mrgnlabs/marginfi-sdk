@@ -15,6 +15,7 @@ import {
 } from "@mrgnlabs/marginfi-client";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import debugBuilder from "debug";
+import { captureException } from "./sentry";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
 const wallet = new Wallet(
@@ -36,8 +37,16 @@ const marginfiAccountPk = new PublicKey(process.env.MARGINFI_ACCOUNT!);
   const marginfiAccount = await MarginfiAccount.fetch(marginfiAccountPk, marginClient);
 
   const round = async function () {
-    await checkForActiveUtps(marginfiAccount);
-    await processAccounts(marginClient, marginfiAccount);
+    try {
+      await checkForActiveUtps(marginfiAccount);
+      await processAccounts(marginClient, marginfiAccount);
+    } catch (e: any) {
+      debug("Error in liquidator: %s", e);
+      
+      captureException(e, {
+        extra: { errorCode: e?.logs?.at(-1)?.split(" ")?.at(-1) },
+      });
+    }
 
     setTimeout(round, Number.parseInt(process.env.TIMEOUT!));
   };
@@ -63,7 +72,12 @@ async function processAccounts(client: MarginfiClient, marginfiAccount: Marginfi
       if (await account.canBeLiquidated()) {
         await liquidate(account, marginfiAccount);
       }
-    } catch (e) {
+    } catch (e: any) {
+      captureException(e, {
+        user: { id: account.publicKey.toBase58() },
+        extra: { errorCode: e?.logs?.at(-1)?.split(" ")?.at(-1) },
+      });
+
       debug("Can't verify if account liquidatable");
     }
   }

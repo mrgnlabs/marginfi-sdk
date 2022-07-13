@@ -537,6 +537,11 @@ class MarginfiAccount {
     )[0];
     const withdrawAmount = this.computeMaxRebalanceWithdrawAmount(richestUtp);
 
+    if (withdrawAmount.lte(1)) {
+      debug("Withdraw amount below dust ");
+      return;
+    }
+
     debug("Trying to rebalance withdraw UTP:%s, amount %s (RBWA)", richestUtp.index, withdrawAmount);
 
     try {
