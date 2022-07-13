@@ -29,22 +29,24 @@ class MarginfiAccount:
         # self.zo = UtpZoaccount(client, self, zo_utp_data)
         self.authority = authority
         self.group = group
-        self._depositRecord = deposit_record
-        self._borrowRecord = borrow_record
+        self._deposit_record = deposit_record
+        self._borrow_record = borrow_record
 
     def __str__(self):
         return f"Address: {self.public_key.to_base58()}\n" \
                f"Group: {self.group.public_key.to_base58()}\n" \
                f"Authority: {self.authority.to_base58()}"
 
+    @property
     def all_utps(self):
         return [
             # self.mango,
             # self.zo
         ]
 
+    @property
     def active_utps(self):
-        filtered = filter(lambda x: x.is_active, self.all_utps())
+        filtered = filter(lambda x: x.is_active, self.all_utps)
         return list(filtered)
 
     # --- Factories
@@ -87,11 +89,11 @@ class MarginfiAccount:
 
     @property
     def _program(self):
-        return self._client.program
+        return self.client.program
 
     @property
     def _config(self):
-        return self._client.config
+        return self.client.config
     
     ###
     # MarginfiAccount local factory (decoded)
@@ -165,12 +167,14 @@ class MarginfiAccount:
     ###
     # Marginfi account deposit
     ###
+    @property
     def deposit_record(self):
         return self._deposit_record
 
     ###
     # Marginfi account debt
     ###
+    @property
     def borrow_record(self):
         return self._borrow_record
     
