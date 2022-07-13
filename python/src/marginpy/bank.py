@@ -28,7 +28,6 @@ class Bank:
     account_deposit_limit: float
     lp_deposit_limit: float
 
-    # @todo figure out number types: float vs. int vs. etc.
     def __init__(self, data: BankDecoded) -> None:
         self.scaling_factor_c = Decimal.from_account_data(data.scaling_factor_c).to_float()
         self.fixed_fee = Decimal.from_account_data(data.fixed_fee).to_float()
@@ -51,6 +50,7 @@ class Bank:
         self.account_deposit_limit = Decimal.from_account_data(data.account_deposit_limit).to_float()
         self.lp_deposit_limit = Decimal.from_account_data(data.lp_deposit_limit).to_float()
 
+    # @todo should we error on negative `record` values?
     def compute_native_amount(
             self,
             record: float,
@@ -65,6 +65,7 @@ class Bank:
                 "Unknown lending side: {}".format(side)
             )
 
+    # @todo should we error on negative `record` values?
     def compute_record_amount(
             self,
             record: float,
@@ -79,6 +80,7 @@ class Bank:
                 "Unknown lending side: {}".format(side)
             )
 
+    # @todo checks here that it should be 0 <= x <= 1 ?
     def margin_ratio(
             self,
             mreq_type: MarginRequirementKind
