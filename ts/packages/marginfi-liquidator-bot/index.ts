@@ -42,7 +42,7 @@ const marginfiAccountPk = new PublicKey(process.env.MARGINFI_ACCOUNT!);
       await processAccounts(marginClient, marginfiAccount);
     } catch (e: any) {
       debug("Error in liquidator: %s", e);
-      
+
       captureException(e, {
         extra: { errorCode: e?.logs?.at(-1)?.split(" ")?.at(-1) },
       });
