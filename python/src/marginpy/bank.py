@@ -2,6 +2,7 @@ from marginpy.generated_client.types import Bank as BankDecoded, LendingSideKind
 
 class Bank:
     
+    #@todo figure out number types: float vs. int vs. etc.
     def __init__(self, data: BankDecoded) -> None:
         self.scaling_factor_c = data.scaling_factor_c
         self.fixed_fee = data.fixed_fee
