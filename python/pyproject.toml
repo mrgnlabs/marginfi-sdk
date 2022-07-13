@@ -8,6 +8,7 @@ authors = ["man0s <95379755+losman0s@users.noreply.github.com>"]
 python = "^3.9"
 anchorpy = "^0.9.3"
 solana = "0.25.0"
+buffer = "^0.2.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
