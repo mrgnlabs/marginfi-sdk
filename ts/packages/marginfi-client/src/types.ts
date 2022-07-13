@@ -151,11 +151,11 @@ export interface BankData {
   nativeBorrowBalance: DecimalData;
   mint: PublicKey;
   vault: PublicKey;
-  bankAutorityBump: number;
+  bankAuthorityBump: number;
   insuranceVault: PublicKey;
-  insuranceVaultAutorityBump: number;
+  insuranceVaultAuthorityBump: number;
   feeVault: PublicKey;
-  feeVaultAutorityBump: number;
+  feeVaultAuthorityBump: number;
   initMarginRatio: DecimalData;
   maintMarginRatio: DecimalData;
 }

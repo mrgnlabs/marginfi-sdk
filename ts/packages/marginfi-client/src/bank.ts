@@ -18,11 +18,11 @@ class Bank {
   public readonly nativeBorrowBalance: BigNumber;
   public readonly mint: PublicKey;
   public readonly vault: PublicKey;
-  public readonly bankAutorityBump: number;
+  public readonly bankAuthorityBump: number;
   public readonly insuranceVault: PublicKey;
-  public readonly insuranceVaultAutorityBump: number;
+  public readonly insuranceVaultAuthorityBump: number;
   public readonly feeVault: PublicKey;
-  public readonly feeVaultAutorityBump: number;
+  public readonly feeVaultAuthorityBump: number;
   public readonly initMarginRatio: BigNumber;
   public readonly maintMarginRatio: BigNumber;
 
@@ -37,11 +37,11 @@ class Bank {
     this.nativeBorrowBalance = new BigNumber(Decimal.fromAccountData(data.nativeBorrowBalance).toNumber());
     this.mint = data.mint;
     this.vault = data.vault;
-    this.bankAutorityBump = data.bankAutorityBump;
+    this.bankAuthorityBump = data.bankAuthorityBump;
     this.insuranceVault = data.insuranceVault;
-    this.insuranceVaultAutorityBump = data.insuranceVaultAutorityBump;
+    this.insuranceVaultAuthorityBump = data.insuranceVaultAuthorityBump;
     this.feeVault = data.feeVault;
-    this.feeVaultAutorityBump = data.feeVaultAutorityBump;
+    this.feeVaultAuthorityBump = data.feeVaultAuthorityBump;
     this.initMarginRatio = new BigNumber(Decimal.fromAccountData(data.initMarginRatio).toNumber());
     this.maintMarginRatio = new BigNumber(Decimal.fromAccountData(data.maintMarginRatio).toNumber());
   }
