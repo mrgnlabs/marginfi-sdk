@@ -17,7 +17,7 @@ class TestMarginfiAccount():
     ###
     # @internal
     ###
-    async def test__init__(self):
+    async def test___init__(self):
         config = MarginfiConfig(Environment.MAINNET)
         wallet = Wallet.local()
         rpc_client = AsyncClient("https://marginfi.genesysgo.net/")
