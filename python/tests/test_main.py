@@ -12,6 +12,7 @@ async def test_main():
     try:
         config = MarginfiConfig(Environment.MAINNET)
         wallet = Wallet.local()
+        PublicKey.find_program_address()
         rpc_client = AsyncClient("https://marginfi.genesysgo.net/")
         client = MarginfiClient(config, wallet, rpc_client)
         account = await MarginfiAccount.fetch(PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9"), client)
