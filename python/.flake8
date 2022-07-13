@@ -1,0 +1,12 @@
+[flake8]
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    .nox,
+    noxfile.py,
+    tests,
+    src/marginpy/generated_client
+max-line-length = 120

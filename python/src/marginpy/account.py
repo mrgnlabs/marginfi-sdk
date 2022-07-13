@@ -9,9 +9,6 @@ from marginpy.client import MarginfiClient
 
 class MarginfiAccount:
 
-    ###
-    # @internal
-    ###
     def __init__(
         self,
         marginfi_account_pk: PublicKey,
@@ -23,6 +20,7 @@ class MarginfiAccount:
         mango_utp_data,
         zo_utp_data,
     ) -> None:
+        """internal."""
         self.public_key = marginfi_account_pk
         self.client = client
         # self.mango = UtpMangoAccount(client, self, mango_utp_data)

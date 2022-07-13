@@ -12,11 +12,8 @@ from anchorpy.provider import DEFAULT_OPTIONS
 from marginpy import MarginfiConfig, Environment, MarginfiClient, MarginfiAccount
 
 @pytest.mark.asyncio
-class TestMarginfiAccount():
+class TestMarginfiAccount:
     
-    ###
-    # @internal
-    ###
     async def test___init__(self):
         config = MarginfiConfig(Environment.MAINNET)
         wallet = Wallet.local()
