@@ -151,9 +151,9 @@ export interface BankData {
   totalBorrowsRecord: WrappedI8048F;
   mint: PublicKey;
   vault: PublicKey;
-  bankAutorityBump: number;
+  bankAuthorityBump: number;
   insuranceVault: PublicKey;
-  insuranceVaultAutorityBump: number;
+  insuranceVaultAuthorityBump: number;
   feeVault: PublicKey;
   feeVaultAutorityBump: number;
   initMarginRatio: WrappedI8048F;
