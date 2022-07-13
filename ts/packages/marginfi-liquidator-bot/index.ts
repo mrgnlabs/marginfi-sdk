@@ -28,7 +28,7 @@ const marginfiAccountPk = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
 (async function () {
   const debug = debugBuilder("liquidator");
-  const marginClient = await MarginfiClient.fromEnv();
+  const marginClient = await MarginfiClient.fromEnv({ wallet, connection });
 
   const marginfiGroupPk = marginClient.config.groupPk;
 
