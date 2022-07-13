@@ -9,8 +9,8 @@ from anchorpy.provider import DEFAULT_OPTIONS
 
 from marginpy import MarginfiConfig, Environment, Bank
 
-@pytest.mark.asyncio
-class MarginfiGroup:
+# @pytest.mark.asyncio
+# class MarginfiGroup:
 
     # @todo incomplete -- need bank
     # def test___init__(self):
