@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from pytest import mark
 from marginpy.decimal import Decimal
 from dataclasses import dataclass
@@ -9,7 +11,7 @@ def test_decimal_conversion() -> None:
 
     @dataclass
     class TestCase:
-        input: (int, int, int, int)  # (flags, hi, lo, mid)
+        input: Tuple[int, int, int, int]  # (flags, hi, lo, mid)
         expected_base_integer: float
         expected_float: float
         expected_scale: int

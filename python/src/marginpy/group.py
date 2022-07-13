@@ -1,8 +1,12 @@
-from anchorpy import Program, AccountsCoder
+import json
+import os
+
+from anchorpy import Program, AccountsCoder, Idl
 from solana.publickey import PublicKey
 from marginpy.bank import Bank
 from marginpy.config import MarginfiConfig
 from marginpy.generated_client.accounts import MarginfiGroup as MarginfiGroupDecoded
+from marginpy.utils import get_idl
 
 
 class MarginfiGroup:
@@ -64,11 +68,7 @@ class MarginfiGroup:
     ):
         if not (account_raw.bank.mint == config.collateral_mint_pk):
             raise Exception(
-                "Marginfi group uses collateral {}. Expected: {}".format(
-                    account_raw.bank.mint.to_base58(),
-                    config.collateral_mint_pk.toBase58()
-                )
-            )
+                f"Marginfi group uses collateral {account_raw.bank.mint}. Expected: {config.collateral_mint_pk}")
 
         return MarginfiGroup(
             config,
@@ -129,13 +129,12 @@ class MarginfiGroup:
             program: Program
     ) -> MarginfiGroupDecoded:
         data = await MarginfiGroupDecoded.fetch(program.provider.connection, config.group_pk)
+        if data is None:
+            raise Exception(f"Account {config.group_pk} not found")
         if data.bank.mint != config.collateral_mint_pk:
             raise Exception(
-                "Marginfi group uses collateral {}. Expected: {}".format(
-                    data.bank.mint.to_base58(),
-                    config.collateral_mint_pk.toBase58()
-                )
-            )
+                f"Marginfi group uses collateral {data.bank.mint}. Expected: {config.collateral_mint_pk}")
+
         return data
 
     ###
@@ -156,7 +155,8 @@ class MarginfiGroup:
     ###
     @staticmethod
     def encode(decoded: MarginfiGroupDecoded) -> bytes:
-        return AccountsCoder.build(decoded)
+        coder = AccountsCoder(get_idl())
+        return coder.build(decoded)
 
     ###
     # Update instance data by fetching and storing the latest on-chain state.

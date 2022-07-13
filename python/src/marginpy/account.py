@@ -5,20 +5,21 @@ from solana.rpc.async_api import AsyncClient
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountDecoded
 from marginpy.group import MarginfiGroup
 from marginpy.client import MarginfiClient
+from marginpy.utils import get_idl
 
 
 class MarginfiAccount:
 
     def __init__(
-        self,
-        marginfi_account_pk: PublicKey,
-        authority: PublicKey,
-        client,
-        group: MarginfiGroup,
-        deposit_record,
-        borrow_record,
-        mango_utp_data,
-        zo_utp_data,
+            self,
+            marginfi_account_pk: PublicKey,
+            authority: PublicKey,
+            client,
+            group: MarginfiGroup,
+            deposit_record,
+            borrow_record,
+            mango_utp_data,
+            zo_utp_data,
     ) -> None:
         """internal."""
         self.public_key = marginfi_account_pk
@@ -61,8 +62,8 @@ class MarginfiAccount:
     # @todo promises in py
     @staticmethod
     async def fetch(
-        marginfi_account_pk: PublicKey,
-        client: MarginfiClient
+            marginfi_account_pk: PublicKey,
+            client: MarginfiClient
     ):
         # @todo destructuring in py
 
@@ -77,8 +78,8 @@ class MarginfiAccount:
             account_data.authority,
             client,
             await MarginfiGroup.get(client.config, client.program),
-            account_data.deposit_record, # @todo need to wrap in mDecimalToNative equivalent
-            account_data.borrow_record, # @todo need to wrap in mDecimalToNative equivalent
+            account_data.deposit_record,  # @todo need to wrap in mDecimalToNative equivalent
+            account_data.borrow_record,  # @todo need to wrap in mDecimalToNative equivalent
             MarginfiAccount._pack_utp_data(account_data, 0),
             MarginfiAccount._pack_utp_data(account_data, 1)
         )
@@ -92,7 +93,7 @@ class MarginfiAccount:
     @property
     def _config(self):
         return self.client.config
-    
+
     ###
     # MarginfiAccount local factory (decoded)
     #
@@ -107,30 +108,26 @@ class MarginfiAccount:
     ###
     @staticmethod
     def from_account_data(
-        marginfi_account_pk: PublicKey,
-        client: MarginfiClient,
-        account_data: MarginfiAccountDecoded,
-        marginfi_group: MarginfiGroup
+            marginfi_account_pk: PublicKey,
+            client: MarginfiClient,
+            account_data: MarginfiAccountDecoded,
+            marginfi_group: MarginfiGroup
     ):
         if not (account_data.marginfi_group == client.config.group_pk):
             raise Exception(
-                "Marginfi account tied to group {}. Expected: {}".format(
-                    account_data.marginfi_group.to_base58(),
-                    client.config.group_pk.to_base58()
-                )
-            )
-        
+                f"Marginfi account tied to group {account_data.marginfi_group}. Expected: {client.config.group_pk}")
+
         return MarginfiAccount(
             marginfi_account_pk,
             account_data.authority,
             client,
             marginfi_group,
-            account_data.deposit_record, # @todo wrap in mDecimalToNative
-            account_data.borrow_record, # @todo wrap in mDecimalToNative
+            account_data.deposit_record,  # @todo wrap in mDecimalToNative
+            account_data.borrow_record,  # @todo wrap in mDecimalToNative
             MarginfiAccount._pack_utp_data(account_data, 0),
             MarginfiAccount._pack_utp_data(account_data, 1)
         )
-    
+
     ###
     # MarginfiAccount local factory (encoded)
     #
@@ -146,10 +143,10 @@ class MarginfiAccount:
     ###
     @staticmethod
     def from_account_data_raw(
-        marginfi_account_pk: PublicKey,
-        client: MarginfiClient,
-        marginfi_account_raw_data: bytes,
-        marginfi_group: MarginfiGroup
+            marginfi_account_pk: PublicKey,
+            client: MarginfiClient,
+            marginfi_account_raw_data: bytes,
+            marginfi_group: MarginfiGroup
     ):
         marginfi_account_data = MarginfiAccount.decode(marginfi_account_raw_data)
 
@@ -175,7 +172,7 @@ class MarginfiAccount:
     @property
     def borrow_record(self):
         return self._borrow_record
-    
+
     # --- Others
 
     ###
@@ -188,18 +185,16 @@ class MarginfiAccount:
     ###
     @staticmethod
     async def _fetch_account_data(
-        account_address,
-        config,
-        client: AsyncClient
+            account_address,
+            config,
+            client: AsyncClient
     ):
         data = await MarginfiAccountDecoded.fetch(client, account_address)
+        if data is None:
+            raise Exception(f"Account {config.group_pk} not found")
         if not (data.marginfi_group == config.group_pk):
             raise Exception(
-                "Marginfi account tied to group {}. Expected: {}".format(
-                    data.marginfi_group.to_base58(),
-                    config.groupPk.to_base58()
-                )
-            )
+                f"Marginfi account tied to group {data.marginfi_group}. Expected: {config.group_pk}")
 
         return data
 
@@ -236,16 +231,17 @@ class MarginfiAccount:
     ###
     @staticmethod
     async def encode(decoded: MarginfiAccountDecoded):
-        return AccountsCoder.build(decoded)
+        coder = AccountsCoder(get_idl())
+        return coder.build(decoded)
 
     ###
     # Update instance data by fetching and storing the latest on-chain state.
     ###
-    async def reload(self): 
+    async def reload(self):
         data = await MarginfiAccount._fetch_account_data(self.public_key, self._config, self._program)
         self._group = await MarginfiGroup.get(self._config, self._program)
         self._update_from_account_data(data)
-    
+
     ###
     # Update instance data from provided data struct.
     #
@@ -253,12 +249,12 @@ class MarginfiAccount:
     ###
     def _update_from_account_data(self, data: MarginfiAccountDecoded):
         self._authority = data.authority
-        self._deposit_record = data.deposit_record #@todo wrap in mDecimalToNative
-        self._borrow_record = data.borrow_record #@todo wrap in mDecimalToNative
+        self._deposit_record = data.deposit_record  # @todo wrap in mDecimalToNative
+        self._borrow_record = data.borrow_record  # @todo wrap in mDecimalToNative
 
         # self.mango.update(MarginfiAccount._pack_utp_data(data, self._config.mango.utpIndex))
         # self.zo.update(MarginfiAccount._pack_utp_data(data, self._config.zo.utpIndex))
-    
+
     # ###
     # # Create transaction instruction to deposit collateral into the marginfi account.
     # #
