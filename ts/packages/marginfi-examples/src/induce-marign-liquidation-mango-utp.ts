@@ -66,7 +66,7 @@ const depositAmount = 100;
   const mangoGroup = await marginfiAccount.mango.getMangoGroup();
   const mangoAccount = await marginfiAccount.mango.getMangoAccount();
 
-  const perpMarketConfig = getMarketByBaseSymbolAndKind(marginfiAccount.mango.config.groupConfig, "BTC", "perp");
+  const perpMarketConfig = getMarketByBaseSymbolAndKind(marginfiAccount.mango.config.groupConfig, "SOL", "perp");
 
   const mangoBtcMarket = await mangoGroup.loadPerpMarket(
     connection,

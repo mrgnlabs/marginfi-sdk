@@ -90,19 +90,21 @@ async function liquidate(liquidateeMarginfiAccount: MarginfiAccount, liquidatorM
   debug("Liquidating account %s", liquidateeMarginfiAccount.publicKey);
 
   const { equity: liquidatorEquity } = await liquidatorMarginfiAccount.computeBalances();
-  debug("Available balance %s", liquidatorEquity.toNumber());
+  debug("Available balance $%s", liquidatorEquity.toFixed(4));
 
   const affordableUtps = liquidateeMarginfiAccount.activeUtps.filter((utp) =>
     utp.computeLiquidationPrices().discountedLiquidatorPrice.lte(liquidatorEquity)
   );
-  const cheapestUtp = affordableUtps.sort((utp1, utp2) =>
-    utp1
-      .computeLiquidationPrices()
-      .discountedLiquidatorPrice.minus(utp2.computeLiquidationPrices().discountedLiquidatorPrice)
-      .toNumber()
-  )[0];
+  const cheapestUtp = affordableUtps
+    .sort((utp1, utp2) =>
+      utp1
+        .computeLiquidationPrices()
+        .discountedLiquidatorPrice.minus(utp2.computeLiquidationPrices().discountedLiquidatorPrice)
+        .toNumber()
+    )
+    .at(0);
 
-  if (!cheapestUtp.index) {
+  if (!cheapestUtp) {
     console.log("Insufficient balance to liquidate any UTP");
     return;
   }
@@ -327,12 +329,14 @@ async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
   const dis = { memcmp: { offset: 32 + 8, bytes: marginfiGroupPk.toBase58() } };
   const rawMarignAccounts = await mfiClient.program.account.marginfiAccount.all([dis]);
 
-  const marginfiAccounts = rawMarignAccounts.map((a) => {
-    let data: MarginfiAccountData = a.account as any;
-    return MarginfiAccount.fromAccountData(a.publicKey, mfiClient, data, mfiClient.group);
-  });
+  const marginfiAccounts = rawMarignAccounts
+    .map((a) => {
+      let data: MarginfiAccountData = a.account as any;
+      return MarginfiAccount.fromAccountData(a.publicKey, mfiClient, data, mfiClient.group);
+    })
+    .filter((a) => a.borrows.gt(0));
 
-  debug("Loaded %d marginfi accounts", marginfiAccounts.length);
+  debug("Loaded %d marginfi accounts with liabilities", marginfiAccounts.length);
 
   return marginfiAccounts;
 }
