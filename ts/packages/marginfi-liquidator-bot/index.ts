@@ -69,7 +69,8 @@ async function processAccounts(client: MarginfiClient, marginfiAccount: Marginfi
   for (let account of accounts) {
     debug("Checking account %s", account.publicKey);
     try {
-      if (await account.canBeLiquidated()) {
+      await account.reload(true);
+      if (account.canBeLiquidated()) {
         await liquidate(account, marginfiAccount);
       }
     } catch (e: any) {
@@ -77,7 +78,7 @@ async function processAccounts(client: MarginfiClient, marginfiAccount: Marginfi
         user: { id: account.publicKey.toBase58() },
         extra: { errorCode: e?.logs?.at(-1)?.split(" ")?.at(-1) },
       });
-
+      debug("Error in liquidator: %s", e);
       debug("Can't verify if account liquidatable");
     }
   }
@@ -87,8 +88,6 @@ async function liquidate(liquidateeMarginfiAccount: MarginfiAccount, liquidatorM
   const debug = debugBuilder("liquidator:liquidator");
 
   debug("Liquidating account %s", liquidateeMarginfiAccount.publicKey);
-
-  await liquidateeMarginfiAccount.observeUtps();
 
   const { equity: liquidatorEquity } = await liquidatorMarginfiAccount.computeBalances();
   debug("Available balance %s", liquidatorEquity.toNumber());

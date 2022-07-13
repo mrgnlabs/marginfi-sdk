@@ -657,7 +657,11 @@ class MarginfiAccount {
   public meetsMarginRequirement(type: MarginRequirementType): boolean {
     const { equity } = this.computeBalances();
     const marginRequirement = this.computeMarginRequirement(type);
-    return equity > marginRequirement;
+    const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:margin-requirement`);
+
+    debug("Margin req (type: %s) $%s, equity $%s", type, marginRequirement.toFixed(4), equity.toFixed(4));
+
+    return equity.gte(marginRequirement);
   }
 
   public isUtpActive(utpIndex: UtpIndex): boolean {
