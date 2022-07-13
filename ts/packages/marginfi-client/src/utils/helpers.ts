@@ -82,8 +82,9 @@ export async function processTransaction(
   signers?: Array<Signer>,
   opts?: ConfirmOptions
 ): Promise<TransactionSignature> {
-  const blockhash = await provider.connection.getLatestBlockhash();
-  tx.recentBlockhash = blockhash.blockhash;
+  const { blockhash } = await provider.connection.getLatestBlockhash();
+
+  tx.recentBlockhash = blockhash;
   tx.feePayer = provider.wallet.publicKey;
   tx = await provider.wallet.signTransaction(tx);
 
