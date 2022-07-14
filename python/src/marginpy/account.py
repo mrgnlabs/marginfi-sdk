@@ -13,8 +13,19 @@ from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccoun
 from marginpy.generated_client.types.lending_side import Deposit, Borrow
 from marginpy.group import MarginfiGroup
 from marginpy.client import MarginfiClient
-from marginpy.instruction import make_deposit_ix, DepositAccounts, DepositArgs
-from marginpy.utils import load_idl, UtpIndex, UtpData, json_to_account_info, b64str_to_bytes, ui_to_native
+from marginpy.instruction import make_deposit_ix, \
+    DepositAccounts, DepositArgs, \
+    WithdrawArgs, WithdrawAccounts, make_withdraw_ix, \
+    DeactivateUtpArgs, DeactivateUtpAccounts, make_deactivate_utp_ix, \
+    HandleBankruptcyAccounts, make_handle_bankruptcy_ix
+from marginpy.utils import load_idl, \
+    UtpIndex, \
+    UtpData, \
+    json_to_account_info, \
+    b64str_to_bytes, \
+    ui_to_native, \
+    get_bank_authority, \
+    BankVaultType
 from marginpy.decimal import Decimal
 
 
@@ -339,6 +350,8 @@ class MarginfiAccount:
     def get_observation_accounts(self) -> List[AccountMeta]:
         pass  # TODO
 
+    # --- Deposit to GMA
+
     def make_deposit_ix(self, amount: float) -> TransactionInstruction:
         """
         Create transaction instruction to deposit collateral into the marginfi account.
@@ -367,6 +380,112 @@ class MarginfiAccount:
 
         deposit_ix = self.make_deposit_ix(amount)
         tx = Transaction().add(deposit_ix)
+        return await self._program.provider.send(tx)
+
+    # --- Withdraw from GMA
+
+    async def make_withdraw_ix(self, amount: float) -> TransactionInstruction: # @todo amount types don't match -- float or int?
+        """
+        Create transaction instruction to withdraw collateral from the marginfi account.
+        
+        :param amount Amount to withdraw (mint native unit)
+        :returns `MarginWithdrawCollateral` transaction instruction
+        """
+
+        user_ata = get_associated_token_address(self._program.provider.wallet.public_key, self.group.bank.mint)
+        margin_bank_authority_pk = await get_bank_authority(self._config.group_pk, self._program.program_id)
+        remaining_accounts = self.get_observation_accounts()
+
+        return make_withdraw_ix(
+            WithdrawArgs(amount=ui_to_native(amount)),
+            WithdrawAccounts(
+                marginfi_group_pk=self.group.pubkey, #@todo we should probably standardize pubkey vs. public_key?
+                marginfi_account_pk=self.pubkey,
+                authority_pk=self._program.provider.wallet.public_key,
+                bank_vault_pk=self.group.bank.vault,
+                bank_vault_authority_pk=margin_bank_authority_pk,
+                receiving_token_account=user_ata
+            ),
+            remaining_accounts
+        )
+
+    async def withdraw(self, amount: float) -> TransactionSignature:
+        """
+        Withdraw collateral from the marginfi account.
+        
+        :param amount Amount to withdraw (mint native unit)
+        :returns Transaction signature
+        """
+
+        withdraw_ix = await self.make_withdraw_ix(amount)
+        tx = Transaction().add(withdraw_ix)
+        return await self._program.provider.send(tx)
+
+    # --- Deactivate UTP
+
+    def make_deactivate_utp_ix(self, utp_index: UtpIndex) -> TransactionInstruction:
+        """
+        [Internal] Create transaction instruction to deactivate the target UTP.
+        
+        :param utpIndex Target UTP index
+        :returns `DeactivateUtp` transaction instruction
+        """
+
+        remaining_accounts = self.get_observation_accounts()
+
+        return make_deactivate_utp_ix(
+            DeactivateUtpArgs(
+                utp_index=utp_index
+            ),
+            DeactivateUtpAccounts(
+                marginfi_account_pk=self.pubkey,
+                authority_pk=self._program.provider.wallet.public_key
+            ),
+            remaining_accounts
+        )
+    
+    async def deactivate_utp(self, utp_index: UtpIndex) -> TransactionSignature:
+        """
+        [Internal] Deactivate the target UTP.
+        
+        :param utpIndex Target UTP index
+        :returns Transaction signature
+        """
+
+        deactivate_ix = self.make_deactivate_utp_ix(utp_index)
+        tx = Transaction().add(deactivate_ix)
+        return await self._program.provider.send(tx)
+
+    async def make_handle_bankruptcy_ix(self):
+        """
+        Create transaction instruction to handle a bankrupt account.
+        
+        :returns `HandleBankruptcy` transaction instruction
+        """
+        
+        insurance_vault_authority_pk = await get_bank_authority(self._config.group_pk, self._program.program_id, BankVaultType.InsuranceVault)
+        remaining_accounts = self.get_observation_accounts()
+
+        return make_handle_bankruptcy_ix(
+            HandleBankruptcyAccounts(
+                marginfi_account_pk=self.pubkey,
+                marginfi_group_pk=self.group.pubkey,
+                insurance_vault_pk=self.group.bank.insurance_vault,
+                insurance_vault_authority_pk=insurance_vault_authority_pk,
+                liquidity_vault_pk=self.group.bank.vault,
+            ),
+            remaining_accounts
+        )
+
+    async def handle_bankruptcy(self):
+        """
+        Handle a bankrupt account.
+
+        :returns Transaction signature
+        """
+        
+        bankruptcy_ix = await self.make_handle_bankruptcy_ix()
+        tx = Transaction().add(bankruptcy_ix)
         return await self._program.provider.send(tx)
 
     ###
