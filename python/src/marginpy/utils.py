@@ -4,7 +4,7 @@ import os
 from anchorpy import Idl
 
 
-def get_idl() -> Idl:
+def load_idl() -> Idl:
     idl_path = os.path.join(os.path.dirname(__file__), "idl.json")
     with open(idl_path) as f:
         raw_idl = json.load(f)

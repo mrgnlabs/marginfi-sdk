@@ -1,16 +1,13 @@
-import json
-import os
-
-from anchorpy import Program, AccountsCoder, Idl
+from anchorpy import Program, AccountsCoder
 from solana.publickey import PublicKey
 from marginpy.bank import Bank
 from marginpy.config import MarginfiConfig
 from marginpy.generated_client.accounts import MarginfiGroup as MarginfiGroupDecoded
-from marginpy.utils import get_idl
+from marginpy.utils import load_idl
 
 
 class MarginfiGroup:
-    public_key: PublicKey
+    pubkey: PublicKey
 
     def __init__(
             self,
@@ -19,7 +16,7 @@ class MarginfiGroup:
             admin: PublicKey,
             bank: Bank,
     ) -> None:
-        self.public_key = config.group_pk
+        self.pubkey = config.group_pk
         self._config = config
         self._program = program
         self._admin = admin
@@ -137,25 +134,25 @@ class MarginfiGroup:
 
         return data
 
-    ###
-    # Decode marginfi group account data according to the Anchor IDL.
-    #
-    # @param encoded Raw data buffer
-    # @return Decoded marginfi group account data struct
-    ###
     @staticmethod
-    def decode(buffer: bytes) -> MarginfiGroupDecoded:
-        return MarginfiGroupDecoded.decode(buffer)
+    def decode(encoded: bytes) -> MarginfiGroupDecoded:
+        """
+        Decode marginfi group data according to the Anchor IDL.
 
-    ###
-    # Encode marginfi group account data according to the Anchor IDL.
-    #
-    # @param decoded Encoded marginfi group account data buffer
-    # @return Raw data buffer
-    ###
+        :param encoded: raw data buffer
+        :returns: decoded marginfi group data struct
+        """
+        return MarginfiGroupDecoded.decode(encoded)
+
     @staticmethod
     def encode(decoded: MarginfiGroupDecoded) -> bytes:
-        coder = AccountsCoder(get_idl())
+        """
+        Encode marginfi group data according to the Anchor IDL.
+
+        :param decoded: decoded marginfi group data struct
+        :returns: raw data buffer
+        """
+        coder = AccountsCoder(load_idl())
         return coder.build(decoded)
 
     ###

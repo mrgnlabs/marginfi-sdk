@@ -1,4 +1,4 @@
-from marginpy.generated_client.types import MDecimal as DecimalData, LendingSideKind, MarginRequirementKind
+from marginpy.generated_client.types import MDecimal as DecimalData
 
 SCALE_SHIFT: int = 16
 SCALE_MASK: int = 0x00ff_0000
