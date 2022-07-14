@@ -7,8 +7,10 @@ from typing import Dict, Any
 
 from anchorpy import Idl
 from solana.rpc.responses import AccountInfo
+from solana.publickey import PublicKey
 
-from marginpy.constants import COLLATERAL_DECIMALS
+from marginpy.constants import COLLATERAL_DECIMALS, \
+    PDA_BANK_VAULT_SEED, PDA_BANK_INSURANCE_VAULT_SEED, PDA_BANK_FEE_VAULT_SEED, VERY_VERBOSE_ERROR
 from marginpy.generated_client.types import UTPAccountConfig
 
 
@@ -48,3 +50,39 @@ def json_to_account_info(account_info_raw: Dict[str, Any]) -> AccountInfo:
 
 def ui_to_native(amount: float, decimals: int = COLLATERAL_DECIMALS) -> int:
     return int(amount * 10 ** decimals)
+
+
+class BankVaultType(enum.Enum):
+    LiquidityVault = "LiquidityVault"
+    InsuranceVault = "InsuranceVault"
+    FeeVault = "FeeVault"
+
+    def __index__(self):
+        return self.value
+
+
+def get_vault_seeds(
+    type: BankVaultType
+) -> bytes:
+    if type == BankVaultType.LiquidityVault:
+        return PDA_BANK_VAULT_SEED
+    elif type == BankVaultType.InsuranceVault:
+        return PDA_BANK_INSURANCE_VAULT_SEED
+    elif type == BankVaultType.FeeVault:
+        return PDA_BANK_FEE_VAULT_SEED
+    else:
+        raise Exception(VERY_VERBOSE_ERROR)
+
+
+async def get_bank_authority(
+    marginfi_group_pk: PublicKey,
+    program_id: PublicKey,
+    bank_vault_type: BankVaultType = BankVaultType.LiquidityVault
+):
+    return PublicKey.find_program_address(
+        [
+            get_vault_seeds(bank_vault_type),
+            marginfi_group_pk.encode()
+        ],
+        program_id
+    )
