@@ -4,17 +4,19 @@ from solana.publickey import PublicKey
 
 from marginpy.constants import INSURANCE_VAULT_LIQUIDATION_FEE, LIQUIDATOR_LIQUIDATION_FEE
 
+
 class UtpAccount(ABC):
     is_active: bool
+
     # _utp_config: UTPAccountConfig
     # _cached_observation: UtpObservation
 
     def __init__(
-        self,
-        _client,
-        _marginfi_account,
-        is_active,
-        utp_config
+            self,
+            _client,
+            _marginfi_account,
+            is_active,
+            utp_config
     ):
         self._client = _client
         self._marginfi_account = _marginfi_account
@@ -39,9 +41,10 @@ class UtpAccount(ABC):
     async def withdraw(self, amount):
         pass
 
-    #@todo confirm this is right
-    @abstractproperty
-    async def config(self):
+    # @todo confirm this is right
+    @property
+    @abstractmethod
+    def config(self):
         pass
 
     # --- Getters / Setters
@@ -82,7 +85,7 @@ class UtpAccount(ABC):
     @property
     def is_rebalance_deposit_needed(self):
         self.cached_observation.is_rebalance_deposit_needed
-    
+
     @property
     def max_rebalance_deposit_amount(self):
         self.cached_observation.max_rebalance_deposit_amount
@@ -90,7 +93,7 @@ class UtpAccount(ABC):
     @property
     def is_empty(self):
         self.cached_observation.is_empty
-    
+
     @property
     def address(self):
         self._utp_config.address
@@ -125,7 +128,7 @@ class UtpAccount(ABC):
             discounted_liquidator_price,
             insurance_vault_fee
         }
-    
+
     ###
     # Update instance data from provided data struct.
     #
@@ -134,16 +137,12 @@ class UtpAccount(ABC):
     def update(self, data):
         self.is_active = data.is_active
         self._utp_config = data.account_config
-    
+
     def to_string(self):
-        return (
-            "Timestamp: {}\nEquity: {}\nFree Collateral: {}\nLiquidation Value: {}\nRebalance Needed: {}\nMax Rebalance: {}\nIs empty: {}".format(
-                str(self._cached_observation.timestamp),
-                str(self.equity),
-                str(self.free_collateral),
-                str(self.liquidation_value),
-                str(self.is_rebalance_deposit_needed),
-                str(self.max_rebalance_deposit_amount),
-                self.is_emptry
-            )
-        )
+        return (f"""Timestamp: {self._cached_observation.timestamp}
+                Equity: {self.equity}
+                Free Collateral: {self.free_collateral}
+                Liquidation Value: {self.liquidation_value}
+                Rebalance Needed: {self.is_rebalance_deposit_needed}
+                Max Rebalance: {self.max_rebalance_deposit_amount}
+                Is empty: {self.is_empty}""")
