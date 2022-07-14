@@ -55,7 +55,7 @@ class MarginfiConfig:
                 "Unknown environment {}".format(environment)
             )
 
-# @todo: Add Config
+# @todo: do we need this?
 # JS:
 # export async function getConfig(
 #   environment: Environment,
