@@ -8,6 +8,7 @@ from typing import Dict, Any
 from anchorpy import Idl
 from solana.rpc.responses import AccountInfo
 
+from marginpy.constants import COLLATERAL_DECIMALS
 from marginpy.generated_client.types import UTPAccountConfig
 
 
@@ -43,3 +44,7 @@ def json_to_account_info(account_info_raw: Dict[str, Any]) -> AccountInfo:
                        rent_epoch=account_info_raw['rentEpoch'],
                        data=account_info_raw['data'],
                        executable=account_info_raw['executable'])
+
+
+def ui_to_native(amount: float, decimals: int = COLLATERAL_DECIMALS) -> int:
+    return int(amount * 10 ** decimals)

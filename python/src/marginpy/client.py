@@ -10,6 +10,7 @@ from solana.keypair import Keypair
 from solana.rpc import types
 from solana.rpc.async_api import AsyncClient
 from solana.system_program import SYS_PROGRAM_ID
+from solana.transaction import Transaction, TransactionSignature
 
 from marginpy.generated_client.instructions import InitMarginfiAccountAccounts
 from marginpy.instruction import make_init_marginfi_account_ix
@@ -40,49 +41,27 @@ class MarginfiClient:
 
     # --- Others
 
-    async def create_marginfi_account(self):
+    async def create_marginfi_account(self) -> TransactionSignature:
         """
         * Create a new marginfi account under the authority of the user.
         *
         * @returns MarginfiAccount instance
         """
         marginfi_account_key = Keypair()
-        print(
-            "Creating Marginfi account {}".format(
-                marginfi_account_key.public_key
-            )
-        )
+        print(f"Creating Marginfi account {marginfi_account_key.public_key}")
 
-        create_marginfi_account_account_ix = await self.program.account.marginfiAccount.createInstruction(
+        create_marginfi_account_account_ix = await self.program.account["marginfi_account"].create_instruction(
             marginfi_account_key
         )
-
         init_marginfi_account_ix = await make_init_marginfi_account_ix(
             InitMarginfiAccountAccounts(
                 marginfi_group=self.group.pubkey,
                 marginfi_account=marginfi_account_key.public_key,
-                authority=self.program.provider.wallet.pubkey,
+                authority=self.program.provider.wallet.public_key,
                 system_program=SYS_PROGRAM_ID)
         )
+        tx = Transaction().add(create_marginfi_account_account_ix, init_marginfi_account_ix)
+        return await self.program.provider.send(tx)
 
-        # const createMarginfiAccountAccountIx = await this.program.account.marginfiAccount.createInstruction(
-        # marginfiAccountKey
-        # );
-        # const initMarginfiAccountIx = await makeInitMarginfiAccountIx(this.program, {
-        # marginfiGroupPk: this._group.publicKey,
-        # marginfiAccountPk: marginfiAccountKey.publicKey,
-        # authorityPk: this.program.provider.wallet.publicKey,
-        # });
-
-        # const ixs = [createMarginfiAccountAccountIx, initMarginfiAccountIx];
-
-        # const tx = new Transaction().add(...ixs);
-        # const sig = await processTransaction(this.program.provider, tx, [marginfiAccountKey]);
-
-        # dbg("Created Marginfi account %s", sig);
-
-        # return MarginfiAccount.get(marginfiAccountKey.publicKey, this);
-        return None
-
-    async def terminate(self):
+    async def terminate(self) -> None:
         await self.program.close()
