@@ -23,21 +23,6 @@ class TestMarginfiAccount:
         
         assert isinstance(account, MarginfiAccount)
 
-    async def test__str__(self):
-        config = MarginfiConfig(Environment.MAINNET)
-        wallet = Wallet.local()
-        rpc_client = AsyncClient("https://marginfi.genesysgo.net/")
-        client = MarginfiClient(config, wallet, rpc_client)
-        account = await MarginfiAccount.fetch(PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9"), client)
-
-        res_exp = f"Address: {account.public_key.to_base58()}\n" \
-               f"Group: {account.group.public_key.to_base58()}\n" \
-               f"Authority: {account.authority.to_base58()}"
-
-        res_actual = account.__str__()
-
-        assert res_exp == res_actual
-
     async def test_all_utps(self):
         config = MarginfiConfig(Environment.MAINNET)
         wallet = Wallet.local()
@@ -86,7 +71,7 @@ class TestMarginfiAccount:
 
         compare(res_exp._borrow_record, res_actual._borrow_record)
         compare(res_exp._deposit_record, res_actual._deposit_record)
-        compare(res_exp.authority, res_actual.authority)
+        compare(res_exp._authority, res_actual._authority)
         compare(res_exp.client, res_actual.client)
         compare(res_exp.public_key, res_actual.public_key)
     
@@ -164,7 +149,7 @@ class TestMarginfiAccount:
             client.program.provider.connection
         )
 
-        res_exp = account.deposit_record
+        res_exp = account._deposit_record
         res_actual = account_data.deposit_record
 
         assert res_exp == res_actual
@@ -185,7 +170,7 @@ class TestMarginfiAccount:
             client.program.provider.connection
         )
 
-        res_exp = account.borrow_record
+        res_exp = account._borrow_record
         res_actual = account_data.borrow_record
 
         assert res_exp == res_actual
@@ -214,11 +199,11 @@ class TestMarginfiAccount:
             client.program.provider.connection
         )
 
-        assert account.authority == account_data.authority
+        assert account._authority == account_data.authority
         # @todo double-check group output is correct
         assert account.group.public_key == account_data.marginfi_group
-        assert account.deposit_record == account_data.deposit_record
-        assert account.borrow_record == account_data.borrow_record
+        assert account._deposit_record == account_data.deposit_record
+        assert account._borrow_record == account_data.borrow_record
         # @todo active_utps are an interesting misalignment right now
         # assert account.active_utps == account_data.active_utps
 
