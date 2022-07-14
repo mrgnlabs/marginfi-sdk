@@ -1,5 +1,3 @@
-from anchorpy import Program
-from solana.system_program import SYS_PROGRAM_ID
 from marginpy.generated_client.instructions import InitMarginfiAccountAccounts
 
 

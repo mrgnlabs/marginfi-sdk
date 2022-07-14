@@ -59,9 +59,9 @@ class MarginfiClient:
 
         init_marginfi_account_ix = await make_init_marginfi_account_ix(
             InitMarginfiAccountAccounts(
-                marginfi_group=self.group.public_key,
+                marginfi_group=self.group.pubkey,
                 marginfi_account=marginfi_account_key.public_key,
-                authority=self.program.provider.wallet.public_key,
+                authority=self.program.provider.wallet.pubkey,
                 system_program=SYS_PROGRAM_ID)
         )
 

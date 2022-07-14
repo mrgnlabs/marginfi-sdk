@@ -5,65 +5,83 @@ from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountDecoded
+from marginpy.generated_client.types.lending_side import Deposit, Borrow
 from marginpy.group import MarginfiGroup
 from marginpy.client import MarginfiClient
-from marginpy.utils import get_idl
-from marginpy.generated_client.types.lending_side import Borrow, Deposit
+from marginpy.utils import load_idl
 from marginpy.decimal import Decimal
 
 
 class MarginfiAccount:
-    public_key: PublicKey
-    client: MarginfiClient
-    # mango:
-    # zo:
+    _pubkey: PublicKey
+    _group: MarginfiGroup
+    # TODO: observation_cache
+    _client: MarginfiClient
+
     _authority: PublicKey
-    group: MarginfiGroup
     _deposit_record: float
     _borrow_record: float
+
+    # mango:
+    # zo:
 
     def __init__(
             self,
             marginfi_account_pk: PublicKey,
             authority: PublicKey,
-            client,
+            client: MarginfiClient,
             group: MarginfiGroup,
-            deposit_record,
-            borrow_record,
+            deposit_record: float,
+            borrow_record: float,
             mango_utp_data,
             zo_utp_data,
     ) -> None:
-        """internal."""
-        self.public_key = marginfi_account_pk
-        self.client = client
+        """
+        [Internal] Constructor.
+
+        :param marginfi_account_pk: address of the marginfi account
+        :param authority: marginfi account authority
+        :param client: marginfi client
+        :param group: parent marginfi group
+        :param deposit_record: marginfi account deposit record
+        :param borrow_record: marginfi account borrow record
+        """
+        self._pubkey = marginfi_account_pk
+        self._client = client
+        self._authority = authority
+        self._group = group
+
         # self.mango = UtpMangoAccount(client, self, mango_utp_data)
         # self.zo = UtpZoaccount(client, self, zo_utp_data)
-        self._authority = authority
-        self.group = group
+
         self._deposit_record = deposit_record
         self._borrow_record = borrow_record
 
     # --- Getters / Setters
 
-    ###
-    # Marginfi account authority address
-    ###
+    @property
+    def pubkey(self):
+        """Marginfi account address"""
+        return self._pubkey
+
+    @property
+    def group(self):
+        """Parent marginfi group address"""
+        return self._group
+
+    @property
+    def client(self):
+        """Marginfi client"""
+        return self._client
+
     @property
     def authority(self):
+        """Marginfi account authority address"""
         return self._authority
-
-    ### @internal
-    @property
-    def _program(self):
-        return self.client.program
-
-    ### @internal
-    @property
-    def _config(self):
-        return self.client.config
 
     @property
     def all_utps(self):
+        """List of supported UTP proxy instances"""
         return [
             # self.mango,
             # self.zo
@@ -71,35 +89,47 @@ class MarginfiAccount:
 
     @property
     def active_utps(self):
+        """List of active UTP proxy instances"""
         filtered = filter(lambda x: x.is_active, self.all_utps)
         return list(filtered)
 
     @property
     def deposits(self):
+        """Current GMA deposits"""
         return self.group.bank.compute_native_amount(self._deposit_record, Deposit)
 
     @property
     def borrows(self):
+        """Current GMA borrows"""
         return self.group.bank.compute_native_amount(self._borrow_record, Borrow)
+
+    # --- Getters / Setters (internal)
+
+    @property
+    def _program(self):
+        """[Internal] Anchor program"""
+        return self.client.program
+
+    @property
+    def _config(self):
+        """[Internal] Marginfi client config"""
+        return self.client.config
 
     # --- Factories
 
-    ###
-    # MarginfiAccount network factory
-    #
-    # Fetch account data according to the config and instantiate the corresponding MarginfiAccount.
-    #
-    # @param marginfiAccountPk Address of the target account
-    # @param client marginfi client
-    # @returns MarginfiAccount instance
-    ###
-    # @todo promises in py
     @staticmethod
     async def fetch(
             marginfi_account_pk: PublicKey,
             client: MarginfiClient
     ):
+        """
+        MarginfiAccount network factory.
+        Fetch account data according to the config and instantiate the corresponding MarginfiAccount.
 
+        :param marginfi_account_pk: address of the target account
+        :param client: marginfi client
+        :returns: marginfi account instance
+        """
         account_data = await MarginfiAccount._fetch_account_data(
             marginfi_account_pk,
             client.config,
@@ -111,31 +141,17 @@ class MarginfiAccount:
             account_data.authority,
             client,
             await MarginfiGroup.get(client.config, client.program),
-            account_data.deposit_record,
-            account_data.borrow_record,
+            Decimal.from_account_data(account_data.deposit_record),
+            Decimal.from_account_data(account_data.borrow_record),
             MarginfiAccount._pack_utp_data(account_data, 0),
             MarginfiAccount._pack_utp_data(account_data, 1)
         )
 
         # @todo logging may need to be taken to the finish line
-        logging.debug(
-            f"Loaded marginfi account {marginfi_account_pk.to_base58()}"
-        )
+        logging.debug(f"mfi:margin-account Loaded marginfi account {marginfi_account_pk}")
 
         return marginfi_account
 
-    ###
-    # MarginfiAccount local factory (decoded)
-    #
-    # Instantiate a MarginfiAccount according to the provided decoded data.
-    # Check sanity against provided config.
-    #
-    # @param marginfiAccountPk Address of the target account
-    # @param client marginfi client
-    # @param accountData Decoded marginfi marginfi account data
-    # @param marginfiGroup MarginfiGroup instance
-    # @returns MarginfiAccount instance
-    ###
     @staticmethod
     def from_account_data(
             marginfi_account_pk: PublicKey,
@@ -143,6 +159,18 @@ class MarginfiAccount:
             account_data: MarginfiAccountDecoded,
             marginfi_group: MarginfiGroup
     ):
+        """
+        MarginfiAccount local factory (decoded)
+
+        Instantiate a MarginfiAccount according to the provided decoded data.
+        Check sanity against provided config.
+
+        :param marginfi_account_pk: Address of the target account
+        :param client: marginfi client
+        :param account_data: decoded marginfi account data
+        :param marginfi_group: marginfi group instance
+        :returns MarginfiAccount: instance
+        """
         if not (account_data.marginfi_group == client.config.group_pk):
             raise Exception(
                 f"Marginfi account tied to group {account_data.marginfi_group}. Expected: {client.config.group_pk}"
@@ -153,8 +181,8 @@ class MarginfiAccount:
             account_data.authority,
             client,
             marginfi_group,
-            account_data.deposit_record,
-            account_data.borrow_record,
+            Decimal.from_account_data(account_data.deposit_record).to_float(),
+            Decimal.from_account_data(account_data.borrow_record).to_float(),
             MarginfiAccount._pack_utp_data(account_data, 0),
             MarginfiAccount._pack_utp_data(account_data, 1)
         )
@@ -180,7 +208,6 @@ class MarginfiAccount:
             marginfi_group: MarginfiGroup
     ):
         marginfi_account_data = MarginfiAccount.decode(marginfi_account_raw_data)
-
         return MarginfiAccount.from_account_data(
             marginfi_account_pk,
             client,
@@ -202,9 +229,9 @@ class MarginfiAccount:
     async def _fetch_account_data(
             account_address,
             config,
-            client: AsyncClient #@todo this is program: Program in ts sdk but unclear if that's a problem rn
+            rpc_client: AsyncClient  # @todo this is program: Program in ts sdk but unclear if that's a problem rn
     ):
-        data = await MarginfiAccountDecoded.fetch(client, account_address)
+        data = await MarginfiAccountDecoded.fetch(rpc_client, account_address)
         if data is None:
             raise Exception(f"Account {config.group_pk} not found")
         if not (data.marginfi_group == config.group_pk):
@@ -222,50 +249,47 @@ class MarginfiAccount:
     ###
     @staticmethod
     def _pack_utp_data(data: MarginfiAccountDecoded, utp_index):
-        
+
         return {
             "account_config": data.utp_account_config[utp_index],
             "is_active": data.active_utps[utp_index]
         }
 
-    ###
-    # Decode marginfi account data according to the Anchor IDL.
-    #
-    # @param encoded Raw data buffer
-    # @returns Decoded marginfi account data struct
-    ###
     @staticmethod
-    def decode(buffer: bytes) -> MarginfiAccountDecoded:
-        return MarginfiAccountDecoded.decode(buffer)
+    def decode(encoded: bytes) -> MarginfiAccountDecoded:
+        """
+        Decode marginfi account data according to the Anchor IDL.
 
-    ###
-    # Decode marginfi account data according to the Anchor IDL.
-    #
-    # @param decoded Marginfi account data struct
-    # @returns Raw data buffer
-    ###
+        :param encoded: raw data buffer
+        :returns: decoded marginfi account data struct
+        """
+        return MarginfiAccountDecoded.decode(encoded)
+
     @staticmethod
     async def encode(decoded: MarginfiAccountDecoded):
-        coder = AccountsCoder(get_idl())
+        """
+        Encode marginfi account data according to the Anchor IDL.
+
+        :param decoded: decoded marginfi account data struct
+        :returns: raw data buffer
+        """
+        coder = AccountsCoder(load_idl())
         return coder.build(decoded)
 
     ###
     # Update instance data by fetching and storing the latest on-chain state.
     ###
-    async def reload(self, observe_utps = False):
-        logging.debug(
-            f"PublicKey: {self.public_key.to_base58()}. Reloading account data"
-        )
+    async def reload(self, observe_utps=False):
+        logging.debug(f"PublicKey: {self.pubkey}. Reloading account data")
 
-        [ marginfi_group_ai, marginfi_account_ai ] = self.load_group_and_account_ai()
+        [marginfi_group_ai, marginfi_account_ai] = self.load_group_and_account_ai()
         # @todo this may not be .data
         marginfi_account_data = MarginfiAccount.decode(marginfi_account_ai.data)
         # @todo check that types here are correct
         if not marginfi_account_data.marginfi_group == self._config.group_pk:
-            raise Exception(
-                f"Marginfi account tied to group {marginfi_account_data.marginfi_group.to_base58()}, Expected {self._config.group_pk.to_base58()}"
-            )
-        self.group = MarginfiGroup.from_account_data_raw(
+            raise Exception(f"Marginfi account tied to group {marginfi_account_data.marginfi_group},"
+                            " Expected {self._config.group_pk}")
+        self._group = MarginfiGroup.from_account_data_raw(
             self._config,
             self._program,
             marginfi_group_ai.data
@@ -273,7 +297,7 @@ class MarginfiAccount:
         self._update_from_account_data(marginfi_account_data)
         # @todo
         # if observe_utps:
-            # self.observe_utps()
+        # self.observe_utps()
 
     ###
     # Update instance data from provided data struct.
@@ -282,9 +306,9 @@ class MarginfiAccount:
     ###
     def _update_from_account_data(self, data: MarginfiAccountDecoded):
         self._authority = data.authority
-        self._deposit_record = Decimal.from_account_data(data.deposit_record)
-        self._borrow_record = Decimal.from_account_data(data.borrow_record)
-        
+        self._deposit_record = Decimal.from_account_data(data.deposit_record).to_float()
+        self._borrow_record = Decimal.from_account_data(data.borrow_record).to_float()
+
         # self.mango.update(...)
         # self.zo.update(...)
 
@@ -296,8 +320,6 @@ class MarginfiAccount:
     ###
     # @todo can amount be float here?
     # async def make_deposit_ix(amount: float):
-        
-
 
     ###
     # Refresh and retrieve the health cache for all active UTPs directly from the UTPs.
@@ -306,7 +328,7 @@ class MarginfiAccount:
     ###
     # async def observe_utps(self):
     #     logging.debug(
-    #         f"Observing UTP accounts for marginfi account: {self.public_key.to_base58()}"
+    #         f"Observing UTP accounts for marginfi account: {self.pubkey.to_base58()}"
     #     )
 
     #     observations = []
@@ -319,31 +341,27 @@ class MarginfiAccount:
     #             }
     #         )
 
-
-
     async def load_group_and_account_ai(self):
         logging.debug(
-            f"Loading marginfi account {self.public_key.to_base58()}, and group {self._config.group_pk.to_base58()}"
+            f"Loading marginfi account {self.pubkey}, and group {self._config.group_pk}"
         )
 
-        [ marginfi_group_ai, marginfi_account_ai ] = self._program.account["Data"].fetch_multiple(
+        [marginfi_group_ai, marginfi_account_ai] = self._program.account["Data"].fetch_multiple(
             [
                 self._config.group_pk,
-                self.public_key,
+                self.pubkey,
             ],
             batch_size=2
         )
 
         if not marginfi_account_ai:
             raise Exception(
-                f"Marginfi account not found"
+                f"Marginfi account {self.pubkey} not found"
             )
-        
+
         if not marginfi_group_ai:
             raise Exception(
-                f"Marginfi Group Account not found"
+                f"Marginfi group {self._config.group_pk} not found"
             )
 
-        return [ marginfi_group_ai, marginfi_account_ai ]
-
-    
+        return [marginfi_group_ai, marginfi_account_ai]
