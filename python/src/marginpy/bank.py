@@ -2,7 +2,7 @@ from datetime import datetime
 
 from solana.publickey import PublicKey
 from marginpy.decimal import Decimal
-from marginpy.generated_client.types import Bank as BankDecoded, LendingSideKind, MarginRequirementKind
+from marginpy.generated_client.types import Bank as BankDecoded, LendingSideKind, MarginRequirementKind, MDecimal
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.generated_client.types.margin_requirement import Init, Maint
 
@@ -53,9 +53,11 @@ class Bank:
     # @todo should we error on negative `record` values?
     def compute_native_amount(
             self,
-            record: float,
+            record: MDecimal,
             side: LendingSideKind,
     ):
+        record = Decimal.from_account_data(record).to_float()
+
         if side == Borrow:
             return record * self.borrow_accumulator
         elif side == Deposit:
@@ -68,9 +70,11 @@ class Bank:
     # @todo should we error on negative `record` values?
     def compute_record_amount(
             self,
-            record: float,
+            record: MDecimal,
             side: LendingSideKind
     ):
+        record = Decimal.from_account_data(record).to_float()
+
         if side == Borrow:
             return record / self.borrow_accumulator
         elif side == Deposit:
