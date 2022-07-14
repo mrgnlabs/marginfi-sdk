@@ -100,6 +100,7 @@ class TestBank():
         res_exp_0 = 0
         assert res_exp_0 == res_actual_0
 
+        # @todo mocking MDecimal can be improved
         # 1
         # bank.borrow_accumulator = 1
         # record_1 = 0
