@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.2](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.6.1...@mrgnlabs/marginfi-client@0.6.2) (2022-07-14)
+
+
+### Bug Fixes
+
+* better exception tagging ([#38](https://github.com/mrgnlabs/marginfi-sdk/issues/38)) ([38d7389](https://github.com/mrgnlabs/marginfi-sdk/commit/38d7389e60689d99b3a281b5a2a02ddd15344421))
+
+
+
+
+
 ## [0.6.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.6.0...@mrgnlabs/marginfi-client@0.6.1) (2022-07-11)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-client

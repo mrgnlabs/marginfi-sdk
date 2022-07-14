@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.11](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-crank-bot@0.1.10...@mrgnlabs/marginfi-crank-bot@0.1.11) (2022-07-14)
+
+
+### Bug Fixes
+
+* better exception tagging ([#38](https://github.com/mrgnlabs/marginfi-sdk/issues/38)) ([38d7389](https://github.com/mrgnlabs/marginfi-sdk/commit/38d7389e60689d99b3a281b5a2a02ddd15344421))
+
+
+
+
+
 ## [0.1.10](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-crank-bot@0.1.9...@mrgnlabs/marginfi-crank-bot@0.1.10) (2022-07-11)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-crank-bot
