@@ -537,6 +537,11 @@ class MarginfiAccount {
     )[0];
     const withdrawAmount = this.computeMaxRebalanceWithdrawAmount(richestUtp);
 
+    if (withdrawAmount.lte(1)) {
+      debug("Withdraw amount below dust ");
+      return;
+    }
+
     debug("Trying to rebalance withdraw UTP:%s, amount %s (RBWA)", richestUtp.index, withdrawAmount);
 
     try {
@@ -652,7 +657,11 @@ class MarginfiAccount {
   public meetsMarginRequirement(type: MarginRequirementType): boolean {
     const { equity } = this.computeBalances();
     const marginRequirement = this.computeMarginRequirement(type);
-    return equity > marginRequirement;
+    const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:margin-requirement`);
+
+    debug("Margin req (type: %s) $%s, equity $%s", type, marginRequirement.toFixed(4), equity.toFixed(4));
+
+    return equity.gte(marginRequirement);
   }
 
   public isUtpActive(utpIndex: UtpIndex): boolean {
