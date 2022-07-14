@@ -3,7 +3,8 @@ from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 from anchorpy import Wallet
 from marginpy import MarginfiConfig, Environment, MarginfiClient, MarginfiAccount
-from tests.utils import b64str_to_bytes, load_marginfi_account, load_marginfi_group, \
+from marginpy.utils import b64str_to_bytes, UtpIndex, UtpData
+from tests.utils import load_marginfi_account, load_marginfi_group, \
     load_sample_account_info, load_marginfi_account_data
 
 
@@ -54,6 +55,10 @@ class TestMarginfiAccount:
         marginfi_account_pk = PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9")
         await MarginfiAccount.fetch(marginfi_account_pk, client)
 
+    async def test_reload(self):
+        _, account = load_marginfi_account("marginfi_account_1")
+        await account.reload()
+
     def test_accessors(self):
         _, account = load_marginfi_account("marginfi_account_1")
         assert account.pubkey == PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9")
@@ -83,12 +88,6 @@ class TestMarginfiAccount:
             client.program.provider.connection
         )
 
-        utp_index = 0
-        res_actual = MarginfiAccount._pack_utp_data(data, utp_index)
-        # @todo this could be better
-        res_exp = {
-            "account_config": data.utp_account_config[utp_index],
-            "is_active": data.active_utps[utp_index]
-        }
-
-        assert res_actual == res_exp
+        res_exp = UtpData(account_config=data.utp_account_config[UtpIndex.Mango],
+                          is_active=data.active_utps[UtpIndex.Mango])
+        assert MarginfiAccount._pack_utp_data(data, UtpIndex.Mango) == res_exp

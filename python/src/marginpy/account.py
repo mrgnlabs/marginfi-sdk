@@ -1,14 +1,17 @@
 import logging
+from typing import Tuple
 
 from anchorpy import AccountsCoder
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
+from solana.rpc.responses import AccountInfo
+from solana.rpc.types import RPCResponse
 
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountDecoded
 from marginpy.generated_client.types.lending_side import Deposit, Borrow
 from marginpy.group import MarginfiGroup
 from marginpy.client import MarginfiClient
-from marginpy.utils import load_idl
+from marginpy.utils import load_idl, UtpIndex, UtpData, json_to_account_info, b64str_to_bytes
 from marginpy.decimal import Decimal
 
 
@@ -46,6 +49,7 @@ class MarginfiAccount:
         :param deposit_record: marginfi account deposit record
         :param borrow_record: marginfi account borrow record
         """
+
         self._pubkey = marginfi_account_pk
         self._client = client
         self._authority = authority
@@ -62,26 +66,31 @@ class MarginfiAccount:
     @property
     def pubkey(self):
         """Marginfi account address"""
+
         return self._pubkey
 
     @property
     def group(self):
         """Parent marginfi group address"""
+
         return self._group
 
     @property
     def client(self):
         """Marginfi client"""
+
         return self._client
 
     @property
     def authority(self):
         """Marginfi account authority address"""
+
         return self._authority
 
     @property
     def all_utps(self):
         """List of supported UTP proxy instances"""
+
         return [
             # self.mango,
             # self.zo
@@ -90,17 +99,20 @@ class MarginfiAccount:
     @property
     def active_utps(self):
         """List of active UTP proxy instances"""
+
         filtered = filter(lambda x: x.is_active, self.all_utps)
         return list(filtered)
 
     @property
     def deposits(self):
         """Current GMA deposits"""
+
         return self.group.bank.compute_native_amount(self._deposit_record, Deposit)
 
     @property
     def borrows(self):
         """Current GMA borrows"""
+
         return self.group.bank.compute_native_amount(self._borrow_record, Borrow)
 
     # --- Getters / Setters (internal)
@@ -108,11 +120,13 @@ class MarginfiAccount:
     @property
     def _program(self):
         """[Internal] Anchor program"""
+
         return self.client.program
 
     @property
     def _config(self):
         """[Internal] Marginfi client config"""
+
         return self.client.config
 
     # --- Factories
@@ -130,6 +144,7 @@ class MarginfiAccount:
         :param client: marginfi client
         :returns: marginfi account instance
         """
+
         account_data = await MarginfiAccount._fetch_account_data(
             marginfi_account_pk,
             client.config,
@@ -143,8 +158,8 @@ class MarginfiAccount:
             await MarginfiGroup.get(client.config, client.program),
             Decimal.from_account_data(account_data.deposit_record),
             Decimal.from_account_data(account_data.borrow_record),
-            MarginfiAccount._pack_utp_data(account_data, 0),
-            MarginfiAccount._pack_utp_data(account_data, 1)
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Mango),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Zo)
         )
 
         # @todo logging may need to be taken to the finish line
@@ -169,8 +184,9 @@ class MarginfiAccount:
         :param client: marginfi client
         :param account_data: decoded marginfi account data
         :param marginfi_group: marginfi group instance
-        :returns MarginfiAccount: instance
+        :returns: MarginfiAccount instance
         """
+
         if not (account_data.marginfi_group == client.config.group_pk):
             raise Exception(
                 f"Marginfi account tied to group {account_data.marginfi_group}. Expected: {client.config.group_pk}"
@@ -183,31 +199,31 @@ class MarginfiAccount:
             marginfi_group,
             Decimal.from_account_data(account_data.deposit_record).to_float(),
             Decimal.from_account_data(account_data.borrow_record).to_float(),
-            MarginfiAccount._pack_utp_data(account_data, 0),
-            MarginfiAccount._pack_utp_data(account_data, 1)
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Mango),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Zo)
         )
 
-    ###
-    # MarginfiAccount local factory (encoded)
-    #
-    # Instantiate a MarginfiAccount according to the provided encoded data.
-    # Check sanity against provided config.
-    #
-    # @param marginfiAccountPk Address of the target account
-    # @param config marginfi config
-    # @param program marginfi Anchor program
-    # @param marginfiAccountRawData Encoded marginfi marginfi account data
-    # @param marginfiGroup MarginfiGroup instance
-    # @returns MarginfiAccount instance
-    ###
     @staticmethod
     def from_account_data_raw(
             marginfi_account_pk: PublicKey,
             client: MarginfiClient,
-            marginfi_account_raw_data: bytes,
+            data: bytes,
             marginfi_group: MarginfiGroup
     ):
-        marginfi_account_data = MarginfiAccount.decode(marginfi_account_raw_data)
+        """
+        MarginfiAccount local factory (encoded)
+
+        Instantiate a MarginfiGroup according to the provided encoded data.
+        Check sanity against provided config.
+
+        :param marginfi_account_pk: address of the target account
+        :param client: marginfi client
+        :param data: decoded marginfi account data
+        :param marginfi_group: marginfi group instance
+        :returns: MarginfiAccount instance
+        """
+
+        marginfi_account_data = MarginfiAccount.decode(data)
         return MarginfiAccount.from_account_data(
             marginfi_account_pk,
             client,
@@ -217,21 +233,25 @@ class MarginfiAccount:
 
     # --- Others
 
-    ###
-    # Fetch marginfi account data.
-    # Check sanity against provided config.
-    #
-    # @param config marginfi config
-    # @param program marginfi Anchor program
-    # @returns Decoded marginfi account data struct
-    ###
     @staticmethod
     async def _fetch_account_data(
-            account_address,
+            marginfi_account_pk,
             config,
             rpc_client: AsyncClient  # @todo this is program: Program in ts sdk but unclear if that's a problem rn
     ):
-        data = await MarginfiAccountDecoded.fetch(rpc_client, account_address)
+        """
+        [Internal] MarginfiAccount local factory (encoded)
+
+        Fetch marginfi account data.
+        Check sanity against provided config.
+
+        :param marginfi_account_pk: address of the target account
+        :param config: client config
+        :param rpc_client: RPC client
+        :returns: MarginfiAccount instance
+        """
+
+        data = await MarginfiAccountDecoded.fetch(rpc_client, marginfi_account_pk)
         if data is None:
             raise Exception(f"Account {config.group_pk} not found")
         if not (data.marginfi_group == config.group_pk):
@@ -240,20 +260,17 @@ class MarginfiAccount:
 
         return data
 
-    ###
-    # Pack data from the on-chain, vector format into a coherent unit.
-    #
-    # @param data Marginfi account data
-    # @param utpIndex Index of the target UTP
-    # @returns UTP data struct
-    ###
     @staticmethod
-    def _pack_utp_data(data: MarginfiAccountDecoded, utp_index):
+    def _pack_utp_data(data: MarginfiAccountDecoded, utp_index: UtpIndex) -> UtpData:
+        """
+        [Internal] Pack data from the on-chain, vector format into a coherent unit.
 
-        return {
-            "account_config": data.utp_account_config[utp_index],
-            "is_active": data.active_utps[utp_index]
-        }
+        :param data: marginfi account data
+        :param utp_index: index of the target UTP
+        :returns: packed UTP data
+        """
+
+        return UtpData(account_config=data.utp_account_config[utp_index], is_active=data.active_utps[utp_index])
 
     @staticmethod
     def decode(encoded: bytes) -> MarginfiAccountDecoded:
@@ -263,48 +280,52 @@ class MarginfiAccount:
         :param encoded: raw data buffer
         :returns: decoded marginfi account data struct
         """
+
         return MarginfiAccountDecoded.decode(encoded)
 
     @staticmethod
-    async def encode(decoded: MarginfiAccountDecoded):
+    async def encode(decoded: MarginfiAccountDecoded) -> bytes:
         """
         Encode marginfi account data according to the Anchor IDL.
 
         :param decoded: decoded marginfi account data struct
         :returns: raw data buffer
         """
+
         coder = AccountsCoder(load_idl())
         return coder.build(decoded)
 
-    ###
-    # Update instance data by fetching and storing the latest on-chain state.
-    ###
-    async def reload(self, observe_utps=False):
+    async def reload(self, observe_utps=False) -> None:
+        """
+        Update instance data by fetching and storing the latest on-chain state.
+
+        :param observe_utps: [optional] flag to request UTP observation as well
+        """
+
         logging.debug(f"PublicKey: {self.pubkey}. Reloading account data")
 
-        [marginfi_group_ai, marginfi_account_ai] = self.load_group_and_account_ai()
-        # @todo this may not be .data
-        marginfi_account_data = MarginfiAccount.decode(marginfi_account_ai.data)
-        # @todo check that types here are correct
+        marginfi_group_ai, marginfi_account_ai = await self.load_group_and_account_ai()
+        marginfi_account_data = MarginfiAccount.decode(b64str_to_bytes(marginfi_account_ai.data[0]))
         if not marginfi_account_data.marginfi_group == self._config.group_pk:
             raise Exception(f"Marginfi account tied to group {marginfi_account_data.marginfi_group},"
                             " Expected {self._config.group_pk}")
         self._group = MarginfiGroup.from_account_data_raw(
             self._config,
             self._program,
-            marginfi_group_ai.data
+            b64str_to_bytes(marginfi_group_ai.data[0])
         )
         self._update_from_account_data(marginfi_account_data)
         # @todo
         # if observe_utps:
         # self.observe_utps()
 
-    ###
-    # Update instance data from provided data struct.
-    #
-    # @param data Marginfi account data struct
-    ###
-    def _update_from_account_data(self, data: MarginfiAccountDecoded):
+    def _update_from_account_data(self, data: MarginfiAccountDecoded) -> None:
+        """
+        Update instance data from provided data struct.
+
+        :param data: marginfi account data struct
+        """
+
         self._authority = data.authority
         self._deposit_record = Decimal.from_account_data(data.deposit_record).to_float()
         self._borrow_record = Decimal.from_account_data(data.borrow_record).to_float()
@@ -341,27 +362,19 @@ class MarginfiAccount:
     #             }
     #         )
 
-    async def load_group_and_account_ai(self):
+    async def load_group_and_account_ai(self) -> Tuple[AccountInfo, AccountInfo]:
         logging.debug(
             f"Loading marginfi account {self.pubkey}, and group {self._config.group_pk}"
         )
 
-        [marginfi_group_ai, marginfi_account_ai] = self._program.account["Data"].fetch_multiple(
-            [
-                self._config.group_pk,
-                self.pubkey,
-            ],
-            batch_size=2
-        )
+        pubkeys = [self._config.group_pk, self.pubkey]
+        response: RPCResponse = await self._program.provider.connection.get_multiple_accounts(pubkeys)
+        if 'error' in response.keys():
+            raise Exception(f"Error while fetching {pubkeys}: {response['error']}")
+        [marginfi_group_ai, marginfi_account_ai] = response['result']['value']
+        if marginfi_group_ai is None:
+            raise Exception(f"Marginfi group {self._config.group_pk} not found")
+        if marginfi_account_ai is None:
+            raise Exception(f"Marginfi account {self.pubkey} not found")
 
-        if not marginfi_account_ai:
-            raise Exception(
-                f"Marginfi account {self.pubkey} not found"
-            )
-
-        if not marginfi_group_ai:
-            raise Exception(
-                f"Marginfi group {self._config.group_pk} not found"
-            )
-
-        return [marginfi_group_ai, marginfi_account_ai]
+        return json_to_account_info(marginfi_group_ai), json_to_account_info(marginfi_account_ai)
