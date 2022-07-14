@@ -1,4 +1,3 @@
-import base64
 import json
 import os
 from typing import Tuple
@@ -14,6 +13,7 @@ from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccoun
 
 
 # --- Marginfi group
+from marginpy.utils import json_to_account_info, b64str_to_bytes
 
 
 def load_marginfi_group_data(name: str = "marginfi_group_1") -> Tuple[PublicKey, MarginfiGroupData]:
@@ -65,13 +65,6 @@ def load_sample_account_info(name: str = "marginfi_account_1") -> Tuple[PublicKe
     with open(account_data_path) as f:
         account_info_raw = json.load(f)
     account_address = PublicKey(account_info_raw['pubkey'])
-    account_info = AccountInfo(lamports=account_info_raw['account']['lamports'],
-                               owner=account_info_raw['account']['owner'],
-                               rent_epoch=account_info_raw['account']['rentEpoch'],
-                               data=account_info_raw['account']['data'],
-                               executable=account_info_raw['account']['executable'])
+    account_info = json_to_account_info(account_info_raw['account'])
     return account_address, account_info
 
-
-def b64str_to_bytes(data_str: str) -> bytes:
-    return base64.decodebytes(data_str.encode("ascii"))
