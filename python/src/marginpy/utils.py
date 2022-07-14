@@ -73,7 +73,7 @@ def get_vault_seeds(
     else:
         raise Exception(VERY_VERBOSE_ERROR)
 
-
+# @todo double check that this is implemented correctly
 async def get_bank_authority(
     marginfi_group_pk: PublicKey,
     program_id: PublicKey,

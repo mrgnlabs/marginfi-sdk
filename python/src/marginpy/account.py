@@ -389,7 +389,7 @@ class MarginfiAccount:
         Create transaction instruction to withdraw collateral from the marginfi account.
         
         :param amount Amount to withdraw (mint native unit)
-        :returns `MarginWithdrawCollateral` transaction instruction
+        :returns: `MarginWithdrawCollateral` transaction instruction
         """
 
         user_ata = get_associated_token_address(self._program.provider.wallet.public_key, self.group.bank.mint)
@@ -414,7 +414,7 @@ class MarginfiAccount:
         Withdraw collateral from the marginfi account.
         
         :param amount Amount to withdraw (mint native unit)
-        :returns Transaction signature
+        :returns: Transaction signature
         """
 
         withdraw_ix = await self.make_withdraw_ix(amount)
@@ -428,7 +428,7 @@ class MarginfiAccount:
         [Internal] Create transaction instruction to deactivate the target UTP.
         
         :param utpIndex Target UTP index
-        :returns `DeactivateUtp` transaction instruction
+        :returns: `DeactivateUtp` transaction instruction
         """
 
         remaining_accounts = self.get_observation_accounts()
@@ -449,7 +449,7 @@ class MarginfiAccount:
         [Internal] Deactivate the target UTP.
         
         :param utpIndex Target UTP index
-        :returns Transaction signature
+        :returns: Transaction signature
         """
 
         deactivate_ix = self.make_deactivate_utp_ix(utp_index)
@@ -460,7 +460,7 @@ class MarginfiAccount:
         """
         Create transaction instruction to handle a bankrupt account.
         
-        :returns `HandleBankruptcy` transaction instruction
+        :returns: `HandleBankruptcy` transaction instruction
         """
         
         insurance_vault_authority_pk = await get_bank_authority(self._config.group_pk, self._program.program_id, BankVaultType.InsuranceVault)
@@ -481,7 +481,7 @@ class MarginfiAccount:
         """
         Handle a bankrupt account.
 
-        :returns Transaction signature
+        :returns: Transaction signature
         """
         
         bankruptcy_ix = await self.make_handle_bankruptcy_ix()

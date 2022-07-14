@@ -1,10 +1,12 @@
 from anchorpy import Program, AccountsCoder
 from solana.publickey import PublicKey
+from solana.transaction import TransactionInstruction, Transaction, TransactionSignature
+
 from marginpy.bank import Bank
 from marginpy.config import MarginfiConfig
 from marginpy.generated_client.accounts import MarginfiGroup as MarginfiGroupDecoded
-from marginpy.utils import load_idl
-
+from marginpy.utils import load_idl, get_bank_authority
+from marginpy.instruction import UpdateInterestAccumulatorAccounts, make_update_interest_accumulator_ix
 
 class MarginfiGroup:
     pubkey: PublicKey
@@ -24,20 +26,21 @@ class MarginfiGroup:
 
     # --- Factories
 
-    ###
-    # MarginfiGroup network factory
-    #
-    # Fetch account data according to the config and instantiate the corresponding MarginfiGroup.
-    #
-    # @param config marginfi config
-    # @param program marginfi Anchor program
-    # @return MarginfiGroup instance
-    ###
     @staticmethod
     async def get(
             config: MarginfiConfig,
             program: Program,
     ):
+        """
+        MarginfiGroup network factory
+        
+        Fetch account data according to the config and instantiate the corresponding MarginfiGroup.
+        
+        :param config marginfi config
+        :param program marginfi Anchor program
+        :returns: MarginfiGroup instance
+        """
+
         account_data = await MarginfiGroup.__fetch_account_data(config, program)
         return MarginfiGroup(
             config,
@@ -46,23 +49,23 @@ class MarginfiGroup:
             Bank(account_data.bank)
         )
 
-    ###
-    # MarginfiGroup local factory (decoded)
-    #
-    # Instantiate a MarginfiGroup according to the provided decoded data.
-    # Check sanity against provided config.
-    #
-    # @param config marginfi config
-    # @param program marginfi Anchor program
-    # @param accountData Decoded marginfi group data
-    # @return MarginfiGroup instance
-    ###
     @staticmethod
     def from_account_data(
             config: MarginfiConfig,
             program: Program,
             account_raw: MarginfiGroupDecoded
     ):
+        """
+        MarginfiGroup local factory (decoded)
+        
+        Instantiate a MarginfiGroup according to the provided decoded data.
+        Check sanity against provided config.
+        
+        :param config marginfi config
+        :param program marginfi Anchor program
+        :param accountData Decoded marginfi group data
+        :returns: MarginfiGroup instance
+        """
         if not (account_raw.bank.mint == config.collateral_mint_pk):
             raise Exception(
                 f"Marginfi group uses collateral {account_raw.bank.mint}. Expected: {config.collateral_mint_pk}")
@@ -74,57 +77,56 @@ class MarginfiGroup:
             Bank(account_raw.bank)
         )
 
-    ###
-    # MarginfiGroup local factory (encoded)
-    #
-    # Instantiate a MarginfiGroup according to the provided encoded data.
-    # Check sanity against provided config.
-    #
-    # @param config marginfi config
-    # @param program marginfi Anchor program
-    # @param data Encoded marginfi group data
-    # @return MarginfiGroup instance
-    ###
     @staticmethod
     def from_account_data_raw(
             config: MarginfiConfig,
             program: Program,
             buffer: bytes
     ):
+        """
+        MarginfiGroup local factory (encoded)
+        
+        Instantiate a MarginfiGroup according to the provided encoded data.
+        Check sanity against provided config.
+        
+        :param config marginfi config
+        :param program marginfi Anchor program
+        :param data Encoded marginfi group data
+        :returns: MarginfiGroup instance
+        """
+
         data = MarginfiGroup.decode(buffer)
         return MarginfiGroup.from_account_data(config, program, data)
 
     # --- Getters and setters
 
-    ###
-    # marginfi group admin address
-    ###
     @property
     def admin(self) -> PublicKey:
+        """marginfi group admin address"""
+
         return self._admin
 
-    ###
-    # marginfi group Bank
-    ###
     @property
     def bank(self) -> Bank:
+        """marginfi group Bank"""
         return self._bank
 
     # --- Others
 
-    ###
-    # Fetch marginfi group account data according to the config.
-    # Check sanity against provided config.
-    #
-    # @param config marginfi config
-    # @param program marginfi Anchor program
-    # @return Decoded marginfi group account data struct
-    ###
     @staticmethod
     async def __fetch_account_data(
             config: MarginfiConfig,
             program: Program
     ) -> MarginfiGroupDecoded:
+        """
+        Fetch marginfi group account data according to the config.
+        Check sanity against provided config.
+        
+        :param config marginfi config
+        :param program marginfi Anchor program
+        :returns: Decoded marginfi group account data struct
+        """
+
         data = await MarginfiGroupDecoded.fetch(program.provider.connection, config.group_pk)
         if data is None:
             raise Exception(f"Account {config.group_pk} not found")
@@ -155,10 +157,32 @@ class MarginfiGroup:
         coder = AccountsCoder(load_idl())
         return coder.build(decoded)
 
-    ###
-    # Update instance data by fetching and storing the latest on-chain state.
-    ###
     async def fetch(self):
+        """Update instance data by fetching and storing the latest on-chain state."""
+
         group_decoded = await MarginfiGroup.__fetch_account_data(self._config, self._program)
         self._admin = group_decoded.admin
         self._bank = Bank(group_decoded.bank)
+
+    async def make_update_interest_accumulator_ix(self) -> TransactionInstruction:
+        """Create `UpdateInterestAccumulator` transaction instruction."""
+
+        bank_authority = await get_bank_authority(
+            self._config.group_pk,
+            self._program.program_id
+        )
+        return make_update_interest_accumulator_ix(
+            UpdateInterestAccumulatorAccounts(
+                marginfi_group_pk=self.pubkey,
+                bank_vault=self.bank.vault,
+                bank_authority=bank_authority,
+                bank_fee_vault=self.bank.fee_vault,
+            )
+        )
+
+    async def update_interest_accumulator(self) -> TransactionSignature:
+        """Update interest accumulator."""
+        
+        update_ix = await self.make_handle_update_ix()
+        tx = Transaction().add(update_ix)
+        return await self._program.provider.send(tx)
