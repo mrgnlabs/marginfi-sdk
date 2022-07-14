@@ -30,6 +30,11 @@ class UtpIndex(enum.Enum):
         return self.value
 
 
+class AccountType(enum.Enum):
+    MarginfiGroup = "marginfiGroup"
+    MarginfiAccount = "marginfiAccount"
+
+
 @dataclass
 class UtpData:
     is_active: bool

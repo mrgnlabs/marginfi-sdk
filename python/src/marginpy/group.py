@@ -26,6 +26,9 @@ class MarginfiGroup:
 
     # --- Factories
 
+    # @todo factory fn naming can be standardized
+    # right now we use `get` and `fetch` across the sdk
+    # we also vary between using `init` as our factory fn and using `get/fetch``
     @staticmethod
     async def get(
             config: MarginfiConfig,
@@ -182,7 +185,7 @@ class MarginfiGroup:
 
     async def update_interest_accumulator(self) -> TransactionSignature:
         """Update interest accumulator."""
-        
+
         update_ix = await self.make_handle_update_ix()
         tx = Transaction().add(update_ix)
         return await self._program.provider.send(tx)
