@@ -11,24 +11,73 @@ from anchorpy.provider import DEFAULT_OPTIONS
 
 from marginpy import MarginfiConfig, Environment, MarginfiClient, MarginfiAccount
 
+# @todo would be nice to mock
+async def get_account():
+    config = MarginfiConfig(Environment.MAINNET)
+    wallet = Wallet.local()
+    rpc_client = AsyncClient("https://marginfi.genesysgo.net/")
+    client = MarginfiClient(config, wallet, rpc_client)
+    account = await MarginfiAccount.fetch(PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9"), client)
+    
+    return account
+
 @pytest.mark.asyncio
 class TestMarginfiAccount:
     
     async def test___init__(self):
+        account = await get_account()
+        
+        assert isinstance(account, MarginfiAccount)
+
+    # --- Getters / Setters
+
+    async def test_authority(self):
         config = MarginfiConfig(Environment.MAINNET)
         wallet = Wallet.local()
         rpc_client = AsyncClient("https://marginfi.genesysgo.net/")
         client = MarginfiClient(config, wallet, rpc_client)
         account = await MarginfiAccount.fetch(PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9"), client)
         
-        assert isinstance(account, MarginfiAccount)
+        res_exp = PublicKey("9pagApkYSTp9sRqmMNwXWt1jyatt5Md2yURV2f92X1Fh")
+        res_actual = account.authority
 
-    async def test_all_utps(self):
+        assert res_exp == res_actual
+
+    async def test__program(self):
         config = MarginfiConfig(Environment.MAINNET)
         wallet = Wallet.local()
         rpc_client = AsyncClient("https://marginfi.genesysgo.net/")
         client = MarginfiClient(config, wallet, rpc_client)
         account = await MarginfiAccount.fetch(PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9"), client)
+
+        config = MarginfiConfig(Environment.MAINNET)
+        idl_path = os.path.join(os.path.dirname(__file__), "idl.json")
+        with open(idl_path) as f:
+            raw_idl = json.load(f)
+        idl = Idl.from_json(raw_idl)
+        opts = DEFAULT_OPTIONS
+        provider = Provider(rpc_client, wallet, opts)
+        program = Program(idl, config.program_id, provider=provider)
+
+        res_exp = program
+        res_actual = account._program
+
+        assert res_exp == res_actual
+    
+    async def test__config(self):
+        config = MarginfiConfig(Environment.MAINNET)
+        wallet = Wallet.local()
+        rpc_client = AsyncClient("https://marginfi.genesysgo.net/")
+        client = MarginfiClient(config, wallet, rpc_client)
+        account = await MarginfiAccount.fetch(PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9"), client)
+
+        res_exp = config
+        res_actual = account._config
+
+        assert res_exp == res_actual
+
+    async def test_all_utps(self):
+        account = await get_account()
 
         res_exp = []
         res_actual = account.all_utps
@@ -36,16 +85,31 @@ class TestMarginfiAccount:
         assert res_exp == res_actual
     
     async def test_active_utps(self):
-        config = MarginfiConfig(Environment.MAINNET)
-        wallet = Wallet.local()
-        rpc_client = AsyncClient("https://marginfi.genesysgo.net/")
-        client = MarginfiClient(config, wallet, rpc_client)
-        account = await MarginfiAccount.fetch(PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9"), client)
+        account = await get_account()
 
         res_exp = []
         res_actual = account.active_utps
 
         assert res_exp == res_actual
+
+    # @todo this could be better
+    async def test_deposits(self):
+        account = await get_account()
+
+        res_exp = 0
+        res_actual = account.deposits
+
+        assert res_exp == res_actual
+
+    # @todo this could be better
+    # @todo we shouldn't use a random mainnet account for tests probably
+    async def test_borrows(self):
+        account = await get_account()
+
+        res_exp = 55.040828439738505
+        res_actual = account.borrows
+
+        assert res_exp == res_actual    
 
     # --- Factories
 
