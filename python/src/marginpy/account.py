@@ -1,17 +1,20 @@
 import logging
-from typing import Tuple
+from typing import Tuple, List
 
 from anchorpy import AccountsCoder
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.responses import AccountInfo
 from solana.rpc.types import RPCResponse
+from solana.transaction import AccountMeta, TransactionInstruction, Transaction, TransactionSignature
+from spl.token.instructions import get_associated_token_address
 
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountDecoded
 from marginpy.generated_client.types.lending_side import Deposit, Borrow
 from marginpy.group import MarginfiGroup
 from marginpy.client import MarginfiClient
-from marginpy.utils import load_idl, UtpIndex, UtpData, json_to_account_info, b64str_to_bytes
+from marginpy.instruction import make_deposit_ix, DepositAccounts, DepositArgs
+from marginpy.utils import load_idl, UtpIndex, UtpData, json_to_account_info, b64str_to_bytes, ui_to_native
 from marginpy.decimal import Decimal
 
 
@@ -56,7 +59,7 @@ class MarginfiAccount:
         self._group = group
 
         # self.mango = UtpMangoAccount(client, self, mango_utp_data)
-        # self.zo = UtpZoaccount(client, self, zo_utp_data)
+        # self.zo = UtpZoAccount(client, self, zo_utp_data)
 
         self._deposit_record = deposit_record
         self._borrow_record = borrow_record
@@ -305,14 +308,14 @@ class MarginfiAccount:
         logging.debug(f"PublicKey: {self.pubkey}. Reloading account data")
 
         marginfi_group_ai, marginfi_account_ai = await self.load_group_and_account_ai()
-        marginfi_account_data = MarginfiAccount.decode(b64str_to_bytes(marginfi_account_ai.data[0]))
+        marginfi_account_data = MarginfiAccount.decode(b64str_to_bytes(marginfi_account_ai.data[0]))  # type: ignore
         if not marginfi_account_data.marginfi_group == self._config.group_pk:
             raise Exception(f"Marginfi account tied to group {marginfi_account_data.marginfi_group},"
                             " Expected {self._config.group_pk}")
         self._group = MarginfiGroup.from_account_data_raw(
             self._config,
             self._program,
-            b64str_to_bytes(marginfi_group_ai.data[0])
+            b64str_to_bytes(marginfi_group_ai.data[0])  # type: ignore
         )
         self._update_from_account_data(marginfi_account_data)
         # @todo
@@ -333,14 +336,38 @@ class MarginfiAccount:
         # self.mango.update(...)
         # self.zo.update(...)
 
-    ###
-    # Create transaction instruction to deposit collateral into the marginfi account.
-    #
-    # @param amount Amount to deposit (mint native unit)
-    # @returns `MarginDepositCollateral` transaction instruction
-    ###
-    # @todo can amount be float here?
-    # async def make_deposit_ix(amount: float):
+    def get_observation_accounts(self) -> List[AccountMeta]:
+        pass  # TODO
+
+    def make_deposit_ix(self, amount: float) -> TransactionInstruction:
+        """
+        Create transaction instruction to deposit collateral into the marginfi account.
+
+        :param amount: Amount to deposit (UI unit)
+        :returns: transaction instruction
+        """
+
+        user_ata = get_associated_token_address(self._program.provider.wallet.public_key, self.group.bank.mint)
+        remaining_accounts = self.get_observation_accounts()
+        return make_deposit_ix(DepositArgs(amount=ui_to_native(amount)),
+                               DepositAccounts(marginfi_group=self.group.pubkey,
+                                               marginfi_account=self.pubkey,
+                                               funding_account=user_ata,
+                                               authority=self._program.provider.wallet.public_key,
+                                               bank_vault=self.group.bank.vault),
+                               remaining_accounts)
+
+    async def deposit(self, amount: float) -> TransactionSignature:
+        """
+        Deposit collateral into the marginfi account.
+
+        :param amount: Amount to deposit (UI unit)
+        :returns: transaction signature
+        """
+
+        deposit_ix = self.make_deposit_ix(amount)
+        tx = Transaction().add(deposit_ix)
+        return await self._program.provider.send(tx)
 
     ###
     # Refresh and retrieve the health cache for all active UTPs directly from the UTPs.
