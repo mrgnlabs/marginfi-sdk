@@ -8,8 +8,13 @@ from marginpy.generated_client.accounts import MarginfiGroup as MarginfiGroupDec
 from marginpy.utils import load_idl, get_bank_authority
 from marginpy.instruction import UpdateInterestAccumulatorAccounts, make_update_interest_accumulator_ix
 
+
 class MarginfiGroup:
-    pubkey: PublicKey
+    _pubkey: PublicKey
+    _config: MarginfiConfig
+    _program: Program
+    _admin: PublicKey
+    _bank: Bank
 
     def __init__(
             self,
@@ -18,7 +23,7 @@ class MarginfiGroup:
             admin: PublicKey,
             bank: Bank,
     ) -> None:
-        self.pubkey = config.group_pk
+        self._pubkey = config.group_pk
         self._config = config
         self._program = program
         self._admin = admin
@@ -30,7 +35,7 @@ class MarginfiGroup:
     # right now we use `get` and `fetch` across the sdk
     # we also vary between using `init` as our factory fn and using `get/fetch``
     @staticmethod
-    async def get(
+    async def fetch(
             config: MarginfiConfig,
             program: Program,
     ):
@@ -66,7 +71,7 @@ class MarginfiGroup:
         
         :param config marginfi config
         :param program marginfi Anchor program
-        :param accountData Decoded marginfi group data
+        :param account_raw Decoded marginfi group data
         :returns: MarginfiGroup instance
         """
         if not (account_raw.bank.mint == config.collateral_mint_pk):
@@ -84,7 +89,7 @@ class MarginfiGroup:
     def from_account_data_raw(
             config: MarginfiConfig,
             program: Program,
-            buffer: bytes
+            data: bytes
     ):
         """
         MarginfiGroup local factory (encoded)
@@ -98,10 +103,16 @@ class MarginfiGroup:
         :returns: MarginfiGroup instance
         """
 
-        data = MarginfiGroup.decode(buffer)
-        return MarginfiGroup.from_account_data(config, program, data)
+        account_data = MarginfiGroup.decode(data)
+        return MarginfiGroup.from_account_data(config, program, account_data)
 
     # --- Getters and setters
+
+    @property
+    def pubkey(self) -> PublicKey:
+        """marginfi group admin address"""
+
+        return self._pubkey
 
     @property
     def admin(self) -> PublicKey:
@@ -160,8 +171,8 @@ class MarginfiGroup:
         coder = AccountsCoder(load_idl())
         return coder.build(decoded)
 
-    async def fetch(self):
-        """Update instance data by fetching and storing the latest on-chain state."""
+    async def reload(self):
+        """Update instance data by loading the latest on-chain state."""
 
         group_decoded = await MarginfiGroup.__fetch_account_data(self._config, self._program)
         self._admin = group_decoded.admin
@@ -170,13 +181,13 @@ class MarginfiGroup:
     async def make_update_interest_accumulator_ix(self) -> TransactionInstruction:
         """Create `UpdateInterestAccumulator` transaction instruction."""
 
-        bank_authority = await get_bank_authority(
+        bank_authority, _ = await get_bank_authority(
             self._config.group_pk,
             self._program.program_id
         )
         return make_update_interest_accumulator_ix(
             UpdateInterestAccumulatorAccounts(
-                marginfi_group_pk=self.pubkey,
+                marginfi_group=self.pubkey,
                 bank_vault=self.bank.vault,
                 bank_authority=bank_authority,
                 bank_fee_vault=self.bank.fee_vault,
@@ -186,6 +197,6 @@ class MarginfiGroup:
     async def update_interest_accumulator(self) -> TransactionSignature:
         """Update interest accumulator."""
 
-        update_ix = await self.make_handle_update_ix()
+        update_ix = await self.make_update_interest_accumulator_ix()
         tx = Transaction().add(update_ix)
         return await self._program.provider.send(tx)
