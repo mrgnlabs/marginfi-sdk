@@ -135,7 +135,6 @@ class MarginfiClient:
             ) for account, i in filtered
         ]
         
-
     async def get_marginfi_account(self, address: PublicKey):
         return MarginfiAccount.fetch(address, self)
 
