@@ -9,10 +9,10 @@ from solana.rpc.types import RPCResponse
 from solana.transaction import AccountMeta, TransactionInstruction, Transaction, TransactionSignature
 from spl.token.instructions import get_associated_token_address
 
+import marginpy
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountDecoded
 from marginpy.generated_client.types.lending_side import Deposit, Borrow
-from marginpy.group import MarginfiGroup
-from marginpy.client import MarginfiClient
+from marginpy.decimal import Decimal
 from marginpy.instruction import make_deposit_ix, \
     DepositAccounts, DepositArgs, \
     WithdrawArgs, WithdrawAccounts, make_withdraw_ix, \
@@ -26,14 +26,13 @@ from marginpy.utils import load_idl, \
     ui_to_native, \
     get_bank_authority, \
     BankVaultType
-from marginpy.decimal import Decimal
 
 
 class MarginfiAccount:
     _pubkey: PublicKey
-    _group: MarginfiGroup
+    _group: marginpy.MarginfiGroup
     # TODO: observation_cache
-    _client: MarginfiClient
+    _client: marginpy.MarginfiClient
 
     _authority: PublicKey
     _deposit_record: float
@@ -46,8 +45,8 @@ class MarginfiAccount:
             self,
             marginfi_account_pk: PublicKey,
             authority: PublicKey,
-            client: MarginfiClient,
-            group: MarginfiGroup,
+            client: marginpy.MarginfiClient,
+            group: marginpy.MarginfiGroup,
             deposit_record: float,
             borrow_record: float,
             mango_utp_data,
@@ -74,6 +73,108 @@ class MarginfiAccount:
 
         self._deposit_record = deposit_record
         self._borrow_record = borrow_record
+
+    # --- Factories
+
+    @staticmethod
+    async def fetch(
+            marginfi_account_pk: PublicKey,
+            client: marginpy.MarginfiClient
+    ):
+        """
+        MarginfiAccount network factory.
+        Fetch account data according to the config and instantiate the corresponding MarginfiAccount.
+
+        :param marginfi_account_pk: address of the target account
+        :param client: marginfi client
+        :returns: marginfi account instance
+        """
+
+        account_data = await MarginfiAccount._fetch_account_data(
+            marginfi_account_pk,
+            client.config,
+            client.program.provider.connection
+        )
+
+        marginfi_account = MarginfiAccount(
+            marginfi_account_pk,
+            account_data.authority,
+            client,
+            await marginpy.MarginfiGroup.fetch(client.config, client.program),
+            Decimal.from_account_data(account_data.deposit_record),
+            Decimal.from_account_data(account_data.borrow_record),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Mango),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Zo)
+        )
+
+        # @todo logging may need to be taken to the finish line
+        logging.debug(f"mfi:margin-account Loaded marginfi account {marginfi_account_pk}")
+
+        return marginfi_account
+
+    @staticmethod
+    def from_account_data(
+            marginfi_account_pk: PublicKey,
+            client: marginpy.MarginfiClient,
+            account_data: MarginfiAccountDecoded,
+            marginfi_group: marginpy.MarginfiGroup
+    ):
+        """
+        MarginfiAccount local factory (decoded)
+
+        Instantiate a MarginfiAccount according to the provided decoded data.
+        Check sanity against provided config.
+
+        :param marginfi_account_pk: Address of the target account
+        :param client: marginfi client
+        :param account_data: decoded marginfi account data
+        :param marginfi_group: marginfi group instance
+        :returns: marginfi account instance
+        """
+
+        if not (account_data.marginfi_group == client.config.group_pk):
+            raise Exception(
+                f"Marginfi account tied to group {account_data.marginfi_group}. Expected: {client.config.group_pk}"
+            )
+
+        return MarginfiAccount(
+            marginfi_account_pk,
+            account_data.authority,
+            client,
+            marginfi_group,
+            Decimal.from_account_data(account_data.deposit_record).to_float(),
+            Decimal.from_account_data(account_data.borrow_record).to_float(),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Mango),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Zo)
+        )
+
+    @staticmethod
+    def from_account_data_raw(
+            marginfi_account_pk: PublicKey,
+            client: marginpy.MarginfiClient,
+            data: bytes,
+            marginfi_group: marginpy.MarginfiGroup
+    ):
+        """
+        MarginfiAccount local factory (encoded)
+
+        Instantiate a MarginfiGroup according to the provided encoded data.
+        Check sanity against provided config.
+
+        :param marginfi_account_pk: address of the target account
+        :param client: marginfi client
+        :param data: decoded marginfi account data
+        :param marginfi_group: marginfi group instance
+        :returns: marginfi account instance
+        """
+
+        marginfi_account_data = MarginfiAccount.decode(data)
+        return MarginfiAccount.from_account_data(
+            marginfi_account_pk,
+            client,
+            marginfi_account_data,
+            marginfi_group
+        )
 
     # --- Getters / Setters
 
@@ -143,115 +244,13 @@ class MarginfiAccount:
 
         return self.client.config
 
-    # --- Factories
-
-    @staticmethod
-    async def fetch(
-            marginfi_account_pk: PublicKey,
-            client: MarginfiClient
-    ):
-        """
-        MarginfiAccount network factory.
-        Fetch account data according to the config and instantiate the corresponding MarginfiAccount.
-
-        :param marginfi_account_pk: address of the target account
-        :param client: marginfi client
-        :returns: marginfi account instance
-        """
-
-        account_data = await MarginfiAccount._fetch_account_data(
-            marginfi_account_pk,
-            client.config,
-            client.program.provider.connection
-        )
-
-        marginfi_account = MarginfiAccount(
-            marginfi_account_pk,
-            account_data.authority,
-            client,
-            await MarginfiGroup.get(client.config, client.program),
-            Decimal.from_account_data(account_data.deposit_record),
-            Decimal.from_account_data(account_data.borrow_record),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Mango),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Zo)
-        )
-
-        # @todo logging may need to be taken to the finish line
-        logging.debug(f"mfi:margin-account Loaded marginfi account {marginfi_account_pk}")
-
-        return marginfi_account
-
-    @staticmethod
-    def from_account_data(
-            marginfi_account_pk: PublicKey,
-            client: MarginfiClient,
-            account_data: MarginfiAccountDecoded,
-            marginfi_group: MarginfiGroup
-    ):
-        """
-        MarginfiAccount local factory (decoded)
-
-        Instantiate a MarginfiAccount according to the provided decoded data.
-        Check sanity against provided config.
-
-        :param marginfi_account_pk: Address of the target account
-        :param client: marginfi client
-        :param account_data: decoded marginfi account data
-        :param marginfi_group: marginfi group instance
-        :returns: MarginfiAccount instance
-        """
-
-        if not (account_data.marginfi_group == client.config.group_pk):
-            raise Exception(
-                f"Marginfi account tied to group {account_data.marginfi_group}. Expected: {client.config.group_pk}"
-            )
-
-        return MarginfiAccount(
-            marginfi_account_pk,
-            account_data.authority,
-            client,
-            marginfi_group,
-            Decimal.from_account_data(account_data.deposit_record).to_float(),
-            Decimal.from_account_data(account_data.borrow_record).to_float(),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Mango),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Zo)
-        )
-
-    @staticmethod
-    def from_account_data_raw(
-            marginfi_account_pk: PublicKey,
-            client: MarginfiClient,
-            data: bytes,
-            marginfi_group: MarginfiGroup
-    ):
-        """
-        MarginfiAccount local factory (encoded)
-
-        Instantiate a MarginfiGroup according to the provided encoded data.
-        Check sanity against provided config.
-
-        :param marginfi_account_pk: address of the target account
-        :param client: marginfi client
-        :param data: decoded marginfi account data
-        :param marginfi_group: marginfi group instance
-        :returns: MarginfiAccount instance
-        """
-
-        marginfi_account_data = MarginfiAccount.decode(data)
-        return MarginfiAccount.from_account_data(
-            marginfi_account_pk,
-            client,
-            marginfi_account_data,
-            marginfi_group
-        )
-
     # --- Others
 
     @staticmethod
     async def _fetch_account_data(
-            marginfi_account_pk,
-            config,
-            rpc_client: AsyncClient  # @todo this is program: Program in ts sdk but unclear if that's a problem rn
+            marginfi_account_pk: PublicKey,
+            config: marginpy.MarginfiConfig,
+            rpc_client: AsyncClient
     ):
         """
         [Internal] MarginfiAccount local factory (encoded)
@@ -262,12 +261,12 @@ class MarginfiAccount:
         :param marginfi_account_pk: address of the target account
         :param config: client config
         :param rpc_client: RPC client
-        :returns: MarginfiAccount instance
+        :returns: marginfi account instance
         """
 
         data = await MarginfiAccountDecoded.fetch(rpc_client, marginfi_account_pk)
         if data is None:
-            raise Exception(f"Account {config.group_pk} not found")
+            raise Exception(f"Account {marginfi_account_pk} not found")
         if not (data.marginfi_group == config.group_pk):
             raise Exception(
                 f"Marginfi account tied to group {data.marginfi_group}. Expected: {config.group_pk}")
@@ -323,7 +322,7 @@ class MarginfiAccount:
         if not marginfi_account_data.marginfi_group == self._config.group_pk:
             raise Exception(f"Marginfi account tied to group {marginfi_account_data.marginfi_group},"
                             " Expected {self._config.group_pk}")
-        self._group = MarginfiGroup.from_account_data_raw(
+        self._group = marginpy.MarginfiGroup.from_account_data_raw(
             self._config,
             self._program,
             b64str_to_bytes(marginfi_group_ai.data[0])  # type: ignore
@@ -356,7 +355,7 @@ class MarginfiAccount:
         """
         Create transaction instruction to deposit collateral into the marginfi account.
 
-        :param amount: Amount to deposit (UI unit)
+        :param amount: amount to deposit (UI unit)
         :returns: transaction instruction
         """
 
@@ -374,7 +373,7 @@ class MarginfiAccount:
         """
         Deposit collateral into the marginfi account.
 
-        :param amount: Amount to deposit (UI unit)
+        :param amount: amount to deposit (UI unit)
         :returns: transaction signature
         """
 
@@ -384,22 +383,22 @@ class MarginfiAccount:
 
     # --- Withdraw from GMA
 
-    async def make_withdraw_ix(self, amount: float) -> TransactionInstruction: # @todo amount types don't match -- float or int?
+    async def make_withdraw_ix(self, amount: float) -> TransactionInstruction:
         """
         Create transaction instruction to withdraw collateral from the marginfi account.
         
-        :param amount Amount to withdraw (mint native unit)
+        :param amount: amount to withdraw (mint native unit)
         :returns: `MarginWithdrawCollateral` transaction instruction
         """
 
         user_ata = get_associated_token_address(self._program.provider.wallet.public_key, self.group.bank.mint)
-        margin_bank_authority_pk = await get_bank_authority(self._config.group_pk, self._program.program_id)
+        margin_bank_authority_pk, _ = await get_bank_authority(self._config.group_pk, self._program.program_id)
         remaining_accounts = self.get_observation_accounts()
 
         return make_withdraw_ix(
             WithdrawArgs(amount=ui_to_native(amount)),
             WithdrawAccounts(
-                marginfi_group_pk=self.group.pubkey, #@todo we should probably standardize pubkey vs. public_key?
+                marginfi_group_pk=self.group.pubkey,
                 marginfi_account_pk=self.pubkey,
                 authority_pk=self._program.provider.wallet.public_key,
                 bank_vault_pk=self.group.bank.vault,
@@ -413,8 +412,8 @@ class MarginfiAccount:
         """
         Withdraw collateral from the marginfi account.
         
-        :param amount Amount to withdraw (mint native unit)
-        :returns: Transaction signature
+        :param amount: amount to withdraw (mint native unit)
+        :returns: transaction signature
         """
 
         withdraw_ix = await self.make_withdraw_ix(amount)
@@ -427,29 +426,29 @@ class MarginfiAccount:
         """
         [Internal] Create transaction instruction to deactivate the target UTP.
         
-        :param utpIndex Target UTP index
-        :returns: `DeactivateUtp` transaction instruction
+        :param utp_index: target UTP index
+        :returns: transaction instruction
         """
 
         remaining_accounts = self.get_observation_accounts()
 
         return make_deactivate_utp_ix(
             DeactivateUtpArgs(
-                utp_index=utp_index
+                utp_index=utp_index.value
             ),
             DeactivateUtpAccounts(
-                marginfi_account_pk=self.pubkey,
-                authority_pk=self._program.provider.wallet.public_key
+                marginfi_account=self.pubkey,
+                authority=self._program.provider.wallet.public_key
             ),
             remaining_accounts
         )
-    
+
     async def deactivate_utp(self, utp_index: UtpIndex) -> TransactionSignature:
         """
         [Internal] Deactivate the target UTP.
         
-        :param utpIndex Target UTP index
-        :returns: Transaction signature
+        :param utp_index target UTP index
+        :returns: transaction signature
         """
 
         deactivate_ix = self.make_deactivate_utp_ix(utp_index)
@@ -462,17 +461,18 @@ class MarginfiAccount:
         
         :returns: `HandleBankruptcy` transaction instruction
         """
-        
-        insurance_vault_authority_pk = await get_bank_authority(self._config.group_pk, self._program.program_id, BankVaultType.InsuranceVault)
+
+        insurance_vault_authority_pk, _ = await get_bank_authority(self._config.group_pk, self._program.program_id,
+                                                                BankVaultType.InsuranceVault)
         remaining_accounts = self.get_observation_accounts()
 
         return make_handle_bankruptcy_ix(
             HandleBankruptcyAccounts(
-                marginfi_account_pk=self.pubkey,
-                marginfi_group_pk=self.group.pubkey,
-                insurance_vault_pk=self.group.bank.insurance_vault,
-                insurance_vault_authority_pk=insurance_vault_authority_pk,
-                liquidity_vault_pk=self.group.bank.vault,
+                marginfi_account=self.pubkey,
+                marginfi_group=self.group.pubkey,
+                insurance_vault=self.group.bank.insurance_vault,
+                insurance_vault_authority=insurance_vault_authority_pk,
+                liquidity_vault=self.group.bank.vault,
             ),
             remaining_accounts
         )
@@ -481,9 +481,9 @@ class MarginfiAccount:
         """
         Handle a bankrupt account.
 
-        :returns: Transaction signature
+        :returns: transaction signature
         """
-        
+
         bankruptcy_ix = await self.make_handle_bankruptcy_ix()
         tx = Transaction().add(bankruptcy_ix)
         return await self._program.provider.send(tx)

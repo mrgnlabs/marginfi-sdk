@@ -1,33 +1,19 @@
-from re import M
-from typing import Type, TypedDict, List
-
+from dataclasses import dataclass
+from typing import List
 from solana.publickey import PublicKey
 from solana.system_program import SYS_PROGRAM_ID
 from solana.transaction import AccountMeta, TransactionInstruction
 from spl.token.constants import TOKEN_PROGRAM_ID
+import marginpy.generated_client.instructions as gen_ix
 
-from marginpy.generated_client.instructions import init_marginfi_group, \
-    configure_marginfi_group, \
-    deactivate_utp, \
-    handle_bankruptcy, \
-    init_marginfi_account, \
-    liquidate, \
-    margin_deposit_collateral, \
-    margin_withdraw_collateral, \
-    update_interest_accumulator
-from marginpy.generated_client.types import GroupConfig
-from marginpy.utils import UtpIndex
 
 # --- Init MarginfiGroup
+class InitMarginfiGroupArgs(gen_ix.InitMarginfiGroupArgs):
+    pass
 
 
-class InitMarginfiGroupArgs(TypedDict):
-    bank_authority_pda_bump: int
-    insurance_vault_authority_pda_bump: int
-    fee_vault_authority_pda_bump: int
-
-
-class InitMarginfiGroupAccounts(TypedDict):
+@dataclass
+class InitMarginfiGroupAccounts:
     marginfi_group_pk: PublicKey
     admin_pk: PublicKey
     mint_pk: PublicKey
@@ -40,103 +26,68 @@ class InitMarginfiGroupAccounts(TypedDict):
 
 
 def make_init_marginfi_group_ix(
-    args: InitMarginfiGroupArgs,
-    accounts: InitMarginfiGroupAccounts
+        args: gen_ix.InitMarginfiGroupArgs,
+        accounts: InitMarginfiGroupAccounts
 ) -> TransactionInstruction:
-    return init_marginfi_group(
-        {
-            "bank_authority_pda_bump": args["bank_authority_pda_bump"],
-            "insurance_vault_authority_pda_bump": args["insurance_vault_authority_pda_bump"],
-            "fee_vault_authority_pda_bump": args["fee_vault_authority_pda_bump"]
-        },
-        {
-            "marginfi_group": accounts["marginfi_group_pk"],
-            "admin": accounts["admin_pk"],
-            "collateral_mint": accounts["mint_pk"],
-            "bank_vault": accounts["bank_vault_pk"],
-            "bank_authority": accounts["bank_authority_pk"],
-            "insurance_vault": accounts["insurance_vault"],
-            "insurance_vault_authority": accounts["insurance_vault_authority"],
-            "fee_vault": accounts["fee_vault"],
-            "fee_vault_authority": accounts["fee_vault_authority"],
-            "system_program": SYS_PROGRAM_ID
-        }
+    return gen_ix.init_marginfi_group(
+        args,
+        gen_ix.InitMarginfiGroupAccounts(
+            marginfi_group=accounts.marginfi_group_pk,
+            admin=accounts.admin_pk,
+            collateral_mint=accounts.mint_pk,
+            bank_vault=accounts.bank_vault_pk,
+            bank_authority=accounts.bank_authority_pk,
+            insurance_vault=accounts.insurance_vault,
+            insurance_vault_authority=accounts.insurance_vault_authority,
+            fee_vault=accounts.fee_vault,
+            fee_vault_authority=accounts.fee_vault_authority,
+            system_program=SYS_PROGRAM_ID
+        )
     )
 
 
 # --- Configure MarginfiGroup
+class ConfigureMarginfiGroupArgs(gen_ix.ConfigureMarginfiGroupArgs):
+    pass
 
 
-class ConfigureMarginfiGroupArgs(TypedDict):
-    args: GroupConfig
+class ConfigureMarginfiGroupAccounts(gen_ix.ConfigureMarginfiGroupAccounts):
+    pass
 
-class ConfigureMarginfiGroupAccounts(TypedDict):
-    marginfi_group_pk: PublicKey
-    admin_pk: PublicKey
 
 def make_configure_marginfi_group_ix(
-    args: ConfigureMarginfiGroupArgs,
-    accounts: ConfigureMarginfiGroupAccounts
+        args: ConfigureMarginfiGroupArgs,
+        accounts: ConfigureMarginfiGroupAccounts
 ):
-    bank = {
-        "scaling_factor_c": args["args"]["bank"]["scaling_factor_c"],
-        "fixed_fee": args["args"]["bank"]["fixed_fee"],
-        "interest_fee": args["args"]["bank"]["interest_fee"],
-        "maint_margin_ratio": args["args"]["bank"]["maint_margin_ratio"],
-        "init_margin_fatio": args["args"]["bank"]["init_margin_ratio"],
-        "account_deposit_limit": args["args"]["bank"]["account_deposit_limit"],
-        "lp_deposit_limit": args["args"]["bank"]["lp_deposit_limit"],
-    } if type(args.args.bank) == 'dict' else {
-        "scaling_factor_c": None,
-        "fixed_fee": None,
-        "interest_fee": None,
-        "maint_margin_ratio": None,
-        "init_margin_fatio": None,
-        "account_deposit_limit": None,
-        "lp_deposit_limit": None
-    }
-
-    return configure_marginfi_group(
-        {
-            "admin": args.args.admin if args.args is None else None,
-            "bank": bank,
-            "paused": args.args.paused if args.args.paused is not None else None
-        },
-        {
-            "marginfi_group": accounts["marginfi_group_pk"],
-            "admin": accounts["admin_pk"],
-        }
-    )
+    return gen_ix.configure_marginfi_group(args, accounts)
 
 
 # --- Init GMA
-
-
-class InitMarginfiAccountAccounts(TypedDict):
+@dataclass
+class InitMarginfiAccountAccounts:
     marginfi_group: PublicKey
     marginfi_account: PublicKey
     authority: PublicKey
 
 
-def make_init_marginfi_account_ix(
-        accounts: InitMarginfiAccountAccounts
-):
-    return init_marginfi_account({
-        "marginfi_group": accounts["marginfi_group"],
-        "marginfi_account": accounts["marginfi_account"],
-        "authority": accounts["authority"],
-        "system_program": SYS_PROGRAM_ID
-    })
+def make_init_marginfi_account_ix(accounts: InitMarginfiAccountAccounts):
+    return gen_ix.init_marginfi_account(
+        gen_ix.InitMarginfiAccountAccounts(
+            marginfi_group=accounts.marginfi_group,
+            marginfi_account=accounts.marginfi_account,
+            authority=accounts.authority,
+            system_program=SYS_PROGRAM_ID
+        )
+    )
 
 
 # --- Deposit to GMA
+class DepositArgs(gen_ix.MarginDepositCollateralArgs):
+    pass
 
 
-class DepositArgs(TypedDict):
-    amount: int
-
-
-class DepositAccounts(TypedDict):
+@dataclass
+class DepositAccounts:
     marginfi_account: PublicKey
     marginfi_group: PublicKey
     authority: PublicKey
@@ -149,32 +100,28 @@ def make_deposit_ix(
         accounts: DepositAccounts,
         remaining_accounts: List[AccountMeta]
 ) -> TransactionInstruction:
-    ix = margin_deposit_collateral(
-        {
-            "amount": args["amount"]
-        },
-        {
-            "marginfi_group": accounts["marginfi_group"],
-            "marginfi_account": accounts["marginfi_account"],
-            "signer": accounts["authority"],
-            "funding_account": accounts["funding_account"],
-            "token_vault": accounts["bank_vault"],
-            "token_program": TOKEN_PROGRAM_ID
-        },
+    ix = gen_ix.margin_deposit_collateral(
+        args,
+        gen_ix.MarginDepositCollateralAccounts(
+            marginfi_group=accounts.marginfi_group,
+            marginfi_account=accounts.marginfi_account,
+            signer=accounts.authority,
+            funding_account=accounts.funding_account,
+            token_vault=accounts.bank_vault,
+            token_program=TOKEN_PROGRAM_ID
+        ),
     )
-    
     ix.keys.extend(remaining_accounts)
     return ix
 
 
 # --- Withdraw from GMA
+class WithdrawArgs(gen_ix.MarginWithdrawCollateralArgs):
+    pass
 
 
-class WithdrawArgs(TypedDict):
-    amount: int
-
-
-class WithdrawAccounts(TypedDict):
+@dataclass
+class WithdrawAccounts:
     marginfi_group_pk: PublicKey
     marginfi_account_pk: PublicKey
     authority_pk: PublicKey
@@ -184,147 +131,129 @@ class WithdrawAccounts(TypedDict):
 
 
 def make_withdraw_ix(
-    args: WithdrawArgs,
-    accounts: WithdrawAccounts,
-    remaining_accounts: List[AccountMeta]
+        args: WithdrawArgs,
+        accounts: WithdrawAccounts,
+        remaining_accounts: List[AccountMeta]
 ):
-    ix = margin_withdraw_collateral(
-        {
-            "amount": args["amount"]
-        },
-        {
-            "marginfi_group": accounts["marginfi_group_pk"],
-            "marginfi_account": accounts["marginfi_account_pk"],
-            "signer": accounts["authority_pk"],
-            "margin_collateral_vault": accounts["bank_vault_pk"],
-            "margin_bank_authority": accounts["bank_vault_authority_pk"],
-            "receiving_token_account": accounts["receiving_token_account"],
-            "token_program": TOKEN_PROGRAM_ID
-        }
+    ix = gen_ix.margin_withdraw_collateral(
+        args,
+        gen_ix.MarginWithdrawCollateralAccounts(
+            marginfi_group=accounts.marginfi_group_pk,
+            marginfi_account=accounts.marginfi_account_pk,
+            signer=accounts.authority_pk,
+            margin_collateral_vault=accounts.bank_vault_pk,
+            margin_bank_authority=accounts.bank_vault_authority_pk,
+            receiving_token_account=accounts.receiving_token_account,
+            token_program=TOKEN_PROGRAM_ID
+        )
     )
     ix.keys.extend(remaining_accounts)
     return ix
 
 
 # --- Update interest accumulator
-
-
-class UpdateInterestAccumulatorAccounts(TypedDict):
-    marginfi_group_pk: PublicKey
+@dataclass
+class UpdateInterestAccumulatorAccounts:
+    marginfi_group: PublicKey
     bank_vault: PublicKey
     bank_authority: PublicKey
     bank_fee_vault: PublicKey
 
 
 def make_update_interest_accumulator_ix(
-    accounts: UpdateInterestAccumulatorAccounts
+        accounts: UpdateInterestAccumulatorAccounts
 ):
-    return update_interest_accumulator(
-        {
-            "marginfi_group": accounts["marginfi_group_pk"],
-            "bank_vault": accounts["bank_vault"],
-            "bank_authority": accounts["bank_authority"],
-            "bank_fee_vault": accounts["bank_fee_vault"],
-            "token_program": TOKEN_PROGRAM_ID
-        }
+    return gen_ix.update_interest_accumulator(
+        gen_ix.UpdateInterestAccumulatorAccounts(
+            marginfi_group=accounts.marginfi_group,
+            bank_vault=accounts.bank_vault,
+            bank_authority=accounts.bank_authority,
+            bank_fee_vault=accounts.bank_fee_vault,
+            token_program=TOKEN_PROGRAM_ID
+        )
     )
 
 
 # --- Deactivate UTP
+class DeactivateUtpArgs(gen_ix.DeactivateUtpArgs):
+    pass
 
 
-class DeactivateUtpArgs(TypedDict):
-    utp_index: UtpIndex
-
-
-class DeactivateUtpAccounts(TypedDict):
-    marginfi_account_pk: PublicKey
-    authority_pk: PublicKey
+class DeactivateUtpAccounts(gen_ix.DeactivateUtpAccounts):
+    pass
 
 
 def make_deactivate_utp_ix(
-    args: DeactivateUtpArgs,
-    accounts: DeactivateUtpAccounts,
-    remaining_accounts: List[AccountMeta]
+        args: DeactivateUtpArgs,
+        accounts: DeactivateUtpAccounts,
+        remaining_accounts: List[AccountMeta]
 ):
-    ix = deactivate_utp(
-        {
-            "utp_index": int(args["utp_index"]), #@todo confirm this converts correctly
-        },
-        {
-            "marginfi_account": accounts["marginfi_account_pk"],
-            "authority": accounts["authority_pk"]
-        }
-    )
+    ix = gen_ix.deactivate_utp(args, accounts)
     ix.keys.extend(remaining_accounts)
     return ix
 
 
 # --- Liquidate
+class LiquidateArgs(gen_ix.LiquidateArgs):
+    pass
 
 
-class LiquidateArgs(TypedDict):
-    utp_index: UtpIndex
-
-
-class LiquidateAccounts(TypedDict):
-    marginfi_account_pk: PublicKey
-    marginfi_account_liquidate_pk: PublicKey
-    marginfi_group_pk: PublicKey
+@dataclass
+class LiquidateAccounts:
+    marginfi_account: PublicKey
+    marginfi_account_liquidatee: PublicKey
+    marginfi_group: PublicKey
     bank_vault: PublicKey
     bank_authority: PublicKey
     bank_insurance_vault: PublicKey
-    signer_pk: PublicKey
+    signer: PublicKey
 
 
 def make_liquidate_ix(
-    args: LiquidateArgs,
-    accounts: LiquidateAccounts,
-    remaining_accounts: List[AccountMeta]
+        args: gen_ix.LiquidateArgs,
+        accounts: LiquidateAccounts,
+        remaining_accounts: List[AccountMeta]
 ):
-    ix = liquidate(
-        {
-            "utp_index": int(args["utp_index"]), #@todo confirm this converts correctly
-        },
-        {
-            "marginfi_account": accounts["marginfi_account_pk"],
-            "marginfi_account_liquidate": accounts["marginfi_account_liquidate_pk"],
-            "marginfi_group": accounts["marginfi_group_pk"],
-            "bank_vault": accounts["bank_vault"],
-            "bank_authority": accounts["bank_authority"],
-            "bank_insurance_vault": accounts["bank_insurance_vault"],
-            "signer": accounts["signer_pk"],
-            "token_program": TOKEN_PROGRAM_ID
-        }
+    ix = gen_ix.liquidate(
+        args,
+        gen_ix.LiquidateAccounts(
+            marginfi_account=accounts.marginfi_account,
+            marginfi_account_liquidatee=accounts.marginfi_account_liquidatee,
+            marginfi_group=accounts.marginfi_group,
+            bank_vault=accounts.bank_vault,
+            bank_authority=accounts.bank_authority,
+            bank_insurance_vault=accounts.bank_insurance_vault,
+            signer=accounts.signer,
+            token_program=TOKEN_PROGRAM_ID,
+        )
     )
     ix.keys.extend(remaining_accounts)
     return ix
 
 
 # --- Handle bankruptcy
-
-
-class HandleBankruptcyAccounts(TypedDict):
-    marginfi_account_pk: PublicKey
-    marginfi_group_pk: PublicKey
-    insurance_vault_pk: PublicKey
-    insurance_vault_authority_pk: PublicKey
-    liquidity_vault_pk: PublicKey
+@dataclass
+class HandleBankruptcyAccounts:
+    marginfi_account: PublicKey
+    marginfi_group: PublicKey
+    insurance_vault: PublicKey
+    insurance_vault_authority: PublicKey
+    liquidity_vault: PublicKey
 
 
 def make_handle_bankruptcy_ix(
-    accounts: HandleBankruptcyAccounts,
-    remaining_accounts: List[AccountMeta]
+        accounts: HandleBankruptcyAccounts,
+        remaining_accounts: List[AccountMeta]
 ):
-    ix = handle_bankruptcy(
-        {
-            "marginfi_account": accounts["marginfi_account_pk"],
-            "marginfi_group": accounts["marginfi_group_pk"],
-            "insurance_vault": accounts["insurance_vault_pk"],
-            "insurance_vault_authority": accounts["insurance_vault_authority_pk"],
-            "liquidity_vault": accounts["liquidity_vault_pk"],
-            "token_program": TOKEN_PROGRAM_ID
-        }
+    ix = gen_ix.handle_bankruptcy(
+        gen_ix.HandleBankruptcyAccounts(
+            marginfi_account=accounts.marginfi_account,
+            marginfi_group=accounts.marginfi_group,
+            insurance_vault=accounts.insurance_vault,
+            insurance_vault_authority=accounts.insurance_vault_authority,
+            liquidity_vault=accounts.liquidity_vault,
+            token_program=TOKEN_PROGRAM_ID,
+        )
     )
     ix.keys.extend(remaining_accounts)
     return ix

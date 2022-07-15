@@ -11,12 +11,13 @@ from anchorpy.provider import DEFAULT_OPTIONS
 
 from marginpy import MarginfiConfig, Environment, MarginfiClient, MarginfiAccount, MarginfiGroup
 
+
 class TestInitializations(unittest.TestCase):
 
     def test_marginfi_config(self):
         """Test that MarginfiConfig is instantiated correctly."""
         config = MarginfiConfig(Environment.MAINNET)
-        
+
         self.assertIsInstance(
             config,
             MarginfiConfig

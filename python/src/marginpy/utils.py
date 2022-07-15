@@ -3,7 +3,7 @@ import json
 import os
 import enum
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 
 from anchorpy import Idl
 from solana.rpc.responses import AccountInfo
@@ -31,8 +31,8 @@ class UtpIndex(enum.Enum):
 
 
 class AccountType(enum.Enum):
-    MarginfiGroup = "marginfiGroup"
-    MarginfiAccount = "marginfiAccount"
+    MarginfiGroup = "MarginfiGroup"
+    MarginfiAccount = "MarginfiAccount"
 
 
 @dataclass
@@ -66,28 +66,26 @@ class BankVaultType(enum.Enum):
         return self.value
 
 
-def get_vault_seeds(
-    type: BankVaultType
-) -> bytes:
-    if type == BankVaultType.LiquidityVault:
+def get_vault_seeds(vault_type: BankVaultType) -> bytes:
+    if vault_type == BankVaultType.LiquidityVault:
         return PDA_BANK_VAULT_SEED
-    elif type == BankVaultType.InsuranceVault:
+    elif vault_type == BankVaultType.InsuranceVault:
         return PDA_BANK_INSURANCE_VAULT_SEED
-    elif type == BankVaultType.FeeVault:
+    elif vault_type == BankVaultType.FeeVault:
         return PDA_BANK_FEE_VAULT_SEED
     else:
         raise Exception(VERY_VERBOSE_ERROR)
 
-# @todo double check that this is implemented correctly
+
 async def get_bank_authority(
-    marginfi_group_pk: PublicKey,
-    program_id: PublicKey,
-    bank_vault_type: BankVaultType = BankVaultType.LiquidityVault
-):
+        marginfi_group_pk: PublicKey,
+        program_id: PublicKey,
+        bank_vault_type: BankVaultType = BankVaultType.LiquidityVault
+) -> Tuple[PublicKey, int]:
     return PublicKey.find_program_address(
         [
             get_vault_seeds(bank_vault_type),
-            marginfi_group_pk.encode()
+            marginfi_group_pk.to_base58()
         ],
         program_id
     )
