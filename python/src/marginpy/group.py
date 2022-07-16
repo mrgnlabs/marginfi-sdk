@@ -181,7 +181,7 @@ class MarginfiGroup:
     async def make_update_interest_accumulator_ix(self) -> TransactionInstruction:
         """Create `UpdateInterestAccumulator` transaction instruction."""
 
-        bank_authority, _ = await get_bank_authority(
+        bank_authority, _ = get_bank_authority(
             self._config.group_pk,
             self._program.program_id
         )

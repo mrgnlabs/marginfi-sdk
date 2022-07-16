@@ -392,17 +392,17 @@ class MarginfiAccount:
         """
 
         user_ata = get_associated_token_address(self._program.provider.wallet.public_key, self.group.bank.mint)
-        margin_bank_authority_pk, _ = await get_bank_authority(self._config.group_pk, self._program.program_id)
+        margin_bank_authority_pk, _ = get_bank_authority(self._config.group_pk, self._program.program_id)
         remaining_accounts = self.get_observation_accounts()
 
         return make_withdraw_ix(
             WithdrawArgs(amount=ui_to_native(amount)),
             WithdrawAccounts(
-                marginfi_group_pk=self.group.pubkey,
-                marginfi_account_pk=self.pubkey,
-                authority_pk=self._program.provider.wallet.public_key,
-                bank_vault_pk=self.group.bank.vault,
-                bank_vault_authority_pk=margin_bank_authority_pk,
+                marginfi_group=self.group.pubkey,
+                marginfi_account=self.pubkey,
+                authority=self._program.provider.wallet.public_key,
+                bank_vault=self.group.bank.vault,
+                bank_vault_authority=margin_bank_authority_pk,
                 receiving_token_account=user_ata
             ),
             remaining_accounts

@@ -3,6 +3,7 @@ from solana.publickey import PublicKey
 
 
 class Environment(Enum):
+    LOCALNET = "localnet"
     DEVNET = "devnet"
     MAINNET = "mainnet"
 
@@ -39,6 +40,14 @@ class MarginfiConfig:
                                               PublicKey("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK"))
             self.group_pk = handle_override("group_pk",
                                             PublicKey("7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg"))
+            self.collateral_mint_pk = handle_override("collateral_mint_pk", PublicKey(
+                "8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"))
+        elif environment == Environment.LOCALNET:
+            self.environment = environment
+            self.program_id = handle_override("program_id",
+                                              PublicKey("DzEv7WuxdzRJ9iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ"))
+            self.group_pk = handle_override("group_pk",
+                                            PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba"))
             self.collateral_mint_pk = handle_override("collateral_mint_pk", PublicKey(
                 "8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"))
         # elif environment == Environment.LOCALNET:

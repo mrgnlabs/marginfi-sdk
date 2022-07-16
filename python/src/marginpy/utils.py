@@ -77,7 +77,7 @@ def get_vault_seeds(vault_type: BankVaultType) -> bytes:
         raise Exception(VERY_VERBOSE_ERROR)
 
 
-async def get_bank_authority(
+def get_bank_authority(
         marginfi_group_pk: PublicKey,
         program_id: PublicKey,
         bank_vault_type: BankVaultType = BankVaultType.LiquidityVault
@@ -85,7 +85,7 @@ async def get_bank_authority(
     return PublicKey.find_program_address(
         [
             get_vault_seeds(bank_vault_type),
-            marginfi_group_pk.to_base58()
+            bytes(marginfi_group_pk)
         ],
         program_id
     )

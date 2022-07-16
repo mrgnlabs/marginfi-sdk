@@ -54,8 +54,8 @@ class MarginfiAccount:
         info = resp["result"]["value"]
         if info is None:
             return None
-        if info["owner"] != str(PROGRAM_ID):
-            raise ValueError("Account does not belong to this program")
+        # if info["owner"] != str(PROGRAM_ID):
+        #     raise ValueError("Account does not belong to this program")
         bytes_data = b64decode(info["data"][0])
         return cls.decode(bytes_data)
 
@@ -72,8 +72,8 @@ class MarginfiAccount:
             if info is None:
                 res.append(None)
                 continue
-            if info.account.owner != PROGRAM_ID:
-                raise ValueError("Account does not belong to this program")
+            # if info.account.owner != PROGRAM_ID:
+            #     raise ValueError("Account does not belong to this program")
             res.append(cls.decode(info.account.data))
         return res
 

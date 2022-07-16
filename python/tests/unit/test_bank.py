@@ -7,6 +7,7 @@ from marginpy.generated_client.types.margin_requirement import Init, Maint
 from tests.fixtures import SAMPLE_BANK, MDECIMAL_ZERO, SAMPLE_ACCOUNT_PUBKEY_1
 
 
+@mark.unit
 class TestBank:
     def test___init__(self):
         bank = Bank(BankDecoded(
@@ -35,7 +36,6 @@ class TestBank:
         ))
         assert isinstance(bank, Bank)
 
-    @mark.unit
     def test_compute_record_native_conversion(self):
         bank = SAMPLE_BANK
 
@@ -88,7 +88,6 @@ class TestBank:
         assert bank.compute_record_amount(record, Deposit) == 1.25
         assert bank.compute_native_amount(record, Deposit) == 0.05
 
-    @mark.unit
     def test_margin_ratio(self):
         bank = SAMPLE_BANK
 
