@@ -14,11 +14,11 @@ class InitMarginfiGroupArgs(gen_ix.InitMarginfiGroupArgs):
 
 @dataclass
 class InitMarginfiGroupAccounts:
-    marginfi_group_pk: PublicKey
-    admin_pk: PublicKey
-    mint_pk: PublicKey
-    bank_vault_pk: PublicKey
-    bank_authority_pk: PublicKey
+    marginfi_group: PublicKey
+    admin: PublicKey
+    mint: PublicKey
+    bank_vault: PublicKey
+    bank_authority: PublicKey
     insurance_vault: PublicKey
     insurance_vault_authority: PublicKey
     fee_vault: PublicKey
@@ -27,16 +27,17 @@ class InitMarginfiGroupAccounts:
 
 def make_init_marginfi_group_ix(
         args: gen_ix.InitMarginfiGroupArgs,
-        accounts: InitMarginfiGroupAccounts
+        accounts: InitMarginfiGroupAccounts,
+        program_id: PublicKey
 ) -> TransactionInstruction:
-    return gen_ix.init_marginfi_group(
+    ix = gen_ix.init_marginfi_group(
         args,
         gen_ix.InitMarginfiGroupAccounts(
-            marginfi_group=accounts.marginfi_group_pk,
-            admin=accounts.admin_pk,
-            collateral_mint=accounts.mint_pk,
-            bank_vault=accounts.bank_vault_pk,
-            bank_authority=accounts.bank_authority_pk,
+            marginfi_group=accounts.marginfi_group,
+            admin=accounts.admin,
+            collateral_mint=accounts.mint,
+            bank_vault=accounts.bank_vault,
+            bank_authority=accounts.bank_authority,
             insurance_vault=accounts.insurance_vault,
             insurance_vault_authority=accounts.insurance_vault_authority,
             fee_vault=accounts.fee_vault,
@@ -44,6 +45,8 @@ def make_init_marginfi_group_ix(
             system_program=SYS_PROGRAM_ID
         )
     )
+    ix = TransactionInstruction(ix.keys, program_id, ix.data)
+    return ix
 
 
 # --- Configure MarginfiGroup
@@ -122,11 +125,11 @@ class WithdrawArgs(gen_ix.MarginWithdrawCollateralArgs):
 
 @dataclass
 class WithdrawAccounts:
-    marginfi_group_pk: PublicKey
-    marginfi_account_pk: PublicKey
-    authority_pk: PublicKey
-    bank_vault_pk: PublicKey
-    bank_vault_authority_pk: PublicKey
+    marginfi_group: PublicKey
+    marginfi_account: PublicKey
+    authority: PublicKey
+    bank_vault: PublicKey
+    bank_vault_authority: PublicKey
     receiving_token_account: PublicKey
 
 
@@ -138,11 +141,11 @@ def make_withdraw_ix(
     ix = gen_ix.margin_withdraw_collateral(
         args,
         gen_ix.MarginWithdrawCollateralAccounts(
-            marginfi_group=accounts.marginfi_group_pk,
-            marginfi_account=accounts.marginfi_account_pk,
-            signer=accounts.authority_pk,
-            margin_collateral_vault=accounts.bank_vault_pk,
-            margin_bank_authority=accounts.bank_vault_authority_pk,
+            marginfi_group=accounts.marginfi_group,
+            marginfi_account=accounts.marginfi_account,
+            signer=accounts.authority,
+            margin_collateral_vault=accounts.bank_vault,
+            margin_bank_authority=accounts.bank_vault_authority,
             receiving_token_account=accounts.receiving_token_account,
             token_program=TOKEN_PROGRAM_ID
         )

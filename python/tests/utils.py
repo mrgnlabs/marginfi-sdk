@@ -1,11 +1,16 @@
 import json
 import os
-from typing import Tuple
+from typing import Tuple, List
 
 from anchorpy import Wallet, Program, Provider
+from solana.keypair import Keypair
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.responses import AccountInfo
+from solana.system_program import create_account, CreateAccountParams
+from solana.transaction import TransactionInstruction, Transaction, TransactionSignature
+from spl.token.constants import TOKEN_PROGRAM_ID, ACCOUNT_LEN, MINT_LEN
+import spl.token.instructions as spl_token_ixs
 
 from marginpy import MarginfiAccount, MarginfiConfig, Environment, MarginfiClient, MarginfiGroup
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData, \
@@ -13,6 +18,41 @@ from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccoun
 
 # --- Marginfi group
 from marginpy.utils import json_to_account_info, b64str_to_bytes, load_idl
+
+
+async def create_new_collateral_mint(wallet: Wallet, program: Program) -> \
+        Tuple[PublicKey, TransactionSignature]:
+    mint_keypair = Keypair()
+    mint_pubkey = mint_keypair.public_key
+    create_mint_account_ix = create_account(
+        CreateAccountParams(program_id=TOKEN_PROGRAM_ID, from_pubkey=wallet.public_key,
+                            lamports=int((await program.provider.connection.get_minimum_balance_for_rent_exemption(
+                                MINT_LEN))["result"]),
+                            new_account_pubkey=mint_pubkey, space=MINT_LEN))
+    init_mint_ix = spl_token_ixs.initialize_mint(
+        spl_token_ixs.InitializeMintParams(program_id=TOKEN_PROGRAM_ID, mint=mint_pubkey,
+                                           mint_authority=wallet.public_key,
+                                           decimals=6))
+    tx = Transaction().add(create_mint_account_ix, init_mint_ix)
+    sig = await program.provider.send(tx, signers=[mint_keypair])
+    return mint_pubkey, sig
+
+
+async def make_create_vault_account_ixs(mint_pk: PublicKey, owner: PublicKey, wallet: Wallet,
+                                        rpc_client: AsyncClient) -> \
+        Tuple[Keypair, List[TransactionInstruction]]:
+    vault_keypair = Keypair()
+    vault_pubkey = vault_keypair.public_key
+    create_mint_account_ix = create_account(
+        CreateAccountParams(program_id=TOKEN_PROGRAM_ID, from_pubkey=wallet.public_key,
+                            lamports=int(
+                                (await rpc_client.get_minimum_balance_for_rent_exemption(ACCOUNT_LEN))[
+                                    "result"]),
+                            new_account_pubkey=vault_pubkey, space=ACCOUNT_LEN))
+    init_mint_ix = spl_token_ixs.initialize_account(
+        spl_token_ixs.InitializeAccountParams(program_id=TOKEN_PROGRAM_ID, mint=mint_pk, account=vault_pubkey,
+                                              owner=owner))
+    return vault_keypair, [create_mint_account_ix, init_mint_ix]
 
 
 def load_client(group_name: str = "marginfi_group_2") -> MarginfiClient:
