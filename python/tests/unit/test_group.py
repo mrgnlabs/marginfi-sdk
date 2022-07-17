@@ -1,53 +1,43 @@
-import pytest
-
-import os
-import json
-
+from anchorpy import Wallet, Provider, Program
+from pytest import mark
+from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
-from anchorpy import Wallet, Program, Provider, Idl
-from anchorpy.provider import DEFAULT_OPTIONS
 
-from marginpy import MarginfiConfig, Environment, Bank
+from marginpy import MarginfiGroup, Environment, MarginfiConfig, load_idl
+from marginpy.utils import b64str_to_bytes
+from tests.utils import load_sample_account_info, load_marginfi_group_data
 
-# @pytest.mark.asyncio
-# class MarginfiGroup:
 
-    # @todo incomplete -- need bank
-    # def test___init__(self):
-    #     config = MarginfiConfig(Environment.MAINNET)
+@mark.unit
+class TestMarginfiAccount:
 
-    #     rpc_client = AsyncClient("https://marginfi.genesysgo.net/")
-    #     wallet = Wallet.local()
-    #     idl_path = os.path.join(os.path.dirname(__file__), "idl.json")
-    #     with open(idl_path) as f:
-    #         raw_idl = json.load(f)
-    #     idl = Idl.from_json(raw_idl)
-    #     opts = DEFAULT_OPTIONS
-    #     provider = Provider(rpc_client, wallet, opts)
-    #     program = Program(idl, config.program_id, provider=provider)
+    def test_decode(self):
+        account_address, account_info = load_sample_account_info("marginfi_group_2")
+        account_data = b64str_to_bytes(account_info.data[0])  # type: ignore
+        marginfi_group_data = MarginfiGroup.decode(account_data)
+        assert marginfi_group_data.admin == PublicKey("E5SUBkeCKPrmT77f6grSJXnLgLMed2pkSWr9NVXu9Nog")
 
-    #     admin = wallet.public_key
+    def test_from_account_data_raw_factory(self):
+        account_address, account_info = load_sample_account_info("marginfi_group_2")
+        account_data = b64str_to_bytes(account_info.data[0])  # type: ignore
+        config = MarginfiConfig(Environment.DEVNET)
+        wallet = Wallet.local()
+        rpc_client = AsyncClient("https://devnet.genesysgo.net/")
+        provider = Provider(rpc_client, wallet)
+        program = Program(load_idl(), config.program_id, provider=provider)
+        account = MarginfiGroup.from_account_data_raw(config, program, account_data)
+        assert isinstance(account, MarginfiGroup)
+        assert account.admin == PublicKey("E5SUBkeCKPrmT77f6grSJXnLgLMed2pkSWr9NVXu9Nog")
+        assert account.pubkey == account_address
 
-    #     bank = # @todo
-
-    #     group = MarginfiGroup(
-    #         config,
-    #         program,
-    #         admin,
-    #         bank
-    #     )
-
-    #     assert isinstance(group, MarginfiGroup)
-
-    # --- Factories
-
-    ###
-    # MarginfiGroup network factory
-    #
-    # Fetch account data according to the config and instantiate the corresponding MarginfiGroup.
-    #
-    # @param config marginfi config
-    # @param program marginfi Anchor program
-    # @return MarginfiGroup instance
-    ###
-    
+    def test_from_account_data_factory(self):
+        account_address, account_data = load_marginfi_group_data("marginfi_group_2")
+        config = MarginfiConfig(Environment.DEVNET)
+        wallet = Wallet.local()
+        rpc_client = AsyncClient("https://devnet.genesysgo.net/")
+        provider = Provider(rpc_client, wallet)
+        program = Program(load_idl(), config.program_id, provider=provider)
+        account = MarginfiGroup.from_account_data(config, program, account_data)
+        assert isinstance(account, MarginfiGroup)
+        assert account.admin == PublicKey("E5SUBkeCKPrmT77f6grSJXnLgLMed2pkSWr9NVXu9Nog")
+        assert account.pubkey == account_address

@@ -101,8 +101,8 @@ class MarginfiAccount:
             account_data.authority,
             client,
             await marginpy.MarginfiGroup.fetch(client.config, client.program),
-            Decimal.from_account_data(account_data.deposit_record),
-            Decimal.from_account_data(account_data.borrow_record),
+            Decimal.from_account_data(account_data.deposit_record).to_float(),
+            Decimal.from_account_data(account_data.borrow_record).to_float(),
             MarginfiAccount._pack_utp_data(account_data, UtpIndex.Mango),
             MarginfiAccount._pack_utp_data(account_data, UtpIndex.Zo)
         )
@@ -264,7 +264,7 @@ class MarginfiAccount:
         :returns: marginfi account instance
         """
 
-        data = await MarginfiAccountDecoded.fetch(rpc_client, marginfi_account_pk)
+        data = await MarginfiAccountDecoded.fetch(rpc_client, marginfi_account_pk, commitment=rpc_client.commitment)
         if data is None:
             raise Exception(f"Account {marginfi_account_pk} not found")
         if not (data.marginfi_group == config.group_pk):
@@ -463,7 +463,7 @@ class MarginfiAccount:
         """
 
         insurance_vault_authority_pk, _ = await get_bank_authority(self._config.group_pk, self._program.program_id,
-                                                                BankVaultType.InsuranceVault)
+                                                                   BankVaultType.InsuranceVault)
         remaining_accounts = self.get_observation_accounts()
 
         return make_handle_bankruptcy_ix(

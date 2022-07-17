@@ -141,7 +141,8 @@ class MarginfiGroup:
         :returns: Decoded marginfi group account data struct
         """
 
-        data = await MarginfiGroupDecoded.fetch(program.provider.connection, config.group_pk)
+        data = await MarginfiGroupDecoded.fetch(program.provider.connection, config.group_pk,
+                                                commitment=program.provider.connection.commitment)
         if data is None:
             raise Exception(f"Account {config.group_pk} not found")
         if data.bank.mint != config.collateral_mint_pk:
