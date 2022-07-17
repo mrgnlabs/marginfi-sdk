@@ -61,6 +61,5 @@ class TestMarginfiClient:
         config = MarginfiConfig(Environment.DEVNET)
 
         account_address, _ = await client.create_marginfi_account()
-        sleep(30.)
-        account = await client.get_marginfi_account(account_address)
+        account = await client.get_marginfi_account(account_address.pubkey)
         assert account.group.pubkey == config.group_pk

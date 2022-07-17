@@ -120,7 +120,7 @@ async def configure_marginfi_group(group_pk: PublicKey, new_group_config: GroupC
 def load_client(group_name: str = "marginfi_group_2") -> MarginfiClient:
     config = MarginfiConfig(Environment.DEVNET)
     wallet = Wallet.local()
-    rpc_client = AsyncClient("https://devnet.genesysgo.net/")
+    rpc_client = AsyncClient("https://devnet.genesysgo.net/", commitment=Confirmed)
     provider = Provider(rpc_client, wallet)
     program = Program(load_idl(), config.program_id, provider=provider)
     _, group = load_marginfi_group(group_name)
