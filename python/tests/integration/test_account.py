@@ -11,6 +11,7 @@ from marginpy.types import GroupConfig, BankConfig
 from tests.utils import create_collateral_mint, create_marginfi_group, configure_marginfi_group
 from tests.fixtures import REAL_ACCOUNT_PUBKEY_2
 from tests.utils import load_marginfi_group, load_marginfi_account
+from tests.config import LOCALNET_URL, DEVNET_URL
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
 _localnet = localnet_fixture(path=PATH, timeout_seconds=5)
@@ -25,7 +26,7 @@ class TestMarginfiAccountLocalnet:
 
         config_base = MarginfiConfig(Environment.LOCALNET)
         wallet = Wallet.local()
-        rpc_client = AsyncClient("http://127.0.0.1:8899", commitment=Confirmed)
+        rpc_client = AsyncClient(LOCALNET_URL, commitment=Confirmed)
         provider = Provider(rpc_client, wallet, opts=TxOpts(skip_preflight=True))
         program = Program(load_idl(), config_base.program_id, provider=provider)
 
@@ -61,7 +62,7 @@ class TestMarginfiAccountDevnet:
     async def test_fetch(self):
         config = MarginfiConfig(Environment.DEVNET)
         wallet = Wallet.local()
-        rpc_client = AsyncClient("https://devnet.genesysgo.net/")
+        rpc_client = AsyncClient(DEVNET_URL)
         provider = Provider(rpc_client, wallet)
         program = Program(load_idl(), config.program_id, provider=provider)
         _, group = load_marginfi_group("marginfi_group_2")

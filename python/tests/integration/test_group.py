@@ -12,6 +12,7 @@ from solana.publickey import PublicKey
 from marginpy import MarginfiConfig, Environment, load_idl, MarginfiGroup
 from marginpy.utils import b64str_to_bytes
 from tests.utils import create_collateral_mint, create_marginfi_group, load_sample_account_info, load_marginfi_group_data
+from tests.config import LOCALNET_URL, DEVNET_URL
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
 _localnet = localnet_fixture(path=PATH, timeout_seconds=5)
@@ -27,7 +28,7 @@ class TestMarginfiGroupLocalnet:
 
         config_base = MarginfiConfig(Environment.LOCALNET)
         wallet = Wallet.local()
-        rpc_client = AsyncClient("http://127.0.0.1:8899", commitment=Confirmed)
+        rpc_client = AsyncClient(LOCALNET_URL, commitment=Confirmed)
         provider = Provider(rpc_client, wallet, opts=TxOpts(skip_preflight=True))
         program = Program(load_idl(), config_base.program_id, provider=provider)
 
@@ -60,7 +61,7 @@ class TestMarginfiGroupDevnet:
         account_data = b64str_to_bytes(account_info.data[0])  # type: ignore
         config = MarginfiConfig(Environment.DEVNET)
         wallet = Wallet.local()
-        rpc_client = AsyncClient("https://devnet.genesysgo.net/")
+        rpc_client = AsyncClient(DEVNET_URL)
         provider = Provider(rpc_client, wallet)
         program = Program(load_idl(), config.program_id, provider=provider)
         account = MarginfiGroup.from_account_data_raw(config, program, account_data)
@@ -72,7 +73,7 @@ class TestMarginfiGroupDevnet:
         account_address, account_data = load_marginfi_group_data("marginfi_group_2")
         config = MarginfiConfig(Environment.DEVNET)
         wallet = Wallet.local()
-        rpc_client = AsyncClient("https://devnet.genesysgo.net/")
+        rpc_client = AsyncClient(DEVNET_URL)
         provider = Provider(rpc_client, wallet)
         program = Program(load_idl(), config.program_id, provider=provider)
         account = MarginfiGroup.from_account_data(config, program, account_data)

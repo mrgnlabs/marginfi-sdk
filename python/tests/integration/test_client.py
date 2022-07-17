@@ -6,6 +6,7 @@ from marginpy import MarginfiConfig, Environment, MarginfiClient
 from marginpy.utils import load_idl, AccountType
 from tests.fixtures import REAL_ACCOUNT_PUBKEY_2
 from tests.utils import load_marginfi_group, load_client
+from tests.config import LOCALNET_URL, DEVNET_URL
 
 
 @mark.integration
@@ -14,7 +15,7 @@ class TestMarginfiClient:
     def test_constructor(self):
         config = MarginfiConfig(Environment.DEVNET)
         wallet = Wallet.local()
-        rpc_client = AsyncClient("https://devnet.genesysgo.net/")
+        rpc_client = AsyncClient(DEVNET_URL)
         provider = Provider(rpc_client, wallet)
         program = Program(load_idl(), config.program_id, provider=provider)
         _, group = load_marginfi_group("marginfi_group_2")
