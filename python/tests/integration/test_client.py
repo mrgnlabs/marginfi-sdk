@@ -8,7 +8,8 @@ from tests.fixtures import REAL_ACCOUNT_PUBKEY_2
 from tests.utils import load_marginfi_group, load_client
 
 
-@mark.unit
+@mark.integration
+@mark.devnet
 class TestMarginfiClient:
     def test_constructor(self):
         config = MarginfiConfig(Environment.DEVNET)
@@ -22,8 +23,6 @@ class TestMarginfiClient:
         assert isinstance(client, MarginfiClient)
 
     # /!\ more test setup required to allow for more stringent tests /!\
-
-    # TODO: MOVE BELOW TESTS TO INTEGRATION TESTS
 
     @mark.asyncio
     async def test_get_own_marginfi_accounts(self):

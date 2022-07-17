@@ -17,9 +17,11 @@ class TestMarginfiConfig():
     def test___init__(self):
         config_mainnet = MarginfiConfig(Environment.MAINNET)
         config_devnet = MarginfiConfig(Environment.DEVNET)
+        config_localnet = MarginfiConfig(Environment.LOCALNET)
 
         assert isinstance(config_mainnet, MarginfiConfig)
         assert isinstance(config_devnet, MarginfiConfig)
+        assert isinstance(config_localnet, MarginfiConfig)
 
     def test_handle_override(self):
         overrides = {
