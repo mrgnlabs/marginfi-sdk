@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from builtins import enumerate
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from anchorpy import Wallet, Provider, Program, AccountsCoder, ProgramAccount
 from anchorpy.provider import DEFAULT_OPTIONS
 from based58 import b58encode
@@ -77,26 +77,30 @@ class MarginfiClient:
 
     # --- Others
 
-    async def create_marginfi_account(self) -> Tuple[PublicKey, TransactionSignature]:
+    async def create_marginfi_account(self) -> Tuple[marginpy.MarginfiAccount, TransactionSignature]:
         """
         * Create a new marginfi account under the authority of the user.
         *
         * @returns MarginfiAccount instance
         """
-        marginfi_account_key = Keypair()
-        print(f"Creating Marginfi account {marginfi_account_key.public_key}")
+        account_keypair = Keypair()
+        account_pk = account_keypair.public_key
+        print(f"Creating Marginfi account {account_pk}")
 
         create_marginfi_account_account_ix = await self._program.account[
-            AccountType.MarginfiAccount.value].create_instruction(marginfi_account_key)
+            AccountType.MarginfiAccount.value].create_instruction(account_keypair)
         init_marginfi_account_ix = make_init_marginfi_account_ix(
             InitMarginfiAccountAccounts(
                 marginfi_group=self.group.pubkey,
-                marginfi_account=marginfi_account_key.public_key,
+                marginfi_account=account_pk,
                 authority=self._program.provider.wallet.public_key
-            )
+            ),
+            self.program_id
         )
         tx = Transaction().add(create_marginfi_account_account_ix, init_marginfi_account_ix)
-        return marginfi_account_key.public_key, await self._program.provider.send(tx, signers=[marginfi_account_key])
+        sig = await self._program.provider.send(tx, signers=[account_keypair])
+        account = await marginpy.MarginfiAccount.fetch(account_pk, self)
+        return account, sig
 
     async def get_own_marginfi_accounts(self) -> List[marginpy.MarginfiAccount]:
         """

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from base64 import b64decode
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
-from solana.rpc.commitment import Commitment
+from solana.rpc.commitment import Commitment, Confirmed, Processed
 import borsh_construct as borsh
 from anchorpy.coder.accounts import ACCOUNT_DISCRIMINATOR_SIZE
 from anchorpy.error import AccountInvalidDiscriminator
@@ -41,7 +41,7 @@ class MarginfiGroup:
         address: PublicKey,
         commitment: typing.Optional[Commitment] = None,
     ) -> typing.Optional["MarginfiGroup"]:
-        resp = await conn.get_account_info(address, commitment=commitment)
+        resp = await conn.get_account_info(address, commitment=Processed)
         info = resp["result"]["value"]
         if info is None:
             return None

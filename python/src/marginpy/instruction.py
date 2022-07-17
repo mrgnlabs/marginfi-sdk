@@ -73,8 +73,8 @@ class InitMarginfiAccountAccounts:
     authority: PublicKey
 
 
-def make_init_marginfi_account_ix(accounts: InitMarginfiAccountAccounts):
-    return gen_ix.init_marginfi_account(
+def make_init_marginfi_account_ix(accounts: InitMarginfiAccountAccounts, program_id: PublicKey):
+    ix = gen_ix.init_marginfi_account(
         gen_ix.InitMarginfiAccountAccounts(
             marginfi_group=accounts.marginfi_group,
             marginfi_account=accounts.marginfi_account,
@@ -82,6 +82,8 @@ def make_init_marginfi_account_ix(accounts: InitMarginfiAccountAccounts):
             system_program=SYS_PROGRAM_ID
         )
     )
+    ix = TransactionInstruction(ix.keys, program_id, ix.data)
+    return ix
 
 
 # --- Deposit to GMA
