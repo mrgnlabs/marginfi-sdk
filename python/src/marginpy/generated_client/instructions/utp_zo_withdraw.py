@@ -30,7 +30,10 @@ class UtpZoWithdrawAccounts(typing.TypedDict):
 
 
 def utp_zo_withdraw(
-    args: UtpZoWithdrawArgs, accounts: UtpZoWithdrawAccounts
+    args: UtpZoWithdrawArgs,
+    accounts: UtpZoWithdrawAccounts,
+    program_id: PublicKey = PROGRAM_ID,
+    remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(
@@ -61,6 +64,8 @@ def utp_zo_withdraw(
             pubkey=accounts["token_program"], is_signer=False, is_writable=False
         ),
     ]
+    if remaining_accounts is not None:
+        keys += remaining_accounts
     identifier = b"\xfd\xcbp1\xc3\xa5\xa3\xd1"
     encoded_args = layout.build(
         {
@@ -68,4 +73,4 @@ def utp_zo_withdraw(
         }
     )
     data = identifier + encoded_args
-    return TransactionInstruction(keys, PROGRAM_ID, data)
+    return TransactionInstruction(keys, program_id, data)

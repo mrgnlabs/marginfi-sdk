@@ -24,7 +24,10 @@ class MarginWithdrawCollateralAccounts(typing.TypedDict):
 
 
 def margin_withdraw_collateral(
-    args: MarginWithdrawCollateralArgs, accounts: MarginWithdrawCollateralAccounts
+    args: MarginWithdrawCollateralArgs,
+    accounts: MarginWithdrawCollateralAccounts,
+    program_id: PublicKey = PROGRAM_ID,
+    remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(
@@ -51,6 +54,8 @@ def margin_withdraw_collateral(
             pubkey=accounts["token_program"], is_signer=False, is_writable=False
         ),
     ]
+    if remaining_accounts is not None:
+        keys += remaining_accounts
     identifier = b"L\r\xd1\x8b\xdc\xb3\xff\x9b"
     encoded_args = layout.build(
         {
@@ -58,4 +63,4 @@ def margin_withdraw_collateral(
         }
     )
     data = identifier + encoded_args
-    return TransactionInstruction(keys, PROGRAM_ID, data)
+    return TransactionInstruction(keys, program_id, data)

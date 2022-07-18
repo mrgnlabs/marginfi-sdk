@@ -20,7 +20,10 @@ class ConfigureMarginfiGroupAccounts(typing.TypedDict):
 
 
 def configure_marginfi_group(
-    args: ConfigureMarginfiGroupArgs, accounts: ConfigureMarginfiGroupAccounts
+    args: ConfigureMarginfiGroupArgs,
+    accounts: ConfigureMarginfiGroupAccounts,
+    program_id: PublicKey = PROGRAM_ID,
+    remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(
@@ -28,6 +31,8 @@ def configure_marginfi_group(
         ),
         AccountMeta(pubkey=accounts["admin"], is_signer=True, is_writable=False),
     ]
+    if remaining_accounts is not None:
+        keys += remaining_accounts
     identifier = b"\r\x1ag\x9d\x05\x19\xa9{"
     encoded_args = layout.build(
         {
@@ -35,4 +40,4 @@ def configure_marginfi_group(
         }
     )
     data = identifier + encoded_args
-    return TransactionInstruction(keys, PROGRAM_ID, data)
+    return TransactionInstruction(keys, program_id, data)

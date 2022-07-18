@@ -28,6 +28,8 @@ class HeaderNested(typing.TypedDict):
 
 def utp_zo_create_perp_open_orders(
     accounts: UtpZoCreatePerpOpenOrdersAccounts,
+    program_id: PublicKey = PROGRAM_ID,
+    remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(
@@ -61,7 +63,9 @@ def utp_zo_create_perp_open_orders(
             pubkey=accounts["system_program"], is_signer=False, is_writable=False
         ),
     ]
+    if remaining_accounts is not None:
+        keys += remaining_accounts
     identifier = b"\xab\xe8XUG\xb4\x1d\\"
     encoded_args = b""
     data = identifier + encoded_args
-    return TransactionInstruction(keys, PROGRAM_ID, data)
+    return TransactionInstruction(keys, program_id, data)

@@ -6,23 +6,23 @@ from pytest import mark
 from solana.rpc.async_api import AsyncClient
 from marginpy import MarginfiConfig, Environment, load_idl, MarginfiClient, MarginfiAccount
 from tests.fixtures import REAL_ACCOUNT_PUBKEY_2
-from tests.utils import load_marginfi_group, load_marginfi_account
+from tests.utils import load_marginfi_account
 from tests.config import DEVNET_URL
 from tests.utils import load_marginfi_group, create_marginfi_account
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
 _localnet = localnet_fixture(path=PATH, timeout_seconds=5, scope='function')
 
+
 @mark.asyncio
 @mark.integration
 @mark.localnet
 class TestMarginfiAccountLocalnet:
-    
+
     async def test_deposit(self, _localnet) -> None:
-        sleep(60.)
-        
+        sleep(10.)
+
         marginfi_account = await create_marginfi_account()
-        sleep(60.)
         await marginfi_account.deposit(1)
 
 

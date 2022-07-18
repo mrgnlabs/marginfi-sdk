@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from base64 import b64decode
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
-from solana.rpc.commitment import Commitment, Confirmed, Processed
+from solana.rpc.commitment import Commitment
 import borsh_construct as borsh
 from anchorpy.coder.accounts import ACCOUNT_DISCRIMINATOR_SIZE
 from anchorpy.error import AccountInvalidDiscriminator
@@ -40,13 +40,14 @@ class MarginfiGroup:
         conn: AsyncClient,
         address: PublicKey,
         commitment: typing.Optional[Commitment] = None,
+        program_id: PublicKey = PROGRAM_ID,
     ) -> typing.Optional["MarginfiGroup"]:
-        resp = await conn.get_account_info(address, commitment=Processed)
+        resp = await conn.get_account_info(address, commitment=commitment)
         info = resp["result"]["value"]
         if info is None:
             return None
-        # if info["owner"] != str(PROGRAM_ID):
-        #     raise ValueError("Account does not belong to this program")
+        if info["owner"] != str(program_id):
+            raise ValueError("Account does not belong to this program")
         bytes_data = b64decode(info["data"][0])
         return cls.decode(bytes_data)
 
@@ -56,6 +57,7 @@ class MarginfiGroup:
         conn: AsyncClient,
         addresses: list[PublicKey],
         commitment: typing.Optional[Commitment] = None,
+        program_id: PublicKey = PROGRAM_ID,
     ) -> typing.List[typing.Optional["MarginfiGroup"]]:
         infos = await get_multiple_accounts(conn, addresses, commitment=commitment)
         res: typing.List[typing.Optional["MarginfiGroup"]] = []
@@ -63,7 +65,7 @@ class MarginfiGroup:
             if info is None:
                 res.append(None)
                 continue
-            if info.account.owner != PROGRAM_ID:
+            if info.account.owner != program_id:
                 raise ValueError("Account does not belong to this program")
             res.append(cls.decode(info.account.data))
         return res

@@ -32,7 +32,10 @@ class UtpMangoUsePlacePerpOrderAccounts(typing.TypedDict):
 
 
 def utp_mango_use_place_perp_order(
-    args: UtpMangoUsePlacePerpOrderArgs, accounts: UtpMangoUsePlacePerpOrderAccounts
+    args: UtpMangoUsePlacePerpOrderArgs,
+    accounts: UtpMangoUsePlacePerpOrderAccounts,
+    program_id: PublicKey = PROGRAM_ID,
+    remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(
@@ -62,6 +65,8 @@ def utp_mango_use_place_perp_order(
             pubkey=accounts["mango_event_queue"], is_signer=False, is_writable=True
         ),
     ]
+    if remaining_accounts is not None:
+        keys += remaining_accounts
     identifier = b"\x94\x12\xdd\xcb\xd6\xffv4"
     encoded_args = layout.build(
         {
@@ -69,4 +74,4 @@ def utp_mango_use_place_perp_order(
         }
     )
     data = identifier + encoded_args
-    return TransactionInstruction(keys, PROGRAM_ID, data)
+    return TransactionInstruction(keys, program_id, data)

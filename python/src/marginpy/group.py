@@ -142,6 +142,7 @@ class MarginfiGroup:
         """
 
         data = await MarginfiGroupDecoded.fetch(program.provider.connection, config.group_pk,
+                                                program_id=config.program_id,
                                                 commitment=program.provider.connection.commitment)
         if data is None:
             raise Exception(f"Account {config.group_pk} not found")

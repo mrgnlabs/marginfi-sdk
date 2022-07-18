@@ -23,7 +23,10 @@ class BankInsuranceVaultWithdrawAccounts(typing.TypedDict):
 
 
 def bank_insurance_vault_withdraw(
-    args: BankInsuranceVaultWithdrawArgs, accounts: BankInsuranceVaultWithdrawAccounts
+    args: BankInsuranceVaultWithdrawArgs,
+    accounts: BankInsuranceVaultWithdrawAccounts,
+    program_id: PublicKey = PROGRAM_ID,
+    remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(
@@ -47,6 +50,8 @@ def bank_insurance_vault_withdraw(
             pubkey=accounts["token_program"], is_signer=False, is_writable=False
         ),
     ]
+    if remaining_accounts is not None:
+        keys += remaining_accounts
     identifier = b'"\x98\xb9\xa0X\x99\x1a\t'
     encoded_args = layout.build(
         {
@@ -54,4 +59,4 @@ def bank_insurance_vault_withdraw(
         }
     )
     data = identifier + encoded_args
-    return TransactionInstruction(keys, PROGRAM_ID, data)
+    return TransactionInstruction(keys, program_id, data)
