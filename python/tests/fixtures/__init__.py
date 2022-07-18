@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from time import sleep
-from typing import Optional, Callable
+from typing import Optional, Callable, cast
 
 from anchorpy import Provider, Wallet, Program
 from pytest import fixture
@@ -11,6 +11,7 @@ from solana.rpc.commitment import Commitment, Processed
 from solana.rpc.types import TxOpts
 from spl.token.async_client import AsyncToken
 from spl.token.constants import TOKEN_PROGRAM_ID
+from spl.token.core import _TokenCore
 from spl.token.instructions import get_associated_token_address
 
 from marginpy import Bank, MarginfiGroup, MarginfiConfig, Environment, load_idl, MarginfiClient, MarginfiAccount
@@ -89,15 +90,27 @@ def basics_fixture() -> Callable:
 
 def mint_fixture() -> Callable:
     @async_fixture
-    async def _mint_fixture(basics_fixture, decimals: int = 6) -> AsyncToken:
+    async def _mint_fixture(basics_fixture: Basics, decimals: int = 6) -> AsyncToken:
         print(">>>>> MINT FIXTURE STARTIN'")
-        return await AsyncToken.create_mint(
+        # Allocate memory for the account
+        balance_needed = await AsyncToken.get_min_balance_rent_for_exempt_for_mint(basics_fixture.provider.connection)
+        # Construct transaction
+        token, txn, payer, mint_account, opts = _TokenCore._create_mint_args(
             basics_fixture.provider.connection,
             basics_fixture.wallet.payer,
             basics_fixture.wallet.public_key,
             decimals,
             TOKEN_PROGRAM_ID,
+            basics_fixture.wallet.public_key,
+            False,
+            balance_needed,
+            AsyncToken,
+            basics_fixture.provider.connection.commitment,
         )
+        # Send the two instructionsÎ
+        await basics_fixture.provider.send(txn, [basics_fixture.wallet.payer, mint_account],
+                                           opts=TxOpts(skip_preflight=True))
+        return cast(AsyncToken, token)
 
     return _mint_fixture
 
