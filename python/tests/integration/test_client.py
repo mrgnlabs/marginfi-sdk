@@ -12,12 +12,11 @@ from anchorpy import localnet_fixture, Wallet, Provider, Program
 from marginpy import MarginfiConfig, Environment, load_idl, MarginfiClient
 from marginpy.types import GroupConfig, BankConfig
 from tests.utils import create_collateral_mint, create_marginfi_group, configure_marginfi_group, load_marginfi_group, load_client
-from tests.utils import load_marginfi_group, load_marginfi_account
-
+from tests.utils import load_marginfi_group
 
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
-_localnet = localnet_fixture(path=PATH, timeout_seconds=5)
+_localnet = localnet_fixture(path=PATH, timeout_seconds=5, scope='function')
 
 @mark.asyncio
 @mark.integration

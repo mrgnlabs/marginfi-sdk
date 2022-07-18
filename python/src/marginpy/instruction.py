@@ -103,6 +103,7 @@ class DepositAccounts:
 def make_deposit_ix(
         args: DepositArgs,
         accounts: DepositAccounts,
+        program_id: PublicKey,
         remaining_accounts: List[AccountMeta]
 ) -> TransactionInstruction:
     ix = gen_ix.margin_deposit_collateral(
@@ -116,7 +117,11 @@ def make_deposit_ix(
             token_program=TOKEN_PROGRAM_ID
         ),
     )
-    ix.keys.extend(remaining_accounts)
+    if remaining_accounts is not None:
+        ix.keys.extend(remaining_accounts)
+    
+    ix = TransactionInstruction(ix.keys, program_id, ix.data)
+
     return ix
 
 
