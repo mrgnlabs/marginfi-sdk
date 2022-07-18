@@ -383,7 +383,6 @@ class MarginfiAccount:
         deposit_ix = self.make_deposit_ix(amount)
         tx = Transaction().add(deposit_ix)
         sig = await self._program.provider.send(tx)
-        await self._program.provider.connection.confirm_transaction(sig)
         return sig
 
     # --- Withdraw from GMA
