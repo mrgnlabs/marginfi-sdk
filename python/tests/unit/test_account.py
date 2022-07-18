@@ -10,7 +10,7 @@ from tests.utils import load_marginfi_account, load_marginfi_group, \
 
 
 @mark.unit
-class TestMarginfiAccount:
+class TestMarginfiAccountUnit:
 
     def test_decode(self):
         _, account_info = load_sample_account_info("marginfi_account_2")
@@ -75,22 +75,3 @@ class TestMarginfiAccount:
         res_exp = UtpData(account_config=data_decoded.utp_account_config[UtpIndex.Mango],
                           is_active=data_decoded.active_utps[UtpIndex.Mango])
         assert MarginfiAccount._pack_utp_data(data_decoded, UtpIndex.Mango) == res_exp
-
-    # TODO: MOVE TO INTEGRATION TESTS
-    @mark.asyncio
-    async def test_fetch(self):
-        config = MarginfiConfig(Environment.DEVNET)
-        wallet = Wallet.local()
-        rpc_client = AsyncClient("https://devnet.genesysgo.net/")
-        provider = Provider(rpc_client, wallet)
-        program = Program(load_idl(), config.program_id, provider=provider)
-        _, group = load_marginfi_group("marginfi_group_2")
-        client = MarginfiClient(config, program, group)
-        marginfi_account_pk = REAL_ACCOUNT_PUBKEY_2
-        await MarginfiAccount.fetch(marginfi_account_pk, client)
-
-    # TODO: MOVE TO INTEGRATION TESTS
-    @mark.asyncio
-    async def test_reload(self):
-        _, account = load_marginfi_account("marginfi_account_2")
-        await account.reload()
