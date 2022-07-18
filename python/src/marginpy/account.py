@@ -264,7 +264,8 @@ class MarginfiAccount:
         :returns: marginfi account instance
         """
 
-        data = await MarginfiAccountDecoded.fetch(rpc_client, marginfi_account_pk, commitment=rpc_client.commitment)
+        data = await MarginfiAccountDecoded.fetch(rpc_client, marginfi_account_pk, program_id=config.program_id,
+                                                  commitment=rpc_client.commitment)
         if data is None:
             raise Exception(f"Account {marginfi_account_pk} not found")
         if not (data.marginfi_group == config.group_pk):
@@ -409,6 +410,7 @@ class MarginfiAccount:
                 bank_vault_authority=margin_bank_authority_pk,
                 receiving_token_account=user_ata
             ),
+            self.client.program_id,
             remaining_accounts
         )
 
@@ -444,6 +446,7 @@ class MarginfiAccount:
                 marginfi_account=self.pubkey,
                 authority=self._program.provider.wallet.public_key
             ),
+            self.client.program_id,
             remaining_accounts
         )
 
@@ -466,8 +469,8 @@ class MarginfiAccount:
         :returns: `HandleBankruptcy` transaction instruction
         """
 
-        insurance_vault_authority_pk, _ = await get_bank_authority(self._config.group_pk, self._program.program_id,
-                                                                   BankVaultType.InsuranceVault)
+        insurance_vault_authority_pk, _ = get_bank_authority(self._config.group_pk, self._program.program_id,
+                                                             BankVaultType.InsuranceVault)
         remaining_accounts = self.get_observation_accounts()
 
         return make_handle_bankruptcy_ix(
@@ -478,6 +481,7 @@ class MarginfiAccount:
                 insurance_vault_authority=insurance_vault_authority_pk,
                 liquidity_vault=self.group.bank.vault,
             ),
+            self.client.program_id,
             remaining_accounts
         )
 

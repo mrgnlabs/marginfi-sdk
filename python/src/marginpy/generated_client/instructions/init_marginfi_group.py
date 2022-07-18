@@ -33,7 +33,10 @@ class InitMarginfiGroupAccounts(typing.TypedDict):
 
 
 def init_marginfi_group(
-    args: InitMarginfiGroupArgs, accounts: InitMarginfiGroupAccounts
+    args: InitMarginfiGroupArgs,
+    accounts: InitMarginfiGroupAccounts,
+    program_id: PublicKey = PROGRAM_ID,
+    remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(
@@ -63,6 +66,8 @@ def init_marginfi_group(
             pubkey=accounts["system_program"], is_signer=False, is_writable=False
         ),
     ]
+    if remaining_accounts is not None:
+        keys += remaining_accounts
     identifier = b"G*8\xc2\t\xb4\xae\xa3"
     encoded_args = layout.build(
         {
@@ -74,4 +79,4 @@ def init_marginfi_group(
         }
     )
     data = identifier + encoded_args
-    return TransactionInstruction(keys, PROGRAM_ID, data)
+    return TransactionInstruction(keys, program_id, data)

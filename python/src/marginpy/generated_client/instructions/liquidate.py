@@ -25,7 +25,10 @@ class LiquidateAccounts(typing.TypedDict):
 
 
 def liquidate(
-    args: LiquidateArgs, accounts: LiquidateAccounts
+    args: LiquidateArgs,
+    accounts: LiquidateAccounts,
+    program_id: PublicKey = PROGRAM_ID,
+    remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(
@@ -51,6 +54,8 @@ def liquidate(
             pubkey=accounts["token_program"], is_signer=False, is_writable=False
         ),
     ]
+    if remaining_accounts is not None:
+        keys += remaining_accounts
     identifier = b"\xdf\xb3\xe2}0.'J"
     encoded_args = layout.build(
         {
@@ -58,4 +63,4 @@ def liquidate(
         }
     )
     data = identifier + encoded_args
-    return TransactionInstruction(keys, PROGRAM_ID, data)
+    return TransactionInstruction(keys, program_id, data)

@@ -23,7 +23,10 @@ class MarginDepositCollateralAccounts(typing.TypedDict):
 
 
 def margin_deposit_collateral(
-    args: MarginDepositCollateralArgs, accounts: MarginDepositCollateralAccounts
+    args: MarginDepositCollateralArgs,
+    accounts: MarginDepositCollateralAccounts,
+    program_id: PublicKey = PROGRAM_ID,
+    remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(
@@ -41,6 +44,8 @@ def margin_deposit_collateral(
             pubkey=accounts["token_program"], is_signer=False, is_writable=False
         ),
     ]
+    if remaining_accounts is not None:
+        keys += remaining_accounts
     identifier = b"\x90\xd0\x7f\x054\xd3\xfbJ"
     encoded_args = layout.build(
         {
@@ -48,4 +53,4 @@ def margin_deposit_collateral(
         }
     )
     data = identifier + encoded_args
-    return TransactionInstruction(keys, PROGRAM_ID, data)
+    return TransactionInstruction(keys, program_id, data)

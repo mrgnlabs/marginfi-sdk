@@ -23,7 +23,10 @@ class BankFeeVaultWithdrawAccounts(typing.TypedDict):
 
 
 def bank_fee_vault_withdraw(
-    args: BankFeeVaultWithdrawArgs, accounts: BankFeeVaultWithdrawAccounts
+    args: BankFeeVaultWithdrawArgs,
+    accounts: BankFeeVaultWithdrawAccounts,
+    program_id: PublicKey = PROGRAM_ID,
+    remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(
@@ -47,6 +50,8 @@ def bank_fee_vault_withdraw(
             pubkey=accounts["token_program"], is_signer=False, is_writable=False
         ),
     ]
+    if remaining_accounts is not None:
+        keys += remaining_accounts
     identifier = b"v\x18\x85\x19\x1bs\xac\xb0"
     encoded_args = layout.build(
         {
@@ -54,4 +59,4 @@ def bank_fee_vault_withdraw(
         }
     )
     data = identifier + encoded_args
-    return TransactionInstruction(keys, PROGRAM_ID, data)
+    return TransactionInstruction(keys, program_id, data)

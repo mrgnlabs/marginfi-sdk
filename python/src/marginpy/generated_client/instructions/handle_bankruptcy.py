@@ -14,7 +14,11 @@ class HandleBankruptcyAccounts(typing.TypedDict):
     token_program: PublicKey
 
 
-def handle_bankruptcy(accounts: HandleBankruptcyAccounts) -> TransactionInstruction:
+def handle_bankruptcy(
+    accounts: HandleBankruptcyAccounts,
+    program_id: PublicKey = PROGRAM_ID,
+    remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
+) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(
             pubkey=accounts["marginfi_account"], is_signer=False, is_writable=True
@@ -37,7 +41,9 @@ def handle_bankruptcy(accounts: HandleBankruptcyAccounts) -> TransactionInstruct
             pubkey=accounts["token_program"], is_signer=False, is_writable=False
         ),
     ]
+    if remaining_accounts is not None:
+        keys += remaining_accounts
     identifier = b"ls\x89\xd2\xd4\xb2\xd5\x1d"
     encoded_args = b""
     data = identifier + encoded_args
-    return TransactionInstruction(keys, PROGRAM_ID, data)
+    return TransactionInstruction(keys, program_id, data)

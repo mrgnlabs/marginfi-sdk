@@ -1,7 +1,4 @@
 from __future__ import annotations
-
-from anchorpy.borsh_extension import BorshPubkey
-
 from . import (
     bank_config,
 )
@@ -9,6 +6,7 @@ import typing
 from dataclasses import dataclass
 from construct import Container
 from solana.publickey import PublicKey
+from anchorpy.borsh_extension import BorshPubkey
 import borsh_construct as borsh
 
 

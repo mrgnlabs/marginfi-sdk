@@ -28,7 +28,10 @@ class UtpMangoUseCancelPerpOrderAccounts(typing.TypedDict):
 
 
 def utp_mango_use_cancel_perp_order(
-    args: UtpMangoUseCancelPerpOrderArgs, accounts: UtpMangoUseCancelPerpOrderAccounts
+    args: UtpMangoUseCancelPerpOrderArgs,
+    accounts: UtpMangoUseCancelPerpOrderAccounts,
+    program_id: PublicKey = PROGRAM_ID,
+    remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(
@@ -54,6 +57,8 @@ def utp_mango_use_cancel_perp_order(
         AccountMeta(pubkey=accounts["mango_bids"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["mango_asks"], is_signer=False, is_writable=True),
     ]
+    if remaining_accounts is not None:
+        keys += remaining_accounts
     identifier = b"Uc\xbd)\xdd.\x8f\xe5"
     encoded_args = layout.build(
         {
@@ -62,4 +67,4 @@ def utp_mango_use_cancel_perp_order(
         }
     )
     data = identifier + encoded_args
-    return TransactionInstruction(keys, PROGRAM_ID, data)
+    return TransactionInstruction(keys, program_id, data)

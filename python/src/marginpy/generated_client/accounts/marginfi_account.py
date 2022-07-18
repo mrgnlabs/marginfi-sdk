@@ -46,16 +46,17 @@ class MarginfiAccount:
     @classmethod
     async def fetch(
         cls,
-        rpc_client: AsyncClient,
+        conn: AsyncClient,
         address: PublicKey,
         commitment: typing.Optional[Commitment] = None,
+        program_id: PublicKey = PROGRAM_ID,
     ) -> typing.Optional["MarginfiAccount"]:
-        resp = await rpc_client.get_account_info(address, commitment=commitment)
+        resp = await conn.get_account_info(address, commitment=commitment)
         info = resp["result"]["value"]
         if info is None:
             return None
-        # if info["owner"] != str(PROGRAM_ID):
-        #     raise ValueError("Account does not belong to this program")
+        if info["owner"] != str(program_id):
+            raise ValueError("Account does not belong to this program")
         bytes_data = b64decode(info["data"][0])
         return cls.decode(bytes_data)
 
@@ -65,6 +66,7 @@ class MarginfiAccount:
         conn: AsyncClient,
         addresses: list[PublicKey],
         commitment: typing.Optional[Commitment] = None,
+        program_id: PublicKey = PROGRAM_ID,
     ) -> typing.List[typing.Optional["MarginfiAccount"]]:
         infos = await get_multiple_accounts(conn, addresses, commitment=commitment)
         res: typing.List[typing.Optional["MarginfiAccount"]] = []
@@ -72,8 +74,8 @@ class MarginfiAccount:
             if info is None:
                 res.append(None)
                 continue
-            # if info.account.owner != PROGRAM_ID:
-            #     raise ValueError("Account does not belong to this program")
+            if info.account.owner != program_id:
+                raise ValueError("Account does not belong to this program")
             res.append(cls.decode(info.account.data))
         return res
 
