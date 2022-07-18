@@ -361,13 +361,16 @@ class MarginfiAccount:
 
         user_ata = get_associated_token_address(self._program.provider.wallet.public_key, self.group.bank.mint)
         remaining_accounts = self.get_observation_accounts()
-        return make_deposit_ix(DepositArgs(amount=ui_to_native(amount)),
-                               DepositAccounts(marginfi_group=self.group.pubkey,
-                                               marginfi_account=self.pubkey,
-                                               funding_account=user_ata,
-                                               authority=self._program.provider.wallet.public_key,
-                                               bank_vault=self.group.bank.vault),
-                               remaining_accounts)
+        return make_deposit_ix(
+            DepositArgs(amount=ui_to_native(amount)),
+            DepositAccounts(marginfi_group=self.group.pubkey,
+                            marginfi_account=self.pubkey,
+                            funding_account=user_ata,
+                            authority=self._program.provider.wallet.public_key,
+                            bank_vault=self.group.bank.vault),
+            self.client.program_id,
+            remaining_accounts
+        )
 
     async def deposit(self, amount: float) -> TransactionSignature:
         """
@@ -379,7 +382,8 @@ class MarginfiAccount:
 
         deposit_ix = self.make_deposit_ix(amount)
         tx = Transaction().add(deposit_ix)
-        return await self._program.provider.send(tx)
+        sig = await self._program.provider.send(tx)
+        return sig
 
     # --- Withdraw from GMA
 

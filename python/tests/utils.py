@@ -11,11 +11,13 @@ from solana.rpc.responses import AccountInfo
 from solana.system_program import create_account, CreateAccountParams
 from solana.transaction import TransactionInstruction, Transaction, TransactionSignature
 from spl.token.constants import TOKEN_PROGRAM_ID, ACCOUNT_LEN, MINT_LEN
+from tests.config import LOCALNET_URL, DEVNET_URL
 import spl.token.instructions as spl_token_ixs
-
+from solana.rpc.types import TxOpts
 from marginpy import MarginfiAccount, MarginfiConfig, Environment, MarginfiClient, MarginfiGroup, BankVaultType
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData, \
     MarginfiGroup as MarginfiGroupData
+from marginpy.types import BankConfig
 
 # --- Marginfi group
 from marginpy.instruction import make_init_marginfi_group_ix, InitMarginfiGroupArgs, InitMarginfiGroupAccounts, \
@@ -120,7 +122,7 @@ async def configure_marginfi_group(group_pk: PublicKey, new_group_config: GroupC
 def load_client(group_name: str = "marginfi_group_2") -> MarginfiClient:
     config = MarginfiConfig(Environment.DEVNET)
     wallet = Wallet.local()
-    rpc_client = AsyncClient("https://devnet.genesysgo.net/", commitment=Confirmed)
+    rpc_client = AsyncClient(DEVNET_URL, commitment=Confirmed)
     provider = Provider(rpc_client, wallet)
     program = Program(load_idl(), config.program_id, provider=provider)
     _, group = load_marginfi_group(group_name)
@@ -139,7 +141,7 @@ def load_marginfi_group(name: str = "marginfi_group_2") -> Tuple[PublicKey, Marg
     account_data = b64str_to_bytes(account_info.data[0])  # type: ignore
     config = MarginfiConfig(Environment.DEVNET)
     wallet = Wallet.local()
-    rpc_client = AsyncClient("https://devnet.genesysgo.net/")
+    rpc_client = AsyncClient(DEVNET_URL)
     provider = Provider(rpc_client, wallet)
     program = Program(load_idl(), config.program_id, provider=provider)
     marginfi_group = MarginfiGroup.from_account_data_raw(config, program, account_data)
@@ -147,6 +149,39 @@ def load_marginfi_group(name: str = "marginfi_group_2") -> Tuple[PublicKey, Marg
 
 
 # --- Marginfi account
+
+async def create_marginfi_account():
+    config_base = MarginfiConfig(Environment.LOCALNET)
+    wallet = Wallet.local()
+    rpc_client = AsyncClient(LOCALNET_URL, commitment=Confirmed)
+    provider = Provider(rpc_client, wallet, opts=TxOpts(skip_preflight=True))
+    program = Program(load_idl(), config_base.program_id, provider=provider)
+
+    mint_pk, _ = await create_collateral_mint(wallet, program)
+    group_pk, sig = await create_marginfi_group(mint_pk, wallet, program)
+
+    new_group_config = GroupConfig(bank=BankConfig(init_margin_ratio=int(1.05 * 10 ** 6),
+                                                maint_margin_ratio=int(1.15 * 10 ** 6),
+                                                account_deposit_limit=None,
+                                                fixed_fee=None,
+                                                interest_fee=None,
+                                                lp_deposit_limit=None,
+                                                scaling_factor_c=None),
+                                paused=False,
+                                admin=None)
+    await configure_marginfi_group(group_pk, new_group_config, wallet, program)
+    config = MarginfiConfig(
+        Environment.LOCALNET, 
+        overrides={"group_pk": group_pk, "collateral_mint_pk": mint_pk, "program_id": config_base.program_id}
+    )
+
+    await rpc_client.confirm_transaction(sig)
+    client = await MarginfiClient.fetch(config, wallet, rpc_client)
+
+    marginfi_account, account_sig = await client.create_marginfi_account()
+    await rpc_client.confirm_transaction(account_sig)
+
+    return marginfi_account
 
 
 def load_marginfi_account_data(name: str = "marginfi_account_2") -> Tuple[PublicKey, MarginfiAccountData]:
@@ -162,7 +197,7 @@ def load_marginfi_account(account_name: str = "marginfi_account_2",
     account_data = b64str_to_bytes(account_info.data[0])  # type: ignore
     config = MarginfiConfig(Environment.DEVNET)
     wallet = Wallet.local()
-    rpc_client = AsyncClient("https://devnet.genesysgo.net/")
+    rpc_client = AsyncClient(DEVNET_URL)
     provider = Provider(rpc_client, wallet)
     program = Program(load_idl(), config.program_id, provider=provider)
     _, group = load_marginfi_group(group_name)
