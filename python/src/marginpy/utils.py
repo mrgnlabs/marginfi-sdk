@@ -3,7 +3,7 @@ import json
 import os
 import enum
 from dataclasses import dataclass
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, Optional
 
 from anchorpy import Idl
 from solana.rpc.responses import AccountInfo
@@ -14,8 +14,9 @@ from marginpy.constants import COLLATERAL_DECIMALS, \
 from marginpy.generated_client.types import UTPAccountConfig
 
 
-def load_idl() -> Idl:
-    idl_path = os.path.join(os.path.dirname(__file__), "idl.json")
+def load_idl(idl_path: Optional[str] = None) -> Idl:
+    if idl_path is None:
+        idl_path = os.path.join(os.path.dirname(__file__), "idl.json")
     with open(idl_path) as f:
         raw_idl = json.load(f)
     idl = Idl.from_json(raw_idl)
