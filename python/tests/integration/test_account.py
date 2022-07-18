@@ -34,6 +34,17 @@ class TestMarginfiAccountLocalnet:
         await marginfi_account.reload()
         assert marginfi_account.deposits == 0
 
+    async def test_deposit2(self, _localnet, user1: User) -> None:
+        marginfi_account = user1.account
+
+        await marginfi_account.deposit(1)
+        await marginfi_account.reload()
+        assert marginfi_account.deposits == 1
+
+        await marginfi_account.withdraw(1)
+        await marginfi_account.reload()
+        assert marginfi_account.deposits == 0
+
 
 @mark.asyncio
 @mark.integration

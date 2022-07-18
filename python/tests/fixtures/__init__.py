@@ -7,7 +7,7 @@ from pytest import fixture
 from pytest_asyncio import fixture as async_fixture
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
-from solana.rpc.commitment import Commitment, Confirmed
+from solana.rpc.commitment import Commitment, Processed
 from solana.rpc.types import TxOpts
 from spl.token.async_client import AsyncToken
 from spl.token.constants import TOKEN_PROGRAM_ID
@@ -66,9 +66,9 @@ def basics_fixture() -> Callable:
     @fixture()
     def _basics_fixture(environment: Environment = Environment.LOCALNET, rpc_url: str = LOCALNET_URL,
                         idl_path: Optional[str] = None,
-                        commitment: Commitment = Confirmed) -> Basics:
+                        commitment: Commitment = Processed) -> Basics:
         print(">>>>> BASICS FIXTURE STARTIN'")
-        sleep(10.)
+        sleep(5.)
 
         default_config = MarginfiConfig(environment)
         wallet = Wallet.local()
@@ -97,7 +97,6 @@ def mint_fixture() -> Callable:
             basics_fixture.wallet.public_key,
             decimals,
             TOKEN_PROGRAM_ID,
-            skip_confirmation=True
         )
 
     return _mint_fixture
