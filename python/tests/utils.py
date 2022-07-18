@@ -10,7 +10,8 @@ from solana.rpc.commitment import Commitment, Confirmed
 from solana.rpc.responses import AccountInfo
 from solana.system_program import create_account, CreateAccountParams
 from solana.transaction import TransactionInstruction, Transaction, TransactionSignature
-from spl.token.constants import TOKEN_PROGRAM_ID, ACCOUNT_LEN, MINT_LEN
+from spl.token.constants import TOKEN_PROGRAM_ID, ACCOUNT_LEN, MINT_LEN, ASSOCIATED_PROGRAM_ID
+from spl.tokne.instructions import get_associated_token_address, create_associated_token_account
 from tests.config import LOCALNET_URL, DEVNET_URL
 import spl.token.instructions as spl_token_ixs
 from solana.rpc.types import TxOpts
@@ -43,6 +44,51 @@ async def create_collateral_mint(wallet: Wallet, program: Program) -> \
     sig = await program.provider.send(tx, signers=[mint_keypair])
     return mint_pubkey, sig
 
+async def get_ata_or_create(connection: AsyncClient, payer_pk: PublicKey, mint_pk: PublicKey) -> PublicKey:
+    ata = get_associated_token_address(
+        payer_pk,
+        mint_pk
+    )
+
+    ata_account_info = await connection.get_account_info(ata)
+    if not ata_account_info:
+        ata = await connection.create_associated_token_account(payer_pk)
+
+    return ata
+
+# @todo fix
+FAUCET_PROGRAM_ID = PublicKey(
+  "4bXpkKSV8swHSnwqtzuboGPaPDeEgAn4Vt8GfarV5rZt"
+)
+
+async def airdrop_collateral(
+    provider: Provider,
+    amount: float,
+    mint_pk: PublicKey,
+    token_account: PublicKey,
+    faucet: PublicKey
+) -> TransactionSignature:
+    faucet_pda = await PublicKey.find_program_address(
+        "faucet".encode(),
+        FAUCET_PROGRAM_ID
+    )
+
+    keys = [
+        { "pubkey": faucet_pda, "is_signer": False, "is_writable": False },
+        { "pubkey": mint_pk, "is_signer": False, "is_writable": True },
+        { "pubkey": token_account, "is_signer": False, "is_writable": True },
+        { "pubkey": TOKEN_PROGRAM_ID, "is_signer": False, "is_writable": False },
+        { "pubkey": faucet, "is_signer": False, "is_writable": False },
+    ]
+
+    airdrop_ix = TransactionInstruction(
+        keys,
+        FAUCET_PROGRAM_ID,
+        amount.to_bytes(8, "little")
+    )
+    tx = Transaction().add(airdrop_ix)
+    sig = await provider.send(tx)
+    return sig
 
 async def make_create_vault_account_ixs(mint_pk: PublicKey, owner: PublicKey, wallet: Wallet,
                                         rpc_client: AsyncClient) -> \
@@ -170,6 +216,7 @@ async def create_marginfi_account():
                                 paused=False,
                                 admin=None)
     await configure_marginfi_group(group_pk, new_group_config, wallet, program)
+
     config = MarginfiConfig(
         Environment.LOCALNET, 
         overrides={"group_pk": group_pk, "collateral_mint_pk": mint_pk, "program_id": config_base.program_id}
@@ -180,6 +227,16 @@ async def create_marginfi_account():
 
     marginfi_account, account_sig = await client.create_marginfi_account()
     await rpc_client.confirm_transaction(account_sig)
+
+    ata = await get_ata_or_create(rpc_client, marginfi_account.pubkey, mint_pk)
+
+    await airdrop_collateral(
+        provider,
+        100,
+        mint_pk,
+        ata,
+        faucet: PublicKey
+    )
 
     return marginfi_account
 

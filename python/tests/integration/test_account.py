@@ -19,9 +19,10 @@ _localnet = localnet_fixture(path=PATH, timeout_seconds=5, scope='function')
 class TestMarginfiAccountLocalnet:
     
     async def test_deposit(self, _localnet) -> None:
-        sleep(5.)
+        sleep(60.)
         
         marginfi_account = await create_marginfi_account()
+        sleep(60.)
         await marginfi_account.deposit(1)
 
 
