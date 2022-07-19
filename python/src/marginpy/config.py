@@ -50,15 +50,6 @@ class MarginfiConfig:
                                             PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba"))
             self.collateral_mint_pk = handle_override("collateral_mint_pk", PublicKey(
                 "8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"))
-        # elif environment == Environment.LOCALNET:
-        #     if (overrides.program_id and overrides.group_pk and overrides.collateral_mint_pk) is None:
-        #         raise Exception(
-        #             "program_id, group_pk, and collateral_mint_pk need to be explicitly input for localnet."
-        #         )
-        #     self.environment = environment
-        #     self.program_id = overrides.program_id
-        #     self.group_pk = overrides.group_pk
-        #     self.collateral_mint_pk = overrides.collateral_mint_pk
         else:
             raise Exception(
                 "Unknown environment {}".format(environment)

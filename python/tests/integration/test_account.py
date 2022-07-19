@@ -12,7 +12,7 @@ from tests.utils import load_marginfi_group
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
 _localnet = localnet_fixture(path=PATH, timeout_seconds=5, scope='function')
-user1 = user_fixture()
+user = user_fixture()
 bench_fixture = bench_fixture()  # needs to be called that way to be found by `user_fixture`
 mint_fixture = mint_fixture()  # needs to be called that way to be found by `user_fixture`
 basics_fixture = basics_fixture()  # needs to be called that way to be found by `user_fixture`
@@ -23,8 +23,8 @@ basics_fixture = basics_fixture()  # needs to be called that way to be found by 
 @mark.localnet
 class TestMarginfiAccountLocalnet:
 
-    async def test_deposit(self, _localnet, user1: User) -> None:
-        marginfi_account = user1.account
+    async def test_deposit(self, _localnet, user: User) -> None:
+        marginfi_account = user.account
 
         await marginfi_account.deposit(1)
         await marginfi_account.reload()
