@@ -15,9 +15,15 @@ from tests.utils import create_collateral_mint, create_marginfi_group, load_samp
     configure_marginfi_group
 from marginpy.types import BankConfig, GroupConfig
 from tests.config import LOCALNET_URL, DEVNET_URL
+from tests.fixtures import User, user_fixture, bench_fixture, mint_fixture, basics_fixture
+
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
 _localnet = localnet_fixture(path=PATH, timeout_seconds=5, scope='function')
+user1 = user_fixture()
+bench_fixture = bench_fixture()  # needs to be called that way to be found by `user_fixture`
+mint_fixture = mint_fixture()  # needs to be called that way to be found by `user_fixture`
+basics_fixture = basics_fixture()  # needs to be called that way to be found by `user_fixture`
 
 
 @mark.asyncio
@@ -98,8 +104,11 @@ class TestMarginfiGroupLocalnet:
         assert group.bank.native_borrow_balance == 0
         assert group.bank.native_deposit_balance == 0
 
-    async def test_update_interest_accumulator(self, _localnet) -> None:
-        pass
+    # @todo this test needs to be more robust
+    async def test_update_interest_accumulator(self, _localnet, user1: User) -> None:
+        marginfi_account = user1.account
+        await marginfi_account.deposit(1)
+        await marginfi_account.group.update_interest_accumulator()
 
 
 @mark.asyncio
