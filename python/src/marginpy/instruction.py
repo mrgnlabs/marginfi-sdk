@@ -26,9 +26,9 @@ class InitMarginfiGroupAccounts:
 
 
 def make_init_marginfi_group_ix(
-        args: gen_ix.InitMarginfiGroupArgs,
-        accounts: InitMarginfiGroupAccounts,
-        program_id: PublicKey
+    args: gen_ix.InitMarginfiGroupArgs,
+    accounts: InitMarginfiGroupAccounts,
+    program_id: PublicKey,
 ) -> TransactionInstruction:
     return gen_ix.init_marginfi_group(
         args,
@@ -42,7 +42,7 @@ def make_init_marginfi_group_ix(
             insurance_vault_authority=accounts.insurance_vault_authority,
             fee_vault=accounts.fee_vault,
             fee_vault_authority=accounts.fee_vault_authority,
-            system_program=SYS_PROGRAM_ID
+            system_program=SYS_PROGRAM_ID,
         ),
         program_id=program_id,
     )
@@ -58,8 +58,7 @@ class ConfigureMarginfiGroupAccounts(gen_ix.ConfigureMarginfiGroupAccounts):
 
 
 def make_configure_marginfi_group_ix(
-        args: ConfigureMarginfiGroupArgs,
-        accounts: ConfigureMarginfiGroupAccounts
+    args: ConfigureMarginfiGroupArgs, accounts: ConfigureMarginfiGroupAccounts
 ):
     return gen_ix.configure_marginfi_group(args, accounts)
 
@@ -72,13 +71,15 @@ class InitMarginfiAccountAccounts:
     authority: PublicKey
 
 
-def make_init_marginfi_account_ix(accounts: InitMarginfiAccountAccounts, program_id: PublicKey):
+def make_init_marginfi_account_ix(
+    accounts: InitMarginfiAccountAccounts, program_id: PublicKey
+):
     return gen_ix.init_marginfi_account(
         gen_ix.InitMarginfiAccountAccounts(
             marginfi_group=accounts.marginfi_group,
             marginfi_account=accounts.marginfi_account,
             authority=accounts.authority,
-            system_program=SYS_PROGRAM_ID
+            system_program=SYS_PROGRAM_ID,
         ),
         program_id=program_id,
     )
@@ -99,10 +100,10 @@ class DepositAccounts:
 
 
 def make_deposit_ix(
-        args: DepositArgs,
-        accounts: DepositAccounts,
-        program_id: PublicKey,
-        remaining_accounts: List[AccountMeta]
+    args: DepositArgs,
+    accounts: DepositAccounts,
+    program_id: PublicKey,
+    remaining_accounts: List[AccountMeta],
 ) -> TransactionInstruction:
     return gen_ix.margin_deposit_collateral(
         args,
@@ -112,10 +113,10 @@ def make_deposit_ix(
             signer=accounts.authority,
             funding_account=accounts.funding_account,
             token_vault=accounts.bank_vault,
-            token_program=TOKEN_PROGRAM_ID
+            token_program=TOKEN_PROGRAM_ID,
         ),
         program_id=program_id,
-        remaining_accounts=remaining_accounts
+        remaining_accounts=remaining_accounts,
     )
 
 
@@ -135,10 +136,10 @@ class WithdrawAccounts:
 
 
 def make_withdraw_ix(
-        args: WithdrawArgs,
-        accounts: WithdrawAccounts,
-        program_id: PublicKey,
-        remaining_accounts: List[AccountMeta]
+    args: WithdrawArgs,
+    accounts: WithdrawAccounts,
+    program_id: PublicKey,
+    remaining_accounts: List[AccountMeta],
 ):
     return gen_ix.margin_withdraw_collateral(
         args,
@@ -149,10 +150,10 @@ def make_withdraw_ix(
             margin_collateral_vault=accounts.bank_vault,
             margin_bank_authority=accounts.bank_vault_authority,
             receiving_token_account=accounts.receiving_token_account,
-            token_program=TOKEN_PROGRAM_ID
+            token_program=TOKEN_PROGRAM_ID,
         ),
         program_id=program_id,
-        remaining_accounts=remaining_accounts
+        remaining_accounts=remaining_accounts,
     )
 
 
@@ -165,16 +166,14 @@ class UpdateInterestAccumulatorAccounts:
     bank_fee_vault: PublicKey
 
 
-def make_update_interest_accumulator_ix(
-        accounts: UpdateInterestAccumulatorAccounts
-):
+def make_update_interest_accumulator_ix(accounts: UpdateInterestAccumulatorAccounts):
     return gen_ix.update_interest_accumulator(
         gen_ix.UpdateInterestAccumulatorAccounts(
             marginfi_group=accounts.marginfi_group,
             bank_vault=accounts.bank_vault,
             bank_authority=accounts.bank_authority,
             bank_fee_vault=accounts.bank_fee_vault,
-            token_program=TOKEN_PROGRAM_ID
+            token_program=TOKEN_PROGRAM_ID,
         )
     )
 
@@ -189,12 +188,14 @@ class DeactivateUtpAccounts(gen_ix.DeactivateUtpAccounts):
 
 
 def make_deactivate_utp_ix(
-        args: DeactivateUtpArgs,
-        accounts: DeactivateUtpAccounts,
-        program_id: PublicKey,
-        remaining_accounts: List[AccountMeta]
+    args: DeactivateUtpArgs,
+    accounts: DeactivateUtpAccounts,
+    program_id: PublicKey,
+    remaining_accounts: List[AccountMeta],
 ):
-    return gen_ix.deactivate_utp(args, accounts, program_id=program_id, remaining_accounts=remaining_accounts)
+    return gen_ix.deactivate_utp(
+        args, accounts, program_id=program_id, remaining_accounts=remaining_accounts
+    )
 
 
 # --- Liquidate
@@ -214,10 +215,10 @@ class LiquidateAccounts:
 
 
 def make_liquidate_ix(
-        args: gen_ix.LiquidateArgs,
-        accounts: LiquidateAccounts,
-        program_id: PublicKey,
-        remaining_accounts: List[AccountMeta]
+    args: gen_ix.LiquidateArgs,
+    accounts: LiquidateAccounts,
+    program_id: PublicKey,
+    remaining_accounts: List[AccountMeta],
 ):
     return gen_ix.liquidate(
         args,
@@ -232,7 +233,7 @@ def make_liquidate_ix(
             token_program=TOKEN_PROGRAM_ID,
         ),
         program_id=program_id,
-        remaining_accounts=remaining_accounts
+        remaining_accounts=remaining_accounts,
     )
 
 
@@ -247,9 +248,9 @@ class HandleBankruptcyAccounts:
 
 
 def make_handle_bankruptcy_ix(
-        accounts: HandleBankruptcyAccounts,
-        program_id: PublicKey,
-        remaining_accounts: List[AccountMeta]
+    accounts: HandleBankruptcyAccounts,
+    program_id: PublicKey,
+    remaining_accounts: List[AccountMeta],
 ):
     return gen_ix.handle_bankruptcy(
         gen_ix.HandleBankruptcyAccounts(
@@ -261,5 +262,5 @@ def make_handle_bankruptcy_ix(
             token_program=TOKEN_PROGRAM_ID,
         ),
         program_id=program_id,
-        remaining_accounts=remaining_accounts
+        remaining_accounts=remaining_accounts,
     )

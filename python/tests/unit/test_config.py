@@ -4,16 +4,16 @@ from testfixtures import compare
 from solana.publickey import PublicKey
 from marginpy import MarginfiConfig, Environment
 
-class TestEnvironment():
-    
+
+class TestEnvironment:
     def test_mainnet(self):
         assert Environment.MAINNET.value == "mainnet"
 
     def test_devnet(self):
         assert Environment.DEVNET.value == "devnet"
 
-class TestMarginfiConfig():
 
+class TestMarginfiConfig:
     def test___init__(self):
         config_mainnet = MarginfiConfig(Environment.MAINNET)
         config_devnet = MarginfiConfig(Environment.DEVNET)
@@ -31,5 +31,5 @@ class TestMarginfiConfig():
 
         compare(
             config_mainnet.program_id,
-            PublicKey("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK")
+            PublicKey("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK"),
         )

@@ -2,7 +2,10 @@ from abc import ABC, abstractmethod, abstractproperty
 
 from solana.publickey import PublicKey
 
-from marginpy.constants import INSURANCE_VAULT_LIQUIDATION_FEE, LIQUIDATOR_LIQUIDATION_FEE
+from marginpy.constants import (
+    INSURANCE_VAULT_LIQUIDATION_FEE,
+    LIQUIDATOR_LIQUIDATION_FEE,
+)
 
 
 class UtpAccount(ABC):
@@ -11,19 +14,13 @@ class UtpAccount(ABC):
     # _utp_config: UTPAccountConfig
     # _cached_observation: UtpObservation
 
-    def __init__(
-            self,
-            _client,
-            _marginfi_account,
-            is_active,
-            utp_config
-    ):
+    def __init__(self, _client, _marginfi_account, is_active, utp_config):
         self._client = _client
         self._marginfi_account = _marginfi_account
         self.is_active = is_active
         self._utp_config = utp_config
         # @todo
-        # self._cached_observation = 
+        # self._cached_observation =
 
     @abstractmethod
     async def get_observation_accounts(self):
@@ -123,11 +120,7 @@ class UtpAccount(ABC):
         discounted_liquidator_price = self.liquidation_value - liquidator_fee
         final_price = discounted_liquidator_price - insurance_vault_fee
 
-        return {
-            final_price,
-            discounted_liquidator_price,
-            insurance_vault_fee
-        }
+        return {final_price, discounted_liquidator_price, insurance_vault_fee}
 
     ###
     # Update instance data from provided data struct.
@@ -139,10 +132,10 @@ class UtpAccount(ABC):
         self._utp_config = data.account_config
 
     def to_string(self):
-        return (f"""Timestamp: {self._cached_observation.timestamp}
+        return f"""Timestamp: {self._cached_observation.timestamp}
                 Equity: {self.equity}
                 Free Collateral: {self.free_collateral}
                 Liquidation Value: {self.liquidation_value}
                 Rebalance Needed: {self.is_rebalance_deposit_needed}
                 Max Rebalance: {self.max_rebalance_deposit_amount}
-                Is empty: {self.is_empty}""")
+                Is empty: {self.is_empty}"""

@@ -10,30 +10,32 @@ from tests.fixtures import SAMPLE_BANK, MDECIMAL_ZERO, SAMPLE_ACCOUNT_PUBKEY_1
 @mark.unit
 class TestBank:
     def test___init__(self):
-        bank = Bank(BankDecoded(
-            MDECIMAL_ZERO,
-            MDECIMAL_ZERO,
-            MDECIMAL_ZERO,
-            MDECIMAL_ZERO,
-            MDECIMAL_ZERO,
-            0,
-            MDECIMAL_ZERO,
-            MDECIMAL_ZERO,
-            SAMPLE_ACCOUNT_PUBKEY_1,
-            SAMPLE_ACCOUNT_PUBKEY_1,
-            0,
-            SAMPLE_ACCOUNT_PUBKEY_1,
-            0,
-            MDECIMAL_ZERO,
-            SAMPLE_ACCOUNT_PUBKEY_1,
-            0,
-            MDECIMAL_ZERO,
-            MDECIMAL_ZERO,
-            MDECIMAL_ZERO,
-            MDECIMAL_ZERO,
-            MDECIMAL_ZERO,
-            []
-        ))
+        bank = Bank(
+            BankDecoded(
+                MDECIMAL_ZERO,
+                MDECIMAL_ZERO,
+                MDECIMAL_ZERO,
+                MDECIMAL_ZERO,
+                MDECIMAL_ZERO,
+                0,
+                MDECIMAL_ZERO,
+                MDECIMAL_ZERO,
+                SAMPLE_ACCOUNT_PUBKEY_1,
+                SAMPLE_ACCOUNT_PUBKEY_1,
+                0,
+                SAMPLE_ACCOUNT_PUBKEY_1,
+                0,
+                MDECIMAL_ZERO,
+                SAMPLE_ACCOUNT_PUBKEY_1,
+                0,
+                MDECIMAL_ZERO,
+                MDECIMAL_ZERO,
+                MDECIMAL_ZERO,
+                MDECIMAL_ZERO,
+                MDECIMAL_ZERO,
+                [],
+            )
+        )
         assert isinstance(bank, Bank)
 
     def test_compute_record_native_conversion(self):
