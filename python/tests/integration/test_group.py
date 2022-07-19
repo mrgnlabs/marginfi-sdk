@@ -91,7 +91,7 @@ class TestMarginfiGroupLocalnet:
         assert group.bank.fixed_fee == 0
         assert group.bank.interest_fee == 0
         assert group.bank.native_borrow_balance == 0
-        assert group.bank.native_deposit_balance == 0
+        assert group.bank.native_deposit_balance == 999_999_999
 
     # @todo this test needs to be more robust
     async def test_update_interest_accumulator(self, _localnet, user1: User) -> None:
