@@ -186,7 +186,7 @@ class MarginfiAccount:
 
     @property
     def group(self):
-        """Parent marginfi group address""" # @todo check the type the description refers to here
+        """Parent marginfi group"""
 
         return self._group
 
