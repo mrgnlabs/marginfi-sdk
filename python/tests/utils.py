@@ -214,8 +214,8 @@ async def create_marginfi_account():
 
     group_pk, sig = await create_marginfi_group(mint.pubkey, wallet, program)
 
-    new_group_config = GroupConfig(bank=BankConfig(init_margin_ratio=int(1.05 * 10 ** 6),
-                                                   maint_margin_ratio=int(1.15 * 10 ** 6),
+    new_group_config = GroupConfig(bank=BankConfig(init_margin_ratio=int(1.15 * 10 ** 6),
+                                                   maint_margin_ratio=int(1.05 * 10 ** 6),
                                                    account_deposit_limit=None,
                                                    fixed_fee=None,
                                                    interest_fee=None,
