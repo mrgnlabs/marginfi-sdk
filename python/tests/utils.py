@@ -19,12 +19,11 @@ from solana.rpc.types import TxOpts
 from marginpy import MarginfiAccount, MarginfiConfig, Environment, MarginfiClient, MarginfiGroup, BankVaultType
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData, \
     MarginfiGroup as MarginfiGroupData
-from marginpy.types import BankConfig
+from marginpy.types import BankConfig, GroupConfig
 
 # --- Marginfi group
 from marginpy.instruction import make_init_marginfi_group_ix, InitMarginfiGroupArgs, InitMarginfiGroupAccounts, \
     make_configure_marginfi_group_ix, ConfigureMarginfiGroupArgs, ConfigureMarginfiGroupAccounts
-from marginpy.types import GroupConfig
 from marginpy.utils import json_to_account_info, b64str_to_bytes, load_idl, get_bank_authority
 
 
