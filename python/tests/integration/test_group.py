@@ -31,14 +31,12 @@ basics_fixture = basics_fixture()  # needs to be called that way to be found by 
 @mark.localnet
 class TestMarginfiGroupLocalnet:
 
-    async def test_create_group(self, _localnet) -> None:
+    async def test_create_group(self, _localnet, basics_fixture) -> None:
         sleep(5.)
 
-        config_base = MarginfiConfig(Environment.LOCALNET)
-        wallet = Wallet.local()
-        rpc_client = AsyncClient(LOCALNET_URL, commitment=Confirmed)
-        provider = Provider(rpc_client, wallet, opts=TxOpts(skip_preflight=True))
-        program = Program(load_idl(), config_base.program_id, provider=provider)
+        wallet = basics_fixture.wallet
+        rpc_client = basics_fixture.rpc_client
+        program = basics_fixture.program
 
         mint_pk, _ = await create_collateral_mint(wallet, program)
         group_pk, sig = await create_marginfi_group(mint_pk, wallet, program)
