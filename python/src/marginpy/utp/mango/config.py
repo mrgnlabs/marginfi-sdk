@@ -8,12 +8,7 @@ from marginpy.config import Environment
 
 
 class MangoConfig:
-
-    def __init__(
-        self,
-        environment,
-        overrides=None
-    ):
+    def __init__(self, environment, overrides=None):
         if environment == Environment.MAINNET:
             # mango_config = Config(IDS)
             # group_config = mango_config.get_group("mainnet", "mainnet.1")

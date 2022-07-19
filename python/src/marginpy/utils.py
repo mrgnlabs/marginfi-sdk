@@ -9,8 +9,13 @@ from anchorpy import Idl
 from solana.rpc.responses import AccountInfo
 from solana.publickey import PublicKey
 
-from marginpy.constants import COLLATERAL_DECIMALS, \
-    PDA_BANK_VAULT_SEED, PDA_BANK_INSURANCE_VAULT_SEED, PDA_BANK_FEE_VAULT_SEED, VERY_VERBOSE_ERROR
+from marginpy.constants import (
+    COLLATERAL_DECIMALS,
+    PDA_BANK_VAULT_SEED,
+    PDA_BANK_INSURANCE_VAULT_SEED,
+    PDA_BANK_FEE_VAULT_SEED,
+    VERY_VERBOSE_ERROR,
+)
 from marginpy.generated_client.types import UTPAccountConfig
 
 
@@ -47,15 +52,17 @@ def b64str_to_bytes(data_str: str) -> bytes:
 
 
 def json_to_account_info(account_info_raw: Dict[str, Any]) -> AccountInfo:
-    return AccountInfo(lamports=account_info_raw['lamports'],
-                       owner=account_info_raw['owner'],
-                       rent_epoch=account_info_raw['rentEpoch'],
-                       data=account_info_raw['data'],
-                       executable=account_info_raw['executable'])
+    return AccountInfo(
+        lamports=account_info_raw["lamports"],
+        owner=account_info_raw["owner"],
+        rent_epoch=account_info_raw["rentEpoch"],
+        data=account_info_raw["data"],
+        executable=account_info_raw["executable"],
+    )
 
 
 def ui_to_native(amount: float, decimals: int = COLLATERAL_DECIMALS) -> int:
-    return int(amount * 10 ** decimals)
+    return int(amount * 10**decimals)
 
 
 class BankVaultType(enum.Enum):
@@ -79,14 +86,10 @@ def get_vault_seeds(vault_type: BankVaultType) -> bytes:
 
 
 def get_bank_authority(
-        marginfi_group_pk: PublicKey,
-        program_id: PublicKey,
-        bank_vault_type: BankVaultType = BankVaultType.LiquidityVault
+    marginfi_group_pk: PublicKey,
+    program_id: PublicKey,
+    bank_vault_type: BankVaultType = BankVaultType.LiquidityVault,
 ) -> Tuple[PublicKey, int]:
     return PublicKey.find_program_address(
-        [
-            get_vault_seeds(bank_vault_type),
-            bytes(marginfi_group_pk)
-        ],
-        program_id
+        [get_vault_seeds(bank_vault_type), bytes(marginfi_group_pk)], program_id
     )

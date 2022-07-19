@@ -1,7 +1,7 @@
 from marginpy.generated_client.types import MDecimal as DecimalData
 
 SCALE_SHIFT: int = 16
-SCALE_MASK: int = 0x00ff_0000
+SCALE_MASK: int = 0x00FF_0000
 SIGN_MASK: int = 0x8000_0000
 
 
@@ -41,4 +41,4 @@ class Decimal:
             return nb
 
     def to_float(self):
-        return self.to_base_integer() / 10 ** self.scale
+        return self.to_base_integer() / 10**self.scale

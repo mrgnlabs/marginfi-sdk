@@ -8,7 +8,6 @@ from marginpy.utils import load_idl
 
 @mark.unit
 class TestUtils:
-
     def test_get_idl(self):
         idl_actual = load_idl()
 
