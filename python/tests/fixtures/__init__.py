@@ -54,6 +54,9 @@ SAMPLE_BANK = Bank(BankDecoded(
 ))
 
 
+VALIDATOR_WARMUP_DURATION = 5.
+
+
 @dataclass
 class Basics:
     default_config: MarginfiConfig
@@ -68,13 +71,13 @@ def basics_fixture() -> Callable:
     def _basics_fixture(environment: Environment = Environment.LOCALNET, rpc_url: str = LOCALNET_URL,
                         idl_path: Optional[str] = None,
                         commitment: Commitment = Processed) -> Basics:
-        print(">>>>> BASICS FIXTURE STARTIN'")
-        sleep(5.)
+        sleep(VALIDATOR_WARMUP_DURATION)
 
         default_config = MarginfiConfig(environment)
         wallet = Wallet.local()
         rpc_client = AsyncClient(rpc_url, commitment=commitment)
-        provider = Provider(rpc_client, wallet, opts=TxOpts(skip_preflight=True))
+        provider = Provider(rpc_client, wallet,
+                            opts=TxOpts(skip_preflight=False, preflight_commitment=commitment, skip_confirmation=False))
         program = Program(load_idl(idl_path), default_config.program_id, provider=provider)
 
         return Basics(
@@ -91,7 +94,6 @@ def basics_fixture() -> Callable:
 def mint_fixture() -> Callable:
     @async_fixture
     async def _mint_fixture(basics_fixture: Basics, decimals: int = 6) -> AsyncToken:
-        print(">>>>> MINT FIXTURE STARTIN'")
         # Allocate memory for the account
         balance_needed = await AsyncToken.get_min_balance_rent_for_exempt_for_mint(basics_fixture.provider.connection)
         # Construct transaction
@@ -108,8 +110,7 @@ def mint_fixture() -> Callable:
             basics_fixture.provider.connection.commitment,
         )
         # Send the two instructionsÎ
-        await basics_fixture.provider.send(txn, [basics_fixture.wallet.payer, mint_account],
-                                           opts=TxOpts(skip_preflight=True))
+        await basics_fixture.provider.send(txn, [basics_fixture.wallet.payer, mint_account])
         return cast(AsyncToken, token)
 
     return _mint_fixture
@@ -126,13 +127,12 @@ class Bench:
 
 def bench_fixture() -> Callable:
     @async_fixture
-    async def _bench_fixture(basics_fixture, mint_fixture) -> Bench:
-        print(">>>>> BENCH FIXTURE STARTIN'")
-
+    async def _bench_fixture(basics_fixture: Basics, mint_fixture: AsyncToken) -> Bench:
         # Create / configure marginfi group used in the test
-        group_pk, sig = await create_marginfi_group(mint_fixture.pubkey, basics_fixture.wallet, basics_fixture.program)
-        new_group_config = GroupConfig(bank=BankConfig(init_margin_ratio=int(1.05 * 10 ** 6),
-                                                       maint_margin_ratio=int(1.15 * 10 ** 6),
+        group_pk, _ = await create_marginfi_group(mint_fixture.pubkey, basics_fixture.wallet,
+                                                  basics_fixture.program)
+        new_group_config = GroupConfig(bank=BankConfig(init_margin_ratio=int(1.15 * 10 ** 6),
+                                                       maint_margin_ratio=int(1.05 * 10 ** 6),
                                                        account_deposit_limit=None,
                                                        fixed_fee=None,
                                                        interest_fee=None,
@@ -140,7 +140,8 @@ def bench_fixture() -> Callable:
                                                        scaling_factor_c=None),
                                        paused=False,
                                        admin=None)
-        sig = await configure_marginfi_group(group_pk, new_group_config, basics_fixture.wallet, basics_fixture.program)
+        await configure_marginfi_group(group_pk, new_group_config, basics_fixture.wallet,
+                                       basics_fixture.program)
 
         # Update marginfi config with newly-created group and mint
         config = MarginfiConfig(
@@ -148,27 +149,26 @@ def bench_fixture() -> Callable:
             overrides={"group_pk": group_pk, "collateral_mint_pk": mint_fixture.pubkey,
                        "program_id": basics_fixture.default_config.program_id}
         )
-        await basics_fixture.rpc_client.confirm_transaction(sig)
 
         # Fetch newly-created marginfi group
         group = await MarginfiGroup.fetch(config, basics_fixture.program)
 
         # Instantiate marginfi client to use during tests
-        client = await MarginfiClient.fetch(config, basics_fixture.wallet, basics_fixture.rpc_client)
+        client = await MarginfiClient.fetch(config, basics_fixture.wallet, basics_fixture.rpc_client,
+                                            opts=basics_fixture.provider.opts)
 
         # Fund the liquidity vault through an ephemeral marginfi account
         # (minting to vault directly does not appear on books)
         funding_account, account_sig = await client.create_marginfi_account()
-        await basics_fixture.rpc_client.confirm_transaction(account_sig)
         funding_ata = await mint_fixture.create_associated_token_account(basics_fixture.wallet.public_key)
-        mint_sig = await mint_fixture.mint_to(
+        await mint_fixture.mint_to(
             funding_ata,
             basics_fixture.wallet.public_key,
             1_000_000_000_000_000,
             [basics_fixture.wallet.payer],
+            opts=basics_fixture.provider.opts
         )
-        await basics_fixture.rpc_client.confirm_transaction(mint_sig['result'])
-        await funding_account.deposit(999_999_999)
+        await funding_account.deposit(1_000_000_000)
 
         return Bench(
             basics=basics_fixture,
@@ -189,11 +189,8 @@ class User:
 def user_fixture(deposits: float = 1_000) -> Callable:
     @async_fixture
     async def _user_fixture(bench_fixture: Bench) -> User:
-        print(">>>>> USER FIXTURE STARTIN'")
-
         # Instantiate marginfi client to use during tests
-        marginfi_account, account_sig = await bench_fixture.client.create_marginfi_account()
-        await bench_fixture.basics.rpc_client.confirm_transaction(account_sig)
+        marginfi_account, _ = await bench_fixture.client.create_marginfi_account()
 
         ata = get_associated_token_address(
             bench_fixture.basics.wallet.public_key,
@@ -212,13 +209,13 @@ def user_fixture(deposits: float = 1_000) -> Callable:
         else:
             amount_to_mint = max(amount_to_mint - int(ata_account_info['amount']), 0)
 
-        mint_sig = await bench_fixture.mint.mint_to(
+        await bench_fixture.mint.mint_to(
             ata,
             bench_fixture.basics.wallet.public_key,
             amount_to_mint,
             [bench_fixture.basics.wallet.payer],
+            opts=bench_fixture.basics.provider.opts
         )
-        await bench_fixture.basics.rpc_client.confirm_transaction(mint_sig['result'])
 
         return User(account=marginfi_account)
 
