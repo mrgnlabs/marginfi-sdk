@@ -33,8 +33,8 @@ format:  ## Format workspace code
 	black .
 
 ##@ Documentation
-generak-doc:   ## Serve doc locally
-	cd docs && sphinx-apidoc -f -o source ../src/marginpy && make html
+generate-doc:   ## Serve doc locally
+	cd docs && sphinx-apidoc -f -o source ../src/marginpy ../src/marginpy/generated_client --separate --force && make html
 
 serve-doc:   ## Serve doc locally
 	python -m http.server -d docs/build/html --bind 127.0.0.1
