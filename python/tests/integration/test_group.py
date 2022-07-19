@@ -11,11 +11,13 @@ from solana.publickey import PublicKey
 
 from marginpy import MarginfiConfig, Environment, load_idl, MarginfiGroup
 from marginpy.utils import b64str_to_bytes
-from tests.utils import create_collateral_mint, create_marginfi_group, load_sample_account_info, load_marginfi_group_data
+from tests.utils import create_collateral_mint, create_marginfi_group, load_sample_account_info, load_marginfi_group_data, \
+    configure_marginfi_group
+from marginpy.types import BankConfig, GroupConfig
 from tests.config import LOCALNET_URL, DEVNET_URL
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
-_localnet = localnet_fixture(path=PATH, timeout_seconds=5)
+_localnet = localnet_fixture(path=PATH, timeout_seconds=5, scope='function')
 
 
 @mark.asyncio
@@ -50,6 +52,53 @@ class TestMarginfiGroupLocalnet:
         assert group.bank.interest_fee == 0
         assert group.bank.native_borrow_balance == 0
         assert group.bank.native_deposit_balance == 0
+
+    async def test_configure_group(self, _localnet) -> None:
+        sleep(5.)
+        config_base = MarginfiConfig(Environment.LOCALNET)
+        wallet = Wallet.local()
+        rpc_client = AsyncClient(LOCALNET_URL, commitment=Confirmed)
+        provider = Provider(rpc_client, wallet, opts=TxOpts(skip_preflight=True))
+        program = Program(load_idl(), config_base.program_id, provider=provider)
+
+        mint_pk, _ = await create_collateral_mint(wallet, program)
+        group_pk, _ = await create_marginfi_group(mint_pk, wallet, program)
+
+        config = MarginfiConfig(Environment.LOCALNET, overrides={"group_pk": group_pk, "collateral_mint_pk": mint_pk})
+
+        new_group_config = GroupConfig(bank=BankConfig(init_margin_ratio=int(1.05 * 10 ** 6),
+                                                   maint_margin_ratio=int(1.15 * 10 ** 6),
+                                                   account_deposit_limit=None,
+                                                   fixed_fee=None,
+                                                   interest_fee=None,
+                                                   lp_deposit_limit=None,
+                                                   scaling_factor_c=None),
+                                   paused=False,
+                                   admin=wallet.public_key)
+
+        sig = await configure_marginfi_group(
+            group_pk,
+            new_group_config,
+            wallet,
+            program
+        )
+
+        await rpc_client.confirm_transaction(sig)
+        print(sig)
+        group = await MarginfiGroup.fetch(config, program)
+
+        assert group.pubkey == group_pk
+        assert group.admin == wallet.public_key
+        assert group.bank.mint == mint_pk
+        assert group.bank.scaling_factor_c == 0
+        assert group.bank.init_margin_ratio == 1.05
+        assert group.bank.maint_margin_ratio == 1.15
+        assert group.bank.fixed_fee == 0
+        assert group.bank.interest_fee == 0
+        assert group.bank.native_borrow_balance == 0
+        assert group.bank.native_deposit_balance == 0
+
+
 
 @mark.asyncio
 @mark.integration
