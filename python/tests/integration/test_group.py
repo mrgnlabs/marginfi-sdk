@@ -59,19 +59,8 @@ class TestMarginfiGroupLocalnet:
         assert group.bank.native_borrow_balance == 0
         assert group.bank.native_deposit_balance == 0
 
-    async def test_configure_group(self, _localnet) -> None:
+    async def test_configure_group(self, _localnet, bench_fixture) -> None:
         sleep(5.)
-        config_base = MarginfiConfig(Environment.LOCALNET)
-        wallet = Wallet.local()
-        rpc_client = AsyncClient(LOCALNET_URL, commitment=Confirmed)
-        provider = Provider(rpc_client, wallet, opts=TxOpts(skip_preflight=True))
-        program = Program(load_idl(), config_base.program_id, provider=provider)
-
-        mint_pk, _ = await create_collateral_mint(wallet, program)
-        group_pk, _ = await create_marginfi_group(mint_pk, wallet, program)
-
-        config = MarginfiConfig(Environment.LOCALNET, overrides={"group_pk": group_pk, "collateral_mint_pk": mint_pk})
-
         new_group_config = GroupConfig(bank=BankConfig(init_margin_ratio=int(1.15 * 10 ** 6),
                                                    maint_margin_ratio=int(1.05 * 10 ** 6),
                                                    account_deposit_limit=None,
@@ -80,22 +69,22 @@ class TestMarginfiGroupLocalnet:
                                                    lp_deposit_limit=None,
                                                    scaling_factor_c=None),
                                    paused=False,
-                                   admin=wallet.public_key)
+                                   admin=bench_fixture.basics.wallet.public_key)
 
         sig = await configure_marginfi_group(
-            group_pk,
+            bench_fixture.group.pubkey,
             new_group_config,
-            wallet,
-            program
+            bench_fixture.basics.wallet,
+            bench_fixture.basics.program
         )
 
-        await rpc_client.confirm_transaction(sig)
+        await bench_fixture.basics.rpc_client.confirm_transaction(sig)
         sleep(30.)
-        group = await MarginfiGroup.fetch(config, program)
+        group = await MarginfiGroup.fetch(bench_fixture.config, bench_fixture.basics.program)
 
-        assert group.pubkey == group_pk
-        assert group.admin == wallet.public_key
-        assert group.bank.mint == mint_pk
+        assert group.pubkey == bench_fixture.group.pubkey
+        assert group.admin == bench_fixture.basics.wallet.public_key
+        assert group.bank.mint == bench_fixture.mint.pubkey
         assert group.bank.scaling_factor_c == 0
         assert group.bank.init_margin_ratio == 1.15
         assert group.bank.maint_margin_ratio == 1.05
