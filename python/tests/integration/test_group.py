@@ -66,8 +66,8 @@ class TestMarginfiGroupLocalnet:
 
         config = MarginfiConfig(Environment.LOCALNET, overrides={"group_pk": group_pk, "collateral_mint_pk": mint_pk})
 
-        new_group_config = GroupConfig(bank=BankConfig(init_margin_ratio=int(1.05 * 10 ** 6),
-                                                   maint_margin_ratio=int(1.15 * 10 ** 6),
+        new_group_config = GroupConfig(bank=BankConfig(init_margin_ratio=int(1.15 * 10 ** 6),
+                                                   maint_margin_ratio=int(1.05 * 10 ** 6),
                                                    account_deposit_limit=None,
                                                    fixed_fee=None,
                                                    interest_fee=None,
@@ -84,20 +84,22 @@ class TestMarginfiGroupLocalnet:
         )
 
         await rpc_client.confirm_transaction(sig)
-        print(sig)
+        sleep(30.)
         group = await MarginfiGroup.fetch(config, program)
 
         assert group.pubkey == group_pk
         assert group.admin == wallet.public_key
         assert group.bank.mint == mint_pk
         assert group.bank.scaling_factor_c == 0
-        assert group.bank.init_margin_ratio == 1.05
-        assert group.bank.maint_margin_ratio == 1.15
+        assert group.bank.init_margin_ratio == 1.15
+        assert group.bank.maint_margin_ratio == 1.05
         assert group.bank.fixed_fee == 0
         assert group.bank.interest_fee == 0
         assert group.bank.native_borrow_balance == 0
         assert group.bank.native_deposit_balance == 0
 
+    async def test_update_interest_accumulator(self, _localnet) -> None:
+        pass
 
 
 @mark.asyncio
