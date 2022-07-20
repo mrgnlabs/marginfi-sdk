@@ -160,5 +160,5 @@ export interface BankData {
   maintMarginRatio: WrappedI8048F;
 }
 export interface WrappedI8048F {
-  bits: BN
+  bits: BN;
 }

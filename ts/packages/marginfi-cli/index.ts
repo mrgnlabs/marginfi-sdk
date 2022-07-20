@@ -106,7 +106,7 @@ attachDefaultOptions(cliProgram.command("get-config")).action(async (options: Op
     client.config.groupPk,
     process.env.MARGINFI_ACCOUNT,
     options.keypair,
-    client.program.provider.wallet.publicKey,
+    client.program.provider.wallet.publicKey
   );
 });
 
