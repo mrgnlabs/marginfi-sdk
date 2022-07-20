@@ -21,7 +21,8 @@ import {
   UtpIndex,
   UTP_NAME,
 } from "./types";
-import { BankVaultType, decimalDataToBigNumber, getBankAuthority, processTransaction, uiToNative } from "./utils";
+import { BankVaultType, getBankAuthority, processTransaction, uiToNative } from "./utils";
+import { wrappedI80F48toBigNumber } from "./utils/fixed";
 import UtpAccount from "./utp/account";
 import { UtpMangoAccount } from "./utp/mango";
 import { UtpObservation } from "./utp/observation";
@@ -125,8 +126,8 @@ class MarginfiAccount {
       accountData.authority,
       client,
       await MarginfiGroup.fetch(config, program),
-      decimalDataToBigNumber(accountData.depositRecord),
-      decimalDataToBigNumber(accountData.borrowRecord),
+      wrappedI80F48toBigNumber(accountData.depositRecord),
+      wrappedI80F48toBigNumber(accountData.borrowRecord),
       MarginfiAccount._packUtpData(accountData, config.mango.utpIndex),
       MarginfiAccount._packUtpData(accountData, config.zo.utpIndex)
     );
@@ -164,8 +165,8 @@ class MarginfiAccount {
       accountData.authority,
       client,
       marginfiGroup,
-      decimalDataToBigNumber(accountData.depositRecord),
-      decimalDataToBigNumber(accountData.borrowRecord),
+      wrappedI80F48toBigNumber(accountData.depositRecord),
+      wrappedI80F48toBigNumber(accountData.borrowRecord),
       MarginfiAccount._packUtpData(accountData, client.config.mango.utpIndex),
       MarginfiAccount._packUtpData(accountData, client.config.zo.utpIndex)
     );
@@ -280,8 +281,8 @@ class MarginfiAccount {
    */
   private _updateFromAccountData(data: MarginfiAccountData) {
     this._authority = data.authority;
-    this._depositRecord = decimalDataToBigNumber(data.depositRecord);
-    this._borrowRecord = decimalDataToBigNumber(data.borrowRecord);
+    this._depositRecord = wrappedI80F48toBigNumber(data.depositRecord);
+    this._borrowRecord = wrappedI80F48toBigNumber(data.borrowRecord);
 
     this.mango.update(MarginfiAccount._packUtpData(data, this._config.mango.utpIndex));
     this.zo.update(MarginfiAccount._packUtpData(data, this._config.zo.utpIndex));

@@ -133,22 +133,22 @@ export interface MarginfiGroupData {
 export interface MarginfiAccountData {
   authority: PublicKey;
   marginfiGroup: PublicKey;
-  depositRecord: DecimalData;
-  borrowRecord: DecimalData;
+  depositRecord: WrappedI8048F;
+  borrowRecord: WrappedI8048F;
   activeUtps: boolean[];
   utpAccountConfig: UTPAccountConfig[];
   reservedSpace: BN[];
 }
 
 export interface BankData {
-  scalingFactorC: DecimalData;
-  fixedFee: DecimalData;
-  interestFee: DecimalData;
-  depositAccumulator: DecimalData;
-  borrowAccumulator: DecimalData;
+  scalingFactorC: WrappedI8048F;
+  fixedFee: WrappedI8048F;
+  interestFee: WrappedI8048F;
+  depositAccumulator: WrappedI8048F;
+  borrowAccumulator: WrappedI8048F;
   lastUpdate: BN;
-  nativeDepositBalance: DecimalData;
-  nativeBorrowBalance: DecimalData;
+  nativeDepositBalance: WrappedI8048F;
+  nativeBorrowBalance: WrappedI8048F;
   mint: PublicKey;
   vault: PublicKey;
   bankAutorityBump: number;
@@ -156,13 +156,9 @@ export interface BankData {
   insuranceVaultAutorityBump: number;
   feeVault: PublicKey;
   feeVaultAutorityBump: number;
-  initMarginRatio: DecimalData;
-  maintMarginRatio: DecimalData;
+  initMarginRatio: WrappedI8048F;
+  maintMarginRatio: WrappedI8048F;
 }
-
-export interface DecimalData {
-  flags: number;
-  hi: number;
-  lo: number;
-  mid: number;
+export interface WrappedI8048F {
+  bits: BN
 }

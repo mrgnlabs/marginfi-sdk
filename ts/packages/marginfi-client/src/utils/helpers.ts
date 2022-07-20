@@ -23,8 +23,7 @@ import {
   VERY_VERBOSE_ERROR,
 } from "../constants";
 import { MarginfiIdl, MARGINFI_IDL } from "../idl";
-import { AccountType, DecimalData, UiAmount } from "../types";
-import { Decimal } from "./decimal";
+import { AccountType, UiAmount } from "../types";
 
 /**
  * Marginfi bank vault type
@@ -113,26 +112,26 @@ export async function processTransaction(
   }
 }
 
-/**
- * Converts a token amount stored as `Decimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
- */
-export function decimalToNative(amount: Decimal, decimals: number = COLLATERAL_DECIMALS): BN {
-  return new BN(Math.round((amount.toBN().toString() as any) / 10 ** (amount.scale - decimals)));
-}
+// /**
+//  * Converts a token amount stored as `Decimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
+//  */
+// export function decimalToNative(amount: Decimal, decimals: number = COLLATERAL_DECIMALS): BN {
+//   return new BN(Math.round((amount.toBN().toString() as any) / 10 ** (amount.scale - decimals)));
+// }
 
-/**
- * Converts a token amount stored as `MDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
- */
-export function decimalDataToNative(amount: DecimalData, decimals: number = COLLATERAL_DECIMALS): BN {
-  return decimalToNative(Decimal.fromAccountData(amount), decimals);
-}
+// /**
+//  * Converts a token amount stored as `MDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
+//  */
+// export function decimalDataToNative(amount: WrappedI8048F, decimals: number = COLLATERAL_DECIMALS): BN {
+//   return decimalToNative(Decimal.fromAccountData(amount), decimals);
+// }
 
-/**
- * Converts a token amount stored as `MDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
- */
-export function decimalDataToBigNumber(amount: DecimalData): BigNumber {
-  return new BigNumber(Decimal.fromAccountData(amount).toString());
-}
+// /**
+//  * Converts a token amount stored as `MDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
+//  */
+// export function decimalDataToBigNumber(amount: WrappedI8048F): BigNumber {
+//   return new BigNumber(Decimal.fromAccountData(amount).toString());
+// }
 
 /**
  * Converts a ui representation of a token amount into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).

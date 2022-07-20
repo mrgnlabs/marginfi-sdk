@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { BankData, LendingSide, MarginRequirementType } from "./types";
-import { Decimal } from "./utils";
+import { wrappedI80F48toBigNumber } from "./utils/fixed";
 
 /**
  * Bank struct mirroring on-chain data
@@ -27,14 +27,14 @@ class Bank {
   public readonly maintMarginRatio: BigNumber;
 
   constructor(data: BankData) {
-    this.scalingFactorC = new BigNumber(Decimal.fromAccountData(data.scalingFactorC).toNumber());
-    this.fixedFee = new BigNumber(Decimal.fromAccountData(data.fixedFee).toNumber());
-    this.interestFee = new BigNumber(Decimal.fromAccountData(data.interestFee).toNumber());
-    this.depositAccumulator = new BigNumber(Decimal.fromAccountData(data.depositAccumulator).toNumber());
-    this.borrowAccumulator = new BigNumber(Decimal.fromAccountData(data.borrowAccumulator).toNumber());
+    this.scalingFactorC = wrappedI80F48toBigNumber(data.scalingFactorC);
+    this.fixedFee = wrappedI80F48toBigNumber(data.fixedFee);
+    this.interestFee = wrappedI80F48toBigNumber(data.interestFee);
+    this.depositAccumulator = wrappedI80F48toBigNumber(data.depositAccumulator);
+    this.borrowAccumulator = wrappedI80F48toBigNumber(data.borrowAccumulator);
     this.lastUpdate = new Date(data.lastUpdate.toNumber());
-    this.nativeDepositBalance = new BigNumber(Decimal.fromAccountData(data.nativeDepositBalance).toNumber());
-    this.nativeBorrowBalance = new BigNumber(Decimal.fromAccountData(data.nativeBorrowBalance).toNumber());
+    this.nativeDepositBalance = wrappedI80F48toBigNumber(data.nativeDepositBalance);
+    this.nativeBorrowBalance = wrappedI80F48toBigNumber(data.nativeBorrowBalance);
     this.mint = data.mint;
     this.vault = data.vault;
     this.bankAutorityBump = data.bankAutorityBump;
@@ -42,8 +42,8 @@ class Bank {
     this.insuranceVaultAutorityBump = data.insuranceVaultAutorityBump;
     this.feeVault = data.feeVault;
     this.feeVaultAutorityBump = data.feeVaultAutorityBump;
-    this.initMarginRatio = new BigNumber(Decimal.fromAccountData(data.initMarginRatio).toNumber());
-    this.maintMarginRatio = new BigNumber(Decimal.fromAccountData(data.maintMarginRatio).toNumber());
+    this.initMarginRatio = wrappedI80F48toBigNumber(data.initMarginRatio);
+    this.maintMarginRatio = wrappedI80F48toBigNumber(data.maintMarginRatio);
   }
 
   public computeNativeAmount(record: BigNumber, side: LendingSide): BigNumber {
