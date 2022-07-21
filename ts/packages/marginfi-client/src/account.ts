@@ -22,7 +22,7 @@ import {
   UTP_NAME,
 } from "./types";
 import { BankVaultType, getBankAuthority, processTransaction, uiToNative } from "./utils";
-import { wrappedI80F48toBigNumber } from "./utils/fixed";
+import { wrappedI80F48toBigNumber } from "./utils/helpers";
 import UtpAccount from "./utp/account";
 import { UtpMangoAccount } from "./utp/mango";
 import { UtpObservation } from "./utp/observation";

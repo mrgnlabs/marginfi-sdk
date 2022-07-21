@@ -20,7 +20,7 @@ export async function getAccount(accountPk: string, options: OptionValues) {
   const client = await getClientFromOptions(options);
   try {
     const connection = client.program.provider.connection;
-    const account = await MarginfiAccount.fetch(new PublicKey(accountPk), client);
+    const account = await MarginfiAccount.fetch(new PublicKey(accountPk || new PublicKey(process.env.MARGINFI_ACCOUNT!)), client);
     await account.observeUtps();
     console.log(account);
     if (account.activeUtps.length > 0) {

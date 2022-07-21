@@ -266,3 +266,13 @@ export function getEnvFromStr(envString: string = "devnet"): Environment {
       return Environment.DEVNET;
   }
 }
+
+export function wrappedI80F48toBigNumber({ bits }: { bits: BN }, scaleDecimal: number = 6): BigNumber {
+  let binString = bits.abs().toString(2).split("");
+  let index = binString.length - 48;
+  if (index > 0) {
+    binString.splice(index, 0, ".");
+  }
+
+  return new BigNumber((bits.isNeg() ? "-" : "") + "0b" + binString.join(""), 10).shiftedBy(-scaleDecimal);
+}

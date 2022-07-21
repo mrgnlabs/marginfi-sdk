@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { BankData, LendingSide, MarginRequirementType } from "./types";
-import { wrappedI80F48toBigNumber } from "./utils/fixed";
+import { wrappedI80F48toBigNumber } from "./utils/helpers";
 
 /**
  * Bank struct mirroring on-chain data
@@ -27,14 +27,14 @@ class Bank {
   public readonly maintMarginRatio: BigNumber;
 
   constructor(data: BankData) {
-    this.scalingFactorC = wrappedI80F48toBigNumber(data.scalingFactorC);
-    this.fixedFee = wrappedI80F48toBigNumber(data.fixedFee);
-    this.interestFee = wrappedI80F48toBigNumber(data.interestFee);
-    this.depositAccumulator = wrappedI80F48toBigNumber(data.depositAccumulator);
-    this.borrowAccumulator = wrappedI80F48toBigNumber(data.borrowAccumulator);
+    this.scalingFactorC = wrappedI80F48toBigNumber(data.scalingFactorC), 0;
+    this.fixedFee = wrappedI80F48toBigNumber(data.fixedFee, 0);
+    this.interestFee = wrappedI80F48toBigNumber(data.interestFee, 0);
+    this.depositAccumulator = wrappedI80F48toBigNumber(data.depositAccumulator, 0);
+    this.borrowAccumulator = wrappedI80F48toBigNumber(data.borrowAccumulator, 0);
     this.lastUpdate = new Date(data.lastUpdate.toNumber());
-    this.nativeDepositBalance = wrappedI80F48toBigNumber(data.nativeDepositBalance);
-    this.nativeBorrowBalance = wrappedI80F48toBigNumber(data.nativeBorrowBalance);
+    this.nativeDepositBalance = wrappedI80F48toBigNumber(data.nativeDepositBalance, 0);
+    this.nativeBorrowBalance = wrappedI80F48toBigNumber(data.nativeBorrowBalance, 0);
     this.mint = data.mint;
     this.vault = data.vault;
     this.bankAutorityBump = data.bankAutorityBump;
@@ -42,8 +42,8 @@ class Bank {
     this.insuranceVaultAutorityBump = data.insuranceVaultAutorityBump;
     this.feeVault = data.feeVault;
     this.feeVaultAutorityBump = data.feeVaultAutorityBump;
-    this.initMarginRatio = wrappedI80F48toBigNumber(data.initMarginRatio);
-    this.maintMarginRatio = wrappedI80F48toBigNumber(data.maintMarginRatio);
+    this.initMarginRatio = wrappedI80F48toBigNumber(data.initMarginRatio, 0);
+    this.maintMarginRatio = wrappedI80F48toBigNumber(data.maintMarginRatio, 0);
   }
 
   public computeNativeAmount(record: BigNumber, side: LendingSide): BigNumber {

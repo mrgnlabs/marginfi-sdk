@@ -18,15 +18,13 @@ const connection = new Connection(process.env.RPC_ENDPOINT!, {
   commitment: "confirmed",
   confirmTransactionInitialTimeout: 120_000,
 });
-const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
 const depositAmount = 5;
 
 (async function () {
-  const config = await getConfig(Environment.MAINNET, connection);
   // Setup the client
-  const client = await MarginfiClient.fetch(config, wallet, connection);
+  const client = await MarginfiClient.fromEnv()
 
   // Prepare user accounts
   const mfiAccount = await client.getMarginfiAccount(MARGIN_ACCOUNT_PK);
@@ -39,7 +37,7 @@ const depositAmount = 5;
   const mangoAccount = await mfiAccount.mango.getMangoAccount(mangoGroup);
 
   const groupConfig = mfiAccount.mango.config.groupConfig;
-  const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "BTC", "perp");
+  const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "SOL", "perp");
 
   const mangoCache = await mangoGroup.loadCache(connection);
   const balance = mangoAccount.getAvailableBalance(mangoGroup, mangoCache, QUOTE_INDEX).div(I80F48.fromNumber(10 ** 6));

@@ -49,23 +49,23 @@ cliProgram.name("marginfi cli");
 const accountProgram = cliProgram.command("account");
 
 attachDefaultOptions(accountProgram.command("create")).action(createAccount);
-attachDefaultOptions(accountProgram.command("get")).argument("<address>", "account address").action(getAccount);
+attachDefaultOptions(accountProgram.command("get")).argument("[address]", "account address").action(getAccount);
 attachDefaultOptions(accountProgram.command("list")).action(listAccounts);
 
-attachDefaultOptions(accountProgram.command("deposit")).arguments("[amount]").action(deposit);
-attachDefaultOptions(accountProgram.command("withdraw")).arguments("[amount]").action(withdraw);
+attachDefaultOptions(accountProgram.command("deposit")).arguments("<amount>").action(deposit);
+attachDefaultOptions(accountProgram.command("withdraw")).arguments("<amount>").action(withdraw);
 
 const mangoProgram = accountProgram.command("mango");
 
 attachDefaultOptions(mangoProgram.command("activate")).action(activateMango);
-attachDefaultOptions(mangoProgram.command("deposit")).arguments("[amount]").action(depositMango);
-attachDefaultOptions(mangoProgram.command("withdraw")).arguments("[amount]").action(withdrawMango);
+attachDefaultOptions(mangoProgram.command("deposit")).arguments("<amount>").action(depositMango);
+attachDefaultOptions(mangoProgram.command("withdraw")).arguments("<amount>").action(withdrawMango);
 
 const zoProgram = accountProgram.command("zo");
 
 attachDefaultOptions(zoProgram.command("activate")).action(activateZo);
-attachDefaultOptions(zoProgram.command("deposit")).arguments("[amount]").action(depositZo);
-attachDefaultOptions(zoProgram.command("withdraw")).arguments("[amount]").action(withdrawZo);
+attachDefaultOptions(zoProgram.command("deposit")).arguments("<amount>").action(depositZo);
+attachDefaultOptions(zoProgram.command("withdraw")).arguments("<amount>").action(withdrawZo);
 
 const utilProgram = cliProgram.command("utils");
 
