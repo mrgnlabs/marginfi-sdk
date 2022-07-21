@@ -25,7 +25,7 @@ exclude_lines =
 
 ignore_errors = True
 omit =
-    src/marginpy/generated_client/*
+    python/marginpy/generated_client/*
     tests/*
 
 [html]

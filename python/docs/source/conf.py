@@ -12,8 +12,8 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))
 
+sys.path.insert(0, os.path.abspath('.'))
 
 # -- Project information -----------------------------------------------------
 
@@ -23,7 +23,6 @@ author = 'MRGN Labs'
 
 # The full version, including alpha/beta/rc tags
 release = '0.1.0'
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -40,7 +39,6 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["build", "Thumbs.db", ".DS_Store", "generated_client"]
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -51,6 +49,7 @@ html_theme = "sphinx_rtd_theme"
 add_module_names = False
 autodoc_member_order = "bysource"
 html_static_path = ['_static']
+
 
 def setup(app):
     app.add_css_file('theme.css')

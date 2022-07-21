@@ -3,6 +3,11 @@ name = "marginpy"
 version = "0.1.0"
 description = ""
 authors = ["MRGN Labs", "man0s <95379755+losman0s@users.noreply.github.com>"]
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -10,6 +15,7 @@ anchorpy = "^0.9.4"
 solana = "0.25.0"
 buffer = "^0.2.1"
 spl = "^0.0.1-alpha.0"
+maturin = "^0.13.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -29,5 +35,5 @@ sphinx-rtd-theme = "^1.0.0"
 
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["maturin>=0.13,<0.14"]
+build-backend = "maturin"

@@ -1,4 +1,4 @@
-from pytest import mark
+from pytest import mark, raises
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 from anchorpy import Wallet, Program, Provider
@@ -11,10 +11,22 @@ from tests.utils import (
     load_sample_account_info,
     load_marginfi_account_data,
 )
+from marginpy import utp_observation
 
 
 @mark.unit
 class TestMarginfiAccountUnit:
+    def test_observe_mango_success(self):
+        mango_group = b64str_to_bytes(load_sample_account_info("mango_group")[1].data[0])
+        mango_account = b64str_to_bytes(load_sample_account_info("mango_account")[1].data[0])
+        mango_cache = b64str_to_bytes(load_sample_account_info("mango_cache")[1].data[0])
+        assert utp_observation.mango.get_free_collateral(mango_group, mango_account, mango_cache) == 888
+
+    def test_observe_mango_throw(self):
+        with raises(ValueError) as exc:
+            assert utp_observation.mango.get_free_collateral(b"", b"", b"") == 888
+        assert (exc.value.args[0] == "SizeMismatch")
+
     def test_decode(self):
         _, account_info = load_sample_account_info("marginfi_account_2")
         account_data = b64str_to_bytes(account_info.data[0])
