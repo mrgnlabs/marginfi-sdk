@@ -37,7 +37,7 @@ const depositAmount = 5;
   const mangoAccount = await mfiAccount.mango.getMangoAccount(mangoGroup);
 
   const groupConfig = mfiAccount.mango.config.groupConfig;
-  const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "SOL", "perp");
+  const perpMarketConfig = getMarketByBaseSymbolAndKind(groupConfig, "ETH", "perp");
 
   const mangoCache = await mangoGroup.loadCache(connection);
   const balance = mangoAccount.getAvailableBalance(mangoGroup, mangoCache, QUOTE_INDEX).div(I80F48.fromNumber(10 ** 6));
