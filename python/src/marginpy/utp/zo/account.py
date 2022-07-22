@@ -2,12 +2,9 @@ from marginpy import MarginfiClient, MarginfiAccount
 from marginpy.utp.account import UtpAccount
 from marginpy.types import UtpData
 
+
 class UtpZoAccount(UtpAccount):
     """[Internal] Class encapsulating Mango-specific interactions"""
-    client: MarginfiClient
-    marginfi_account: MarginfiAccount
-    is_active: bool
-    account_config: UtpData
 
     def __init__(
         self,
@@ -16,11 +13,12 @@ class UtpZoAccount(UtpAccount):
         account_data: UtpData,
     ):
         """[Internal]"""
-        #@todo confirm this
-        self.client = client
-        self.marginfi_account = marginfi_account
-        self.is_active = account_data.is_active
-        self.account_config = account_data.account_config
+        super().__init__(
+            client,
+            marginfi_account,
+            account_data.is_active,
+            account_data.account_config,
+        )
 
     # --- Getters / Setters
 
@@ -100,7 +98,7 @@ class UtpZoAccount(UtpAccount):
     async def make_deactivate_ix(self):
         """
         Create transaction instruction to deactivate Mango.
-        
+
         :returns: `DeactivateUtp` transaction instruction
         """
         return self._marginfi_account.make_deactivate_utp_ix(self.index)
@@ -108,7 +106,7 @@ class UtpZoAccount(UtpAccount):
     async def deactivate(self):
         """
         Deactivate UTP.
-        
+
         :returns: Transaction signature
         """
         # async deactivate() {
@@ -126,7 +124,7 @@ class UtpZoAccount(UtpAccount):
     async def make_deposit_ix(self):
         """
         Create transaction instruction to deposit collateral into the Mango account.
-        
+
         :param amount Amount to deposit (mint native unit)
         :returns Transaction instruction
         """
@@ -200,7 +198,7 @@ class UtpZoAccount(UtpAccount):
     async def make_withdraw_ix(self):
         """
         Create transaction instruction to withdraw from the Mango account to the marginfi account.
-        
+
         :param amount Amount to deposit (mint native unit)
         :returns: Transaction instruction
         """
@@ -237,7 +235,7 @@ class UtpZoAccount(UtpAccount):
     async def withdraw(self):
         """
         Withdraw from the Zo account to the marginfi account.
-        
+
         :param amount Amount to deposit (mint native unit)
         :returns: Transaction signature
         """
@@ -256,7 +254,7 @@ class UtpZoAccount(UtpAccount):
     async def get_observation_accounts(self):
         """
         Create list of account metas required to observe a Zo account.
-        
+
         :returns: `AccountMeta[]` list of account metas
         """
         # async getObservationAccounts(): Promise<AccountMeta[]> {
@@ -275,7 +273,7 @@ class UtpZoAccount(UtpAccount):
     async def make_place_perp_order_ix(self):
         """
         Create transaction instruction to place a perp order.
-        
+
         :returns: Transaction instruction
         """
         # async makePlacePerpOrderIx({
@@ -364,7 +362,7 @@ class UtpZoAccount(UtpAccount):
     async def place_perp_order(self):
         """
         Place a perp order.
-        
+
         :returns: Transaction signature
         """
         # async placePerpOrder(
@@ -397,7 +395,7 @@ class UtpZoAccount(UtpAccount):
     async def make_cancel_perp_order_ix(self):
         """
         Create transaction instruction to cancel a perp order.
-        
+
         :returns: Transaction instruction
         """
         # async makeCancelPerpOrderIx(args: {
@@ -450,7 +448,7 @@ class UtpZoAccount(UtpAccount):
     async def cancel_perp_order(self):
         """
         Cancel a perp order.
-        
+
         :returns: Transaction signature
         """
         # async cancelPerpOrder(args: { symbol: string; isLong?: boolean; orderId?: BN; clientId?: BN }): Promise<string> {

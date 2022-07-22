@@ -1,24 +1,20 @@
-from enum import Enum
+from dataclasses import dataclass
+from typing import Any, Dict
 from solana.publickey import PublicKey
 
-
-class Environment(Enum):
-    LOCALNET = "localnet"
-    DEVNET = "devnet"
-    MAINNET = "mainnet"
+from marginpy.types import Environment, MarginfiDedicatedConfig
+from marginpy.utp.mango.config import MangoConfig
+from marginpy.utp.zo.config import ZoConfig
 
 
-# @todo right now MarginfiConfig
-# has no `get` like in js, just `init`
-# but e.g. MarginfiGroup is written with a `get`
-# see if we can just init
-class MarginfiConfig:
-    def __init__(
-        self,
-        environment,
-        overrides=None,
-    ) -> None:
+@dataclass
+class MarginfiDedicatedConfig:
+    environment: Environment
+    program_id: PublicKey
+    group_pk: PublicKey
+    collateral_mint_pk: PublicKey
 
+    def __init__(self, environment: Environment, overrides: Any = None):
         if overrides is None:
             overrides = {}
 
@@ -62,19 +58,27 @@ class MarginfiConfig:
                 PublicKey("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"),
             )
         else:
-            raise Exception("Unknown environment {}".format(environment))
+            raise Exception(f"Unknown environment {environment}")
 
 
-# @todo: do we need this?
-# JS:
-# export async function getConfig(
-#   environment: Environment,
-#   _connection: Connection,
-#   overrides?: Partial<Omit<MarginfiConfig, "environment">>
-# ): Promise<MarginfiConfig> {
-#   return {
-#     ...getMarginfiConfig(environment, overrides),
-#     mango: await getMangoConfig(environment, overrides?.mango),
-#     zo: await getZoConfig(environment, overrides?.zo),
-#   };
-# }
+@dataclass
+class MarginfiConfig(MarginfiDedicatedConfig):
+    mango: MangoConfig
+    zo: ZoConfig
+
+    def __init__(self, environment: Environment, overrides: Dict[str, Any] = None):
+        marginfi_dedicated_config = MarginfiDedicatedConfig(environment, overrides)
+        self.environment = marginfi_dedicated_config.environment
+        self.program_id = marginfi_dedicated_config.program_id
+        self.group_pk = marginfi_dedicated_config.group_pk
+        self.collateral_mint_pk = marginfi_dedicated_config.collateral_mint_pk
+
+        if overrides is None:
+            overrides = {}
+
+        self.mango = MangoConfig(
+            environment, overrides["mango"] if "mango" in overrides.keys() else None
+        )
+        self.zo = ZoConfig(
+            environment, overrides["zo"] if "zo" in overrides.keys() else None
+        )

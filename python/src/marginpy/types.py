@@ -2,15 +2,21 @@ from dataclasses import dataclass
 from solana.publickey import PublicKey
 import marginpy.generated_client.types as gen_types
 from marginpy.utils import UtpIndex
-import enum
+from enum import Enum
 
 
-class AccountType(enum.Enum):
+class Environment(Enum):
+    LOCALNET = "localnet"
+    DEVNET = "devnet"
+    MAINNET = "mainnet"
+
+
+class AccountType(Enum):
     MarginfiGroup = "MarginfiGroup"
     MarginfiAccount = "MarginfiAccount"
 
 
-class BankVaultType(enum.Enum):
+class BankVaultType(Enum):
     LiquidityVault = "LiquidityVault"
     InsuranceVault = "InsuranceVault"
     FeeVault = "FeeVault"
@@ -19,7 +25,7 @@ class BankVaultType(enum.Enum):
         return self.value
 
 
-class UtpIndex(enum.Enum):
+class UtpIndex(Enum):
     Mango = 0
     Zo = 1
 
@@ -27,14 +33,13 @@ class UtpIndex(enum.Enum):
         return self.value
 
 
-UTP_NAME = {f"{UtpIndex.Mango}": "Mango", f"{UtpIndex.Zo}": "01"}
-
-
+@dataclass
 class GroupConfig(gen_types.GroupConfig):
     pass
 
 
 # @todo confirm
+@dataclass
 class BankConfig(gen_types.BankConfig):
     pass
 
