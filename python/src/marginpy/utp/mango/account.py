@@ -1,26 +1,25 @@
 from marginpy import MarginfiClient, MarginfiAccount
 from marginpy.utp.account import UtpAccount
+from marginpy.types import UtpData
 
 
 class UtpMangoAccount(UtpAccount):
-    """
-    [Internal] Class encapsulating Mango-specific interactions
-    """
+    """[Internal] Class encapsulating Mango-specific interactions"""
     client: MarginfiClient
     marginfi_account: MarginfiAccount
     is_active: bool
-    account_config #@todo need UtpData.account_config type here
+    account_config: UtpData
 
     def __init__(
         self,
         client: MarginfiClient,
         marginfi_account: MarginfiAccount,
-        account_data #@todo need UtpData type
+        account_data: UtpData
     ):
         """[Internal]"""
         #@todo confirm this
-        self.client = client
-        self.marginfi_account = marginfi_account
+        self._client = client
+        self._marginfi_account = marginfi_account
         self.is_active = account_data.is_active
         self.account_config = account_data.account_config
 
