@@ -5,9 +5,15 @@
 # ^ these are just starters
 
 from marginpy.config import Environment
+from marginpy.generated_client.types.utp_config import UTPConfig
 
+class MangoConfig(UTPConfig):
+    group_config: #@todo mango GroupConfig type
 
-class MangoConfig:
+    """
+    [Internal]
+    Define Mango-specific config per profile
+    """
     def __init__(self, environment, overrides=None):
         if environment == Environment.MAINNET:
             # mango_config = Config(IDS)
@@ -37,3 +43,11 @@ class MangoConfig:
             raise Exception(
                 "Unknown environment for Mango UTP config {}".format(environment)
             )
+
+async def get_mango_config(
+    environment: Environment,
+    overrides=None
+):
+    return MangoConfig(
+        environment, overrides
+    )
