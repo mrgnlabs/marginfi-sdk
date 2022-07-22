@@ -2,6 +2,12 @@ from abc import ABC, abstractmethod, abstractproperty
 
 from solana.publickey import PublicKey
 
+from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
+from marginpy.generated_client.types.utp_config import UTPConfig
+from marginpy import MarginfiClient, MarginfiAccount
+from marginpy.utp.observation import UtpObservation
+from marginpy.utils import get_utp_authority
+
 from marginpy.constants import (
     INSURANCE_VAULT_LIQUIDATION_FEE,
     LIQUIDATOR_LIQUIDATION_FEE,
@@ -10,17 +16,21 @@ from marginpy.constants import (
 
 class UtpAccount(ABC):
     is_active: bool
+    _utp_config: UTPAccountConfig
+    _cached_observation: UtpObservation
 
-    # _utp_config: UTPAccountConfig
-    # _cached_observation: UtpObservation
-
-    def __init__(self, _client, _marginfi_account, is_active, utp_config):
+    def __init__(
+        self, 
+        _client: MarginfiClient, 
+        _marginfi_account: MarginfiAccount, 
+        is_active: bool, 
+        utp_config: UTPConfig
+    ):
         self._client = _client
         self._marginfi_account = _marginfi_account
         self.is_active = is_active
         self._utp_config = utp_config
-        # @todo
-        # self._cached_observation =
+        self._cached_observation = UtpObservation.EMPTY_OBSERVATION
 
     @abstractmethod
     async def get_observation_accounts(self):
@@ -38,9 +48,7 @@ class UtpAccount(ABC):
     async def withdraw(self, amount):
         pass
 
-    # @todo confirm this is right
-    @property
-    @abstractmethod
+    @abstractproperty
     def config(self):
         pass
 
@@ -49,19 +57,24 @@ class UtpAccount(ABC):
     def index(self):
         return self.config.utp_index
 
-    # internal
     @property
     def _config(self):
+        """[Internal]"""
         return self._client.config
 
-    # internal
     @property
     def _program(self):
+        """[Internal]"""
         return self._client.program
 
-    # @property
-    # def cached_observation(self):
-    #     pass
+    @property
+    def cached_observation(self):
+        # const fetchAge = (new Date().getTime() - this._cachedObservation.timestamp.getTime()) / 1000.0;
+        # if (fetchAge > 5) {
+        # console.log(`[WARNNG] Last ${UTP_NAME[this.index]} observation was fetched ${fetchAge} seconds ago`);
+        # }
+        # return this._cachedObservation;
+        pass
 
     @property
     def equity(self):
@@ -95,25 +108,21 @@ class UtpAccount(ABC):
     def address(self):
         self._utp_config.address
 
-    ###
-    # UTP authority (PDA)
-    ###
-    # async def authority(
-    #     self,
-    #     seed: PublicKey = None
-    # ):
-    #     return get_utp_authority(
-    #         self.config.program_id,
-    #         seed || self._utp_config.authority_seed,
-    #         self._program.program_id
-    #     )
+    async def authority(
+        self,
+        seed: PublicKey = None
+    ):
+        """UTP authority (PDA)"""
+        return get_utp_authority(
+            self.config.program_id,
+            seed if seed is not None else self._utp_config.authority_seed,
+            self._program.program_id
+        )
 
     # --- Others
 
-    ###
-    # Calculates liquidation parameters given an account value.
-    ###
     def compute_liquidation_prices(self):
+        """Calculates liquidation parameters given an account value."""
         liquidator_fee = self.liquidation_value * LIQUIDATOR_LIQUIDATION_FEE
         insurance_vault_fee = self.liquidation_value * INSURANCE_VAULT_LIQUIDATION_FEE
 
@@ -122,12 +131,10 @@ class UtpAccount(ABC):
 
         return {final_price, discounted_liquidator_price, insurance_vault_fee}
 
-    ###
-    # Update instance data from provided data struct.
-    #
-    # @internal
-    ###
     def update(self, data):
+        """
+        [Internal] Update instance data from provided data struct.
+        """
         self.is_active = data.is_active
         self._utp_config = data.account_config
 
