@@ -1,13 +1,15 @@
-from abc import ABC, abstractmethod, abstractproperty
-
+from abc import ABC, abstractmethod
+from datetime import datetime
+from typing import List
+from anchorpy import Program
 from solana.publickey import PublicKey
-
+from solana.transaction import TransactionSignature, AccountMeta
+from marginpy.config import MarginfiConfig
 from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
-from marginpy.generated_client.types.utp_config import UTPConfig
 from marginpy import MarginfiClient, MarginfiAccount
+from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpIndex
 from marginpy.utp.observation import UtpObservation
 from marginpy.utils import get_utp_authority
-
 from marginpy.constants import (
     INSURANCE_VAULT_LIQUIDATION_FEE,
     LIQUIDATOR_LIQUIDATION_FEE,
@@ -15,113 +17,128 @@ from marginpy.constants import (
 
 
 class UtpAccount(ABC):
+    _client: MarginfiClient
+    _marginfi_account: MarginfiAccount
     is_active: bool
     _utp_config: UTPAccountConfig
     _cached_observation: UtpObservation
 
     def __init__(
-        self, 
-        _client: MarginfiClient, 
-        _marginfi_account: MarginfiAccount, 
-        is_active: bool, 
-        utp_config: UTPConfig
+        self,
+        client: MarginfiClient,
+        marginfi_account: MarginfiAccount,
+        is_active: bool,
+        utp_config: UtpConfig,
     ):
-        self._client = _client
-        self._marginfi_account = _marginfi_account
+        self._client = client
+        self._marginfi_account = marginfi_account
         self.is_active = is_active
         self._utp_config = utp_config
         self._cached_observation = UtpObservation.EMPTY_OBSERVATION
 
+    def __str__(self) -> str:
+        return (
+            f"Timestamp: {self._cached_observation.timestamp}"
+            f"Equity: {self.equity}"
+            f"Free Collateral: {self.free_collateral}"
+            f"Liquidation Value: {self.liquidation_value}"
+            f"Rebalance Needed: {self.is_rebalance_deposit_needed}"
+            f"Max Rebalance: {self.max_rebalance_deposit_amount}"
+            f"Is empty: {self.is_empty}"
+        )
+
     @abstractmethod
-    async def get_observation_accounts(self):
+    async def get_observation_accounts(self) -> List[AccountMeta]:
         pass
 
     @abstractmethod
-    async def observe(self):
+    async def observe(self) -> UtpObservation:
         pass
 
     @abstractmethod
-    async def deposit(self, amount):
+    async def deposit(self, amount) -> TransactionSignature:
         pass
 
     @abstractmethod
-    async def withdraw(self, amount):
+    async def withdraw(self, amount) -> TransactionSignature:
         pass
 
-    @abstractproperty
-    def config(self):
+    @property
+    @abstractmethod
+    def config(self) -> UtpConfig:
         pass
 
     # --- Getters / Setters
+
     @property
-    def index(self):
+    def index(self) -> UtpIndex:
         return self.config.utp_index
 
     @property
-    def _config(self):
+    def _config(self) -> MarginfiConfig:
         """[Internal]"""
         return self._client.config
 
     @property
-    def _program(self):
+    def _program(self) -> Program:
         """[Internal]"""
         return self._client.program
 
     @property
-    def cached_observation(self):
-        # const fetchAge = (new Date().getTime() - this._cachedObservation.timestamp.getTime()) / 1000.0;
-        # if (fetchAge > 5) {
-        # console.log(`[WARNNG] Last ${UTP_NAME[this.index]} observation was fetched ${fetchAge} seconds ago`);
-        # }
-        # return this._cachedObservation;
-        pass
+    def cached_observation(self) -> UtpObservation:
+        # TODO
+        fetch_age = (
+            datetime.now() - self._cached_observation.timestamp
+        ).total_seconds()
+        if fetch_age > 5:
+            print(
+                f"[WARNNG] Last {UTP_NAME[self.index]} observation was fetched {fetch_age} seconds ago"
+            )
+        return self._cachedObservation
 
     @property
-    def equity(self):
+    def equity(self) -> float:
         return self.cached_observation.equity
 
     @property
-    def free_collateral(self):
+    def free_collateral(self) -> float:
         self.cached_observation.free_collateral
 
     @property
-    def init_margin_requirement(self):
+    def init_margin_requirement(self) -> float:
         self.cached_observation.init_margin_requirement
 
     @property
-    def liquidation_value(self):
+    def liquidation_value(self) -> float:
         self.cached_observation.liquidation_value
 
     @property
-    def is_rebalance_deposit_needed(self):
+    def is_rebalance_deposit_needed(self) -> bool:
         self.cached_observation.is_rebalance_deposit_needed
 
     @property
-    def max_rebalance_deposit_amount(self):
+    def max_rebalance_deposit_amount(self) -> float:
         self.cached_observation.max_rebalance_deposit_amount
 
     @property
-    def is_empty(self):
+    def is_empty(self) -> bool:
         self.cached_observation.is_empty
 
     @property
-    def address(self):
+    def address(self) -> PublicKey:
         self._utp_config.address
 
-    async def authority(
-        self,
-        seed: PublicKey = None
-    ):
+    async def authority(self, seed: PublicKey = None):
         """UTP authority (PDA)"""
         return get_utp_authority(
             self.config.program_id,
             seed if seed is not None else self._utp_config.authority_seed,
-            self._program.program_id
+            self._program.program_id,
         )
 
     # --- Others
 
-    def compute_liquidation_prices(self):
+    def compute_liquidation_prices(self) -> LiquidationPrices:
         """Calculates liquidation parameters given an account value."""
         liquidator_fee = self.liquidation_value * LIQUIDATOR_LIQUIDATION_FEE
         insurance_vault_fee = self.liquidation_value * INSURANCE_VAULT_LIQUIDATION_FEE
@@ -129,20 +146,15 @@ class UtpAccount(ABC):
         discounted_liquidator_price = self.liquidation_value - liquidator_fee
         final_price = discounted_liquidator_price - insurance_vault_fee
 
-        return {final_price, discounted_liquidator_price, insurance_vault_fee}
+        return LiquidationPrices(
+            final_price=final_price,
+            discounted_liquidator_price=discounted_liquidator_price,
+            insurance_vault_fee=insurance_vault_fee,
+        )
 
-    def update(self, data):
+    def update(self, data) -> None:
         """
         [Internal] Update instance data from provided data struct.
         """
         self.is_active = data.is_active
         self._utp_config = data.account_config
-
-    def to_string(self):
-        return f"""Timestamp: {self._cached_observation.timestamp}
-                Equity: {self.equity}
-                Free Collateral: {self.free_collateral}
-                Liquidation Value: {self.liquidation_value}
-                Rebalance Needed: {self.is_rebalance_deposit_needed}
-                Max Rebalance: {self.max_rebalance_deposit_amount}
-                Is empty: {self.is_empty}"""

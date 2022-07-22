@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from builtins import enumerate
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 from anchorpy import Wallet, Provider, Program, AccountsCoder, ProgramAccount
 from anchorpy.provider import DEFAULT_OPTIONS
 from based58 import b58encode
