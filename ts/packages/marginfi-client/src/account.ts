@@ -678,9 +678,12 @@ class MarginfiAccount {
   }
 
   public isRebalanceWithdrawNeeded(): boolean {
+    const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:rebalance:withdraw`);
     const { equity } = this.computeBalances();
     const marginRequirementInit = this.computeMarginRequirement(MarginRequirementType.Init);
-    return equity < marginRequirementInit;
+    debug("Margin req (type: Init) $%s, equity $%s", marginRequirementInit.toFixed(4), equity.toFixed(4));
+    
+    return equity.lt(marginRequirementInit);
   }
 
   public computeMaxRebalanceWithdrawAmount(utp: UtpAccount): BigNumber {
