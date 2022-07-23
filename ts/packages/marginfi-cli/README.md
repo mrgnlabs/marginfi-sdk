@@ -38,23 +38,23 @@ mfi account list
 #### Deposit
 Deposit collateral into the marginfi account
 ```
-mfi deposit <mfi_account_address> [amount]
+mfi account deposit <mfi_account_address> [amount]
 ```
 
 Example, deposit of $2
 ```
-mfi deposit HHS3XAt2UDSr2N6QWfEp5muML4VDggLwX5Tr8xqA6pf3 2
+mfi account deposit HHS3XAt2UDSr2N6QWfEp5muML4VDggLwX5Tr8xqA6pf3 2
 ```
 
 #### Withdraw
 Withdraw collateral from marginfi account
 ```
-mfi withdraw <mfi_account_address> [amount]
+mfi account withdraw <mfi_account_address> [amount]
 ```
 
 Example, withdraw $60
 ```
-mfi withdraw HHS3XAt2UDSr2N6QWfEp5muML4VDggLwX5Tr8xqA6pf3 60
+mfi account withdraw HHS3XAt2UDSr2N6QWfEp5muML4VDggLwX5Tr8xqA6pf3 60
 ```
 
 ### Mango Markets
