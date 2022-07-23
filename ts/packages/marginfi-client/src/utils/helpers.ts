@@ -13,6 +13,7 @@ import {
   TransactionSignature,
 } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
+import { Decimal } from "decimal.js";
 import { Environment, Wallet } from "..";
 import {
   COLLATERAL_DECIMALS,
@@ -245,8 +246,6 @@ export function getEnvFromStr(envString: string = "devnet"): Environment {
       return Environment.DEVNET;
   }
 }
-
-import { Decimal } from "decimal.js";
 
 export function wrappedI80F48toBigNumber({ bits }: { bits: BN }, scaleDecimal: number = 6): BigNumber {
   let numbers = new Decimal(`${bits.isNeg() ? "-" : ""}0b${bits.abs().toString(2)}p-48`).dividedBy(10 ** scaleDecimal);
