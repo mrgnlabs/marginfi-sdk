@@ -1,13 +1,15 @@
-from typing import List
+from typing import Tuple, List
 from marginpy import MarginfiClient, MarginfiAccount
 from marginpy.utp.account import UtpAccount
-from marginpy.types import UtpData
+from marginpy.types import UtpData, AccountConfig
 from solana.transaction import (
     AccountMeta,
     TransactionInstruction,
     Transaction,
     TransactionSignature,
 )
+from solana.publickey import PublicKey
+from solana.keypair import Keypair
 from marginpy.utp.mango.instruction import (
     make_activate_ix,
     ActivateArgs,
@@ -24,6 +26,10 @@ from marginpy.utp.mango.instruction import (
     make_cancel_perp_order_ix,
     CancelPerpOrderArgs,
     CancelPerpOrderAccounts,
+)
+from marginpy.utils import (
+    get_bank_authority,
+    ui_to_native
 )
 
 
@@ -55,35 +61,35 @@ class UtpMangoAccount(UtpAccount):
 
     # --- Others
 
-    def make_activate_ix(self) -> TransactionInstruction:
+    async def make_activate_ix(self) -> TransactionInstruction:
         """
         Create transaction instruction to activate Mango.
         
         :returns: `ActivateUtp` transaction instruction
         """
-        #     const authoritySeed = Keypair.generate();
 
-        #     const [mangoAuthorityPk, mangAuthorityBump] = await this.authority(authoritySeed.publicKey);
-        #     const [mangoAccountPk] = await getMangoAccountPda(
-        #     this._config.mango.groupConfig.publicKey,
-        #     mangoAuthorityPk,
-        #     new BN(0),
-        #     this._config.mango.programId
-        #     );
+        authority_seed = Keypair()
+        mango_authority_pk, mango_authority_bump = await self.authority(authority_seed.public_key)
+        mango_account_pk, _ = get_mango_account_pda(
+            self._config.mango.group_config.pubkey,
+            mango_authority_pk,
+            0,
+            self._config.mango.program_id,
+        )
 
         return make_activate_ix(
             ActivateArgs(
-                authority_seed=authority_seed.public_key
-                authority_bump: int
+                authority_seed=authority_seed.public_key,
+                authority_bump=mango_authority_bump,
             ),
             ActivateAccounts(
-                marginfi_account=self._marginfi_account.pubkey
-                marginfi_group=self._marginfi_account.group.pubkey
-                authority: PublicKey
-                mango_authority: PublicKey
-                mango_account: PublicKey
-                mango_program=self.account_data.account_config.program_id,
-                mango_group=self.account_data.account_config.group_pk
+                marginfi_account=self._marginfi_account.pubkey,
+                marginfi_group=self._config.group_pk,
+                authority=self._program.provider.wallet.public_key,
+                mango_authority=mango_authority_pk,
+                mango_account=mango_account_pk,
+                mango_program=self._config.mango.program_id,
+                mango_group=self._config.mango.gorup_config.public_key,
             ),
             self._client.program_id,
         )
@@ -95,12 +101,14 @@ class UtpMangoAccount(UtpAccount):
         :returns: Transaction signature
         """
 
-        activate_ix = self.activate_ix()
+        activate_ix = await self.activate_ix()
         tx = Transaction().add(activate_ix)
-        return await self._client.program.provider.send(tx)
+        sig = await self._client.program.provider.send(tx)
+        await self._marginfi_account.reload()
+        return sig
 
     # @todo check deactivate fns
-    def make_deactivate_ix(self) -> TransactionInstruction:
+    async def make_deactivate_ix(self) -> TransactionInstruction:
         """
         Create transaction instruction to deactivate Mango.
         
@@ -114,13 +122,13 @@ class UtpMangoAccount(UtpAccount):
         
         :returns: Transaction signature
         """
+        self.verify_active()
 
-        deactivate_ix = self.make_deactivate_ix()
-        tx = Transaction().add(deactivate_ix)
-        return await self._client.program.provider.send(tx)
+        sig = await self._marginfi_account.deactivate_utp(self.index)
+        await self._marginfi_account.reload()
+        return sig
 
-    # @todo general note: amounts should be ints not floats
-    def make_deposit_ix(self, amount: int) -> TransactionInstruction:
+    async def make_deposit_ix(self, amount: float) -> TransactionInstruction:
         """
         Create transaction instruction to deposit collateral into the Mango account.
         
@@ -128,31 +136,46 @@ class UtpMangoAccount(UtpAccount):
         :returns `MangoDepositCollateral` transaction instruction
         """
 
-        remaining_accounts = self.get_observation_accounts()
+        # proxy_token_account_key = Keypair()
+        # mango_authority_pk = await self.authority()
+        # margin_bank_authority_pk = await get_bank_authority(self._config.group_pk, self._program.program_id)
+        # mango_group = await self.get_mango_group()
 
-        return make_deposit_ix(
-            args=DepositArgs(amount),
-            accounts=DepositAccounts(
-                marginfi_account: PublicKey
-                marginfi_group: PublicKey
-                signer: PublicKey
-                margin_collateral_vault: PublicKey
-                bank_authority: PublicKey
-                temp_collateral_account: PublicKey
-                mango_authority: PublicKey
-                mango_account: PublicKey
-                mango_program: PublicKey #@todo pass through mango config
-                mango_group: PublicKey
-                mango_cache: PublicKey
-                mango_root_bank: PublicKey
-                mango_node_bank: PublicKey
-                mango_vault: PublicKey
-            ),
-            self._client.program_id,
-            remaining_accounts,
-        )
+        # collateral_mint_index = mango_group.get_token_index(self._config.collateral_mint_pk)
+        # await mango_group.load_root_banks(self._program.provider.connection)
+        # root_bank_pk = mango_group.tokens[collateral_mint_index].root_bank
+        # node_bank_pk = mango_group.root_bank_accounts[collateral_mint_index].node_bank_accounts[0].public_key
+        # vault_pk = mango_group.root_bank_accounts[collateral_mint_index].node_bank_accounts[0].vault
+        # remaining_accounts = self.get_observation_accounts()
 
-    async def deposit(self, amount: int) -> TransactionSignature:
+        # create_proxy_token_account_ix = SystemProgram.create_account(
+
+        # )
+
+        # return make_deposit_ix(
+        #     args=DepositArgs(ui_to_native(amount)),
+        #     accounts=DepositAccounts(
+        #         marginfi_account: PublicKey
+        #         marginfi_group: PublicKey
+        #         signer: PublicKey
+        #         margin_collateral_vault: PublicKey
+        #         bank_authority: PublicKey
+        #         temp_collateral_account: PublicKey
+        #         mango_authority: PublicKey
+        #         mango_account: PublicKey
+        #         mango_program: PublicKey #@todo pass through mango config
+        #         mango_group: PublicKey
+        #         mango_cache: PublicKey
+        #         mango_root_bank: PublicKey
+        #         mango_node_bank: PublicKey
+        #         mango_vault: PublicKey
+        #     ),
+        #     self._client.program_id,
+        #     remaining_accounts,
+        # )
+        pass
+
+    async def deposit(self, amount: float) -> TransactionSignature:
         """
         Deposit collateral into the Mango account.
         
@@ -160,30 +183,51 @@ class UtpMangoAccount(UtpAccount):
         :returns" Transaction signature
         """
 
-        deposit_ix = self.make_deposit_ix(amount)
+        deposit_ix = await self.make_deposit_ix(amount)
         tx = Transaction().add(deposit_ix)
         return await self._client.program.provider.send(tx)
 
-    def make_withdraw_ix(self, amount: int) -> TransactionInstruction:
+    async def make_withdraw_ix(self, amount: float) -> TransactionInstruction:
         """
         Create transaction instruction to withdraw from the Mango account to the marginfi account.
         
         :param amount Amount to deposit (mint native unit)
         :returns: `MangoWithdrawCollateral` transaction instruction
         """
+
+        mango_authority_pk = await self.authority()
+        mango_group = await self.get_mango_group()
+        collateral_mint_index = mango_group.get_token_index(self._config.collateral_mint_pk)
+
+        await mango_group.load_root_banks(self._program.provider.connection)
+        root_bank_pk = mango_group.tokens[collateral_mint_index].root_bank
+        node_bank_pk = mango_group.root_bank_accounts[collateral_mint_index].node_bank_accounts[0].public_key
+        vault_pk = mango_group.root_bank_accounts[collateral_mint_index].node_bank_accounts[0].vault
         
         remaining_accounts = self.get_observation_accounts()
 
         return make_withdraw_ix(
-            WithdrawArgs(amount),
+            WithdrawArgs(ui_to_native(amount)),
             WithdrawAccounts(
-
+                marginfi_account=self._marginfi_account.pubkey,
+                marginfi_group=self._config.group_pk,
+                signer=self._program.provider.wallet.public_key,
+                margin_collateral_vault=self._marginfi_account.group.bank.vault,
+                mango_authority=mango_authority_pk,
+                mango_account=self.address,
+                mango_program=self._config.mango.program_id,
+                mango_group=mango_group.public_key,
+                mango_cache=mango_group.mango_cache,
+                mango_root_bank=root_bank_pk,
+                mango_node_bank=node_bank_pk,
+                mango_vault=vault_pk,
+                mango_vault_authority=mango_group.signer_key,
             ),
             self._client.program_id,
             remaining_accounts,
         )
 
-    async def withdraw(self, amount: int) -> TransactionSignature:
+    async def withdraw(self, amount: float) -> TransactionSignature:
         """
         Withdraw from the Mango account to the marginfi account.
         
@@ -191,7 +235,7 @@ class UtpMangoAccount(UtpAccount):
         :returns: Transaction signature
         """
 
-        withdraw_ix = self.make_withdraw_ix()
+        withdraw_ix = await self.make_withdraw_ix(amount)
         tx = Transaction().add(withdraw_ix)
         return await self._client.program.provider.send(tx)
 
@@ -201,7 +245,24 @@ class UtpMangoAccount(UtpAccount):
         
         :returns: `AccountMeta[]` list of account metas
         """
-        pass # TODO
+        mango_group = await self.get_mango_group()
+        return [
+            AccountMeta(
+                pubkey=self.address,
+                is_signer=False,
+                is_writable=False,
+            ),
+            AccountMeta(
+                pubkey=mango_group.public_key,
+                is_signer=False,
+                is_writable=False,
+            ),
+            AccountMeta(
+                pubkey=mango_group.mango_cache,
+                is_signer=False,
+                is_writable=False,
+            )
+        ]
 
     def make_place_perp_order_ix(self) -> TransactionInstruction:
         """
@@ -223,7 +284,7 @@ class UtpMangoAccount(UtpAccount):
             remaining_accounts,
         )
 
-    async def place_perp_order(self):
+    async def place_perp_order(self) -> TransactionSignature:
         """
         Place a perp order.
         
@@ -233,61 +294,79 @@ class UtpMangoAccount(UtpAccount):
         tx = Transaction().add(place_perp_order_ix)
         return await self._client.program.provider.send(tx)
 
-    def make_cancel_perp_order_ix(self):
+    async def make_cancel_perp_order_ix(
+        self,
+        market: PerpMarket, #@todo comes from mango client in ts
+        order_id: int,
+        invalid_id_ok: bool
+    ) -> TransactionInstruction:
         """
         Create transaction instruction to cancel a perp order.
         
         :returns: `MangoCancelPerpOrder` transaction instruction
         """
 
+        mango_authority_pk = await self.authority()
         remaining_accounts = self.get_observation_accounts()
 
         return make_cancel_perp_order_ix(
             CancelPerpOrderArgs(
-
+                order_id=order_id,
+                invalid_id_ok=invalid_id_ok,
             ),
             CancelPerpOrderAccounts(
-
+                marginfi_account=self._marginfi_account.pubkey,
+                marginfi_group=self._marginfi_account.group.pubkey,
+                authority=self._program.provider.wallet.public_key,
+                mango_authority=mango_authority_pk,
+                mango_account=self.address,
+                mango_program=self._config.mango.program_id,
+                mango_group=self._config.mango.group_config.pubkey,
+                mango_perp_market=market.public_key,
+                mango_bids=market.bids,
+                mango_asks=market.asks,
             ),
             self._client.program_id,
             remaining_accounts,
         )
 
-    async def cancel_perp_order(self):
+    async def cancel_perp_order(
+        self,
+        perp_market: PerpMarket,
+        order_id: int,
+        invalid_id_ok: bool,
+    ) -> TransactionSignature:
         """
         Cancel a perp order.
         
         :returns: Transaction signature
         """
 
-        cancel_perp_order_ix = self.make_cancel_perp_order_ix()
+        self.verify_active()
+
+        cancel_perp_order_ix = await self.make_cancel_perp_order_ix(
+            perp_market,
+            order_id,
+            invalid_id_ok,
+        )
         tx = Transaction().add(cancel_perp_order_ix)
         return await self._client.program.provider.send(tx)
 
     def verify_active(self):
         """[Internal]"""
-        # private verifyActive() {
-        #     const debug = require("debug")(`mfi:utp:${this.address}:mango:verify-active`);
-        #     if (!this.isActive) {
-        #     debug("Utp isn't active");
-        #     throw new Error("Utp isn't active");
-        #     }
-        # }
-        pass
+        if not self.is_active:
+            raise Exception("Utp isn't active")
 
-    async def compute_utp_account_address(self):
+    async def compute_utp_account_address(self, account_number: int = 0):
         """[Internal]"""
-        # async computeUtpAccountAddress(accountNumber: BN = new BN(0)) {
-        #     const [utpAuthorityPk] = await this.authority();
-        #     const [utpAccountPk] = await getMangoAccountPda(
-        #     this._config.mango.groupConfig.publicKey,
-        #     utpAuthorityPk,
-        #     accountNumber,
-        #     this._config.mango.programId
-        #     );
-        #     return utpAccountPk;
-        # }
-        pass
+        utp_authority_pk = await self.authority()
+        utp_account_pk, _ = await get_mango_account_pda(
+            self._config.mango.group_config.public_key,
+            utp_authority_pk,
+            account_number,
+            self._config.mango.program_id,
+        )
+        return utp_account_pk
 
     async def observe(self):
         """
@@ -298,10 +377,11 @@ class UtpMangoAccount(UtpAccount):
         pass
 
     def get_mango_client(self):
-        # getMangoClient(): MangoClient {
-        #     return new MangoClient(this._client.program.provider.connection, this._client.config.mango.programId);
-        # }
-        pass
+        # @todo MangoClient comes from mango lib in ts
+        return MangoClient(
+            self._client.program.provider.connection,
+            self._client.config.mango.program_id,
+        )
 
     async def get_mango_account(self):
         # async getMangoAccount(mangoGroup?: MangoGroup): Promise<MangoAccount> {
@@ -322,17 +402,23 @@ class UtpMangoAccount(UtpAccount):
         # }
         pass
 
-async def get_mango_account_pda():
+    async def get_mango_group(self):
+        mango_client = self.get_mango_client()
+        return mango_client.get_mango_group(self._config.mango.group_config.public_key)
+
+async def get_mango_account_pda(
+    mango_group_pk: PublicKey,
+    authority: PublicKey,
+    account_number: int,
+    program_id: PublicKey
+) -> Tuple[PublicKey, int]:
     """[Internal] Compute the Mango account PDA tied to the specified user."""
-    # export async function getMangoAccountPda(
-    #     mangoGroupPk: PublicKey,
-    #     authority: PublicKey,
-    #     accountNumber: BN,
-    #     programId: PublicKey
-    #     ): Promise<[PublicKey, number]> {
-    #     return PublicKey.findProgramAddress(
-    #         [mangoGroupPk.toBytes(), authority.toBytes(), new BN(accountNumber).toBuffer("le", 8)],
-    #         programId
-    #     );
-    # }
-    pass
+
+    return PublicKey.find_program_address(
+        [
+            bytes(mango_group_pk),
+            bytes(authority),
+            b"\x01" + account_number.to_bytes(8, "little")
+        ],
+        program_id
+    )
