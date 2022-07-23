@@ -326,25 +326,8 @@ class UtpMangoAccount(UtpAccount):
         if options is None:
             options = {}
         
-        mango_group = await self.get_mango_group()
-
-        # max_quote_quantity = options.max_quote_quantity
-        # limit = options.limit | 20
-        # order_type = options.order_type
-        # client_order_id = options.client_order_id | 0
-        # reduce_only = options.reduce_only | MangoPerpOrderType.ImmediateOrCancel
-        # expiry_timestamp = options.expiry_timestamp
-        # expiry_type = options.expiry_type | ExpiryType.Absolute
-
-        # const [nativePrice, nativeQuantity] = market.uiToNativePriceQuantity(priceNb, quantityNb);
-        # const maxQuoteQuantityLots = maxQuoteQuantity ? market.uiQuoteToLots(maxQuoteQuantity) : I64_MAX_BN;
-
-        # const [mangoAuthorityPk] = await this.authority();
-        # const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
-
-        
-
-        # remaining_accounts = self.get_observation_accounts()
+        mango_group = await self.get_mango_group()       
+        remaining_accounts = self.get_observation_accounts()
 
         return make_place_perp_order_ix(
             PlacePerpOrderArgs(
