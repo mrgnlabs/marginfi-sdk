@@ -517,14 +517,6 @@ export class UtpZoAccount extends UtpAccount {
     const zoMargin = await this.getZoMargin();
     const zoState = await this.getZoState();
 
-    console.log(
-      "zoMargin %s zoControl %s zoState %s zoCache %s",
-      zoMargin.pubkey,
-      zoMargin.control.pubkey,
-      zoState.pubkey,
-      zoState.cache.pubkey
-    );
-
     return [
       { pubkey: zoMargin.pubkey, isWritable: false, isSigner: false },
       { pubkey: zoMargin.control.pubkey, isWritable: false, isSigner: false },
