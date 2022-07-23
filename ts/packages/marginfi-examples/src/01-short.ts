@@ -12,7 +12,7 @@ const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
 const marketKey = "BTC-PERP";
-const depositAmount = 0;
+const depositAmount = 5;
 
 (async function () {
   // Setup the client
@@ -20,7 +20,7 @@ const depositAmount = 0;
 
   const mfiAccount = await client.getMarginfiAccount(MARGIN_ACCOUNT_PK);
 
-  // await mfiAccount.zo.deposit(depositAmount);
+  await mfiAccount.zo.deposit(depositAmount);
 
   const zoState = await mfiAccount.zo.getZoState();
   const zoMargin = await mfiAccount.zo.getZoMargin(zoState);
