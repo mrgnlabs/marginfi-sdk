@@ -271,5 +271,5 @@ import { Decimal } from "decimal.js";
 
 export function wrappedI80F48toBigNumber({ bits }: { bits: BN }, scaleDecimal: number = 6): BigNumber {
   let numbers = new Decimal(`${bits.isNeg() ? "-" : ""}0b${bits.abs().toString(2)}p-48`).dividedBy(10 ** scaleDecimal);
-  return new BigNumber(numbers.toString())
+  return new BigNumber(numbers.toString());
 }

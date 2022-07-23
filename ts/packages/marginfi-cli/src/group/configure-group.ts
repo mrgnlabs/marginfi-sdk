@@ -9,7 +9,7 @@ export async function configureGroup(options: OptionValues) {
 
   const wallet = program.provider.wallet;
   const marginfiGroupPk = client.group.publicKey;
-  
+
   const args = {
     admin: options.admin ? new PublicKey(options.admin) : undefined,
     bank: {

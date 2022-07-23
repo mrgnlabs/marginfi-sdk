@@ -2,15 +2,7 @@ require("dotenv").config();
 
 import { Connection, PublicKey } from "@solana/web3.js";
 
-import {
-  Environment,
-  getConfig,
-  loadKeypair,
-  MangoOrderSide,
-  MangoPerpOrderType,
-  MarginfiClient,
-  Wallet,
-} from "@mrgnlabs/marginfi-client";
+import { MangoOrderSide, MangoPerpOrderType, MarginfiClient } from "@mrgnlabs/marginfi-client";
 
 import { getMarketByBaseSymbolAndKind, I80F48, QUOTE_INDEX } from "@blockworks-foundation/mango-client";
 
@@ -24,7 +16,7 @@ const depositAmount = 5;
 
 (async function () {
   // Setup the client
-  const client = await MarginfiClient.fromEnv()
+  const client = await MarginfiClient.fromEnv();
 
   // Prepare user accounts
   const mfiAccount = await client.getMarginfiAccount(MARGIN_ACCOUNT_PK);

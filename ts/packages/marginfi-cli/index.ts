@@ -117,7 +117,7 @@ attachDefaultOptions(utilProgram.command("dump-account"))
   .action(async (address: string, out: string, options: OptionValues) => {
     const client = await getClientFromOptions(options);
     const ai = await client.program.provider.connection.getAccountInfo(new PublicKey(address));
-    
+
     writeFileSync(out, ai!.data);
   });
 

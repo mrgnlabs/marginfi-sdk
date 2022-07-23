@@ -1,7 +1,7 @@
 import { MarginfiClient } from "@mrgnlabs/marginfi-client";
 
 export async function getGroup() {
-  const client = await MarginfiClient.fromEnv()
+  const client = await MarginfiClient.fromEnv();
   const group = client.group;
 
   console.log("Marginfi Group: %s", group.publicKey);
