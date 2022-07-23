@@ -2127,14 +2127,7 @@
           "index": false
         },
         {
-          "name": "collateralOrEquity",
-          "type": {
-            "defined": "WrappedI80F48"
-          },
-          "index": false
-        },
-        {
-          "name": "marginRequirement",
+          "name": "netFreeCollateral",
           "type": {
             "defined": "WrappedI80F48"
           },

@@ -2127,14 +2127,7 @@ export type Marginfi = {
           index: false;
         },
         {
-          name: "collateralOrEquity";
-          type: {
-            defined: "WrappedI80F48";
-          };
-          index: false;
-        },
-        {
-          name: "marginRequirement";
+          name: "netFreeCollateral";
           type: {
             defined: "WrappedI80F48";
           };
@@ -4401,14 +4394,7 @@ export const IDL: Marginfi = {
           index: false,
         },
         {
-          name: "collateralOrEquity",
-          type: {
-            defined: "WrappedI80F48",
-          },
-          index: false,
-        },
-        {
-          name: "marginRequirement",
+          name: "netFreeCollateral",
           type: {
             defined: "WrappedI80F48",
           },
