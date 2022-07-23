@@ -74,3 +74,14 @@ class UtpData:
 class UtpConfig:
     utp_index: UtpIndex
     program_id: PublicKey
+
+
+@dataclass
+class UtpMangoPlacePerpOrderOptions:
+    max_quote_quantity: float = None
+    limit: int = None
+    order_type: gen_types.MangoOrderTypeKind = None
+    client_order_id: int = None
+    reduce_only: bool = False
+    expiry_timestamp: int = None
+    expiry_type: gen_types.MangoExpiryTypeKind = None

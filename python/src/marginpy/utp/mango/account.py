@@ -1,7 +1,7 @@
 from typing import Tuple, List
 from marginpy import MarginfiClient, MarginfiAccount
 from marginpy.utp.account import UtpAccount
-from marginpy.types import UtpData, AccountConfig
+from marginpy.types import UtpData, AccountConfig, UtpMangoPlacePerpOrderOptions, MangoPerpOrderType, ExpiryType
 from solana.transaction import (
     AccountMeta,
     TransactionInstruction,
@@ -10,6 +10,8 @@ from solana.transaction import (
 )
 from solana.publickey import PublicKey
 from solana.keypair import Keypair
+from solana.system_program import create_account, CreateAccountParams
+from spl.token.constants import TOKEN_PROGRAM_ID
 from marginpy.utp.mango.instruction import (
     make_activate_ix,
     ActivateArgs,
@@ -33,8 +35,13 @@ from marginpy.utils import (
 )
 from mango import (
     PerpMarket,
-    Group as MangoGroup
+    Group as MangoGroup,
+    Account as MangoAccount,
+    ContextBuilder,
+    NodeBank,
 )
+from solana.token.instructions import initialize_account, InitializeAccountParams
+import marginpy.generated_client.types as gen_types
 
 
 class UtpMangoAccount(UtpAccount):
@@ -55,6 +62,7 @@ class UtpMangoAccount(UtpAccount):
         self._marginfi_account = marginfi_account
         self.is_active = account_data.is_active
         self.account_config = account_data.account_config
+        self.mango_context = ContextBuilder.build(client.config.environment)
 
     # --- Getters / Setters
 
@@ -133,7 +141,29 @@ class UtpMangoAccount(UtpAccount):
         await self._marginfi_account.reload()
         return sig
 
-    # FINISH
+    async def make_create_proxy_token_account_ix(self, proxy_token_account_key_pk) -> TransactionInstruction:        
+
+        return create_account(
+            CreateAccountParams(
+                from_pubkey=self._program.provider.wallet.public_key,
+                new_account_pubkey=proxy_token_account_key_pk,
+                lamports=await self._program.provider.connection.get_minimum_balance_for_rent_exemption(AccountLayout.span),
+                space=AccountLayout.span,
+                program_id=TOKEN_PROGRAM_ID
+            )
+        )
+
+    def make_init_proxy_token_account_ix(self, proxy_token_account_key_pk, mango_authority_pk) -> TransactionInstruction:
+
+        return initialize_account(
+            InitializeAccountParams(
+                program_id=TOKEN_PROGRAM_ID,
+                mint=self._marginfi_account.group.bank.mint,
+                account=proxy_token_account_key_pk,
+                owner=mango_authority_pk,
+            )
+        )
+
     async def make_deposit_ix(self, amount: float) -> TransactionInstruction:
         """
         Create transaction instruction to deposit collateral into the Mango account.
@@ -141,47 +171,52 @@ class UtpMangoAccount(UtpAccount):
         :param amount Amount to deposit (mint native unit)
         :returns `MangoDepositCollateral` transaction instruction
         """
+        proxy_token_account_key = Keypair()
+        
+        mango_authority_pk = await self.authority()
+        margin_bank_authority_pk = await get_bank_authority(self._config.group_pk, self._program.program_id)
+        mango_group = await self.get_mango_group()
 
-        # proxy_token_account_key = Keypair()
-        # mango_authority_pk = await self.authority()
-        # margin_bank_authority_pk = await get_bank_authority(self._config.group_pk, self._program.program_id)
-        # mango_group = await self.get_mango_group()
+        root_bank = [t for t in mango_group.tokens if t.token.mint == self._config.collateral_mint_pk][0]
+        root_bank_pk = root_bank.root_bank_address
+        node_bank_pk = root_bank.node_banks[0]
+        node_bank = NodeBank.load(self.mango_context, node_bank_pk)
+        vault_pk = node_bank.vault
 
-        # collateral_mint_index = mango_group.get_token_index(self._config.collateral_mint_pk)
-        # await mango_group.load_root_banks(self._program.provider.connection)
-        # root_bank_pk = mango_group.tokens[collateral_mint_index].root_bank
-        # node_bank_pk = mango_group.root_bank_accounts[collateral_mint_index].node_bank_accounts[0].public_key
-        # vault_pk = mango_group.root_bank_accounts[collateral_mint_index].node_bank_accounts[0].vault
-        # remaining_accounts = self.get_observation_accounts()
+        remaining_accounts = self.get_observation_accounts()
 
-        # create_proxy_token_account_ix = SystemProgram.create_account(
+        make_create_proxy_token_account_ix = self.make_create_proxy_token_account_ix(proxy_token_account_key.public_key)
+        make_init_proxy_token_account_ix = self.make_init_proxy_token_account_ix(
+            proxy_token_account_key.public_key,
+            mango_authority_pk,
+        )
 
-        # )
+        return [
+            make_create_proxy_token_account_ix,
+            make_init_proxy_token_account_ix,
+            make_deposit_ix(
+                args=DepositArgs(ui_to_native(amount)),
+                accounts=DepositAccounts(
+                    marginfi_account=self._marginfi_account.pubkey,
+                    marginfi_group=self._config.group_pk,
+                    signer=self._program.provider.wallet.public_key,
+                    margin_collateral_vault=self._marginfi_account.group.bank.vault,
+                    bank_authority=margin_bank_authority_pk,
+                    temp_collateral_account=proxy_token_account_key.public_key,
+                    mango_authority=mango_authority_pk,
+                    mango_account=self.address,
+                    mango_program=self._config.mango.program_id,
+                    mango_group=mango_group.public_key,
+                    mango_cache=mango_group.mango_cache,
+                    mango_root_bank=root_bank_pk,
+                    mango_node_bank=node_bank_pk,
+                    mango_vault=vault_pk,
+                ),
+                program_id=self._client.program_id,
+                remaining_accounts=remaining_accounts,
+            ),
+        ]
 
-        # return make_deposit_ix(
-        #     args=DepositArgs(ui_to_native(amount)),
-        #     accounts=DepositAccounts(
-        #         marginfi_account: PublicKey
-        #         marginfi_group: PublicKey
-        #         signer: PublicKey
-        #         margin_collateral_vault: PublicKey
-        #         bank_authority: PublicKey
-        #         temp_collateral_account: PublicKey
-        #         mango_authority: PublicKey
-        #         mango_account: PublicKey
-        #         mango_program: PublicKey #@todo pass through mango config
-        #         mango_group: PublicKey
-        #         mango_cache: PublicKey
-        #         mango_root_bank: PublicKey
-        #         mango_node_bank: PublicKey
-        #         mango_vault: PublicKey
-        #     ),
-        #     self._client.program_id,
-        #     remaining_accounts,
-        # )
-        pass
-
-    # FINISH
     async def deposit(self, amount: float) -> TransactionSignature:
         """
         Deposit collateral into the Mango account.
@@ -190,11 +225,12 @@ class UtpMangoAccount(UtpAccount):
         :returns" Transaction signature
         """
 
+        self.verify_active()
+
         deposit_ix = await self.make_deposit_ix(amount)
         tx = Transaction().add(deposit_ix)
         return await self._client.program.provider.send(tx)
 
-    # RELIES ON MANGO CLIENT ISSUE
     async def make_withdraw_ix(self, amount: float) -> TransactionInstruction:
         """
         Create transaction instruction to withdraw from the Mango account to the marginfi account.
@@ -204,14 +240,14 @@ class UtpMangoAccount(UtpAccount):
         """
 
         mango_authority_pk = await self.authority()
+        
         mango_group = await self.get_mango_group()
-        collateral_mint_index = mango_group.get_token_index(self._config.collateral_mint_pk)
 
-        await mango_group.load_root_banks(self._program.provider.connection)
-        root_bank_pk = mango_group.tokens[collateral_mint_index].root_bank_address
-        # TODO RESUME HERE
-        node_bank_pk = mango_group.root_bank_accounts[collateral_mint_index].node_bank_accounts[0].public_key
-        vault_pk = mango_group.root_bank_accounts[collateral_mint_index].node_bank_accounts[0].vault
+        root_bank = [t for t in mango_group.tokens if t.token.mint == self._config.collateral_mint_pk][0]
+        root_bank_pk = root_bank.root_bank_address
+        node_bank_pk = root_bank.node_banks[0]
+        node_bank = NodeBank.load(self.mango_context, node_bank_pk)
+        vault_pk = node_bank.vault
         
         remaining_accounts = self.get_observation_accounts()
 
@@ -248,7 +284,6 @@ class UtpMangoAccount(UtpAccount):
         tx = Transaction().add(withdraw_ix)
         return await self._client.program.provider.send(tx)
 
-    # RELIES ON MANGO CLIENT ISSUE
     async def get_observation_accounts(self) -> List[AccountMeta]:
         """
         Create list of account metas required to observe a Mango account.
@@ -275,28 +310,81 @@ class UtpMangoAccount(UtpAccount):
         ]
 
     # FINISH
-    def make_place_perp_order_ix(self) -> TransactionInstruction:
+    async def make_place_perp_order_ix(
+        self,
+        perp_market: PerpMarket,
+        side: gen_types.MangoSideKind,
+        price: int,
+        quantity: float,
+        options: UtpMangoPlacePerpOrderOptions = None,
+    ) -> TransactionInstruction:
         """
         Create transaction instruction to place a perp order.
         
         :returns: `MangoPlacePerpOrder` transaction instruction
         """
+        if options is None:
+            options = {}
         
+        mango_group = await self.get_mango_group()
+
+        # max_quote_quantity = options.max_quote_quantity
+        # limit = options.limit | 20
+        # order_type = options.order_type
+        # client_order_id = options.client_order_id | 0
+        # reduce_only = options.reduce_only | MangoPerpOrderType.ImmediateOrCancel
+        # expiry_timestamp = options.expiry_timestamp
+        # expiry_type = options.expiry_type | ExpiryType.Absolute
+
+        # const [nativePrice, nativeQuantity] = market.uiToNativePriceQuantity(priceNb, quantityNb);
+        # const maxQuoteQuantityLots = maxQuoteQuantity ? market.uiQuoteToLots(maxQuoteQuantity) : I64_MAX_BN;
+
+        # const [mangoAuthorityPk] = await this.authority();
+        # const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
+
+        
+
         # remaining_accounts = self.get_observation_accounts()
 
-        # return make_place_perp_order_ix(
-        #     PlacePerpOrderArgs(
-                
-        #     ),
-        #     PlacePerpOrderAccounts(
+        return make_place_perp_order_ix(
+            PlacePerpOrderArgs(
+                side=side,
+                price=int,
+                max_base_quantity
+                max_quote_quantity=options.max_quote_quantity,
+                client_order_id=options.client_order_id | 0,
+                order_type=options.order_type,
+                reduce_only = options.reduce_only,
+                expiry_timestamp = options.expiry_timestamp | 0,
+                limit = options.limit | 20,
+                expiry_type = options.expiry_type | gen_types.ExpiryType.Absolute
+            ),
+            PlacePerpOrderAccounts(
+                marginfi_account=self._marginfi_account.pubkey,
+                marginfi_group=self._marginfi_account.group.pubkey,
+                authority=self._program.provider.wallet.public_key,
+                mango_authority=mango_authority_pk,
+                mango_account=self.address,
+                mango_program=self._config.mango.program_id,
+                mango_group=mango_group.public_key,
+                mango_cache=mango_group.mango_cache,
+                mango_perp_market=perp_market.public_key,
+                mango_bids=perp_market.bids_address
+                mango_asks=perp_market.asks_address
+                mango_event_queue=perp_market.event_queue_address,
+            ),
+            self._client.program_id,
+            remaining_accounts,
+        )
 
-        #     ),
-        #     self._client.program_id,
-        #     remaining_accounts,
-        # )
-        pass
-
-    async def place_perp_order(self) -> TransactionSignature:
+    async def place_perp_order(
+        self,
+        perp_market: PerpMarket,
+        side: gen_types.MangoSideKind,
+        price: int,
+        quantity: float,
+        options: UtpMangoPlacePerpOrderOptions = None,
+    ) -> TransactionSignature:
         """
         Place a perp order.
         
@@ -304,7 +392,13 @@ class UtpMangoAccount(UtpAccount):
         """
         self.verify_active()
 
-        place_perp_order_ix = self.make_place_perp_order_ix()
+        place_perp_order_ix = await self.make_place_perp_order_ix(
+            perp_market,
+            side,
+            price,
+            quantity,
+            options
+        )
         tx = Transaction().add(place_perp_order_ix)
         return await self._client.program.provider.send(tx)
 
@@ -391,26 +485,20 @@ class UtpMangoAccount(UtpAccount):
         """
         pass
 
-    # MANGO CLIENT ISSUE
     def get_mango_client(self):
-        # @todo MangoClient comes from mango lib in ts
-        return MangoClient(
-            self._client.program.provider.connection,
-            self._client.config.mango.program_id,
-        )
+        return self.mango_context.client
 
     async def get_mango_account(self, mango_group: MangoGroup):
+        
         if not mango_group:
             mango_group = await self.get_mango_group()
 
-        mango_client = self.get_mango_client()
-        mango_account = await mango_client.get_mango_account(self.address, mango_group.serum_program_address)
-        return mango_account
+        return MangoAccount.load(self.mango_context, self.address, mango_group)
 
-    # MANGO CLIENT ISSUE
+
     async def get_mango_group(self) -> MangoGroup:
-        mango_client = self.get_mango_client()
-        return mango_client.get_mango_group(self._config.mango.group_config.public_key)
+        return MangoGroup.load(self.mango_context)
+
 
 async def get_mango_account_pda(
     mango_group_pk: PublicKey,
