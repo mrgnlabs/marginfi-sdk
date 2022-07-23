@@ -1018,6 +1018,7 @@ dependencies = [
 [[package]]
 name = "mango"
 version = "3.5.1"
+source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc#3589b9d35beb6a01921bc32112b694e00dfb7ccc"
 dependencies = [
  "anchor-lang",
  "arrayref",
@@ -1027,7 +1028,7 @@ dependencies = [
  "enumflags2",
  "fixed",
  "fixed-macro",
- "mango-common 3.0.0",
+ "mango-common 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc)",
  "mango-logs",
  "mango-macro",
  "num_enum",
@@ -1046,6 +1047,7 @@ dependencies = [
 [[package]]
 name = "mango-common"
 version = "3.0.0"
+source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc#3589b9d35beb6a01921bc32112b694e00dfb7ccc"
 dependencies = [
  "bytemuck",
  "solana-program",
@@ -1063,6 +1065,7 @@ dependencies = [
 [[package]]
 name = "mango-logs"
 version = "0.1.0"
+source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc#3589b9d35beb6a01921bc32112b694e00dfb7ccc"
 dependencies = [
  "anchor-lang",
  "base64 0.13.0",
@@ -1071,9 +1074,10 @@ dependencies = [
 [[package]]
 name = "mango-macro"
 version = "3.0.0"
+source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc#3589b9d35beb6a01921bc32112b694e00dfb7ccc"
 dependencies = [
  "bytemuck",
- "mango-common 3.0.0",
+ "mango-common 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc)",
  "quote",
  "safe-transmute",
  "solana-program",
@@ -1114,6 +1118,7 @@ dependencies = [
  "rust_decimal 1.23.1",
  "serum_dex",
  "solana-sdk",
+ "zo-abi",
 ]
 
 [[package]]

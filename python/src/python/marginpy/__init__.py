@@ -12,9 +12,7 @@ from marginpy.utils import (
     BankVaultType,
     ui_to_native,
 )
-from marginpy.marginpy import (  # type: ignore
-    utp_observation  # type: ignore
-)
+from marginpy.marginpy import utp_observation
 
 __all__ = [
     "MarginfiConfig",
@@ -30,5 +28,5 @@ __all__ = [
     "UtpData",
     "BankVaultType",
     "ui_to_native",
-    "utp_observation"
+    "utp_observation",
 ]
