@@ -235,7 +235,7 @@ class CancelPerpOrderAccounts:
     marginfi_group: PublicKey
     signer: PublicKey
     utp_authority: PublicKey
-    zo_program: PublicKey
+    zo_program: PublicKey #@todo pass through zo config
     state: PublicKey
     cache: PublicKey
     margin: PublicKey
@@ -289,7 +289,7 @@ class CreatePerpOpenOrdersAccounts:
     marginfi_group: PublicKey
     signer: PublicKey
     utp_authority: PublicKey
-    zo_program: PublicKey
+    zo_program: PublicKey #@todo pass through zo config
     state: PublicKey
     state_signer: PublicKey
     margin: PublicKey
@@ -337,7 +337,7 @@ class SettleFundsAccounts:
     marginfi_group: PublicKey
     signer: PublicKey
     utp_authority: PublicKey
-    zo_program: PublicKey
+    zo_program: PublicKey #@todo pass through zo config
     state: PublicKey
     state_signer: PublicKey
     cache: PublicKey
