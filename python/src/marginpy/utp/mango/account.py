@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 from marginpy import MarginfiClient, MarginfiAccount
 from marginpy.utp.account import UtpAccount
 from marginpy.types import UtpData, AccountConfig, UtpMangoPlacePerpOrderOptions, MangoPerpOrderType, ExpiryType
@@ -8,6 +8,7 @@ from solana.transaction import (
     Transaction,
     TransactionSignature,
 )
+from solana.rpc.commitment import Commitment
 from solana.publickey import PublicKey
 from solana.keypair import Keypair
 from solana.system_program import create_account, CreateAccountParams
@@ -35,10 +36,6 @@ from marginpy.utils import (
 )
 from mango import (
     PerpMarket,
-    Group as MangoGroup,
-    Account as MangoAccount,
-    ContextBuilder,
-    NodeBank,
 )
 from solana.token.instructions import initialize_account, InitializeAccountParams
 import marginpy.generated_client.types as gen_types
@@ -62,7 +59,6 @@ class UtpMangoAccount(UtpAccount):
         self._marginfi_account = marginfi_account
         self.is_active = account_data.is_active
         self.account_config = account_data.account_config
-        self.mango_context = ContextBuilder.build(client.config.environment)
 
     # --- Getters / Setters
 
@@ -100,7 +96,7 @@ class UtpMangoAccount(UtpAccount):
                 mango_authority=mango_authority_pk,
                 mango_account=mango_account_pk,
                 mango_program=self._config.mango.program_id,
-                mango_group=self._config.mango.gorup_config.public_key,
+                mango_group=self._config.mango.group_config.public_key,
             ),
             self._client.program_id,
         )
@@ -177,11 +173,9 @@ class UtpMangoAccount(UtpAccount):
         margin_bank_authority_pk = await get_bank_authority(self._config.group_pk, self._program.program_id)
         mango_group = await self.get_mango_group()
 
-        root_bank = [t for t in mango_group.tokens if t.token.mint == self._config.collateral_mint_pk][0]
-        root_bank_pk = root_bank.root_bank_address
-        node_bank_pk = root_bank.node_banks[0]
-        node_bank = NodeBank.load(self.mango_context, node_bank_pk)
-        vault_pk = node_bank.vault
+        root_bank_pk = mango_group.root_bank_pk
+        node_bank_pk = mango_group.first_node_bank_pk
+        vault_pk = mango_group.first_node_bank_vault_pk
 
         remaining_accounts = self.get_observation_accounts()
 
@@ -206,8 +200,8 @@ class UtpMangoAccount(UtpAccount):
                     mango_authority=mango_authority_pk,
                     mango_account=self.address,
                     mango_program=self._config.mango.program_id,
-                    mango_group=mango_group.public_key,
-                    mango_cache=mango_group.mango_cache,
+                    mango_group=self._config.mango.group_config.public_key,
+                    mango_cache=mango_group.cache,
                     mango_root_bank=root_bank_pk,
                     mango_node_bank=node_bank_pk,
                     mango_vault=vault_pk,
@@ -243,11 +237,9 @@ class UtpMangoAccount(UtpAccount):
         
         mango_group = await self.get_mango_group()
 
-        root_bank = [t for t in mango_group.tokens if t.token.mint == self._config.collateral_mint_pk][0]
-        root_bank_pk = root_bank.root_bank_address
-        node_bank_pk = root_bank.node_banks[0]
-        node_bank = NodeBank.load(self.mango_context, node_bank_pk)
-        vault_pk = node_bank.vault
+        root_bank_pk = mango_group.root_bank_pk
+        node_bank_pk = mango_group.first_node_bank_pk
+        vault_pk = mango_group.first_node_bank_vault_pk
         
         remaining_accounts = self.get_observation_accounts()
 
@@ -261,8 +253,8 @@ class UtpMangoAccount(UtpAccount):
                 mango_authority=mango_authority_pk,
                 mango_account=self.address,
                 mango_program=self._config.mango.program_id,
-                mango_group=mango_group.public_key,
-                mango_cache=mango_group.mango_cache,
+                mango_group=self._config.mango.group_config.public_key,
+                mango_cache=mango_group.cache,
                 mango_root_bank=root_bank_pk,
                 mango_node_bank=node_bank_pk,
                 mango_vault=vault_pk,
@@ -298,12 +290,12 @@ class UtpMangoAccount(UtpAccount):
                 is_writable=False,
             ),
             AccountMeta(
-                pubkey=mango_group.public_key,
+                pubkey=self._config.mango.group_config.public_key,
                 is_signer=False,
                 is_writable=False,
             ),
             AccountMeta(
-                pubkey=mango_group.mango_cache,
+                pubkey=mango_group.cache,
                 is_signer=False,
                 is_writable=False,
             )
@@ -349,8 +341,8 @@ class UtpMangoAccount(UtpAccount):
                 mango_authority=mango_authority_pk,
                 mango_account=self.address,
                 mango_program=self._config.mango.program_id,
-                mango_group=mango_group.public_key,
-                mango_cache=mango_group.mango_cache,
+                mango_group=self._config.mango.group_config.public_key,
+                mango_cache=mango_group.cache,
                 mango_perp_market=perp_market.public_key,
                 mango_bids=perp_market.bids_address
                 mango_asks=perp_market.asks_address
@@ -468,19 +460,22 @@ class UtpMangoAccount(UtpAccount):
         """
         pass
 
-    def get_mango_client(self):
-        return self.mango_context.client
+    # def get_mango_client(self):
+    #     return self.mango_context.client
 
-    async def get_mango_account(self, mango_group: MangoGroup):
+    # async def get_mango_account(self, mango_group: MangoGroup):
         
-        if not mango_group:
-            mango_group = await self.get_mango_group()
+    #     if not mango_group:
+    #         mango_group = await self.get_mango_group()
 
-        return MangoAccount.load(self.mango_context, self.address, mango_group)
-
+    #     return MangoAccount.load(self.mango_context, self.address, mango_group)
 
     async def get_mango_group(self) -> MangoGroup:
-        return MangoGroup.load(self.mango_context)
+        return await MangoGroup.fetch(
+            self._program.provider.connection,
+            self._config.mango.group_config.public_key,
+            self._config.collateral_mint_pk
+        )
 
 
 async def get_mango_account_pda(
