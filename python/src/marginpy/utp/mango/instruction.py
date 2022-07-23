@@ -6,7 +6,9 @@ from spl.token.constants import TOKEN_PROGRAM_ID
 from solana.transaction import AccountMeta, TransactionInstruction
 import marginpy.generated_client.instructions as gen_ix
 
+
 # --- Activate
+
 
 class ActivateArgs(gen_ix.UtpMangoActivateArgs):
     pass
@@ -42,6 +44,7 @@ def make_activate_ix(
         ),
         program_id=program_id
     )
+
 
 # --- Deposit
 
@@ -127,7 +130,7 @@ def make_withdraw_ix(
     accounts: WithdrawAccounts,
     program_id: PublicKey,
     remaining_accounts: List[AccountMeta],
-):
+) -> TransactionInstruction:
     return gen_ix.utp_mango_withdraw(
         args,
         accounts=gen_ix.UtpMangoWithdrawAccounts(
@@ -152,20 +155,22 @@ def make_withdraw_ix(
 
 # --- Place order
 
-# @todo may want to update here
+
 class PlacePerpOrderArgs(gen_ix.UtpMangoUsePlacePerpOrderArgs):
     pass
+
 
 #@todo mango program can be passed through config
 class PlacePerpOrderAccounts(gen_ix.UtpMangoUsePlacePerpOrderAccounts):
     pass
+
 
 def make_place_perp_order_ix(
     args: gen_ix.UtpMangoUsePlacePerpOrderArgs,
     accounts: gen_ix.UtpMangoUsePlacePerpOrderAccounts,
     program_id: PublicKey,
     remaining_accounts: List[AccountMeta],
-):
+) -> TransactionInstruction:
     return gen_ix.utp_mango_use_place_perp_order(
         args,
         accounts,
@@ -173,20 +178,24 @@ def make_place_perp_order_ix(
         remaining_accounts,
     )
 
+
 # --- Cancel order
+
 
 class CancelPerpOrderArgs(gen_ix.UtpMangoUseCancelPerpOrderArgs):
     pass
 
+
 class CancelPerpOrderAccounts(gen_ix.UtpMangoUseCancelPerpOrderAccounts):
     pass
+
 
 def make_cancel_perp_order_ix(
     args: gen_ix.UtpMangoUseCancelPerpOrderArgs,
     accounts: gen_ix.UtpMangoUseCancelPerpOrderAccounts,
     program_id: PublicKey,
     remaining_accounts: List[AccountMeta],
-):
+) -> TransactionInstruction:
     return gen_ix.utp_mango_use_cancel_perp_order(
         args,
         accounts,
