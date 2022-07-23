@@ -9,6 +9,40 @@ from anchorpy.error import AccountInvalidDiscriminator
 import marginpy.utp.mango.layouts as layouts
 
 
+class PerpMarket:
+    layout: typing.ClassVar = layouts.PERP_MARKET
+    bids_pk: PublicKey
+    asks_pk: PublicKey
+    event_queue_pk: PublicKey
+
+    @classmethod
+    async def fetch(
+        cls,
+        conn: AsyncClient,
+        address: PublicKey,
+        commitment: typing.Optional[Commitment] = None,
+    ) -> typing.Optional["NodeBank"]:
+        resp = await conn.get_account_info(address, commitment=commitment)
+        info = resp["result"]["value"]
+        if info is None:
+            return None
+        bytes_data = b64decode(info["data"][0])
+        return cls.decode(bytes_data)
+
+    @classmethod
+    def decode(cls, data: bytes) -> "NodeBank":
+        if data[:ACCOUNT_DISCRIMINATOR_SIZE] != cls.discriminator:
+            raise AccountInvalidDiscriminator(
+                "The discriminator for this account is invalid"
+            )
+        dec = PerpMarket.layout.parse(data[ACCOUNT_DISCRIMINATOR_SIZE:])
+
+        return cls(
+            bids_pk=dec.bids,
+            asks_pk=dec.asks,
+            event_queue_pk=dec.event_queue,
+        )
+
 class NodeBank:
     vault_pk: PublicKey
     layout: typing.ClassVar = layouts.NODE_BANK

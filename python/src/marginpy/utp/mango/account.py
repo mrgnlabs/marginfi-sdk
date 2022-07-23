@@ -34,8 +34,9 @@ from marginpy.utils import (
     get_bank_authority,
     ui_to_native
 )
-from mango import (
+from marginpy.utp.mango.types import (
     PerpMarket,
+    MangoGroup,
 )
 from solana.token.instructions import initialize_account, InitializeAccountParams
 import marginpy.generated_client.types as gen_types
@@ -169,7 +170,7 @@ class UtpMangoAccount(UtpAccount):
         """
         proxy_token_account_key = Keypair()
         
-        mango_authority_pk = await self.authority()
+        mango_authority_pk, _ = await self.authority()
         margin_bank_authority_pk = await get_bank_authority(self._config.group_pk, self._program.program_id)
         mango_group = await self.get_mango_group()
 
@@ -233,7 +234,7 @@ class UtpMangoAccount(UtpAccount):
         :returns: `MangoWithdrawCollateral` transaction instruction
         """
 
-        mango_authority_pk = await self.authority()
+        mango_authority_pk, _ = await self.authority()
         
         mango_group = await self.get_mango_group()
 
@@ -318,6 +319,7 @@ class UtpMangoAccount(UtpAccount):
         if options is None:
             options = {}
         
+        mango_authority_pk, _ = await self.authority()
         mango_group = await self.get_mango_group()       
         remaining_accounts = self.get_observation_accounts()
 
@@ -325,14 +327,14 @@ class UtpMangoAccount(UtpAccount):
             PlacePerpOrderArgs(
                 side=side,
                 price=int,
-                max_base_quantity
+                max_base_quantity=0,  #TODO FIX
                 max_quote_quantity=options.max_quote_quantity,
                 client_order_id=options.client_order_id | 0,
                 order_type=options.order_type,
                 reduce_only = options.reduce_only,
                 expiry_timestamp = options.expiry_timestamp | 0,
                 limit = options.limit | 20,
-                expiry_type = options.expiry_type | gen_types.ExpiryType.Absolute
+                expiry_type = options.expiry_type | gen_types.ExpiryType.Absolute,
             ),
             PlacePerpOrderAccounts(
                 marginfi_account=self._marginfi_account.pubkey,
@@ -344,9 +346,9 @@ class UtpMangoAccount(UtpAccount):
                 mango_group=self._config.mango.group_config.public_key,
                 mango_cache=mango_group.cache,
                 mango_perp_market=perp_market.public_key,
-                mango_bids=perp_market.bids_address
-                mango_asks=perp_market.asks_address
-                mango_event_queue=perp_market.event_queue_address,
+                mango_bids=perp_market.bids_pk,
+                mango_asks=perp_market.asks_pk,
+                mango_event_queue=perp_market.event_queue_pk,
             ),
             self._client.program_id,
             remaining_accounts,
@@ -379,7 +381,7 @@ class UtpMangoAccount(UtpAccount):
 
     async def make_cancel_perp_order_ix(
         self,
-        market: PerpMarket,
+        perp_market: PerpMarket,
         order_id: int,
         invalid_id_ok: bool
     ) -> TransactionInstruction:
@@ -389,7 +391,7 @@ class UtpMangoAccount(UtpAccount):
         :returns: `MangoCancelPerpOrder` transaction instruction
         """
 
-        mango_authority_pk = await self.authority()
+        mango_authority_pk, _ = await self.authority()
         remaining_accounts = self.get_observation_accounts()
 
         return make_cancel_perp_order_ix(
@@ -405,9 +407,9 @@ class UtpMangoAccount(UtpAccount):
                 mango_account=self.address,
                 mango_program=self._config.mango.program_id,
                 mango_group=self._config.mango.group_config.pubkey,
-                mango_perp_market=market.address,
-                mango_bids=market.bids_address,
-                mango_asks=market.asks_address,
+                mango_perp_market=perp_market.public_key,
+                mango_bids=perp_market.bids_pk,
+                mango_asks=perp_market.asks_pk,
             ),
             self._client.program_id,
             remaining_accounts,
@@ -442,7 +444,7 @@ class UtpMangoAccount(UtpAccount):
 
     async def compute_utp_account_address(self, account_number: int = 0):
         """[Internal]"""
-        utp_authority_pk = await self.authority()
+        utp_authority_pk, _ = await self.authority()
         utp_account_pk, _ = await get_mango_account_pda(
             self._config.mango.group_config.public_key,
             utp_authority_pk,
@@ -460,15 +462,7 @@ class UtpMangoAccount(UtpAccount):
         """
         pass
 
-    # def get_mango_client(self):
-    #     return self.mango_context.client
-
-    # async def get_mango_account(self, mango_group: MangoGroup):
-        
-    #     if not mango_group:
-    #         mango_group = await self.get_mango_group()
-
-    #     return MangoAccount.load(self.mango_context, self.address, mango_group)
+    # NOTE: `get_mango_client()` and `get_mango_account()` have been removed.
 
     async def get_mango_group(self) -> MangoGroup:
         return await MangoGroup.fetch(
