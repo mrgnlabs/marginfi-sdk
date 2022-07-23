@@ -31,6 +31,10 @@ from marginpy.utils import (
     get_bank_authority,
     ui_to_native
 )
+from mango import (
+    PerpMarket,
+    Group as MangoGroup
+)
 
 
 class UtpMangoAccount(UtpAccount):
@@ -47,7 +51,6 @@ class UtpMangoAccount(UtpAccount):
         account_data: UtpData
     ):
         """[Internal]"""
-        #@todo confirm this
         self._client = client
         self._marginfi_account = marginfi_account
         self.is_active = account_data.is_active
@@ -107,6 +110,7 @@ class UtpMangoAccount(UtpAccount):
         await self._marginfi_account.reload()
         return sig
 
+    # FINISH
     # @todo check deactivate fns
     async def make_deactivate_ix(self) -> TransactionInstruction:
         """
@@ -116,6 +120,7 @@ class UtpMangoAccount(UtpAccount):
         """
         return self._marginfi_account.make_deactivate_utp_ix(self.index)
 
+    # FINISH
     async def deactivate(self) -> TransactionSignature:
         """
         Deactivate UTP.
@@ -128,6 +133,7 @@ class UtpMangoAccount(UtpAccount):
         await self._marginfi_account.reload()
         return sig
 
+    # FINISH
     async def make_deposit_ix(self, amount: float) -> TransactionInstruction:
         """
         Create transaction instruction to deposit collateral into the Mango account.
@@ -175,6 +181,7 @@ class UtpMangoAccount(UtpAccount):
         # )
         pass
 
+    # FINISH
     async def deposit(self, amount: float) -> TransactionSignature:
         """
         Deposit collateral into the Mango account.
@@ -187,6 +194,7 @@ class UtpMangoAccount(UtpAccount):
         tx = Transaction().add(deposit_ix)
         return await self._client.program.provider.send(tx)
 
+    # RELIES ON MANGO CLIENT ISSUE
     async def make_withdraw_ix(self, amount: float) -> TransactionInstruction:
         """
         Create transaction instruction to withdraw from the Mango account to the marginfi account.
@@ -200,7 +208,8 @@ class UtpMangoAccount(UtpAccount):
         collateral_mint_index = mango_group.get_token_index(self._config.collateral_mint_pk)
 
         await mango_group.load_root_banks(self._program.provider.connection)
-        root_bank_pk = mango_group.tokens[collateral_mint_index].root_bank
+        root_bank_pk = mango_group.tokens[collateral_mint_index].root_bank_address
+        # TODO RESUME HERE
         node_bank_pk = mango_group.root_bank_accounts[collateral_mint_index].node_bank_accounts[0].public_key
         vault_pk = mango_group.root_bank_accounts[collateral_mint_index].node_bank_accounts[0].vault
         
@@ -239,6 +248,7 @@ class UtpMangoAccount(UtpAccount):
         tx = Transaction().add(withdraw_ix)
         return await self._client.program.provider.send(tx)
 
+    # RELIES ON MANGO CLIENT ISSUE
     async def get_observation_accounts(self) -> List[AccountMeta]:
         """
         Create list of account metas required to observe a Mango account.
@@ -264,6 +274,7 @@ class UtpMangoAccount(UtpAccount):
             )
         ]
 
+    # FINISH
     def make_place_perp_order_ix(self) -> TransactionInstruction:
         """
         Create transaction instruction to place a perp order.
@@ -271,18 +282,19 @@ class UtpMangoAccount(UtpAccount):
         :returns: `MangoPlacePerpOrder` transaction instruction
         """
         
-        remaining_accounts = self.get_observation_accounts()
+        # remaining_accounts = self.get_observation_accounts()
 
-        return make_place_perp_order_ix(
-            PlacePerpOrderArgs(
+        # return make_place_perp_order_ix(
+        #     PlacePerpOrderArgs(
                 
-            ),
-            PlacePerpOrderAccounts(
+        #     ),
+        #     PlacePerpOrderAccounts(
 
-            ),
-            self._client.program_id,
-            remaining_accounts,
-        )
+        #     ),
+        #     self._client.program_id,
+        #     remaining_accounts,
+        # )
+        pass
 
     async def place_perp_order(self) -> TransactionSignature:
         """
@@ -290,13 +302,15 @@ class UtpMangoAccount(UtpAccount):
         
         :returns: Transaction signature
         """
+        self.verify_active()
+
         place_perp_order_ix = self.make_place_perp_order_ix()
         tx = Transaction().add(place_perp_order_ix)
         return await self._client.program.provider.send(tx)
 
     async def make_cancel_perp_order_ix(
         self,
-        market: PerpMarket, #@todo comes from mango client in ts
+        market: PerpMarket,
         order_id: int,
         invalid_id_ok: bool
     ) -> TransactionInstruction:
@@ -322,9 +336,9 @@ class UtpMangoAccount(UtpAccount):
                 mango_account=self.address,
                 mango_program=self._config.mango.program_id,
                 mango_group=self._config.mango.group_config.pubkey,
-                mango_perp_market=market.public_key,
-                mango_bids=market.bids,
-                mango_asks=market.asks,
+                mango_perp_market=market.address,
+                mango_bids=market.bids_address,
+                mango_asks=market.asks_address,
             ),
             self._client.program_id,
             remaining_accounts,
@@ -368,6 +382,7 @@ class UtpMangoAccount(UtpAccount):
         )
         return utp_account_pk
 
+    # @todo
     async def observe(self):
         """
         Refresh and retrieve the health cache for the Mango account, directly from the mango account.
@@ -376,6 +391,7 @@ class UtpMangoAccount(UtpAccount):
         """
         pass
 
+    # MANGO CLIENT ISSUE
     def get_mango_client(self):
         # @todo MangoClient comes from mango lib in ts
         return MangoClient(
@@ -383,26 +399,16 @@ class UtpMangoAccount(UtpAccount):
             self._client.config.mango.program_id,
         )
 
-    async def get_mango_account(self):
-        # async getMangoAccount(mangoGroup?: MangoGroup): Promise<MangoAccount> {
-        #     if (!mangoGroup) {
-        #     mangoGroup = await this.getMangoGroup();
-        #     }
+    async def get_mango_account(self, mango_group: MangoGroup):
+        if not mango_group:
+            mango_group = await self.get_mango_group()
 
-        #     const mangoClient = this.getMangoClient();
-        #     const mangoAccount = await mangoClient.getMangoAccount(this.address, mangoGroup.dexProgramId);
+        mango_client = self.get_mango_client()
+        mango_account = await mango_client.get_mango_account(self.address, mango_group.serum_program_address)
+        return mango_account
 
-        #     return mangoAccount;
-        # }
-
-        # async getMangoGroup(): Promise<MangoGroup> {
-        #     const mangoClient = this.getMangoClient();
-        #     return mangoClient.getMangoGroup(this._config.mango.groupConfig.publicKey);
-        # }
-        # }
-        pass
-
-    async def get_mango_group(self):
+    # MANGO CLIENT ISSUE
+    async def get_mango_group(self) -> MangoGroup:
         mango_client = self.get_mango_client()
         return mango_client.get_mango_group(self._config.mango.group_config.public_key)
 
