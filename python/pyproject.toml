@@ -9,6 +9,7 @@ python = "^3.9"
 anchorpy = "^0.9.4"
 solana = "0.25.0"
 buffer = "^0.2.1"
+construct = "2.10.68"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
