@@ -1,6 +1,8 @@
 require("dotenv").config();
 
+import { PublicKey } from "@solana/web3.js";
 import { Command, OptionValues } from "commander";
+import { writeFileSync } from "fs";
 import { createAccount } from "./src/account/create";
 import { deposit } from "./src/account/deposit";
 import { getAccount, getAccounts as listAccounts } from "./src/account/get";
@@ -84,7 +86,7 @@ attachDefaultOptions(groupProgram.command("create"))
   .requiredOption("-C, --collateral <string>", "collateral mint address")
   .action(createGroup);
 
-attachDefaultOptions(groupProgram.command("config"), true)
+attachDefaultOptions(groupProgram.command("config"))
   .option("--admin <string>", "group admin")
   .option("--scalingFactorC <number>", "interest rate curve scaling factor c")
   .option("--fixedFee <number>", "interest rate curve fixed fee")
@@ -96,7 +98,7 @@ attachDefaultOptions(groupProgram.command("config"), true)
   .option("--lpDepositLimit <number>", "liquidity pool deposit limit")
   .action(configureGroup);
 
-attachDefaultOptions(cliProgram.command("get-config")).action(async (options: OptionValues) => {
+attachDefaultOptions(utilProgram.command("get-config")).action(async (options: OptionValues) => {
   const client = await getClientFromOptions(options);
   console.log(
     "ENV=%s\nRPC_ENDPOINT=%s\nMARGINFI_PROGRAM=%s\nMARGINFI_GROUP=%s\nMARGINFI_ACCOUNT=%s\nWALLET=%s\nSIGNER=%s",
@@ -109,5 +111,14 @@ attachDefaultOptions(cliProgram.command("get-config")).action(async (options: Op
     client.program.provider.wallet.publicKey
   );
 });
+
+attachDefaultOptions(utilProgram.command("dump-account"))
+  .arguments("<address> <out>")
+  .action(async (address: string, out: string, options: OptionValues) => {
+    const client = await getClientFromOptions(options);
+    const ai = await client.program.provider.connection.getAccountInfo(new PublicKey(address));
+    
+    writeFileSync(out, ai!.data);
+  });
 
 cliProgram.parse();

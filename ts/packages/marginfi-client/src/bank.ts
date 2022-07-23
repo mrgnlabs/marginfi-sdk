@@ -27,14 +27,14 @@ class Bank {
   public readonly maintMarginRatio: BigNumber;
 
   constructor(data: BankData) {
-    this.scalingFactorC = wrappedI80F48toBigNumber(data.scalingFactorC), 0;
+    this.scalingFactorC = wrappedI80F48toBigNumber(data.scalingFactorC, 0);
     this.fixedFee = wrappedI80F48toBigNumber(data.fixedFee, 0);
     this.interestFee = wrappedI80F48toBigNumber(data.interestFee, 0);
     this.depositAccumulator = wrappedI80F48toBigNumber(data.depositAccumulator, 0);
     this.borrowAccumulator = wrappedI80F48toBigNumber(data.borrowAccumulator, 0);
     this.lastUpdate = new Date(data.lastUpdate.toNumber());
-    this.nativeDepositBalance = wrappedI80F48toBigNumber(data.nativeDepositBalance, 0);
-    this.nativeBorrowBalance = wrappedI80F48toBigNumber(data.nativeBorrowBalance, 0);
+    this.nativeDepositBalance = wrappedI80F48toBigNumber(data.nativeDepositBalance);
+    this.nativeBorrowBalance = wrappedI80F48toBigNumber(data.nativeBorrowBalance);
     this.mint = data.mint;
     this.vault = data.vault;
     this.bankAutorityBump = data.bankAutorityBump;

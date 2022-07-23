@@ -1,17 +1,15 @@
-import { getConfig, getMfiProgram, instructions, loadKeypair, processTransaction } from "@mrgnlabs/marginfi-client";
-import { BN, Wallet } from "@project-serum/anchor";
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import { instructions, MarginfiClient, processTransaction } from "@mrgnlabs/marginfi-client";
+import { BN } from "@project-serum/anchor";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import { OptionValues } from "commander";
-import { getEnvironment } from "../common";
 
-export async function configureGroup(marginfiGroupAddress: string, options: OptionValues) {
-  const connection = new Connection(options.url, "confirmed");
-  const config = await getConfig(getEnvironment(options.environment), connection);
-
-  const program = getMfiProgram(config.programId, connection, new Wallet(loadKeypair(options.keypair)));
+export async function configureGroup(options: OptionValues) {
+  const client = await MarginfiClient.fromEnv();
+  const program = client.program;
 
   const wallet = program.provider.wallet;
-  const marginfiGroupPk = new PublicKey(marginfiGroupAddress);
+  const marginfiGroupPk = client.group.publicKey;
+  
   const args = {
     admin: options.admin ? new PublicKey(options.admin) : undefined,
     bank: {

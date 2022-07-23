@@ -1,13 +1,10 @@
-import { MarginfiGroup } from "@mrgnlabs/marginfi-client";
-import { OptionValues } from "commander";
-import { getClientFromOptions } from "../common";
+import { MarginfiClient } from "@mrgnlabs/marginfi-client";
 
-export async function getGroup(address: string, options: OptionValues) {
-  const client = await getClientFromOptions(options);
-  const program = client.program;
-  const group = await MarginfiGroup.fetch(client.config, program);
+export async function getGroup() {
+  const client = await MarginfiClient.fromEnv()
+  const group = client.group;
 
-  console.log("Marginfi Group: %s", address);
+  console.log("Marginfi Group: %s", group.publicKey);
   console.log("Admin: %s", group.admin);
 
   console.log("Bank");
@@ -22,7 +19,4 @@ export async function getGroup(address: string, options: OptionValues) {
 
   console.log("Deposits: %s", group.bank.nativeDepositBalance);
   console.log("Borrows: %s", group.bank.nativeBorrowBalance);
-
-  //@ts-ignore
-  console.log("Paused: %s", group.paused);
 }

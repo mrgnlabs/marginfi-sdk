@@ -1,4 +1,4 @@
-import { MarginfiAccount } from "@mrgnlabs/marginfi-client";
+import { EquityType, MarginfiAccount } from "@mrgnlabs/marginfi-client";
 import { PublicKey } from "@solana/web3.js";
 import { OptionValues } from "commander";
 import { getClientFromOptions } from "../common";
