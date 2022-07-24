@@ -11,7 +11,6 @@ solana = "^0.25.0"
 buffer = "^0.2.1"
 construct = "^2.10.67"
 mango-explorer = { git = "https://github.com/mrgnlabs/mango-explorer.git", rev = "fbbf0ed956e05b4a12fe3d73a5a627d8b0f605a9" }
-spl = "^0.0.1-alpha.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
