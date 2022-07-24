@@ -5,6 +5,7 @@ from solana.publickey import PublicKey
 from marginpy.types import Environment
 from marginpy.utp.mango.config import MangoConfig
 from marginpy.utp.zo.config import ZoConfig
+from marginpy.utils import handle_override
 
 
 @dataclass
@@ -15,44 +16,43 @@ class MarginfiDedicatedConfig:
     collateral_mint_pk: PublicKey
 
     def __init__(self, environment: Environment, overrides: Dict[str, Any] = {}):
-        def handle_override(override_key: str, default: Any):
-            return (
-                overrides[override_key] if override_key in overrides.keys() else default
-            )
 
         self.environment = environment
         if environment == Environment.MAINNET:
             self.program_id = handle_override(
-                "program_id", PublicKey("mrgnfD8pJKsw4AxCDquyUBjgABNEaZ79iTLgtov2Yff")
+                overrides=overrides, override_key="program_id", default=PublicKey("mrgnfD8pJKsw4AxCDquyUBjgABNEaZ79iTLgtov2Yff")
             )
             self.group_pk = handle_override(
-                "group_pk", PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba")
+                overrides=overrides, override_key="group_pk", default=PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba")
             )
             self.collateral_mint_pk = handle_override(
-                "collateral_mint_pk",
-                PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+                overrides=overrides, 
+                override_key="collateral_mint_pk",
+                default=PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
             )
         elif environment == Environment.DEVNET:
             self.program_id = handle_override(
-                "program_id", PublicKey("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK")
+                overrides=overrides, override_key="program_id", default=PublicKey("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK")
             )
             self.group_pk = handle_override(
-                "group_pk", PublicKey("7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg")
+                overrides=overrides, override_key="group_pk", default=PublicKey("7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg")
             )
             self.collateral_mint_pk = handle_override(
-                "collateral_mint_pk",
-                PublicKey("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"),
+                overrides=overrides,
+                override_key="collateral_mint_pk",
+                default=PublicKey("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"),
             )
         elif environment == Environment.LOCALNET:
             self.program_id = handle_override(
-                "program_id", PublicKey("DzEv7WuxdzRJ9iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ")
+                overrides=overrides, override_key="program_id", default=PublicKey("DzEv7WuxdzRJ9iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ")
             )
             self.group_pk = handle_override(
-                "group_pk", PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba")
+                overrides=overrides, override_key="group_pk", default=PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba")
             )
             self.collateral_mint_pk = handle_override(
-                "collateral_mint_pk",
-                PublicKey("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"),
+                overrides=overrides,
+                override_key="collateral_mint_pk",
+                default=PublicKey("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"),
             )
         else:
             raise Exception(f"Unknown environment {environment}")

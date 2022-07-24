@@ -70,3 +70,9 @@ def get_bank_authority(
     return PublicKey.find_program_address(
         [get_vault_seeds(bank_vault_type), bytes(marginfi_group_pk)], program_id
     )
+
+def handle_override(override_key: str, default: Any, overrides: Dict[str, Any] = {}):
+    if overrides is None: return default
+    return (
+        overrides[override_key] if override_key in overrides.keys() else default
+    )
