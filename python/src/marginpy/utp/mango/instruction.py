@@ -63,7 +63,7 @@ class DepositAccounts:
     temp_collateral_account: PublicKey
     mango_authority: PublicKey
     mango_account: PublicKey
-    mango_program: PublicKey  # @todo pass through mango config
+    mango_program: PublicKey
     mango_group: PublicKey
     mango_cache: PublicKey
     mango_root_bank: PublicKey
@@ -116,7 +116,7 @@ class WithdrawAccounts:
     margin_collateral_vault: PublicKey
     mango_authority: PublicKey
     mango_account: PublicKey
-    mango_program: PublicKey  # @todo mango program can be passed through config
+    mango_program: PublicKey
     mango_group: PublicKey
     mango_cache: PublicKey
     mango_root_bank: PublicKey
