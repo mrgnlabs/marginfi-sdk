@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Dict
 from solana.publickey import PublicKey
 
-from marginpy.types import Environment, MarginfiDedicatedConfig
+from marginpy.types import Environment
 from marginpy.utp.mango.config import MangoConfig
 from marginpy.utp.zo.config import ZoConfig
 
@@ -14,15 +14,14 @@ class MarginfiDedicatedConfig:
     group_pk: PublicKey
     collateral_mint_pk: PublicKey
 
-    def __init__(self, environment: Environment, overrides: Any = None):
-        if overrides is None:
-            overrides = {}
+    def __init__(self, environment: Environment, overrides: Dict[str, Any] = {}):
+        def handle_override(override_key: str, default: Any):
+            return (
+                overrides[override_key] if override_key in overrides.keys() else default
+            )
 
-        def handle_override(override_key: str, default):
-            return overrides[override_key] if override_key in overrides else default
-
+        self.environment = environment
         if environment == Environment.MAINNET:
-            self.environment = environment
             self.program_id = handle_override(
                 "program_id", PublicKey("mrgnfD8pJKsw4AxCDquyUBjgABNEaZ79iTLgtov2Yff")
             )
@@ -34,7 +33,6 @@ class MarginfiDedicatedConfig:
                 PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
             )
         elif environment == Environment.DEVNET:
-            self.environment = environment
             self.program_id = handle_override(
                 "program_id", PublicKey("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK")
             )
@@ -46,7 +44,6 @@ class MarginfiDedicatedConfig:
                 PublicKey("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"),
             )
         elif environment == Environment.LOCALNET:
-            self.environment = environment
             self.program_id = handle_override(
                 "program_id", PublicKey("DzEv7WuxdzRJ9iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ")
             )
@@ -66,7 +63,7 @@ class MarginfiConfig(MarginfiDedicatedConfig):
     mango: MangoConfig
     zo: ZoConfig
 
-    def __init__(self, environment: Environment, overrides: Dict[str, Any] = None):
+    def __init__(self, environment: Environment, overrides: Dict[str, Any] = {}):
         marginfi_dedicated_config = MarginfiDedicatedConfig(environment, overrides)
         self.environment = marginfi_dedicated_config.environment
         self.program_id = marginfi_dedicated_config.program_id

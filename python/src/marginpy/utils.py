@@ -5,7 +5,6 @@ from typing import Dict, Any, Tuple, Optional
 from anchorpy import Idl
 from solana.rpc.responses import AccountInfo
 from solana.publickey import PublicKey
-from marginpy import UtpIndex
 from marginpy.constants import (
     COLLATERAL_DECIMALS,
     PDA_BANK_VAULT_SEED,
@@ -15,8 +14,6 @@ from marginpy.constants import (
     VERY_VERBOSE_ERROR,
 )
 from marginpy.types import BankVaultType
-
-UTP_NAME = {f"{UtpIndex.Mango}": "Mango", f"{UtpIndex.Zo}": "01"}
 
 
 def load_idl(idl_path: Optional[str] = None) -> Idl:

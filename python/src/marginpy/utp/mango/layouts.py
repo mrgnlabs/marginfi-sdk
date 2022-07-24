@@ -9,7 +9,7 @@ from marginpy.utp.mango.utils import (
     DATA_TYPE,
     MAX_TOKENS,
     MAX_PAIRS,
-    MAX_NODE_BANKS
+    MAX_NODE_BANKS,
 )
 
 METADATA = construct.Struct(
@@ -53,28 +53,28 @@ PERP_MARKET_INFO = construct.Struct(
 
 
 MANGO_GROUP = construct.Struct(
-        "meta_data" / METADATA,
-        "num_oracles" / DecimalAdapter(),
-        "tokens" / construct.Array(MAX_TOKENS, TOKEN_INFO),
-        "spot_markets" / construct.Array(MAX_PAIRS, SPOT_MARKET_INFO),
-        "perp_markets" / construct.Array(MAX_PAIRS, PERP_MARKET_INFO),
-        "oracles" / construct.Array(MAX_PAIRS, PublicKeyAdapter()),
-        "signer_nonce" / DecimalAdapter(),
-        "signer_key" / PublicKeyAdapter(),
-        "admin" / PublicKeyAdapter(),
-        "serum_program_address" / PublicKeyAdapter(),
-        "cache" / PublicKeyAdapter(),
-        "valid_interval" / DecimalAdapter(),
-        "insurance_vault" / PublicKeyAdapter(),
-        "srm_vault" / PublicKeyAdapter(),
-        "msrm_vault" / PublicKeyAdapter(),
-        "fees_vault" / PublicKeyAdapter(),
-        "max_mango_accounts" / DecimalAdapter(4),
-        "num_mango_accounts" / DecimalAdapter(4),
-        "referral_surcharge_centibps" / DecimalAdapter(4),
-        "referral_share_centibps" / DecimalAdapter(4),
-        "referral_mngo_required" / DecimalAdapter(),
-        construct.Padding(8),
+    "meta_data" / METADATA,
+    "num_oracles" / DecimalAdapter(),
+    "tokens" / construct.Array(MAX_TOKENS, TOKEN_INFO),
+    "spot_markets" / construct.Array(MAX_PAIRS, SPOT_MARKET_INFO),
+    "perp_markets" / construct.Array(MAX_PAIRS, PERP_MARKET_INFO),
+    "oracles" / construct.Array(MAX_PAIRS, PublicKeyAdapter()),
+    "signer_nonce" / DecimalAdapter(),
+    "signer_key" / PublicKeyAdapter(),
+    "admin" / PublicKeyAdapter(),
+    "serum_program_address" / PublicKeyAdapter(),
+    "cache" / PublicKeyAdapter(),
+    "valid_interval" / DecimalAdapter(),
+    "insurance_vault" / PublicKeyAdapter(),
+    "srm_vault" / PublicKeyAdapter(),
+    "msrm_vault" / PublicKeyAdapter(),
+    "fees_vault" / PublicKeyAdapter(),
+    "max_mango_accounts" / DecimalAdapter(4),
+    "num_mango_accounts" / DecimalAdapter(4),
+    "referral_surcharge_centibps" / DecimalAdapter(4),
+    "referral_share_centibps" / DecimalAdapter(4),
+    "referral_mngo_required" / DecimalAdapter(),
+    construct.Padding(8),
 )
 
 # # 🥭 ROOT_BANK

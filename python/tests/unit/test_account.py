@@ -3,7 +3,8 @@ from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 from anchorpy import Wallet, Program, Provider
 from marginpy import MarginfiConfig, Environment, MarginfiClient, MarginfiAccount
-from marginpy.utils import b64str_to_bytes, UtpIndex, UtpData, load_idl
+from marginpy.types import UtpData, UtpIndex
+from marginpy.utils import b64str_to_bytes, load_idl
 from tests.fixtures import REAL_ACCOUNT_PUBKEY_2
 from tests.utils import (
     load_marginfi_account,

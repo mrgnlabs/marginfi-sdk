@@ -31,10 +31,9 @@ from marginpy.instruction import (
     HandleBankruptcyAccounts,
     make_handle_bankruptcy_ix,
 )
+from marginpy.types import UtpData, UtpIndex
 from marginpy.utils import (
     load_idl,
-    UtpIndex,
-    UtpData,
     json_to_account_info,
     b64str_to_bytes,
     ui_to_native,
@@ -146,7 +145,8 @@ class MarginfiAccount:
 
         if not (account_data.marginfi_group == client.config.group_pk):
             raise Exception(
-                f"Marginfi account tied to group {account_data.marginfi_group}. Expected: {client.config.group_pk}"
+                f"Marginfi account tied to group {account_data.marginfi_group}."
+                f" Expected: {client.config.group_pk}"
             )
 
         return MarginfiAccount(
@@ -283,7 +283,8 @@ class MarginfiAccount:
             raise Exception(f"Account {marginfi_account_pk} not found")
         if not (data.marginfi_group == config.group_pk):
             raise Exception(
-                f"Marginfi account tied to group {data.marginfi_group}. Expected: {config.group_pk}"
+                f"Marginfi account tied to group {data.marginfi_group}. Expected:"
+                f" {config.group_pk}"
             )
 
         return data
@@ -339,8 +340,9 @@ class MarginfiAccount:
         marginfi_account_data = MarginfiAccount.decode(b64str_to_bytes(marginfi_account_ai.data[0]))  # type: ignore
         if not marginfi_account_data.marginfi_group == self._config.group_pk:
             raise Exception(
-                f"Marginfi account tied to group {marginfi_account_data.marginfi_group},"
-                " Expected {self._config.group_pk}"
+                "Marginfi account tied to group"
+                f" {marginfi_account_data.marginfi_group}, Expected"
+                " {self._config.group_pk}"
             )
         self._group = marginpy.MarginfiGroup.from_account_data_raw(
             self._config,

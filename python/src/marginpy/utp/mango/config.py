@@ -9,14 +9,17 @@ class MangoConfig(UTPConfig):
     Define Mango-specific config per profile
     """
 
+    cluster: str
     group_pk: PublicKey
 
     def __init__(self, environment, overrides=None) -> None:
         def handle_override(override_key: str, default):
             return overrides[override_key] if override_key in overrides else default
 
+        self.utp_index = handle_override("utp_index", 0)
+
         if environment == Environment.MAINNET:
-            self.utp_index = handle_override("utp_index", 0)
+            self.cluster = "mainnet"
             self.program_id = handle_override(
                 "program_id", PublicKey("mv3ekLzLbnVPNxjSKvqBpU3ZeZXPQdEC3bp5MDEBG68")
             )
@@ -24,7 +27,7 @@ class MangoConfig(UTPConfig):
                 "group_pk", PublicKey("98pjRuQjK3qA6gXts96PqZT4Ze5QmnCmt3QYjhbUSPue")
             )
         elif environment == Environment.DEVNET:
-            self.utp_index = handle_override("utp_index", 0)
+            self.cluster = "devnet"
             self.program_id = handle_override(
                 "program_id", PublicKey("4skJ85cdxQAFVKbcGgfun8iZPL7BadVYXG3kGEGkufqA")
             )

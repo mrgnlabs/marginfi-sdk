@@ -6,11 +6,11 @@ from marginpy.account import MarginfiAccount
 from marginpy.bank import Bank
 from marginpy.utils import (
     load_idl,
-    UtpIndex,
-    AccountType,
-    UtpData,
     BankVaultType,
     ui_to_native,
+)
+from marginpy.types import (
+    UtpIndex,
 )
 
 __all__ = [
@@ -23,8 +23,6 @@ __all__ = [
     "AccountType",
     "load_idl",
     "UtpIndex",
-    "AccountType",
-    "UtpData",
     "BankVaultType",
     "ui_to_native",
 ]

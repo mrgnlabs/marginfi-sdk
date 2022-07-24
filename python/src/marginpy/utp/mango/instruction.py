@@ -42,7 +42,7 @@ def make_activate_ix(
             mango_group=accounts.mango_group,
             system_program=SYS_PROGRAM_ID,
         ),
-        program_id=program_id
+        program_id=program_id,
     )
 
 
@@ -63,7 +63,7 @@ class DepositAccounts:
     temp_collateral_account: PublicKey
     mango_authority: PublicKey
     mango_account: PublicKey
-    mango_program: PublicKey #@todo pass through mango config
+    mango_program: PublicKey  # @todo pass through mango config
     mango_group: PublicKey
     mango_cache: PublicKey
     mango_root_bank: PublicKey
@@ -116,7 +116,7 @@ class WithdrawAccounts:
     margin_collateral_vault: PublicKey
     mango_authority: PublicKey
     mango_account: PublicKey
-    mango_program: PublicKey #@todo mango program can be passed through config
+    mango_program: PublicKey  # @todo mango program can be passed through config
     mango_group: PublicKey
     mango_cache: PublicKey
     mango_root_bank: PublicKey
@@ -153,6 +153,7 @@ def make_withdraw_ix(
         remaining_accounts=remaining_accounts,
     )
 
+
 # --- Place order
 
 
@@ -160,7 +161,7 @@ class PlacePerpOrderArgs(gen_ix.UtpMangoUsePlacePerpOrderArgs):
     pass
 
 
-#@todo mango program can be passed through config
+# @todo mango program can be passed through config
 class PlacePerpOrderAccounts(gen_ix.UtpMangoUsePlacePerpOrderAccounts):
     pass
 
@@ -197,8 +198,5 @@ def make_cancel_perp_order_ix(
     remaining_accounts: List[AccountMeta],
 ) -> TransactionInstruction:
     return gen_ix.utp_mango_use_cancel_perp_order(
-        args,
-        accounts,
-        program_id,
-        remaining_accounts
+        args, accounts, program_id, remaining_accounts
     )

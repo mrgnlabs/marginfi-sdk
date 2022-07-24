@@ -1,7 +1,8 @@
 from dataclasses import dataclass
+from typing import Dict, Optional
 from solana.publickey import PublicKey
 import marginpy.generated_client.types as gen_types
-from marginpy.utils import UtpIndex
+from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
 from enum import Enum
 
 
@@ -33,6 +34,9 @@ class UtpIndex(Enum):
         return self.value
 
 
+UTP_NAME: Dict[UtpIndex, str] = {UtpIndex.Mango: "Mango", UtpIndex.Zo: "01"}
+
+
 @dataclass
 class GroupConfig(gen_types.GroupConfig):
     pass
@@ -51,17 +55,11 @@ class LiquidationPrices:
     insurance_vault_fee: float
 
 
-@dataclass
-class UTPAccountConfig:
-    address: PublicKey
-    authority_seed: PublicKey
-    authority_bump: int
-
-
-@dataclass
-class UtpData:
-    is_active: bool
-    account_config: UTPAccountConfig
+# @dataclass
+# class UTPAccountConfig:
+#     address: PublicKey
+#     authority_seed: PublicKey
+#     authority_bump: int
 
 
 @dataclass
@@ -78,10 +76,10 @@ class UtpConfig:
 
 @dataclass
 class UtpMangoPlacePerpOrderOptions:
-    max_quote_quantity: float = None
-    limit: int = None
-    order_type: gen_types.MangoOrderTypeKind = None
-    client_order_id: int = None
-    reduce_only: bool = False
-    expiry_timestamp: int = None
-    expiry_type: gen_types.MangoExpiryTypeKind = None
+    max_quote_quantity: Optional[float] = None
+    limit: Optional[int] = None
+    order_type: Optional[gen_types.MangoOrderTypeKind] = None
+    client_order_id: Optional[int] = None
+    reduce_only: Optional[bool] = False
+    expiry_timestamp: Optional[int] = None
+    expiry_type: Optional[gen_types.MangoExpiryTypeKind] = None

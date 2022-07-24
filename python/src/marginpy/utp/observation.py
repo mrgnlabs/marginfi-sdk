@@ -1,5 +1,7 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
+from typing_extensions import Self
 
 
 @dataclass
@@ -29,19 +31,6 @@ class UtpObservation:
     max_rebalance_deposit_amount: float
     is_empty: bool
 
-    @classmethod
-    def EMPTY_OBSERVATION(cls):
-        return UtpObservation(
-            timestamp=datetime.min,  # @todo confirm this works
-            equity=0,
-            free_collateral=0,
-            init_margin_requirement=0,
-            max_rebalance_deposit_amount=0,
-            liquidation_value=0,
-            is_empty=False,
-            is_rebalance_deposit_needed=False,
-        )
-
     def __init__(self, data: IUtpObservation):
         self.timestamp = data.timestamp
         self.equity = data.equity
@@ -63,3 +52,17 @@ class UtpObservation:
             f"Max Rebalance: {self.max_rebalance_deposit_amount}"
             f"Is empty: {self.is_empty}"
         )
+
+
+EMPTY_OBSERVATION = UtpObservation(
+    IUtpObservation(
+        timestamp=datetime.min,  # @todo confirm this works
+        equity=0,
+        free_collateral=0,
+        init_margin_requirement=0,
+        liquidation_value=0,
+        is_rebalance_deposit_needed=False,
+        max_rebalance_deposit_amount=0,
+        is_empty=False,
+    )
+)

@@ -74,7 +74,8 @@ class MarginfiGroup:
         """
         if not (account_raw.bank.mint == config.collateral_mint_pk):
             raise Exception(
-                f"Marginfi group uses collateral {account_raw.bank.mint}. Expected: {config.collateral_mint_pk}"
+                f"Marginfi group uses collateral {account_raw.bank.mint}. Expected:"
+                f" {config.collateral_mint_pk}"
             )
 
         return MarginfiGroup(config, program, account_raw.admin, Bank(account_raw.bank))
@@ -140,7 +141,8 @@ class MarginfiGroup:
             raise Exception(f"Account {config.group_pk} not found")
         if data.bank.mint != config.collateral_mint_pk:
             raise Exception(
-                f"Marginfi group uses collateral {data.bank.mint}. Expected: {config.collateral_mint_pk}"
+                f"Marginfi group uses collateral {data.bank.mint}. Expected:"
+                f" {config.collateral_mint_pk}"
             )
 
         return data

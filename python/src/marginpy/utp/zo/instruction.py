@@ -6,6 +6,7 @@ from spl.token.constants import TOKEN_PROGRAM_ID
 from solana.sysvar import SYSVAR_RENT_PUBKEY
 from solana.transaction import AccountMeta, TransactionInstruction
 import marginpy.generated_client.instructions as gen_ix
+from marginpy.generated_client.instructions.utp_zo_cancel_perp_order import HeaderNested
 
 
 # --- Activate
@@ -21,7 +22,7 @@ class ActivateAccounts:
     marginfi_group: PublicKey
     authority: PublicKey
     utp_authority: PublicKey
-    zo_program: PublicKey #@todo pass through zo config
+    zo_program: PublicKey  # @todo pass through zo config
     zo_state: PublicKey
     zo_margin: PublicKey
     zo_control: PublicKey
@@ -68,7 +69,7 @@ class DepositAccounts:
     bank_authority: PublicKey
     temp_collateral_account: PublicKey
     utp_authority: PublicKey
-    zo_program: PublicKey #@todo pass through zo config
+    zo_program: PublicKey  # @todo pass through zo config
     zo_state: PublicKey
     zo_state_signer: PublicKey
     zo_cache: PublicKey
@@ -122,7 +123,7 @@ class WithdrawAccounts:
     margin_collateral_vault: PublicKey
     utp_authority: PublicKey
     zo_margin: PublicKey
-    zo_program: PublicKey #@todo pass through zo config
+    zo_program: PublicKey  # @todo pass through zo config
     zo_state: PublicKey
     zo_state_signer: PublicKey
     zo_cache: PublicKey
@@ -172,7 +173,7 @@ class PlacePerpOrderAccounts:
     marginfi_group: PublicKey
     signer: PublicKey
     utp_authority: PublicKey
-    zo_program: PublicKey #@todo zo program can be passed through config
+    zo_program: PublicKey  # @todo zo program can be passed through config
     state: PublicKey
     state_signer: PublicKey
     cache: PublicKey
@@ -196,7 +197,7 @@ def make_place_perp_order_ix(
     return gen_ix.utp_zo_place_perp_order(
         args,
         accounts=gen_ix.UtpZoPlacePerpOrderAccounts(
-            header=gen_ix.utp_zo_place_perp_order.HeaderNested(
+            header=HeaderNested(
                 marginfi_account=accounts.marginfi_account,
                 marginfi_group=accounts.marginfi_group,
                 signer=accounts.signer,
@@ -235,7 +236,7 @@ class CancelPerpOrderAccounts:
     marginfi_group: PublicKey
     signer: PublicKey
     utp_authority: PublicKey
-    zo_program: PublicKey #@todo pass through zo config
+    zo_program: PublicKey  # @todo pass through zo config
     state: PublicKey
     cache: PublicKey
     margin: PublicKey
@@ -257,7 +258,7 @@ def make_cancel_perp_order_ix(
     return gen_ix.utp_zo_cancel_perp_order(
         args,
         accounts=gen_ix.UtpZoCancelPerpOrderAccounts(
-            header=gen_ix.utp_zo_cancel_perp_order.HeaderNested(
+            header=HeaderNested(
                 marginfi_account=accounts.marginfi_account,
                 marginfi_group=accounts.marginfi_group,
                 signer=accounts.signer,
@@ -289,7 +290,7 @@ class CreatePerpOpenOrdersAccounts:
     marginfi_group: PublicKey
     signer: PublicKey
     utp_authority: PublicKey
-    zo_program: PublicKey #@todo pass through zo config
+    zo_program: PublicKey  # @todo pass through zo config
     state: PublicKey
     state_signer: PublicKey
     margin: PublicKey
@@ -306,7 +307,7 @@ def create_perp_open_orders_ix(
 ) -> TransactionInstruction:
     return gen_ix.utp_zo_create_perp_open_orders(
         accounts=gen_ix.UtpZoCreatePerpOpenOrdersAccounts(
-            header=gen_ix.utp_zo_create_perp_open_orders(
+            header=HeaderNested(
                 marginfi_account=accounts.marginfi_account,
                 marginfi_group=accounts.marginfi_group,
                 signer=accounts.signer,
@@ -314,7 +315,7 @@ def create_perp_open_orders_ix(
             ),
             zo_program=accounts.zo_program,
             state=accounts.state,
-            state_signer=accounts.state_signer,
+            state_signer=accounts.signer,
             margin=accounts.margin,
             control=accounts.control,
             open_orders=accounts.open_orders,
@@ -337,7 +338,7 @@ class SettleFundsAccounts:
     marginfi_group: PublicKey
     signer: PublicKey
     utp_authority: PublicKey
-    zo_program: PublicKey #@todo pass through zo config
+    zo_program: PublicKey  # @todo pass through zo config
     state: PublicKey
     state_signer: PublicKey
     cache: PublicKey
@@ -355,7 +356,7 @@ def settle_funds_ix(
 ) -> TransactionInstruction:
     return gen_ix.utp_zo_settle_funds(
         accounts=gen_ix.UtpZoSettleFundsAccounts(
-            header=gen_ix.utp_zo_settle_funds.HeaderNested(
+            header=HeaderNested(
                 marginfi_account=accounts.marginfi_account,
                 marginfi_group=accounts.marginfi_group,
                 signer=accounts.signer,

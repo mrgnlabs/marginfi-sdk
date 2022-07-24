@@ -8,7 +8,7 @@ from marginpy.config import MarginfiConfig
 from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
 from marginpy import MarginfiClient, MarginfiAccount
 from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpIndex
-from marginpy.utp.observation import UtpObservation
+from marginpy.utp.observation import EMPTY_OBSERVATION, UtpObservation
 from marginpy.utils import get_utp_authority
 from marginpy.constants import (
     INSURANCE_VAULT_LIQUIDATION_FEE,
@@ -28,13 +28,13 @@ class UtpAccount(ABC):
         client: MarginfiClient,
         marginfi_account: MarginfiAccount,
         is_active: bool,
-        utp_config: UtpConfig,
+        utp_config: UTPAccountConfig,
     ):
         self._client = client
         self._marginfi_account = marginfi_account
         self.is_active = is_active
         self._utp_config = utp_config
-        self._cached_observation = UtpObservation.EMPTY_OBSERVATION
+        self._cached_observation = EMPTY_OBSERVATION
 
     def __str__(self) -> str:
         return (
@@ -92,9 +92,10 @@ class UtpAccount(ABC):
         ).total_seconds()
         if fetch_age > 5:
             print(
-                f"[WARNNG] Last {UTP_NAME[self.index]} observation was fetched {fetch_age} seconds ago"
+                f"[WARNNG] Last {UTP_NAME[self.index]} observation was fetched"
+                f" {fetch_age} seconds ago"
             )
-        return self._cachedObservation
+        return self._cached_observation
 
     @property
     def equity(self) -> float:
@@ -102,31 +103,31 @@ class UtpAccount(ABC):
 
     @property
     def free_collateral(self) -> float:
-        self.cached_observation.free_collateral
+        return self.cached_observation.free_collateral
 
     @property
     def init_margin_requirement(self) -> float:
-        self.cached_observation.init_margin_requirement
+        return self.cached_observation.init_margin_requirement
 
     @property
     def liquidation_value(self) -> float:
-        self.cached_observation.liquidation_value
+        return self.cached_observation.liquidation_value
 
     @property
     def is_rebalance_deposit_needed(self) -> bool:
-        self.cached_observation.is_rebalance_deposit_needed
+        return self.cached_observation.is_rebalance_deposit_needed
 
     @property
     def max_rebalance_deposit_amount(self) -> float:
-        self.cached_observation.max_rebalance_deposit_amount
+        return self.cached_observation.max_rebalance_deposit_amount
 
     @property
     def is_empty(self) -> bool:
-        self.cached_observation.is_empty
+        return self.cached_observation.is_empty
 
     @property
     def address(self) -> PublicKey:
-        self._utp_config.address
+        return self._utp_config.address
 
     async def authority(self, seed: PublicKey = None):
         """UTP authority (PDA)"""

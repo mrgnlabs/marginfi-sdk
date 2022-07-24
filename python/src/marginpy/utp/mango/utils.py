@@ -3,6 +3,7 @@ import construct
 from datetime import datetime
 from decimal import Decimal
 from solana.publickey import PublicKey
+
 # # Adapters
 #
 # These are adapters for the construct package to simplify our struct declarations.
@@ -29,6 +30,7 @@ else:
         def _encode(self, obj: Decimal, context: typing.Any, path: typing.Any) -> int:
             # Can only encode Decimal values.
             return int(obj)
+
 
 # ## PublicKeyAdapter
 #
