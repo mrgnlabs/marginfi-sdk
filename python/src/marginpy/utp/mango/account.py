@@ -1,7 +1,7 @@
 from typing import Tuple, List
 
 import mango
-from marginpy import MarginfiClient, MarginfiAccount
+import marginpy
 from marginpy.generated_client.types.mango_expiry_type import (
     Absolute,
     MangoExpiryTypeKind,
@@ -14,7 +14,6 @@ from marginpy.generated_client.types.mango_side import Ask
 from marginpy.generated_client.types.utp_mango_place_perp_order_args import (
     UtpMangoPlacePerpOrderArgs,
 )
-from marginpy.utp.account import UtpAccount
 from marginpy.types import (
     UtpData,
     UtpMangoPlacePerpOrderOptions,
@@ -47,18 +46,17 @@ from marginpy.utp.mango.instruction import (
     CancelPerpOrderArgs,
     CancelPerpOrderAccounts,
 )
-from marginpy.utils import get_bank_authority, ui_to_native
 from marginpy.utp.mango.types import USDC_TOKEN
 import marginpy.generated_client.types as gen_types
 
 
-class UtpMangoAccount(UtpAccount):
+class UtpMangoAccount(marginpy.utp.account.UtpAccount):
     """[Internal] Class encapsulating Mango-specific interactions"""
 
     def __init__(
         self,
-        client: MarginfiClient,
-        marginfi_account: MarginfiAccount,
+        client: marginpy.MarginfiClient,
+        marginfi_account: marginpy.MarginfiAccount,
         account_data: UtpData,
     ):
         """[Internal]"""
@@ -160,7 +158,7 @@ class UtpMangoAccount(UtpAccount):
         proxy_token_account_key = Keypair()
 
         mango_authority_pk, _ = await self.authority()
-        margin_bank_authority_pk, _ = get_bank_authority(
+        margin_bank_authority_pk, _ = marginpy.utils.get_bank_authority(
             self._config.group_pk, self._program.program_id
         )
 
@@ -184,7 +182,7 @@ class UtpMangoAccount(UtpAccount):
         return [
             *create_proxy_token_account_ixs,
             make_deposit_ix(
-                args=DepositArgs(amount=ui_to_native(amount)),
+                args=DepositArgs(amount=marginpy.utils.ui_to_native(amount)),
                 accounts=DepositAccounts(
                     marginfi_account=self._marginfi_account.pubkey,
                     marginfi_group=self._config.group_pk,

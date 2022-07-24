@@ -137,6 +137,17 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "base58"
+version = "2.1.1"
+description = "Base58 and Base58Check implementation."
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.extras]
+tests = ["pytest-flake8", "pytest-cov", "pytest-benchmark", "pytest (>=4.6)", "PyHamcrest (>=2.0.2)", "mypy"]
+
+[[package]]
 name = "based58"
 version = "0.1.1"
 description = "A fast Python library for Base58 and Base58Check"
@@ -360,19 +371,6 @@ description = "Get the currently executing AST node of a frame, and other inform
 category = "dev"
 optional = false
 python-versions = "*"
-
-[[package]]
-name = "flake8"
-version = "4.0.1"
-description = "the modular source code checker: pep8 pyflakes and co"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-mccabe = ">=0.6.0,<0.7.0"
-pycodestyle = ">=2.8.0,<2.9.0"
-pyflakes = ">=2.4.0,<2.5.0"
 
 [[package]]
 name = "genpy"
@@ -607,6 +605,7 @@ python-versions = ">=3.9,<3.11"
 develop = false
 
 [package.dependencies]
+base58 = "^2.1.1"
 jsons = "^1.6.1"
 numpy = "^1.22.1"
 pandas = "^1.4.1"
@@ -622,8 +621,8 @@ zstandard = "^0.17.0"
 [package.source]
 type = "git"
 url = "https://github.com/mrgnlabs/mango-explorer.git"
-reference = "f72a8cff5de3c636c3eb30f0cea3c0338ee47a5d"
-resolved_reference = "f72a8cff5de3c636c3eb30f0cea3c0338ee47a5d"
+reference = "fbbf0ed956e05b4a12fe3d73a5a627d8b0f605a9"
+resolved_reference = "fbbf0ed956e05b4a12fe3d73a5a627d8b0f605a9"
 
 [[package]]
 name = "markupsafe"
@@ -643,14 +642,6 @@ python-versions = ">=3.5"
 
 [package.dependencies]
 traitlets = "*"
-
-[[package]]
-name = "mccabe"
-version = "0.6.1"
-description = "McCabe checker, plugin for flake8"
-category = "dev"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "more-itertools"
@@ -854,14 +845,6 @@ name = "py"
 version = "1.11.0"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
 category = "main"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-
-[[package]]
-name = "pycodestyle"
-version = "2.8.0"
-description = "Python style guide checker"
-category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
@@ -1479,7 +1462,7 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9 <3.11"
-content-hash = "5d5e8f28f56a61f0862421835b5defc5fab4403bdff78d9c89831aed2ac458ed"
+content-hash = "7f11f77c73adb8bc773baaa4d9f9691643a77c3bd615ff90ff8b341c91643148"
 
 [metadata.files]
 alabaster = []
@@ -1536,6 +1519,7 @@ attrs = [
 autoflake = []
 babel = []
 backcall = []
+base58 = []
 based58 = [
     {file = "based58-0.1.1-cp37-abi3-macosx_10_7_x86_64.whl", hash = "sha256:745851792ce5fada615f05ec61d7f360d19c76950d1e86163b2293c63a5d43bc"},
     {file = "based58-0.1.1-cp37-abi3-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:f8448a71678bd1edc0a464033695686461ab9d6d0bc3282cb29b94f883583572"},
@@ -1684,7 +1668,6 @@ coverage = []
 decorator = []
 docutils = []
 executing = []
-flake8 = []
 genpy = []
 h11 = [
     {file = "h11-0.12.0-py3-none-any.whl", hash = "sha256:36a3cb8c0a032f56e2da7084577878a035d3b61d104230d4bd49c0c6b555a9c6"},
@@ -1770,7 +1753,6 @@ markupsafe = [
     {file = "MarkupSafe-2.1.1.tar.gz", hash = "sha256:7f91197cc9e48f989d12e4e6fbc46495c446636dfc81b9ccf50bb0ec74b91d4b"},
 ]
 matplotlib-inline = []
-mccabe = []
 more-itertools = [
     {file = "more-itertools-8.13.0.tar.gz", hash = "sha256:a42901a0a5b169d925f6f217cd5a190e32ef54360905b9c39ee7db5313bfec0f"},
     {file = "more_itertools-8.13.0-py3-none-any.whl", hash = "sha256:c5122bffc5f104d37c1626b8615b511f3427aa5389b94d61e5ef8236bfbc3ddb"},
@@ -1847,7 +1829,6 @@ py = [
     {file = "py-1.11.0-py2.py3-none-any.whl", hash = "sha256:607c53218732647dff4acdfcd50cb62615cedf612e72d1724fb1a0cc6405b378"},
     {file = "py-1.11.0.tar.gz", hash = "sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719"},
 ]
-pycodestyle = []
 pycparser = [
     {file = "pycparser-2.21-py2.py3-none-any.whl", hash = "sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9"},
     {file = "pycparser-2.21.tar.gz", hash = "sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"},

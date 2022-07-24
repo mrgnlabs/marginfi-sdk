@@ -81,14 +81,14 @@ class Basics:
     program: Program
 
 
-def basics_fixture() -> Callable:
+def basics_fixture(
+    environment: Environment = Environment.LOCALNET,
+    rpc_url: str = LOCALNET_URL,
+    idl_path: Optional[str] = None,
+    commitment: Commitment = Processed,
+) -> Callable:
     @fixture()
-    def _basics_fixture(
-        environment: Environment = Environment.LOCALNET,
-        rpc_url: str = LOCALNET_URL,
-        idl_path: Optional[str] = None,
-        commitment: Commitment = Processed,
-    ) -> Basics:
+    def _basics_fixture() -> Basics:
         sleep(VALIDATOR_WARMUP_DURATION)
 
         default_config = MarginfiConfig(environment)
@@ -126,7 +126,7 @@ def mint_fixture() -> Callable:
             basics_fixture.provider.connection
         )
         # Construct transaction
-        token, txn, payer, mint_account, opts = _TokenCore._create_mint_args(
+        token, txn, _, mint_account, _ = _TokenCore._create_mint_args(
             basics_fixture.provider.connection,
             basics_fixture.wallet.payer,
             basics_fixture.wallet.public_key,

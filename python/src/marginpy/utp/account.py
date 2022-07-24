@@ -4,9 +4,8 @@ from typing import List
 from anchorpy import Program
 from solana.publickey import PublicKey
 from solana.transaction import TransactionSignature, AccountMeta
-from marginpy.config import MarginfiConfig
+import marginpy
 from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
-from marginpy import MarginfiClient, MarginfiAccount
 from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpIndex
 from marginpy.utp.observation import EMPTY_OBSERVATION, UtpObservation
 from marginpy.utils import get_utp_authority
@@ -17,16 +16,16 @@ from marginpy.constants import (
 
 
 class UtpAccount(ABC):
-    _client: MarginfiClient
-    _marginfi_account: MarginfiAccount
+    _client: marginpy.MarginfiClient
+    _marginfi_account: marginpy.MarginfiAccount
     is_active: bool
     _utp_config: UTPAccountConfig
     _cached_observation: UtpObservation
 
     def __init__(
         self,
-        client: MarginfiClient,
-        marginfi_account: MarginfiAccount,
+        client: marginpy.MarginfiClient,
+        marginfi_account: marginpy.MarginfiAccount,
         is_active: bool,
         utp_config: UTPAccountConfig,
     ):
@@ -75,7 +74,7 @@ class UtpAccount(ABC):
         return self.config.utp_index
 
     @property
-    def _config(self) -> MarginfiConfig:
+    def _config(self) -> marginpy.MarginfiConfig:
         """[Internal]"""
         return self._client.config
 
