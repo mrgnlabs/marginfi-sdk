@@ -1,4 +1,4 @@
-import { Decimal, DecimalData } from "@mrgnlabs/marginfi-client";
+import { MarginfiConfig } from "@mrgnlabs/marginfi-client";
 
 import { Environment, getConfig, loadKeypair, MarginfiClient, Wallet } from "@mrgnlabs/marginfi-client";
 import { Connection, PublicKey } from "@solana/web3.js";
@@ -18,7 +18,10 @@ export function getEnvironment(env: string): Environment {
 
 export async function getClientFromOptions(options: OptionValues): Promise<MarginfiClient> {
   const connection = new Connection(options.url, "confirmed");
-  const overrides: any = {};
+  const overrides: Partial<MarginfiConfig> = {
+    programId: process.env.MARGINFI_PROGRAM ? new PublicKey(process.env.MARGINFI_PROGRAM) : undefined,
+    groupPk: process.env.MARGINFI_GROUP ? new PublicKey(process.env.MARGINFI_GROUP) : undefined,
+  };
 
   if (options.group) {
     overrides.groupPk = new PublicKey(options.group);
@@ -26,10 +29,4 @@ export async function getClientFromOptions(options: OptionValues): Promise<Margi
 
   const config = await getConfig(getEnvironment(options.environment), connection, overrides);
   return MarginfiClient.fetch(config, new Wallet(loadKeypair(options.keypair)), connection);
-}
-
-export function parseDecimal(m: DecimalData): number {
-  let decimal = Decimal.fromAccountData(m);
-  let num = decimal.toNumber();
-  return num;
 }

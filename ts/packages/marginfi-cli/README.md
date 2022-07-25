@@ -6,12 +6,16 @@ yarn global add @mrgnlabs/marginfi-cli
 ```
 
 ## Usage
-#### Flags
+**IMPORTANT!**
+The CLI is configured by ENV variables.
+To use the CLI with you specific account do
 ```
-Options:
-  -k, --keypair <KEYPAIR>          Path to keypair file (default: "~/.config/solana/id.json")
-  -u, --url <URL>                  URL for Solana's JSON RPC (default: "https://marginfi.genesysgo.net/")
-  -e, --environment <ENVIRONMENT>  Environment to use [mainnet-beta, devnet] (default: "mainnet-beta")
+export MARGINFI_ACCOUNT=<account-address>
+```
+
+To set your wallet path do
+```
+export WALLET=<wallet-path>
 ```
 
 ### Marginfi Account
@@ -26,7 +30,7 @@ mfi account create
 #### Get
 Get overview of a marginfi account
 ```
-mfi account get <mfi_account_address>
+mfi account get
 ```
 
 #### List
@@ -38,23 +42,23 @@ mfi account list
 #### Deposit
 Deposit collateral into the marginfi account
 ```
-mfi account deposit <mfi_account_address> [amount]
+mfi account deposit <amount>
 ```
 
 Example, deposit of $2
 ```
-mfi account deposit HHS3XAt2UDSr2N6QWfEp5muML4VDggLwX5Tr8xqA6pf3 2
+mfi account deposit 2
 ```
 
 #### Withdraw
 Withdraw collateral from marginfi account
 ```
-mfi account withdraw <mfi_account_address> [amount]
+mfi account withdraw <amount>
 ```
 
 Example, withdraw $60
 ```
-mfi account withdraw HHS3XAt2UDSr2N6QWfEp5muML4VDggLwX5Tr8xqA6pf3 60
+mfi account withdraw 60
 ```
 
 ### Mango Markets
@@ -63,19 +67,19 @@ Mango Markets Marginfi interface. CLI for now only supports activating and colla
 #### Activate
 Create a new Mango account in your marginfi account.
 ```
-mfi account mango activate <mfi_account_address>
+mfi account mango activate
 ```
 
 #### Deposit
 Deposit collateral into the Mango Markets account form the Marginfi Account.
 ```
-mfi account mango deposit <mfi_account_address> [amount]
+mfi account mango deposit <amount>
 ```
 
 #### Withdraw
 Withdraw collateral form the Mango Markets account to the Marginfi Account.
 ```
-mfi account mango withdraw <mfi_account_address> [amount]
+mfi account mango withdraw <amount>
 ```
 
 ### 01 Protocol
@@ -85,19 +89,19 @@ mfi account mango withdraw <mfi_account_address> [amount]
 #### Activate
 Create a new 01 account in your marginfi account.
 ```
-mfi account zo activate <mfi_account_address>
+mfi account zo activate
 ```
 
 #### Deposit
 Deposit collateral into the 01 account form the Marginfi Account.
 ```
-mfi account zo deposit <mfi_account_address> [amount]
+mfi account zo deposit <amount>
 ```
 
 #### Withdraw
 Withdraw collateral form the 01  account to the Marginfi Account.
 ```
-mfi account zo withdraw <mfi_account_address> [amount]
+mfi account zo withdraw <amount>
 ```
 
 

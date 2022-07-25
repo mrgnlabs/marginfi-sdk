@@ -1412,13 +1412,13 @@ export type Marginfi = {
           {
             name: "depositRecord";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
             name: "borrowRecord";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
@@ -1626,25 +1626,13 @@ export type Marginfi = {
       };
     },
     {
-      name: "MDecimal";
+      name: "WrappedI80F48";
       type: {
         kind: "struct";
         fields: [
           {
-            name: "flags";
-            type: "u32";
-          },
-          {
-            name: "hi";
-            type: "u32";
-          },
-          {
-            name: "lo";
-            type: "u32";
-          },
-          {
-            name: "mid";
-            type: "u32";
+            name: "bits";
+            type: "i128";
           }
         ];
       };
@@ -1693,7 +1681,7 @@ export type Marginfi = {
           {
             name: "marginRequirementDepositBuffer";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           }
         ];
@@ -1785,31 +1773,31 @@ export type Marginfi = {
           {
             name: "scalingFactorC";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
             name: "fixedFee";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
             name: "interestFee";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
             name: "depositAccumulator";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
             name: "borrowAccumulator";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
@@ -1819,13 +1807,13 @@ export type Marginfi = {
           {
             name: "nativeDepositBalance";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
             name: "nativeBorrowBalance";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
@@ -1851,7 +1839,7 @@ export type Marginfi = {
           {
             name: "insuranceVaultOutstandingTransfers";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
@@ -1865,31 +1853,31 @@ export type Marginfi = {
           {
             name: "feeVaultOutstandingTransfers";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
             name: "initMarginRatio";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
             name: "maintMarginRatio";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
             name: "accountDepositLimit";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
             name: "lpDepositLimit";
             type: {
-              defined: "MDecimal";
+              defined: "WrappedI80F48";
             };
           },
           {
@@ -2069,21 +2057,21 @@ export type Marginfi = {
         {
           name: "feesCollected";
           type: {
-            defined: "MDecimal";
+            defined: "WrappedI80F48";
           };
           index: false;
         },
         {
           name: "utilizationRate";
           type: {
-            defined: "MDecimal";
+            defined: "WrappedI80F48";
           };
           index: false;
         },
         {
           name: "interestRate";
           type: {
-            defined: "MDecimal";
+            defined: "WrappedI80F48";
           };
           index: false;
         }
@@ -2093,21 +2081,21 @@ export type Marginfi = {
       name: "MarginRequirementCheck";
       fields: [
         {
-          name: "inti";
+          name: "init";
           type: "bool";
           index: false;
         },
         {
           name: "equity";
           type: {
-            defined: "MDecimal";
+            defined: "WrappedI80F48";
           };
           index: false;
         },
         {
           name: "marginRequirement";
           type: {
-            defined: "MDecimal";
+            defined: "WrappedI80F48";
           };
           index: false;
         }
@@ -2124,7 +2112,7 @@ export type Marginfi = {
         {
           name: "value";
           type: {
-            defined: "MDecimal";
+            defined: "WrappedI80F48";
           };
           index: false;
         }
@@ -2139,16 +2127,9 @@ export type Marginfi = {
           index: false;
         },
         {
-          name: "collateralOrEquity";
+          name: "netFreeCollateral";
           type: {
-            defined: "MDecimal";
-          };
-          index: false;
-        },
-        {
-          name: "marginRequirement";
-          type: {
-            defined: "MDecimal";
+            defined: "WrappedI80F48";
           };
           index: false;
         }
@@ -2183,96 +2164,101 @@ export type Marginfi = {
     },
     {
       code: 6005;
+      name: "OnlyReduceAllowed";
+      msg: "Only reducing trades are allowed when under init margin requirements";
+    },
+    {
+      code: 6006;
       name: "UtpInactive";
       msg: "Inactive UTP";
     },
     {
-      code: 6006;
+      code: 6007;
       name: "UtpAlreadyActive";
       msg: "Utp is already active";
     },
     {
-      code: 6007;
+      code: 6008;
       name: "InvalidAccountData";
       msg: "Invalid Account Data";
     },
     {
-      code: 6008;
+      code: 6009;
       name: "LiquidatorHasActiveUtps";
       msg: "Liquidator has active utps";
     },
     {
-      code: 6009;
+      code: 6010;
       name: "AccountHasActiveUtps";
       msg: "Account has active utps";
     },
     {
-      code: 6010;
+      code: 6011;
       name: "AccountNotLiquidatable";
       msg: "Marginfi account not liquidatable";
     },
     {
-      code: 6011;
+      code: 6012;
       name: "AccountNotBankrupt";
       msg: "Marginfi account not bankrupt";
     },
     {
-      code: 6012;
+      code: 6013;
       name: "IllegalUtpDeactivation";
       msg: "Utp account cannot be deactivated";
     },
     {
-      code: 6013;
+      code: 6014;
       name: "IllegalRebalance";
       msg: "Rebalance not legal";
     },
     {
-      code: 6014;
+      code: 6015;
       name: "BorrowNotAllowed";
       msg: "Borrow not allowed";
     },
     {
-      code: 6015;
+      code: 6016;
       name: "IllegalConfig";
       msg: "Config value not legal";
     },
     {
-      code: 6016;
+      code: 6017;
       name: "OperationsPaused";
       msg: "Operations paused";
     },
     {
-      code: 6017;
+      code: 6018;
       name: "InsufficientVaultBalance";
       msg: "Insufficient balance";
     },
     {
-      code: 6018;
+      code: 6019;
       name: "Forbidden";
       msg: "This operation is forbidden";
     },
     {
-      code: 6019;
+      code: 6020;
       name: "InvalidUTPAccount";
       msg: "Invalid account key";
     },
     {
-      code: 6020;
+      code: 6021;
       name: "AccountDepositLimit";
       msg: "Deposit exceeds account cap";
     },
     {
-      code: 6021;
+      code: 6022;
       name: "GroupDepositLimit";
       msg: "Deposit exceeds group cap";
     },
     {
-      code: 6022;
+      code: 6023;
       name: "InvalidObserveAccounts";
       msg: "Missing accounts for UTP observation";
     },
     {
-      code: 6023;
+      code: 6024;
       name: "MangoError";
       msg: "Mango error";
     }
@@ -3693,13 +3679,13 @@ export const IDL: Marginfi = {
           {
             name: "depositRecord",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
             name: "borrowRecord",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
@@ -3907,25 +3893,13 @@ export const IDL: Marginfi = {
       },
     },
     {
-      name: "MDecimal",
+      name: "WrappedI80F48",
       type: {
         kind: "struct",
         fields: [
           {
-            name: "flags",
-            type: "u32",
-          },
-          {
-            name: "hi",
-            type: "u32",
-          },
-          {
-            name: "lo",
-            type: "u32",
-          },
-          {
-            name: "mid",
-            type: "u32",
+            name: "bits",
+            type: "i128",
           },
         ],
       },
@@ -3974,7 +3948,7 @@ export const IDL: Marginfi = {
           {
             name: "marginRequirementDepositBuffer",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
         ],
@@ -4066,31 +4040,31 @@ export const IDL: Marginfi = {
           {
             name: "scalingFactorC",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
             name: "fixedFee",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
             name: "interestFee",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
             name: "depositAccumulator",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
             name: "borrowAccumulator",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
@@ -4100,13 +4074,13 @@ export const IDL: Marginfi = {
           {
             name: "nativeDepositBalance",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
             name: "nativeBorrowBalance",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
@@ -4132,7 +4106,7 @@ export const IDL: Marginfi = {
           {
             name: "insuranceVaultOutstandingTransfers",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
@@ -4146,31 +4120,31 @@ export const IDL: Marginfi = {
           {
             name: "feeVaultOutstandingTransfers",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
             name: "initMarginRatio",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
             name: "maintMarginRatio",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
             name: "accountDepositLimit",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
             name: "lpDepositLimit",
             type: {
-              defined: "MDecimal",
+              defined: "WrappedI80F48",
             },
           },
           {
@@ -4350,21 +4324,21 @@ export const IDL: Marginfi = {
         {
           name: "feesCollected",
           type: {
-            defined: "MDecimal",
+            defined: "WrappedI80F48",
           },
           index: false,
         },
         {
           name: "utilizationRate",
           type: {
-            defined: "MDecimal",
+            defined: "WrappedI80F48",
           },
           index: false,
         },
         {
           name: "interestRate",
           type: {
-            defined: "MDecimal",
+            defined: "WrappedI80F48",
           },
           index: false,
         },
@@ -4374,21 +4348,21 @@ export const IDL: Marginfi = {
       name: "MarginRequirementCheck",
       fields: [
         {
-          name: "inti",
+          name: "init",
           type: "bool",
           index: false,
         },
         {
           name: "equity",
           type: {
-            defined: "MDecimal",
+            defined: "WrappedI80F48",
           },
           index: false,
         },
         {
           name: "marginRequirement",
           type: {
-            defined: "MDecimal",
+            defined: "WrappedI80F48",
           },
           index: false,
         },
@@ -4405,7 +4379,7 @@ export const IDL: Marginfi = {
         {
           name: "value",
           type: {
-            defined: "MDecimal",
+            defined: "WrappedI80F48",
           },
           index: false,
         },
@@ -4420,16 +4394,9 @@ export const IDL: Marginfi = {
           index: false,
         },
         {
-          name: "collateralOrEquity",
+          name: "netFreeCollateral",
           type: {
-            defined: "MDecimal",
-          },
-          index: false,
-        },
-        {
-          name: "marginRequirement",
-          type: {
-            defined: "MDecimal",
+            defined: "WrappedI80F48",
           },
           index: false,
         },
@@ -4464,96 +4431,101 @@ export const IDL: Marginfi = {
     },
     {
       code: 6005,
+      name: "OnlyReduceAllowed",
+      msg: "Only reducing trades are allowed when under init margin requirements",
+    },
+    {
+      code: 6006,
       name: "UtpInactive",
       msg: "Inactive UTP",
     },
     {
-      code: 6006,
+      code: 6007,
       name: "UtpAlreadyActive",
       msg: "Utp is already active",
     },
     {
-      code: 6007,
+      code: 6008,
       name: "InvalidAccountData",
       msg: "Invalid Account Data",
     },
     {
-      code: 6008,
+      code: 6009,
       name: "LiquidatorHasActiveUtps",
       msg: "Liquidator has active utps",
     },
     {
-      code: 6009,
+      code: 6010,
       name: "AccountHasActiveUtps",
       msg: "Account has active utps",
     },
     {
-      code: 6010,
+      code: 6011,
       name: "AccountNotLiquidatable",
       msg: "Marginfi account not liquidatable",
     },
     {
-      code: 6011,
+      code: 6012,
       name: "AccountNotBankrupt",
       msg: "Marginfi account not bankrupt",
     },
     {
-      code: 6012,
+      code: 6013,
       name: "IllegalUtpDeactivation",
       msg: "Utp account cannot be deactivated",
     },
     {
-      code: 6013,
+      code: 6014,
       name: "IllegalRebalance",
       msg: "Rebalance not legal",
     },
     {
-      code: 6014,
+      code: 6015,
       name: "BorrowNotAllowed",
       msg: "Borrow not allowed",
     },
     {
-      code: 6015,
+      code: 6016,
       name: "IllegalConfig",
       msg: "Config value not legal",
     },
     {
-      code: 6016,
+      code: 6017,
       name: "OperationsPaused",
       msg: "Operations paused",
     },
     {
-      code: 6017,
+      code: 6018,
       name: "InsufficientVaultBalance",
       msg: "Insufficient balance",
     },
     {
-      code: 6018,
+      code: 6019,
       name: "Forbidden",
       msg: "This operation is forbidden",
     },
     {
-      code: 6019,
+      code: 6020,
       name: "InvalidUTPAccount",
       msg: "Invalid account key",
     },
     {
-      code: 6020,
+      code: 6021,
       name: "AccountDepositLimit",
       msg: "Deposit exceeds account cap",
     },
     {
-      code: 6021,
+      code: 6022,
       name: "GroupDepositLimit",
       msg: "Deposit exceeds group cap",
     },
     {
-      code: 6022,
+      code: 6023,
       name: "InvalidObserveAccounts",
       msg: "Missing accounts for UTP observation",
     },
     {
-      code: 6023,
+      code: 6024,
       name: "MangoError",
       msg: "Mango error",
     },
