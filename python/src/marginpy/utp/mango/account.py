@@ -99,6 +99,25 @@ class UtpMangoAccount(marginpy.utp.account.UtpAccount):
             self._config.mango.program_id,
         )
 
+        print(
+            f"""
+            ACCOUNTS:
+
+            mango_account_pk={mango_account_pk}
+
+            authority_seed={authority_seed.public_key},
+            authority_bump={mango_authority_bump},
+
+            marginfi_account={self._marginfi_account.pubkey},
+            marginfi_group={self._config.group_pk},
+            authority={self._program.provider.wallet.public_key},
+            mango_authority={mango_authority_pk},
+            mango_account={mango_account_pk},
+            mango_program={self._config.mango.program_id},
+            mango_group={self._config.mango.group_pk},
+            """
+        )
+
         return make_activate_ix(
             ActivateArgs(
                 authority_seed=authority_seed.public_key,

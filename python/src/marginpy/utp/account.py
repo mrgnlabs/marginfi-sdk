@@ -134,6 +134,16 @@ class UtpAccount(ABC):
         return self._utp_config.address
 
     async def authority(self, seed: PublicKey = None):
+
+        print(
+            f"""
+            UtpAccount.authority
+
+            {self.config.program_id},
+            {seed if seed is not None else self._utp_config.authority_seed},
+            {self._program.program_id},
+            """
+        )
         """UTP authority (PDA)"""
         return get_utp_authority(
             self.config.program_id,
