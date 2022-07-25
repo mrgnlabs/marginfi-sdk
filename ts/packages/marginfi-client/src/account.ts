@@ -9,6 +9,7 @@ import instructions from "./instructions";
 import {
   AccountBalances,
   AccountType,
+  BankVaultType,
   EquityType,
   InstructionsWrapper,
   LendingSide,
@@ -21,7 +22,7 @@ import {
   UtpIndex,
   UTP_NAME,
 } from "./types";
-import { BankVaultType, decimalDataToBigNumber, getBankAuthority, processTransaction, uiToNative } from "./utils";
+import { decimalDataToBigNumber, getBankAuthority, processTransaction, uiToNative } from "./utils";
 import UtpAccount from "./utp/account";
 import { UtpMangoAccount } from "./utp/mango";
 import { UtpObservation } from "./utp/observation";

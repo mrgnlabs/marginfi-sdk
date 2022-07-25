@@ -1,6 +1,7 @@
+import { PublicKey } from "@solana/web3.js";
 import { assert } from "chai";
 import { AccountType } from "../types";
-import { isAccountType } from "./helpers";
+import { BankVaultType, getBankAuthority, isAccountType } from "./helpers";
 
 const SAMPLE_MARGINFI_ACCOUNT_PARTIAL = Buffer.from([
   133, 220, 173, 213, 179, 211, 43, 238, 44, 2, 126, 189, 113, 73, 161, 166, 155, 115, 255, 201, 141, 48, 206, 246, 0,
@@ -25,5 +26,16 @@ describe.skip("deserialization", () => {
     assert.isTrue(isAccountType(SAMPLE_MARGINFI_GROUP_PARTIAL, AccountType.MarginfiGroup));
 
     assert.isFalse(isAccountType(SAMPLE_MARGINFI_GROUP_PARTIAL, AccountType.MarginfiAccount));
+  });
+});
+
+describe.only("PDA", () => {
+  it("generates", async function () {
+    const pda = await getBankAuthority(
+      new PublicKey("6ovvJd93CZqn6GgW29j39yJKnbuqqYKET2G55AXbbSNR"),
+      new PublicKey("DzEv7WuxdzRJ9iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ"),
+      BankVaultType.LiquidityVault
+    );
+    console.log(pda[0].toBase58(), pda[1]);
   });
 });
