@@ -682,7 +682,7 @@ class MarginfiAccount {
     const { equity } = this.computeBalances();
     const marginRequirementInit = this.computeMarginRequirement(MarginRequirementType.Init);
     debug("Margin req (type: Init) $%s, equity $%s", marginRequirementInit.toFixed(4), equity.toFixed(4));
-    
+
     return equity.lt(marginRequirementInit);
   }
 
