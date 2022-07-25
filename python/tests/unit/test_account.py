@@ -12,6 +12,7 @@ from tests.utils import (
     load_sample_account_info,
     load_marginfi_account_data,
 )
+from marginpy.utp.mango import UtpMangoAccount
 
 
 @mark.unit
@@ -82,7 +83,8 @@ class TestMarginfiAccountUnit:
 
     def test_all_utps(self):
         _, account = load_marginfi_account("marginfi_account_2")
-        assert account.all_utps == []
+        assert len(account.all_utps) == 1
+        assert type(account.all_utps[0]) == UtpMangoAccount
 
     def test_active_utps(self):
         _, account = load_marginfi_account("marginfi_account_2")
