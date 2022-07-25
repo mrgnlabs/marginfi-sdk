@@ -15,7 +15,7 @@ from solana.transaction import (
 from spl.token.instructions import get_associated_token_address
 
 import marginpy
-from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountDecoded
+from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
 from marginpy.generated_client.types.lending_side import Deposit, Borrow
 from marginpy.decimal import Decimal
 from marginpy.instruction import (
@@ -40,6 +40,7 @@ from marginpy.utils import (
     get_bank_authority,
     BankVaultType,
 )
+from marginpy.utp.mango.account import UtpMangoAccount
 
 
 class MarginfiAccount:
@@ -52,7 +53,7 @@ class MarginfiAccount:
     _deposit_record: float
     _borrow_record: float
 
-    # mango:
+    mango: UtpMangoAccount
     # zo:
 
     def __init__(
@@ -82,7 +83,7 @@ class MarginfiAccount:
         self._authority = authority
         self._group = group
 
-        # self.mango = UtpMangoAccount(client, self, mango_utp_data)
+        self.mango = UtpMangoAccount(client, self, mango_utp_data)
         # self.zo = UtpZoAccount(client, self, zo_utp_data)
 
         self._deposit_record = deposit_record
@@ -127,7 +128,7 @@ class MarginfiAccount:
     def from_account_data(
         marginfi_account_pk: PublicKey,
         client: marginpy.MarginfiClient,
-        account_data: MarginfiAccountDecoded,
+        account_data: MarginfiAccountData,
         marginfi_group: marginpy.MarginfiGroup,
     ):
         """
@@ -216,7 +217,7 @@ class MarginfiAccount:
         """List of supported UTP proxy instances"""
 
         return [
-            # self.mango,
+            self.mango,
             # self.zo
         ]
 
@@ -273,7 +274,7 @@ class MarginfiAccount:
         :returns: marginfi account instance
         """
 
-        data = await MarginfiAccountDecoded.fetch(
+        data = await MarginfiAccountData.fetch(
             rpc_client,
             marginfi_account_pk,
             program_id=config.program_id,
@@ -290,7 +291,7 @@ class MarginfiAccount:
         return data
 
     @staticmethod
-    def _pack_utp_data(data: MarginfiAccountDecoded, utp_index: UtpIndex) -> UtpData:
+    def _pack_utp_data(data: MarginfiAccountData, utp_index: UtpIndex) -> UtpData:
         """
         [Internal] Pack data from the on-chain, vector format into a coherent unit.
 
@@ -298,14 +299,13 @@ class MarginfiAccount:
         :param utp_index: index of the target UTP
         :returns: packed UTP data
         """
-
         return UtpData(
             account_config=data.utp_account_config[utp_index],
             is_active=data.active_utps[utp_index],
         )
 
     @staticmethod
-    def decode(encoded: bytes) -> MarginfiAccountDecoded:
+    def decode(encoded: bytes) -> MarginfiAccountData:
         """
         Decode marginfi account data according to the Anchor IDL.
 
@@ -313,10 +313,10 @@ class MarginfiAccount:
         :returns: decoded marginfi account data struct
         """
 
-        return MarginfiAccountDecoded.decode(encoded)
+        return MarginfiAccountData.decode(encoded)
 
     @staticmethod
-    async def encode(decoded: MarginfiAccountDecoded) -> bytes:
+    async def encode(decoded: MarginfiAccountData) -> bytes:
         """
         Encode marginfi account data according to the Anchor IDL.
 
@@ -354,7 +354,7 @@ class MarginfiAccount:
         # if observe_utps:
         # self.observe_utps()
 
-    def _update_from_account_data(self, data: MarginfiAccountDecoded) -> None:
+    def _update_from_account_data(self, data: MarginfiAccountData) -> None:
         """
         Update instance data from provided data struct.
 
@@ -365,15 +365,19 @@ class MarginfiAccount:
         self._deposit_record = Decimal.from_account_data(data.deposit_record).to_float()
         self._borrow_record = Decimal.from_account_data(data.borrow_record).to_float()
 
-        # self.mango.update(...)
+        self.mango.update(self._pack_utp_data(data, UtpIndex.Mango))
         # self.zo.update(...)
 
-    def get_observation_accounts(self) -> List[AccountMeta]:
-        pass  # TODO
+    async def get_observation_accounts(self) -> List[AccountMeta]:
+        accounts = []
+        for utp in self.active_utps:
+            accounts.extend(await utp.get_observation_accounts())
+        print(f"Loading {len(accounts)} observation accounts")
+        return accounts
 
     # --- Deposit to GMA
 
-    def make_deposit_ix(self, amount: float) -> TransactionInstruction:
+    async def make_deposit_ix(self, amount: float) -> TransactionInstruction:
         """
         Create transaction instruction to deposit collateral into the marginfi account.
 
@@ -384,7 +388,7 @@ class MarginfiAccount:
         user_ata = get_associated_token_address(
             self._program.provider.wallet.public_key, self.group.bank.mint
         )
-        remaining_accounts = self.get_observation_accounts()
+        remaining_accounts = await self.get_observation_accounts()
         return make_deposit_ix(
             DepositArgs(amount=ui_to_native(amount)),
             DepositAccounts(
@@ -406,7 +410,7 @@ class MarginfiAccount:
         :returns: transaction signature
         """
 
-        deposit_ix = self.make_deposit_ix(amount)
+        deposit_ix = await self.make_deposit_ix(amount)
         tx = Transaction().add(deposit_ix)
         return await self._program.provider.send(tx)
 
@@ -426,7 +430,7 @@ class MarginfiAccount:
         margin_bank_authority_pk, _ = get_bank_authority(
             self._config.group_pk, self._program.program_id
         )
-        remaining_accounts = self.get_observation_accounts()
+        remaining_accounts = await self.get_observation_accounts()
 
         return make_withdraw_ix(
             WithdrawArgs(amount=ui_to_native(amount)),
@@ -456,7 +460,9 @@ class MarginfiAccount:
 
     # --- Deactivate UTP
 
-    def make_deactivate_utp_ix(self, utp_index: UtpIndex) -> TransactionInstruction:
+    async def make_deactivate_utp_ix(
+        self, utp_index: UtpIndex
+    ) -> TransactionInstruction:
         """
         [Internal] Create transaction instruction to deactivate the target UTP.
 
@@ -464,10 +470,9 @@ class MarginfiAccount:
         :returns: transaction instruction
         """
 
-        remaining_accounts = self.get_observation_accounts()
-
+        remaining_accounts = await self.get_observation_accounts()
         return make_deactivate_utp_ix(
-            DeactivateUtpArgs(utp_index=utp_index.value),
+            DeactivateUtpArgs(utp_index=utp_index),
             DeactivateUtpAccounts(
                 marginfi_account=self.pubkey,
                 authority=self._program.provider.wallet.public_key,
@@ -484,7 +489,7 @@ class MarginfiAccount:
         :returns: transaction signature
         """
 
-        deactivate_ix = self.make_deactivate_utp_ix(utp_index)
+        deactivate_ix = await self.make_deactivate_utp_ix(utp_index)
         tx = Transaction().add(deactivate_ix)
         return await self._program.provider.send(tx)
 
@@ -500,7 +505,7 @@ class MarginfiAccount:
             self._program.program_id,
             BankVaultType.InsuranceVault,
         )
-        remaining_accounts = self.get_observation_accounts()
+        remaining_accounts = await self.get_observation_accounts()
 
         return make_handle_bankruptcy_ix(
             HandleBankruptcyAccounts(

@@ -29,11 +29,9 @@ class TestMangoAccount:
 
         marginfi_account, _ = await mango_bench.client.create_marginfi_account()
 
-        mango_account = UtpMangoAccount(mango_bench.client, marginfi_account, utp_data)
-
-        sig = await mango_account.activate()
-        await mango_account.observe()
-        sig = await mango_account.deactivate()
+        sig = await marginfi_account.mango.activate()
+        await marginfi_account.reload()
+        sig = await marginfi_account.mango.deactivate()
         print(sig)
 
     # async def test_deposit_withdraw(self, mango_bench: MangoBench):

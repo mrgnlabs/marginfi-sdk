@@ -171,7 +171,9 @@ class UtpMangoAccount(UtpAccount):
             self._config.group_pk, self._program.program_id
         )
 
-        with mango.ContextBuilder.build(cluster_name=self.config.cluster) as context:
+        with mango.ContextBuilder.build(
+            cluster_name=self.config.cluster, group_name="devnet.2"
+        ) as context:
             mango_group = mango.Group.load(context)
             token_bank = mango_group.token_bank_by_instrument(USDC_TOKEN)
             root_bank = token_bank.ensure_root_bank(context)
@@ -237,7 +239,9 @@ class UtpMangoAccount(UtpAccount):
 
         mango_authority_pk, _ = await self.authority()
 
-        with mango.ContextBuilder.build(cluster_name=self.config.cluster) as context:
+        with mango.ContextBuilder.build(
+            cluster_name=self.config.cluster, group_name="devnet.2"
+        ) as context:
             mango_group = mango.Group.load(context)
             token_bank = mango_group.token_bank_by_instrument(USDC_TOKEN)
             root_bank = token_bank.ensure_root_bank(context)
@@ -289,9 +293,10 @@ class UtpMangoAccount(UtpAccount):
         :returns: `AccountMeta[]` list of account metas
         """
 
-        with mango.ContextBuilder.build(cluster_name=self.config.cluster) as context:
+        with mango.ContextBuilder.build(
+            cluster_name=self.config.cluster, group_name="devnet.2"
+        ) as context:
             mango_group = mango.Group.load(context)
-
         return [
             AccountMeta(
                 pubkey=self.address,
@@ -359,7 +364,9 @@ class UtpMangoAccount(UtpAccount):
 
         mango_authority_pk, _ = await self.authority()
 
-        with mango.ContextBuilder.build(cluster_name=self.config.cluster) as context:
+        with mango.ContextBuilder.build(
+            cluster_name=self.config.cluster, group_name="devnet.2"
+        ) as context:
             mango_group = mango.Group.load(context)
 
         remaining_accounts = await self.get_observation_accounts()
@@ -475,6 +482,7 @@ class UtpMangoAccount(UtpAccount):
 
     def verify_active(self):
         """[Internal]"""
+        print(self.is_active)
         if not self.is_active:
             raise Exception("Utp isn't active")
 

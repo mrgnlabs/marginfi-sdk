@@ -7,7 +7,7 @@ from anchorpy import Program
 from solana.publickey import PublicKey
 from solana.transaction import TransactionSignature, AccountMeta
 from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
-from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpIndex
+from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpData, UtpIndex
 from marginpy.utp.observation import EMPTY_OBSERVATION, UtpObservation
 from marginpy.utils import get_utp_authority
 from marginpy.constants import (
@@ -160,9 +160,10 @@ class UtpAccount(ABC):
             insurance_vault_fee=insurance_vault_fee,
         )
 
-    def update(self, data) -> None:
+    def update(self, data: UtpData) -> None:
         """
         [Internal] Update instance data from provided data struct.
         """
+
         self.is_active = data.is_active
         self._utp_config = data.account_config
