@@ -16,6 +16,7 @@ from marginpy.constants import (
 )
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from marginpy import MarginfiClient, MarginfiAccount, MarginfiConfig
 
@@ -29,8 +30,8 @@ class UtpAccount(ABC):
 
     def __init__(
         self,
-        client: 'MarginfiClient',
-        marginfi_account: 'MarginfiAccount',
+        client: "MarginfiClient",
+        marginfi_account: "MarginfiAccount",
         is_active: bool,
         utp_config: UTPAccountConfig,
     ):
@@ -134,17 +135,8 @@ class UtpAccount(ABC):
         return self._utp_config.address
 
     async def authority(self, seed: PublicKey = None):
-
-        print(
-            f"""
-            UtpAccount.authority
-
-            {self.config.program_id},
-            {seed if seed is not None else self._utp_config.authority_seed},
-            {self._program.program_id},
-            """
-        )
         """UTP authority (PDA)"""
+
         return get_utp_authority(
             self.config.program_id,
             seed if seed is not None else self._utp_config.authority_seed,
@@ -155,6 +147,7 @@ class UtpAccount(ABC):
 
     def compute_liquidation_prices(self) -> LiquidationPrices:
         """Calculates liquidation parameters given an account value."""
+
         liquidator_fee = self.liquidation_value * LIQUIDATOR_LIQUIDATION_FEE
         insurance_vault_fee = self.liquidation_value * INSURANCE_VAULT_LIQUIDATION_FEE
 

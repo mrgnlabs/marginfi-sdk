@@ -31,6 +31,8 @@ from solana.keypair import Keypair
 import solana.system_program as system_program
 from spl.token.constants import TOKEN_PROGRAM_ID, ACCOUNT_LEN
 import spl.token.instructions as spl_token_ixs
+from marginpy.utils import get_bank_authority, ui_to_native
+from marginpy.utp.account import UtpAccount
 from marginpy.utp.mango.instruction import (
     make_activate_ix,
     ActivateArgs,
@@ -52,11 +54,12 @@ from marginpy.utp.mango.types import USDC_TOKEN
 import marginpy.generated_client.types as gen_types
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from marginpy import MarginfiClient, MarginfiAccount
 
 
-class UtpMangoAccount(marginpy.utp.account.UtpAccount):
+class UtpMangoAccount(UtpAccount):
     """[Internal] Class encapsulating Mango-specific interactions"""
 
     def __init__(
@@ -97,25 +100,6 @@ class UtpMangoAccount(marginpy.utp.account.UtpAccount):
             mango_authority_pk,
             0,
             self._config.mango.program_id,
-        )
-
-        print(
-            f"""
-            ACCOUNTS:
-
-            mango_account_pk={mango_account_pk}
-
-            authority_seed={authority_seed.public_key},
-            authority_bump={mango_authority_bump},
-
-            marginfi_account={self._marginfi_account.pubkey},
-            marginfi_group={self._config.group_pk},
-            authority={self._program.provider.wallet.public_key},
-            mango_authority={mango_authority_pk},
-            mango_account={mango_account_pk},
-            mango_program={self._config.mango.program_id},
-            mango_group={self._config.mango.group_pk},
-            """
         )
 
         return make_activate_ix(
@@ -183,7 +167,7 @@ class UtpMangoAccount(marginpy.utp.account.UtpAccount):
         proxy_token_account_key = Keypair()
 
         mango_authority_pk, _ = await self.authority()
-        margin_bank_authority_pk, _ = marginpy.utils.get_bank_authority(
+        margin_bank_authority_pk, _ = get_bank_authority(
             self._config.group_pk, self._program.program_id
         )
 
@@ -207,7 +191,7 @@ class UtpMangoAccount(marginpy.utp.account.UtpAccount):
         return [
             *create_proxy_token_account_ixs,
             make_deposit_ix(
-                args=DepositArgs(amount=marginpy.utils.ui_to_native(amount)),
+                args=DepositArgs(amount=ui_to_native(amount)),
                 accounts=DepositAccounts(
                     marginfi_account=self._marginfi_account.pubkey,
                     marginfi_group=self._config.group_pk,
@@ -266,7 +250,7 @@ class UtpMangoAccount(marginpy.utp.account.UtpAccount):
         remaining_accounts = await self.get_observation_accounts()
 
         return make_withdraw_ix(
-            WithdrawArgs(amount=marginpy.utils.ui_to_native(amount)),
+            WithdrawArgs(amount=ui_to_native(amount)),
             WithdrawAccounts(
                 marginfi_account=self._marginfi_account.pubkey,
                 marginfi_group=self._config.group_pk,
@@ -555,7 +539,7 @@ def get_mango_account_pda(
         [
             bytes(mango_group_pk),
             bytes(authority),
-            bytes(account_number),
+            account_number.to_bytes(8, "little"),
         ],
         program_id,
     )

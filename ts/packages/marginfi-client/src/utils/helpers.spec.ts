@@ -1,7 +1,9 @@
 import { PublicKey } from "@solana/web3.js";
+import { BN } from "bn.js";
 import { assert } from "chai";
-import { AccountType } from "../types";
-import { BankVaultType, getBankAuthority, isAccountType } from "./helpers";
+import { AccountType, BankVaultType } from "../types";
+import { getMangoAccountPda } from "../utp/mango";
+import { getBankAuthority, getUtpAuthority, isAccountType } from "./helpers";
 
 const SAMPLE_MARGINFI_ACCOUNT_PARTIAL = Buffer.from([
   133, 220, 173, 213, 179, 211, 43, 238, 44, 2, 126, 189, 113, 73, 161, 166, 155, 115, 255, 201, 141, 48, 206, 246, 0,
@@ -29,13 +31,35 @@ describe.skip("deserialization", () => {
   });
 });
 
-describe.only("PDA", () => {
-  it("generates", async function () {
+describe("PDA", () => {
+  it("UTP authority", async function () {
+    const pda = await getUtpAuthority(
+      new PublicKey("6ovvJd93CZqn6GgW29j39yJKnbuqqYKET2G55AXbbSNR"),
+      new PublicKey("DzEv7WuxdzRJ1iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ"),
+      new PublicKey("5yg2EnX2Vn14SKdEvYooyaj5KmE4xGgHviQKGB5Y9oFQ")
+    );
+    assert.isTrue(pda[0].equals(new PublicKey("2zbmcZ82RL65hZH9Wqaqon315QjVY7ALEejTbCK6CC9b")));
+    assert.equal(pda[1], 255);
+  });
+
+  it("bank authority", async function () {
     const pda = await getBankAuthority(
       new PublicKey("6ovvJd93CZqn6GgW29j39yJKnbuqqYKET2G55AXbbSNR"),
-      new PublicKey("DzEv7WuxdzRJ9iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ"),
+      new PublicKey("DzEv7WuxdzRJ1iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ"),
       BankVaultType.LiquidityVault
     );
-    console.log(pda[0].toBase58(), pda[1]);
+    assert.isTrue(pda[0].equals(new PublicKey("Ah2FBNwdgTxrY4HgJqzr2B3H4XZ6wQ5dYPBvPtQeACM8")));
+    assert.equal(pda[1], 255);
+  });
+
+  it("mango account", async function () {
+    const pda = await getMangoAccountPda(
+      new PublicKey("6ovvJd93CZqn6GgW29j39yJKnbuqqYKET2G55AXbbSNR"),
+      new PublicKey("DzEv7WuxdzRJ1iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ"),
+      new BN(88),
+      new PublicKey("5yg2EnX2Vn14SKdEvYooyaj5KmE4xGgHviQKGB5Y9oFQ")
+    );
+    assert.isTrue(pda[0].equals(new PublicKey("F8H1zRowNeJ8mbxMLDYzL9Kejd24wu7yEAz65f87UMSa")));
+    assert.equal(pda[1], 255);
   });
 });

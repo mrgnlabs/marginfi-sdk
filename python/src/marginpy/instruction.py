@@ -61,14 +61,14 @@ class ConfigureMarginfiGroupAccounts(gen_ix.ConfigureMarginfiGroupAccounts):
 
 
 def make_configure_marginfi_group_ix(
-    args: ConfigureMarginfiGroupArgs, 
+    args: ConfigureMarginfiGroupArgs,
     accounts: ConfigureMarginfiGroupAccounts,
     program_id: PublicKey,
     remaining_accounts: Optional[List[AccountMeta]] = None,
 ):
     return gen_ix.configure_marginfi_group(
-        args, 
-        accounts, 
+        args,
+        accounts,
         program_id=program_id,
         remaining_accounts=remaining_accounts,
     )
@@ -83,7 +83,9 @@ class InitMarginfiAccountAccounts:
 
 
 def make_init_marginfi_account_ix(
-    accounts: InitMarginfiAccountAccounts, program_id: PublicKey, remaining_accounts: Optional[List[AccountMeta]] = None,
+    accounts: InitMarginfiAccountAccounts,
+    program_id: PublicKey,
+    remaining_accounts: Optional[List[AccountMeta]] = None,
 ):
     return gen_ix.init_marginfi_account(
         gen_ix.InitMarginfiAccountAccounts(

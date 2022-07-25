@@ -16,26 +16,33 @@ class MarginfiDedicatedConfig:
     collateral_mint_pk: PublicKey
 
     def __init__(self, environment: Environment, overrides: Dict[str, Any] = {}):
-
         self.environment = environment
         if environment == Environment.MAINNET:
             self.program_id = handle_override(
-                overrides=overrides, override_key="program_id", default=PublicKey("mrgnfD8pJKsw4AxCDquyUBjgABNEaZ79iTLgtov2Yff")
+                overrides=overrides,
+                override_key="program_id",
+                default=PublicKey("mrgnfD8pJKsw4AxCDquyUBjgABNEaZ79iTLgtov2Yff"),
             )
             self.group_pk = handle_override(
-                overrides=overrides, override_key="group_pk", default=PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba")
+                overrides=overrides,
+                override_key="group_pk",
+                default=PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba"),
             )
             self.collateral_mint_pk = handle_override(
-                overrides=overrides, 
+                overrides=overrides,
                 override_key="collateral_mint_pk",
                 default=PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
             )
         elif environment == Environment.DEVNET:
             self.program_id = handle_override(
-                overrides=overrides, override_key="program_id", default=PublicKey("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK")
+                overrides=overrides,
+                override_key="program_id",
+                default=PublicKey("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK"),
             )
             self.group_pk = handle_override(
-                overrides=overrides, override_key="group_pk", default=PublicKey("7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg")
+                overrides=overrides,
+                override_key="group_pk",
+                default=PublicKey("7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg"),
             )
             self.collateral_mint_pk = handle_override(
                 overrides=overrides,
@@ -44,10 +51,14 @@ class MarginfiDedicatedConfig:
             )
         elif environment == Environment.LOCALNET:
             self.program_id = handle_override(
-                overrides=overrides, override_key="program_id", default=PublicKey("DzEv7WuxdzRJ9iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ")
+                overrides=overrides,
+                override_key="program_id",
+                default=PublicKey("DzEv7WuxdzRJ9iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ"),
             )
             self.group_pk = handle_override(
-                overrides=overrides, override_key="group_pk", default=PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba")
+                overrides=overrides,
+                override_key="group_pk",
+                default=PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba"),
             )
             self.collateral_mint_pk = handle_override(
                 overrides=overrides,

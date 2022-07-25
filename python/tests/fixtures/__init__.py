@@ -278,6 +278,7 @@ def user_fixture(deposits: float = 1_000) -> Callable:
 # MANGO
 # ================================
 
+
 @dataclass
 class MangoBench:
     basics: Basics

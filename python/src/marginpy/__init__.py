@@ -12,7 +12,7 @@ from marginpy.utils import (
     get_vault_seeds,
     get_utp_authority,
     get_bank_authority,
-    handle_override
+    handle_override,
 )
 from marginpy.types import (
     Environment,

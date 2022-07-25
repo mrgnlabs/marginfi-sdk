@@ -47,7 +47,7 @@ export async function getBankAuthority(
   programId: PublicKey,
   bankVaultType: BankVaultType = BankVaultType.LiquidityVault
 ): Promise<[PublicKey, number]> {
-  return PublicKey.findProgramAddress([getVaultSeeds(bankVaultType), marginfiGroupPk.toBytes()], programId);
+  return PublicKey.findProgramAddress([getVaultSeeds(bankVaultType), marginfiGroupPk.toBuffer()], programId);
 }
 
 /**

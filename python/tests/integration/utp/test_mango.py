@@ -19,26 +19,22 @@ mango_bench = mango_bench()
 #     group: MarginfiGroup
 #     client: MarginfiClient
 
+
 @mark.asyncio
 @mark.integration
 @mark.devnet
 class TestMangoAccount:
     async def test_activate_deactivate(self, mango_bench: MangoBench):
-        utp_data = UtpData(
-            is_active = False,
-            account_config = mango_bench.config.mango
-        )
+        utp_data = UtpData(is_active=False, account_config=mango_bench.config.mango)
 
         marginfi_account, _ = await mango_bench.client.create_marginfi_account()
 
-        mango_account = UtpMangoAccount(
-            mango_bench.client,
-            marginfi_account,
-            utp_data
-        )
+        mango_account = UtpMangoAccount(mango_bench.client, marginfi_account, utp_data)
 
-        await mango_account.activate()
-        # await mango_account.deactivate()
+        sig = await mango_account.activate()
+        await mango_account.observe()
+        sig = await mango_account.deactivate()
+        print(sig)
 
     # async def test_deposit_withdraw(self, mango_bench: MangoBench):
     #     utp_data = UtpData(
