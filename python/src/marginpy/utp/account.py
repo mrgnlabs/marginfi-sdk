@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import List
 from anchorpy import Program
 from solana.publickey import PublicKey
 from solana.transaction import TransactionSignature, AccountMeta
-import marginpy
 from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
 from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpIndex
 from marginpy.utp.observation import EMPTY_OBSERVATION, UtpObservation
@@ -14,18 +15,22 @@ from marginpy.constants import (
     LIQUIDATOR_LIQUIDATION_FEE,
 )
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from marginpy import MarginfiClient, MarginfiAccount, MarginfiConfig
+
 
 class UtpAccount(ABC):
-    _client: marginpy.MarginfiClient
-    _marginfi_account: marginpy.MarginfiAccount
+    _client: MarginfiClient
+    _marginfi_account: MarginfiAccount
     is_active: bool
     _utp_config: UTPAccountConfig
     _cached_observation: UtpObservation
 
     def __init__(
         self,
-        client: marginpy.MarginfiClient,
-        marginfi_account: marginpy.MarginfiAccount,
+        client: 'MarginfiClient',
+        marginfi_account: 'MarginfiAccount',
         is_active: bool,
         utp_config: UTPAccountConfig,
     ):
@@ -74,7 +79,7 @@ class UtpAccount(ABC):
         return self.config.utp_index
 
     @property
-    def _config(self) -> marginpy.MarginfiConfig:
+    def _config(self) -> MarginfiConfig:
         """[Internal]"""
         return self._client.config
 

@@ -189,7 +189,8 @@ class MarginfiGroup:
                 bank_vault=self.bank.vault,
                 bank_authority=bank_authority,
                 bank_fee_vault=self.bank.fee_vault,
-            )
+            ),
+            self._program.program_id
         )
 
     async def update_interest_accumulator(self) -> TransactionSignature:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Tuple, List
 
 import mango
@@ -49,14 +51,18 @@ from marginpy.utp.mango.instruction import (
 from marginpy.utp.mango.types import USDC_TOKEN
 import marginpy.generated_client.types as gen_types
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from marginpy import MarginfiClient, MarginfiAccount
+
 
 class UtpMangoAccount(marginpy.utp.account.UtpAccount):
     """[Internal] Class encapsulating Mango-specific interactions"""
 
     def __init__(
         self,
-        client: marginpy.MarginfiClient,
-        marginfi_account: marginpy.MarginfiAccount,
+        client: MarginfiClient,
+        marginfi_account: MarginfiAccount,
         account_data: UtpData,
     ):
         """[Internal]"""
@@ -241,7 +247,7 @@ class UtpMangoAccount(marginpy.utp.account.UtpAccount):
         remaining_accounts = await self.get_observation_accounts()
 
         return make_withdraw_ix(
-            WithdrawArgs(amount=ui_to_native(amount)),
+            WithdrawArgs(amount=marginpy.utils.ui_to_native(amount)),
             WithdrawAccounts(
                 marginfi_account=self._marginfi_account.pubkey,
                 marginfi_group=self._config.group_pk,

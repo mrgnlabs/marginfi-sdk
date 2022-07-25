@@ -4,6 +4,7 @@ from os import path
 from pathlib import Path
 from tests.fixtures import basics_fixture, MangoBench, mango_bench
 from marginpy import Environment
+from marginpy.utp.mango import UtpMangoAccount, MangoConfig
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
 basics_fixture = basics_fixture(environment=Environment.DEVNET, rpc_url=DEVNET_URL)
