@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Optional, List
 from solana.publickey import PublicKey
 from solana.system_program import SYS_PROGRAM_ID
 from solana.transaction import AccountMeta, TransactionInstruction
@@ -30,6 +30,7 @@ def make_init_marginfi_group_ix(
     accounts: InitMarginfiGroupAccounts,
     # @todo can program_id be abstracted via config?
     program_id: PublicKey,
+    remaining_accounts: Optional[List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     return gen_ix.init_marginfi_group(
         args,
@@ -46,6 +47,7 @@ def make_init_marginfi_group_ix(
             system_program=SYS_PROGRAM_ID,
         ),
         program_id=program_id,
+        remaining_accounts=remaining_accounts,
     )
 
 
@@ -59,9 +61,17 @@ class ConfigureMarginfiGroupAccounts(gen_ix.ConfigureMarginfiGroupAccounts):
 
 
 def make_configure_marginfi_group_ix(
-    args: ConfigureMarginfiGroupArgs, accounts: ConfigureMarginfiGroupAccounts
+    args: ConfigureMarginfiGroupArgs, 
+    accounts: ConfigureMarginfiGroupAccounts,
+    program_id: PublicKey,
+    remaining_accounts: Optional[List[AccountMeta]] = None,
 ):
-    return gen_ix.configure_marginfi_group(args, accounts)
+    return gen_ix.configure_marginfi_group(
+        args, 
+        accounts, 
+        program_id=program_id,
+        remaining_accounts=remaining_accounts,
+    )
 
 
 # --- Init GMA
@@ -73,7 +83,7 @@ class InitMarginfiAccountAccounts:
 
 
 def make_init_marginfi_account_ix(
-    accounts: InitMarginfiAccountAccounts, program_id: PublicKey
+    accounts: InitMarginfiAccountAccounts, program_id: PublicKey, remaining_accounts: Optional[List[AccountMeta]] = None,
 ):
     return gen_ix.init_marginfi_account(
         gen_ix.InitMarginfiAccountAccounts(
@@ -83,6 +93,7 @@ def make_init_marginfi_account_ix(
             system_program=SYS_PROGRAM_ID,
         ),
         program_id=program_id,
+        remaining_accounts=remaining_accounts,
     )
 
 
@@ -104,7 +115,7 @@ def make_deposit_ix(
     args: DepositArgs,
     accounts: DepositAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta],
+    remaining_accounts: Optional[List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     return gen_ix.margin_deposit_collateral(
         args,
@@ -140,7 +151,7 @@ def make_withdraw_ix(
     args: WithdrawArgs,
     accounts: WithdrawAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta],
+    remaining_accounts: Optional[List[AccountMeta]] = None,
 ):
     return gen_ix.margin_withdraw_collateral(
         args,
@@ -167,7 +178,11 @@ class UpdateInterestAccumulatorAccounts:
     bank_fee_vault: PublicKey
 
 
-def make_update_interest_accumulator_ix(accounts: UpdateInterestAccumulatorAccounts):
+def make_update_interest_accumulator_ix(
+    accounts: UpdateInterestAccumulatorAccounts,
+    program_id: PublicKey,
+    remaining_accounts: Optional[List[AccountMeta]] = None,
+):
     return gen_ix.update_interest_accumulator(
         gen_ix.UpdateInterestAccumulatorAccounts(
             marginfi_group=accounts.marginfi_group,
@@ -175,7 +190,9 @@ def make_update_interest_accumulator_ix(accounts: UpdateInterestAccumulatorAccou
             bank_authority=accounts.bank_authority,
             bank_fee_vault=accounts.bank_fee_vault,
             token_program=TOKEN_PROGRAM_ID,
-        )
+        ),
+        program_id=program_id,
+        remaining_accounts=remaining_accounts,
     )
 
 
@@ -192,7 +209,7 @@ def make_deactivate_utp_ix(
     args: DeactivateUtpArgs,
     accounts: DeactivateUtpAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta],
+    remaining_accounts: Optional[List[AccountMeta]] = None,
 ):
     return gen_ix.deactivate_utp(
         args, accounts, program_id=program_id, remaining_accounts=remaining_accounts
@@ -219,7 +236,7 @@ def make_liquidate_ix(
     args: gen_ix.LiquidateArgs,
     accounts: LiquidateAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta],
+    remaining_accounts: Optional[List[AccountMeta]] = None,
 ):
     return gen_ix.liquidate(
         args,
@@ -251,7 +268,7 @@ class HandleBankruptcyAccounts:
 def make_handle_bankruptcy_ix(
     accounts: HandleBankruptcyAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta],
+    remaining_accounts: Optional[List[AccountMeta]] = None,
 ):
     return gen_ix.handle_bankruptcy(
         gen_ix.HandleBankruptcyAccounts(

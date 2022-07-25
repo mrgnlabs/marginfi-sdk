@@ -290,7 +290,7 @@ def mango_bench() -> Callable:
     @async_fixture
     async def _bench_fixture(basics_fixture: Basics) -> MangoBench:
         # Create / configure marginfi group used in the test
-        group_pk, _ = await create_marginfi_group(
+        group_pk, sig = await create_marginfi_group(
             basics_fixture.default_config.collateral_mint_pk,
             basics_fixture.wallet,
             basics_fixture.program,

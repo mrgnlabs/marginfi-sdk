@@ -234,6 +234,7 @@ async def configure_marginfi_group(
         ConfigureMarginfiGroupAccounts(
             marginfi_group=group_pk, admin=wallet.public_key
         ),
+        program.program_id
     )
     tx = Transaction().add(configure_marginfi_group_ix)
     return await program.provider.send(tx)
