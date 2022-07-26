@@ -32,7 +32,7 @@ def make_activate_ix(
     args: gen_ix.UtpZoActivateArgs,
     accounts: ActivateAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta],
+    remaining_accounts: List[AccountMeta] = [],
 ) -> TransactionInstruction:
     return gen_ix.utp_zo_activate(
         args,

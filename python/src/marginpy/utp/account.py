@@ -167,3 +167,9 @@ class UtpAccount(ABC):
 
         self.is_active = data.is_active
         self._utp_config = data.account_config
+
+    def verify_active(self):
+        """[Internal]"""
+
+        if not self.is_active:
+            raise Exception("Utp isn't active")

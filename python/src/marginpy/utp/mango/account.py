@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Tuple, List
 
 import mango
-import marginpy
 from marginpy.generated_client.types.mango_expiry_type import (
     Absolute,
     MangoExpiryTypeKind,
@@ -92,27 +91,27 @@ class UtpMangoAccount(UtpAccount):
         """
 
         authority_seed = Keypair()
-        mango_authority_pk, mango_authority_bump = await self.authority(
+        utp_authority_pk, utp_authority_bump = await self.authority(
             authority_seed.public_key
         )
-        mango_account_pk, _ = get_mango_account_pda(
-            self._config.mango.group_pk,
-            mango_authority_pk,
+        utp_account_pk, _ = get_mango_account_pda(
+            self.config.group_pk,
+            utp_authority_pk,
             0,
-            self._config.mango.program_id,
+            self.config.program_id,
         )
 
         return make_activate_ix(
             ActivateArgs(
                 authority_seed=authority_seed.public_key,
-                authority_bump=mango_authority_bump,
+                authority_bump=utp_authority_bump,
             ),
             ActivateAccounts(
                 marginfi_account=self._marginfi_account.pubkey,
                 marginfi_group=self._config.group_pk,
                 authority=self._program.provider.wallet.public_key,
-                mango_authority=mango_authority_pk,
-                mango_account=mango_account_pk,
+                mango_authority=utp_authority_pk,
+                mango_account=utp_account_pk,
                 mango_program=self._config.mango.program_id,
                 mango_group=self._config.mango.group_pk,
             ),
@@ -317,7 +316,7 @@ class UtpMangoAccount(UtpAccount):
                 is_writable=False,
             ),
             AccountMeta(
-                pubkey=self._config.mango.group_pk,
+                pubkey=self.config.group_pk,
                 is_signer=False,
                 is_writable=False,
             ),
@@ -495,12 +494,6 @@ class UtpMangoAccount(UtpAccount):
         )
         tx = Transaction().add(cancel_perp_order_ix)
         return await self._client.program.provider.send(tx)
-
-    def verify_active(self):
-        """[Internal]"""
-
-        if not self.is_active:
-            raise Exception("Utp isn't active")
 
     async def compute_utp_account_address(self, account_number: int = 0):
         """[Internal]"""

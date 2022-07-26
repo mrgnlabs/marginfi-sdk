@@ -41,6 +41,7 @@ from marginpy.utils import (
     BankVaultType,
 )
 from marginpy.utp.mango.account import UtpMangoAccount
+from marginpy.utp.zo.account import UtpZoAccount
 
 
 class MarginfiAccount:
@@ -54,7 +55,7 @@ class MarginfiAccount:
     _borrow_record: float
 
     mango: UtpMangoAccount
-    # zo:
+    zo: UtpZoAccount
 
     def __init__(
         self,
@@ -84,7 +85,7 @@ class MarginfiAccount:
         self._group = group
 
         self.mango = UtpMangoAccount(client, self, mango_utp_data)
-        # self.zo = UtpZoAccount(client, self, zo_utp_data)
+        self.zo = UtpZoAccount(client, self, zo_utp_data)
 
         self._deposit_record = deposit_record
         self._borrow_record = borrow_record
@@ -216,10 +217,7 @@ class MarginfiAccount:
     def all_utps(self):
         """List of supported UTP proxy instances"""
 
-        return [
-            self.mango,
-            # self.zo
-        ]
+        return [self.mango, self.zo]
 
     @property
     def active_utps(self):
@@ -366,7 +364,7 @@ class MarginfiAccount:
         self._borrow_record = Decimal.from_account_data(data.borrow_record).to_float()
 
         self.mango.update(self._pack_utp_data(data, UtpIndex.Mango))
-        # self.zo.update(...)
+        self.zo.update(self._pack_utp_data(data, UtpIndex.Zo))
 
     async def get_observation_accounts(self) -> List[AccountMeta]:
         accounts = []

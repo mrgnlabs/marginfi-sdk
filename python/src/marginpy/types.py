@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from solana.publickey import PublicKey
+from solana.keypair import Keypair
+from solana.transaction import TransactionInstruction
 import marginpy.generated_client.types as gen_types
 from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
 from enum import Enum
@@ -83,3 +85,9 @@ class UtpMangoPlacePerpOrderOptions:
     reduce_only: Optional[bool] = False
     expiry_timestamp: Optional[int] = None
     expiry_type: Optional[gen_types.MangoExpiryTypeKind] = None
+
+
+@dataclass
+class InstructionsWrapper:
+    instructions: List[TransactionInstruction]
+    signers: List[Keypair]

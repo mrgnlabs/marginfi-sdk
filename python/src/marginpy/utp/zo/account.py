@@ -1,6 +1,22 @@
-from marginpy import MarginfiClient, MarginfiAccount
+from __future__ import annotations
 from marginpy.utp.account import UtpAccount
-from marginpy.types import UtpData
+from marginpy.types import InstructionsWrapper, UtpData
+from solana.keypair import Keypair
+from solana.transaction import (
+    AccountMeta,
+    Transaction,
+    TransactionSignature,
+)
+from solana.system_program import create_account, CreateAccountParams
+from solana.publickey import PublicKey
+from typing import TYPE_CHECKING, Tuple
+from marginpy.utp.zo.instruction import ActivateAccounts, ActivateArgs, make_activate_ix
+from marginpy.utp.zo.utils import CONTROL_ACCOUNT_SIZE
+from .utils.generated_client.accounts.state import State
+from .utils.generated_client.accounts.margin import Margin
+
+if TYPE_CHECKING:
+    from marginpy import MarginfiClient, MarginfiAccount
 
 
 class UtpZoAccount(UtpAccount):
@@ -28,72 +44,74 @@ class UtpZoAccount(UtpAccount):
 
     # --- Others
 
-    async def make_activate_ix(self):
-        # async makeActivateIx(): Promise<InstructionsWrapper> {
-        #     const zoControlKey = Keypair.generate();
+    async def make_activate_ix(self) -> InstructionsWrapper:
+        """
+        Create transaction instruction to activate Mango.
 
-        #     const controlAccountRent = await this._program.provider.connection.getMinimumBalanceForRentExemption(
-        #     CONTROL_ACCOUNT_SIZE
-        #     );
+        :returns: `ActivateUtp` transaction instruction
+        """
 
-        #     const provider = this._program.provider;
-        #     const createZoControlAccount = SystemProgram.createAccount({
-        #     fromPubkey: provider.wallet.publicKey,
-        #     newAccountPubkey: zoControlKey.publicKey,
-        #     lamports: controlAccountRent,
-        #     space: CONTROL_ACCOUNT_SIZE,
-        #     programId: this.config.programId,
-        #     });
+        zo_control_keypair = Keypair()
+        control_account_rent = int(
+            (
+                await self._program.provider.connection.get_minimum_balance_for_rent_exemption(
+                    CONTROL_ACCOUNT_SIZE
+                )
+            )["result"]
+        )
+        create_control_account_ix = create_account(
+            CreateAccountParams(
+                program_id=self.config.program_id,
+                from_pubkey=self._program.provider.wallet.public_key,
+                lamports=control_account_rent,
+                new_account_pubkey=zo_control_keypair.public_key,
+                space=CONTROL_ACCOUNT_SIZE,
+            )
+        )
 
-        #     const utpAuthoritySeed = Keypair.generate().publicKey;
+        authority_seed = Keypair()
+        utp_authority_pk, utp_authority_bump = await self.authority(
+            authority_seed.public_key
+        )
 
-        #     const zoProgramId = this._config.zo.programId;
-        #     const [utpAuthorityPk, utpAuthorityBump] = await this.authority(utpAuthoritySeed);
+        margin_pk, margin_bump = self.get_zo_margin_address(utp_authority_pk)
 
-        #     const zoProgram = ZoClient.createProgram(this._client.program.provider, this._config.zo.cluster);
-        #     const state = await ZoClient.State.load(zoProgram, this._config.zo.statePk);
-        #     const [zoMarginPubkey, zoMarginNonce] = await ZoClient.Margin.getMarginKey(state, utpAuthorityPk, zoProgram);
+        activate_ix = make_activate_ix(
+            ActivateArgs(
+                authority_seed=authority_seed.public_key,
+                authority_bump=utp_authority_bump,
+                zo_margin_nonce=margin_bump,
+            ),
+            ActivateAccounts(
+                marginfi_account=self._marginfi_account.pubkey,
+                marginfi_group=self._config.group_pk,
+                authority=self._program.provider.wallet.public_key,
+                utp_authority=utp_authority_pk,
+                zo_program=self.config.program_id,
+                zo_control=zo_control_keypair.public_key,
+                zo_margin=margin_pk,
+                zo_state=self.config.state_pk,
+            ),
+            self._client.program_id,
+        )
 
-        #     const activateZoIx = await instructions.makeActivateIx(
-        #     this._program,
-        #     {
-        #         marginfiGroup: this._config.groupPk,
-        #         marginfiAccount: this._marginfiAccount.publicKey,
-        #         authority: this._program.provider.wallet.publicKey,
-        #         utpAuthority: utpAuthorityPk,
-        #         zoProgram: zoProgramId,
-        #         zoState: state.pubkey,
-        #         zoMargin: zoMarginPubkey,
-        #         zoControl: zoControlKey.publicKey,
-        #     },
-        #     {
-        #         authoritySeed: utpAuthoritySeed,
-        #         authorityBump: utpAuthorityBump,
-        #         zoMarginNonce,
-        #     }
-        #     );
+        return InstructionsWrapper(
+            instructions=[create_control_account_ix, activate_ix],
+            signers=[zo_control_keypair],
+        )
 
-        #     return {
-        #     instructions: [createZoControlAccount, activateZoIx],
-        #     keys: [zoControlKey],
-        #     };
-        # }
-        pass
+    async def activate(self) -> TransactionSignature:
+        """
+        Activate Mango.
 
-    async def activate(self):
-        # async activate(): Promise<string> {
-        #     const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:activate`);
-        #     debug("Activate 01 UTP");
+        :returns: Transaction signature
+        """
 
-        #     const activateIx = await this.makeActivateIx();
-
-        #     const tx = new Transaction().add(...activateIx.instructions);
-        #     const sig = await processTransaction(this._program.provider, tx, [...activateIx.keys]);
-        #     debug("Sig %s", sig);
-        #     await this._marginfiAccount.reload(); // Required to update the internal UTP address
-        #     return sig;
-        # }
-        pass
+        activate_ixs_wrapped = await self.make_activate_ix()
+        tx = Transaction().add(*activate_ixs_wrapped.instructions)
+        sig = await self._client.program.provider.send(tx, activate_ixs_wrapped.signers)
+        await self._marginfi_account.reload()
+        return sig
 
     async def make_deactivate_ix(self):
         """
@@ -109,17 +127,11 @@ class UtpZoAccount(UtpAccount):
 
         :returns: Transaction signature
         """
-        # async deactivate() {
-        #     const debug = require("debug")(`mfi:utp:${this.address}:zo:deactivate`);
-        #     this.verifyActive();
-        #     debug("Deactivating 01 UTP");
 
-        #     const sig = await this._marginfiAccount.deactivateUtp(this.index);
-        #     debug("Sig %s", sig);
-        #     await this._marginfiAccount.reload(); // Required to update the internal UTP address
-        #     return sig;
-        # }
-        pass
+        self.verify_active()
+        sig = await self._marginfi_account.deactivate_utp(self.index)
+        await self._marginfi_account.reload()
+        return sig
 
     async def make_deposit_ix(self):
         """
@@ -257,18 +269,42 @@ class UtpZoAccount(UtpAccount):
 
         :returns: `AccountMeta[]` list of account metas
         """
-        # async getObservationAccounts(): Promise<AccountMeta[]> {
-        #     const zoMargin = await this.getZoMargin();
-        #     const zoState = await this.getZoState();
 
-        #     return [
-        #     { pubkey: zoMargin.pubkey, isWritable: false, isSigner: false },
-        #     { pubkey: zoMargin.control.pubkey, isWritable: false, isSigner: false },
-        #     { pubkey: zoState.pubkey, isWritable: false, isSigner: false },
-        #     { pubkey: zoState.cache.pubkey, isWritable: false, isSigner: false },
-        #     ];
-        # }
-        pass
+        # TODO: change to 1 fetch for both accounts + decoding
+        state = await State.fetch(
+            self._program.provider.connection,
+            self.config.state_pk,
+            self._program.provider.opts.preflight_commitment,
+            self.config.program_id,
+        )
+        margin = await Margin.fetch(
+            self._program.provider.connection,
+            self.address,
+            self._program.provider.opts.preflight_commitment,
+            self.config.program_id,
+        )
+        return [
+            AccountMeta(
+                pubkey=self.address,
+                is_signer=False,
+                is_writable=False,
+            ),
+            AccountMeta(
+                pubkey=margin.control,
+                is_signer=False,
+                is_writable=False,
+            ),
+            AccountMeta(
+                pubkey=self.config.state_pk,
+                is_signer=False,
+                is_writable=False,
+            ),
+            AccountMeta(
+                pubkey=state.cache,
+                is_signer=False,
+                is_writable=False,
+            ),
+        ]
 
     async def make_place_perp_order_ix(self):
         """
@@ -463,17 +499,6 @@ class UtpZoAccount(UtpAccount):
         # }
         pass
 
-    def verify_active(self):
-        """[Internal]"""
-        # private verifyActive() {
-        #     const debug = require("debug")(`mfi:utp:${this.address}:zo:verify-active`);
-        #     if (!this.isActive) {
-        #     debug("Utp isn't active");
-        #     throw new Error("Utp isn't active");
-        #     }
-        # }
-        pass
-
     # Zo-specific
 
     async def make_create_perp_open_orders_ix(self):
@@ -617,3 +642,14 @@ class UtpZoAccount(UtpAccount):
         # }
         # }
         pass
+
+    def get_zo_margin_address(
+        self,
+        authority: PublicKey,
+    ) -> Tuple[PublicKey, int]:
+        """[Internal] Compute the Mango account PDA tied to the specified user."""
+
+        return PublicKey.find_program_address(
+            [bytes(authority), bytes(self.config.state_pk), b"marginv1"],
+            self.config.program_id,
+        )

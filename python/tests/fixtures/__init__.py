@@ -209,7 +209,7 @@ def bench_fixture() -> Callable:
 
         # Fund the liquidity vault through an ephemeral marginfi account
         # (minting to vault directly does not appear on books)
-        funding_account, account_sig = await client.create_marginfi_account()
+        funding_account, _ = await client.create_marginfi_account()
         funding_ata = await mint_fixture.create_associated_token_account(
             basics_fixture.wallet.public_key
         )
@@ -294,8 +294,70 @@ def mango_bench() -> Callable:
 
         # Fetch existing marginfi group
         group = await MarginfiGroup.fetch(
+            basics_fixture.default_config, basics_fixture.program
+        )
+
+        # Instantiate marginfi client to use during tests
+        client = await MarginfiClient.fetch(
             basics_fixture.default_config,
-            basics_fixture.program
+            basics_fixture.wallet,
+            basics_fixture.rpc_client,
+            opts=basics_fixture.provider.opts,
+        )
+
+        # Fund the liquidity vault through an ephemeral marginfi account
+        # (airdropping to vault directly does not appear on books)
+        marginfi_account, _ = await client.create_marginfi_account()
+        funding_ata = await get_ata_or_create(
+            basics_fixture.rpc_client,
+            basics_fixture.wallet.payer,
+            basics_fixture.default_config.collateral_mint_pk,
+        )
+
+        DEVNET_USDC_FAUCET = PublicKey("B87AhxX6BkBsj3hnyHzcerX2WxPoACC7ZyDr8E7H9geN")
+        await airdrop_collateral(
+            basics_fixture.provider,
+            1_000_000_000,
+            basics_fixture.default_config.collateral_mint_pk,
+            funding_ata,
+            DEVNET_USDC_FAUCET,
+        )
+
+        await marginfi_account.deposit(1_000)
+        await marginfi_account.reload()
+
+        return MangoBench(
+            basics=basics_fixture,
+            config=basics_fixture.default_config,
+            group=group,
+            client=client,
+            account=marginfi_account,
+        )
+
+    return _bench_fixture
+
+
+# ================================
+# 01
+# ================================
+
+
+@dataclass
+class ZoBench:
+    basics: Basics
+    config: MarginfiConfig
+    group: MarginfiGroup
+    client: MarginfiClient
+    account: MarginfiAccount
+
+
+def zo_bench() -> Callable:
+    @async_fixture
+    async def _bench_fixture(basics_fixture: Basics) -> ZoBench:
+
+        # Fetch existing marginfi group
+        group = await MarginfiGroup.fetch(
+            basics_fixture.default_config, basics_fixture.program
         )
 
         # Instantiate marginfi client to use during tests

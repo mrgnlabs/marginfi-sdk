@@ -26,10 +26,8 @@ class TestMangoAccount:
         marginfi_account, _ = await mango_bench.client.create_marginfi_account()
 
         await marginfi_account.mango.activate()
-        await marginfi_account.reload()
         assert marginfi_account.mango.is_active
         await marginfi_account.mango.deactivate()
-        await marginfi_account.reload()
         assert marginfi_account.mango.is_active == False
 
     async def test_mango_deposit_withdraw(
@@ -38,9 +36,7 @@ class TestMangoAccount:
     ) -> None:
 
         marginfi_account = mango_bench.account
-
         await marginfi_account.mango.activate()
-        await marginfi_account.reload()
 
         await marginfi_account.mango.deposit(1)
         await marginfi_account.mango.withdraw(1)
@@ -50,10 +46,7 @@ class TestMangoAccount:
         mango_bench: MangoBench,
     ) -> None:
         marginfi_account = mango_bench.account
-
         await marginfi_account.mango.activate()
-        await marginfi_account.reload()
-
         await marginfi_account.mango.deposit(100)
 
         with mango.ContextBuilder.build(
@@ -73,10 +66,7 @@ class TestMangoAccount:
         mango_bench: MangoBench,
     ) -> None:
         marginfi_account = mango_bench.account
-
         await marginfi_account.mango.activate()
-        await marginfi_account.reload()
-
         await marginfi_account.mango.deposit(100)
 
         with mango.ContextBuilder.build(
@@ -84,7 +74,7 @@ class TestMangoAccount:
         ) as context:
             market = mango.market(context, "SOL-PERP")
 
-        # accept invalid ID
+        # Place order success
         await marginfi_account.mango.place_perp_order(
             perp_market=market,
             side=mango_side.Bid,
@@ -93,6 +83,7 @@ class TestMangoAccount:
             options=UtpMangoPlacePerpOrderOptions(order_type=PostOnlySlide()),
         )
 
+        # Fetch current user orders
         with mango.ContextBuilder.build(
             cluster_name=mango_bench.config.mango.cluster, group_name="devnet.2"
         ) as context:
@@ -113,12 +104,14 @@ class TestMangoAccount:
         assert len(orders) == 1
         order = orders[0]
 
+        # Cancel only open order
         await marginfi_account.mango.cancel_perp_order(
             perp_market=market,
             order_id=order.id,
             invalid_id_ok=False,
         )
 
+        # Check cancelling inexistent open order throws
         with raises(BaseException) as e:
             await marginfi_account.mango.cancel_perp_order(
                 perp_market=market,
@@ -126,6 +119,7 @@ class TestMangoAccount:
                 invalid_id_ok=False,
             )
 
+        # Check cancelling inexistent open order does not throws with adequate option
         await marginfi_account.mango.cancel_perp_order(
             perp_market=market,
             order_id=order.id,
