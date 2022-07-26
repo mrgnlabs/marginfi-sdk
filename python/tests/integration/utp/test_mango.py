@@ -18,13 +18,13 @@ from marginpy.utp.mango import UtpMangoAccount, MangoConfig
 from marginpy.types import UtpData
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
-user = user_fixture()
-bench_fixture = (
-    bench_fixture()
-)  # needs to be called that way to be found by `user_fixture`
-mint_fixture = (
-    mint_fixture()
-)  # needs to be called that way to be found by `user_fixture`
+# user = user_fixture()
+# bench_fixture = (
+#     bench_fixture()
+# )  # needs to be called that way to be found by `user_fixture`
+# mint_fixture = (
+#     mint_fixture()
+# )  # needs to be called that way to be found by `user_fixture`
 basics_fixture = (
     basics_fixture(environment=Environment.DEVNET, rpc_url=DEVNET_URL)
 )
@@ -35,37 +35,29 @@ mango_bench = mango_bench()
 @mark.integration
 @mark.devnet
 class TestMangoAccount:
-    # async def test_mango_activate_deactivate(self, mango_bench: MangoBench):
-    #     utp_data = UtpData(is_active=False, account_config=mango_bench.config.mango)
+    async def test_mango_activate_deactivate(self, mango_bench: MangoBench):
+        utp_data = UtpData(is_active=False, account_config=mango_bench.config.mango)
 
-    #     marginfi_account, _ = await mango_bench.client.create_marginfi_account()
+        marginfi_account, _ = await mango_bench.client.create_marginfi_account()
 
-    #     sig = await marginfi_account.mango.activate()
-    #     await marginfi_account.reload()
-    #     assert marginfi_account.mango.is_active
-    #     sig = await marginfi_account.mango.deactivate()
-    #     await marginfi_account.reload()
-    #     assert marginfi_account.mango.is_active == False
-    #     print(sig)
+        sig = await marginfi_account.mango.activate()
+        await marginfi_account.reload()
+        assert marginfi_account.mango.is_active
+        sig = await marginfi_account.mango.deactivate()
+        await marginfi_account.reload()
+        assert marginfi_account.mango.is_active == False
+        print(sig)
 
     async def test_mango_deposit_withdraw(
         self, 
         mango_bench: MangoBench,
-        user: User
     ) -> None:
-        utp_data = UtpData(is_active=False, account_config=mango_bench.config.mango)
 
-        marginfi_account = user.account
-
-        await marginfi_account.deposit(1)
-        await marginfi_account.reload()
+        marginfi_account = mango_bench.account
         
-        sig = await marginfi_account.mango.activate()
+        await marginfi_account.mango.activate()
         await marginfi_account.reload()
 
-        sig = await marginfi_account.mango.deposit(1)        
+        await marginfi_account.mango.deposit(1)
+        sig = await marginfi_account.mango.withdraw(1)
         print(sig)
-
-        # await marginfi_account.reload()
-        # sig = await marginfi_account.mango.withdraw(0.5)
-        # print(sig)

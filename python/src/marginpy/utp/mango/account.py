@@ -231,10 +231,7 @@ class UtpMangoAccount(UtpAccount):
 
         self.verify_active()
 
-        deposit_ixs, proxy_token_account_key = await self.make_deposit_ix(
-            amount,
-            proxy_token_account_key
-        )
+        deposit_ixs, proxy_token_account_key = await self.make_deposit_ix(amount)
         
         tx = Transaction().add(*deposit_ixs)
         return await self._client.program.provider.send(
