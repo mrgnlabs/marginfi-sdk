@@ -4,6 +4,7 @@ import "./sentry";
 
 import { ONE_I80F48, QUOTE_INDEX, sleep, ZERO_BN, ZERO_I80F48 } from "@blockworks-foundation/mango-client";
 import {
+  DUST_THRESHOLD,
   loadKeypair,
   MangoOrderSide,
   MangoPerpOrderType,
@@ -16,6 +17,7 @@ import {
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import debugBuilder from "debug";
 import { captureException } from "./sentry";
+import BigNumber from "bignumber.js";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
 const wallet = new Wallet(
@@ -200,9 +202,11 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
   const observation = await marginfiAccount.zo.observe();
   let withdrawableAmount = observation.freeCollateral.minus(0.0001);
 
-  debug("Withdrawing %s from ZO", withdrawableAmount.toString());
-  await marginfiAccount.zo.withdraw(withdrawableAmount);
-
+  if (withdrawableAmount.gte(DUST_THRESHOLD)) {
+    debug("Withdrawing %s from ZO", withdrawableAmount.toString());
+    await marginfiAccount.zo.withdraw(withdrawableAmount);
+  }
+  
   debug("Deactivating ZO");
   await marginfiAccount.zo.deactivate();
 }
