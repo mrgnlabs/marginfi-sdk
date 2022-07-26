@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.15-alpha.0](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-interest-rate-accumulator-bot@0.0.14...@mrgnlabs/marginfi-interest-rate-accumulator-bot@0.0.15-alpha.0) (2022-07-26)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-interest-rate-accumulator-bot
+
+
+
+
+
 ## [0.0.14](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-interest-rate-accumulator-bot@0.0.13...@mrgnlabs/marginfi-interest-rate-accumulator-bot@0.0.14) (2022-07-14)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-interest-rate-accumulator-bot
