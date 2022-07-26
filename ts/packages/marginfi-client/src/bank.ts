@@ -33,8 +33,8 @@ class Bank {
     this.depositAccumulator = wrappedI80F48toBigNumber(data.depositAccumulator, 0);
     this.borrowAccumulator = wrappedI80F48toBigNumber(data.borrowAccumulator, 0);
     this.lastUpdate = new Date(data.lastUpdate.toNumber());
-    this.totalDepositsRecord = wrappedI80F48toBigNumber(data.totalDepositsRecord);
-    this.totalBorrowsRecord = wrappedI80F48toBigNumber(data.totalBorrowsRecord);
+    this.totalDepositsRecord = wrappedI80F48toBigNumber(data.totalDepositsRecord, 0);
+    this.totalBorrowsRecord = wrappedI80F48toBigNumber(data.totalBorrowsRecord, 0);
     this.mint = data.mint;
     this.vault = data.vault;
     this.bankAutorityBump = data.bankAutorityBump;
@@ -47,11 +47,11 @@ class Bank {
   }
 
   get nativeDepositBalance(): BigNumber {
-    return this.computeNativeAmount(this.totalDepositsRecord, LendingSide.Deposit);
+    return this.computeNativeAmount(this.totalDepositsRecord, LendingSide.Deposit).shiftedBy(-6);
   }
 
   get nativeBorrowBalance(): BigNumber {
-    return this.computeNativeAmount(this.totalBorrowsRecord, LendingSide.Borrow);
+    return this.computeNativeAmount(this.totalBorrowsRecord, LendingSide.Borrow).shiftedBy(-6);
   }
 
   public computeNativeAmount(record: BigNumber, side: LendingSide): BigNumber {
