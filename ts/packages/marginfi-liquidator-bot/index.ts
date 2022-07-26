@@ -205,7 +205,7 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
     debug("Withdrawing %s from ZO", withdrawableAmount.toString());
     await marginfiAccount.zo.withdraw(withdrawableAmount);
   }
-  
+
   debug("Deactivating ZO");
   await marginfiAccount.zo.deactivate();
 }
