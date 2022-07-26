@@ -50,7 +50,7 @@ from marginpy.utp.mango.instruction import (
     CancelPerpOrderArgs,
     CancelPerpOrderAccounts,
 )
-from marginpy.utp.mango.types import USDC_TOKEN
+from marginpy.utp.mango.types import USDC_TOKEN_DICT
 import marginpy.generated_client.types as gen_types
 
 from typing import TYPE_CHECKING
@@ -156,7 +156,11 @@ class UtpMangoAccount(UtpAccount):
         await self._marginfi_account.reload()
         return sig
 
-    async def make_deposit_ix(self, amount: float) -> List[TransactionInstruction]:
+    async def make_deposit_ix(
+        self, 
+        amount: float,
+        proxy_token_account_key: PublicKey
+    ) -> List[TransactionInstruction]:
         """
         Create transaction instruction to deposit collateral into the Mango account.
 
@@ -164,18 +168,16 @@ class UtpMangoAccount(UtpAccount):
         :returns `MangoDepositCollateral` transaction instruction
         """
 
-        proxy_token_account_key = Keypair()
-
         mango_authority_pk, _ = await self.authority()
         margin_bank_authority_pk, _ = get_bank_authority(
             self._config.group_pk, self._program.program_id
         )
 
         with mango.ContextBuilder.build(
-            cluster_name=self.config.cluster, group_name="devnet.2"
+            cluster_name=self.config.cluster, group_name="devnet.2" # TODO update for mainnet
         ) as context:
             mango_group = mango.Group.load(context)
-            token_bank = mango_group.token_bank_by_instrument(USDC_TOKEN)
+            token_bank = mango_group.token_bank_by_instrument(USDC_TOKEN_DICT[self.config.cluster])
             root_bank = token_bank.ensure_root_bank(context)
             node_bank = root_bank.pick_node_bank(context)
 
@@ -224,10 +226,18 @@ class UtpMangoAccount(UtpAccount):
         """
 
         self.verify_active()
+        proxy_token_account_key = Keypair()
 
-        deposit_ixs = await self.make_deposit_ix(amount)
+        deposit_ixs = await self.make_deposit_ix(
+            amount,
+            proxy_token_account_key
+        )
+        
         tx = Transaction().add(*deposit_ixs)
-        return await self._client.program.provider.send(tx)
+        return await self._client.program.provider.send(
+            tx=tx,
+            signers=[proxy_token_account_key]
+        )
 
     async def make_withdraw_ix(self, amount: float) -> TransactionInstruction:
         """
@@ -243,7 +253,7 @@ class UtpMangoAccount(UtpAccount):
             cluster_name=self.config.cluster, group_name="devnet.2"
         ) as context:
             mango_group = mango.Group.load(context)
-            token_bank = mango_group.token_bank_by_instrument(USDC_TOKEN)
+            token_bank = mango_group.token_bank_by_instrument(USDC_TOKEN_DICT[self.config.cluster])
             root_bank = token_bank.ensure_root_bank(context)
             node_bank = root_bank.pick_node_bank(context)
 
