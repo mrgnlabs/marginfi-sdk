@@ -13,18 +13,12 @@ from tests.fixtures import (
     MangoBench, 
     mango_bench
 )
-from marginpy import Environment, MarginfiAccount
-from marginpy.utp.mango import UtpMangoAccount, MangoConfig
-from marginpy.types import UtpData
+from marginpy import Environment
+import mango
+import marginpy.generated_client.types.mango_side as mango_side
+
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
-# user = user_fixture()
-# bench_fixture = (
-#     bench_fixture()
-# )  # needs to be called that way to be found by `user_fixture`
-# mint_fixture = (
-#     mint_fixture()
-# )  # needs to be called that way to be found by `user_fixture`
 basics_fixture = (
     basics_fixture(environment=Environment.DEVNET, rpc_url=DEVNET_URL)
 )
@@ -35,8 +29,7 @@ mango_bench = mango_bench()
 @mark.integration
 @mark.devnet
 class TestMangoAccount:
-    async def test_mango_activate_deactivate(self, mango_bench: MangoBench):
-        utp_data = UtpData(is_active=False, account_config=mango_bench.config.mango)
+    async def test_mango_activate_deactivate(self, mango_bench: MangoBench) -> None:
 
         marginfi_account, _ = await mango_bench.client.create_marginfi_account()
 
@@ -61,3 +54,37 @@ class TestMangoAccount:
         await marginfi_account.mango.deposit(1)
         sig = await marginfi_account.mango.withdraw(1)
         print(sig)
+
+    # async def test_place_perp_order(
+    #     self,
+    #     mango_bench: MangoBench,
+    # ) -> None:
+    #     marginfi_account = mango_bench.account
+
+    #     await marginfi_account.mango.activate()
+    #     await marginfi_account.reload()
+
+    #     await marginfi_account.mango.deposit(100)
+
+    #     with mango.ContextBuilder.build(cluster_name="devnet") as context:
+    #         market = mango.market(context, "SOL-PERP")
+
+    #     print(
+    #         f"""
+    #         MARKET TYPE
+    #         {type(market)}
+    #         """
+    #     )
+        
+    #     sig = await marginfi_account.mango.place_perp_order(
+    #         perp_market=market,
+    #         side=mango_side.Bid,
+    #         price=50,
+    #         quantity=1,
+    #     )
+    #     print(sig)
+
+    # async def test_cancel_perp_order(
+    #     self
+    # ) -> None:
+    #     pass

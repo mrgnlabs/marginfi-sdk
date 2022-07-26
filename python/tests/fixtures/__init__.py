@@ -291,39 +291,6 @@ class MangoBench:
 def mango_bench() -> Callable:
     @async_fixture
     async def _bench_fixture(basics_fixture: Basics) -> MangoBench:
-        # Create / configure marginfi group used in the test
-        # group_pk, sig = await create_marginfi_group(
-        #     basics_fixture.default_config.collateral_mint_pk,
-        #     basics_fixture.wallet,
-        #     basics_fixture.program,
-        # )
-        # new_group_config = GroupConfig(
-        #     bank=BankConfig(
-        #         init_margin_ratio=int(1.15 * 10**6),
-        #         maint_margin_ratio=int(1.05 * 10**6),
-        #         account_deposit_limit=None,
-        #         fixed_fee=None,
-        #         interest_fee=None,
-        #         lp_deposit_limit=None,
-        #         scaling_factor_c=None,
-        #     ),
-        #     paused=False,
-        #     admin=None,
-        # )
-        # await configure_marginfi_group(
-        #     group_pk, new_group_config, basics_fixture.wallet, basics_fixture.program
-        # )
-
-        # group_pk = PublicKey("2bV5MGd6wyHHtmNPbhJbapjUNCRPzptrsPkVGntmx2qZ")
-
-        # Update marginfi config with newly-created group and mint
-        # config = MarginfiConfig(
-        #     basics_fixture.default_config.environment,
-        #     # overrides={
-        #     #     # "group_pk": group_pk,
-        #     #     # "program_id": basics_fixture.default_config.program_id,
-        #     # },
-        # )
 
         # Fetch existing marginfi group
         group = await MarginfiGroup.fetch(
