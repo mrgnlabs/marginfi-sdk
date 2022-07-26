@@ -230,7 +230,7 @@ async function withdrawFromMango(marginfiAccount: MarginfiAccount) {
   let observation = await marginfiAccount.mango.observe();
   let withdrawAmount = observation.freeCollateral.minus(0.000001);
 
-  if (withdrawAmount.lte(0)) {
+  if (withdrawAmount.lte(DUST_THRESHOLD)) {
     return;
   }
 
