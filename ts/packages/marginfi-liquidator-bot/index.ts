@@ -17,7 +17,6 @@ import {
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import debugBuilder from "debug";
 import { captureException } from "./sentry";
-import BigNumber from "bignumber.js";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
 const wallet = new Wallet(
