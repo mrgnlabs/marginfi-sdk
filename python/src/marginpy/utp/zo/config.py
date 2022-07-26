@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Literal
 from solana.publickey import PublicKey
 from marginpy.config import Environment
 from marginpy.types import UtpConfig
@@ -11,6 +11,7 @@ class ZoConfig(UtpConfig):
     Define Zo-specific config per profile
     """
 
+    cluster: Literal["devnet", "mainnet"]
     state_pk: PublicKey
     dex_program: PublicKey
 
@@ -26,6 +27,7 @@ class ZoConfig(UtpConfig):
                 override_key="program_id",
                 default=PublicKey("Zo1ggzTUKMY5bYnDvT5mtVeZxzf2FaLTbKkmvGUhUQk"),
             )
+            self.cluster = "mainnet"
             self.state_pk = handle_override(
                 overrides=overrides,
                 override_key="state_pk",
@@ -45,6 +47,7 @@ class ZoConfig(UtpConfig):
                 override_key="program_id",
                 default=PublicKey("Zo1ThtSHMh9tZGECwBDL81WJRL6s3QTHf733Tyko7KQ"),
             )
+            self.cluster = "devnet"
             self.state_pk = handle_override(
                 overrides=overrides,
                 override_key="state_pk",

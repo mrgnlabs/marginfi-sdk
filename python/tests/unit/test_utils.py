@@ -51,3 +51,12 @@ class TestUtils:
         )
         assert pda == PublicKey("F8H1zRowNeJ8mbxMLDYzL9Kejd24wu7yEAz65f87UMSa")
         assert bump == 255
+
+    def test_mango_account_pda(self):
+        pda, bump = PublicKey.find_program_address(
+            [
+                bytes(PublicKey("6ovvJd93CZqn6GgW29j39yJKnbuqqYKET2G55AXbbSNR")),
+                bytes(PublicKey("5yg2EnX2Vn14SKdEvYooyaj5KmE4xGgHviQKGB5Y9oFQ")),
+            ],
+            PublicKey("DzEv7WuxdzRJ1iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ"),
+        )

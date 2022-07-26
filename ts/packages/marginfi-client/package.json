@@ -7,7 +7,7 @@
   "author": "MRGN Labs",
   "license": "Apache-2.0",
   "scripts": {
-    "test": "ts-mocha -p ./tsconfig.json ./src/**/*.spec.ts",
+    "test": "ts-mocha -p ./tsconfig.json ./src/**/*.spec.ts --timeout 10000",
     "build": "tsc",
     "watch": "tsc -w",
     "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",

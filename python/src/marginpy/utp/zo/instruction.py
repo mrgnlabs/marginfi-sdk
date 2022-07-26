@@ -69,7 +69,7 @@ class DepositAccounts:
     bank_authority: PublicKey
     temp_collateral_account: PublicKey
     utp_authority: PublicKey
-    zo_program: PublicKey  # @todo pass through zo config
+    zo_program: PublicKey
     zo_state: PublicKey
     zo_state_signer: PublicKey
     zo_cache: PublicKey
@@ -300,11 +300,25 @@ class CreatePerpOpenOrdersAccounts:
     dex_program: PublicKey
 
 
-def create_perp_open_orders_ix(
-    accounts: CancelPerpOrderAccounts,
+def make_create_perp_open_orders_ix(
+    accounts: CreatePerpOpenOrdersAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta],
+    remaining_accounts: List[AccountMeta] = [],
 ) -> TransactionInstruction:
+    # print(
+    #     f"{accounts.marginfi_account}\n",
+    #     f"{accounts.marginfi_group}\n",
+    #     f"{accounts.signer}\n",
+    #     f"{accounts.utp_authority}\n",
+    #     f"{accounts.zo_program}\n",
+    #     f"{accounts.state}\n",
+    #     f"{accounts.state_signer}\n",
+    #     f"{accounts.margin}\n",
+    #     f"{accounts.control}\n",
+    #     f"{accounts.open_orders}\n",
+    #     f"{accounts.dex_market}\n",
+    #     f"{accounts.dex_program}\n",
+    # )
     return gen_ix.utp_zo_create_perp_open_orders(
         accounts=gen_ix.UtpZoCreatePerpOpenOrdersAccounts(
             header=HeaderNested(
@@ -315,7 +329,7 @@ def create_perp_open_orders_ix(
             ),
             zo_program=accounts.zo_program,
             state=accounts.state,
-            state_signer=accounts.signer,
+            state_signer=accounts.state_signer,
             margin=accounts.margin,
             control=accounts.control,
             open_orders=accounts.open_orders,

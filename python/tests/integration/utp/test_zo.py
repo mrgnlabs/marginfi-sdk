@@ -1,4 +1,3 @@
-from time import sleep
 from pytest import mark
 from tests.config import DEVNET_URL
 from tests.fixtures import (
@@ -26,7 +25,7 @@ class TestZoAccount:
         await marginfi_account.zo.deactivate()
         assert marginfi_account.zo.is_active == False
 
-    async def test_mango_deposit_withdraw(
+    async def test_zo_deposit_withdraw(
         self,
         zo_bench: ZoBench,
     ) -> None:
@@ -36,6 +35,16 @@ class TestZoAccount:
 
         await marginfi_account.zo.deposit(1)
         await marginfi_account.zo.withdraw(1)
+
+    async def test_zo_create_open_orders_account(
+        self,
+        zo_bench: ZoBench,
+    ) -> None:
+
+        marginfi_account = zo_bench.account
+        await marginfi_account.zo.activate()
+
+        await marginfi_account.zo.create_perp_open_orders("SOL-PERP")
 
     # async def test_place_perp_order(
     #     self,

@@ -1,6 +1,16 @@
-import { PublicKey } from "@solana/web3.js";
+import { Provider } from "@project-serum/anchor";
+import { Connection, PublicKey } from "@solana/web3.js";
+import {
+  Cluster,
+  createProgram,
+  Margin,
+  State,
+  ZO_DEX_DEVNET_PROGRAM_ID,
+  ZO_DEX_MAINNET_PROGRAM_ID,
+} from "@zero_one/client";
 import { BN } from "bn.js";
 import { assert } from "chai";
+import { Wallet } from "..";
 import { AccountType, BankVaultType } from "../types";
 import { getMangoAccountPda } from "../utp/mango";
 import { getBankAuthority, getUtpAuthority, isAccountType } from "./helpers";
@@ -61,5 +71,41 @@ describe("PDA", () => {
     );
     assert.isTrue(pda[0].equals(new PublicKey("F8H1zRowNeJ8mbxMLDYzL9Kejd24wu7yEAz65f87UMSa")));
     assert.equal(pda[1], 255);
+  });
+
+  it.only("ha", async function () {
+    const connection = new Connection("http://devnet.genesysgo.net/");
+    const wallet = Wallet.local();
+    const provider = new Provider(connection, wallet, Provider.defaultOptions());
+    const program = await createProgram(provider, Cluster.Devnet);
+    const state = await State.load(program, new PublicKey("KwcWW7WvgSXLJcyjKZJBHLbfriErggzYHpjS9qjVD5F"));
+    const margin = await Margin.load(
+      program,
+      state,
+      state.cache,
+      new PublicKey("Ax5ThxoGDiVXgAcDcq5k2B3EebRP6wmdqN5F24jEa2tN")
+    );
+
+    const marketPk = await state.markets["SOL-PERP"].pubKey;
+    const dexMarket = state.getMarketKeyBySymbol("SOL-PERP");
+    const [openOrdersPk, bump] = await margin.getOpenOrdersKeyBySymbol("SOL-PERP", Cluster.Devnet);
+    console.log("control", margin.data.control.toBase58());
+    console.log("dexMarket", dexMarket.toBase58());
+    const [openOrdersPk2, bump2] = await PublicKey.findProgramAddress(
+      [margin.data.control.toBuffer(), dexMarket.toBuffer()],
+      Cluster.Devnet === Cluster.Devnet ? ZO_DEX_DEVNET_PROGRAM_ID : ZO_DEX_MAINNET_PROGRAM_ID
+    );
+    console.log({
+      margin: margin.pubkey.toBase58(),
+      openOrdersPk: openOrdersPk.toBase58(),
+      bump,
+      openOrdersPk2: openOrdersPk2.toBase58(),
+      bump2,
+      control: margin.data.control.toBase58(),
+      market: marketPk.toBase58(),
+      dexMarket: dexMarket.toBase58(),
+    });
+    console.log(margin.data.control.toBuffer().toString("hex"));
+    console.log(dexMarket.toBuffer().toString("hex"));
   });
 });

@@ -5,7 +5,10 @@ from datetime import datetime
 from typing import List
 from anchorpy import Program
 from solana.publickey import PublicKey
-from solana.transaction import TransactionSignature, AccountMeta
+from solana.transaction import TransactionSignature, AccountMeta, TransactionInstruction
+import solana.system_program as system_program
+from spl.token.constants import TOKEN_PROGRAM_ID, ACCOUNT_LEN
+import spl.token.instructions as spl_token_ixs
 from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
 from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpData, UtpIndex
 from marginpy.utp.observation import EMPTY_OBSERVATION, UtpObservation
@@ -173,3 +176,31 @@ class UtpAccount(ABC):
 
         if not self.is_active:
             raise Exception("Utp isn't active")
+
+    async def make_create_proxy_token_account_ixs(
+        self, proxy_token_account_key_pk, mango_authority_pk
+    ) -> List[TransactionInstruction]:
+        create_token_account_ix = system_program.create_account(
+            system_program.CreateAccountParams(
+                from_pubkey=self._program.provider.wallet.public_key,
+                new_account_pubkey=proxy_token_account_key_pk,
+                lamports=int(
+                    (
+                        await self._program.provider.connection.get_minimum_balance_for_rent_exemption(
+                            ACCOUNT_LEN
+                        )
+                    )["result"]
+                ),
+                space=ACCOUNT_LEN,
+                program_id=TOKEN_PROGRAM_ID,
+            )
+        )
+        init_token_account_ix = spl_token_ixs.initialize_account(
+            spl_token_ixs.InitializeAccountParams(
+                program_id=TOKEN_PROGRAM_ID,
+                mint=self._marginfi_account.group.bank.mint,
+                account=proxy_token_account_key_pk,
+                owner=mango_authority_pk,
+            )
+        )
+        return [create_token_account_ix, init_token_account_ix]

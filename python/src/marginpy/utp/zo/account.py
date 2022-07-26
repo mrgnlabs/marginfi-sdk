@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from marginpy.utils import get_bank_authority, ui_to_native
 from marginpy.utp.account import UtpAccount
 from marginpy.types import InstructionsWrapper, UtpData
 from solana.keypair import Keypair
@@ -6,14 +8,27 @@ from solana.transaction import (
     AccountMeta,
     Transaction,
     TransactionSignature,
+    TransactionInstruction,
 )
 from solana.system_program import create_account, CreateAccountParams
 from solana.publickey import PublicKey
-from typing import TYPE_CHECKING, Tuple
-from marginpy.utp.zo.instruction import ActivateAccounts, ActivateArgs, make_activate_ix
+from typing import TYPE_CHECKING, List, Tuple
+from marginpy.utp.zo.instruction import (
+    ActivateAccounts,
+    ActivateArgs,
+    CreatePerpOpenOrdersAccounts,
+    DepositAccounts,
+    DepositArgs,
+    WithdrawAccounts,
+    WithdrawArgs,
+    make_activate_ix,
+    make_create_perp_open_orders_ix,
+    make_deposit_ix,
+    make_withdraw_ix,
+)
 from marginpy.utp.zo.utils import CONTROL_ACCOUNT_SIZE
-from .utils.generated_client.accounts.state import State
-from .utils.generated_client.accounts.margin import Margin
+from marginpy.utp.zo.utils.copy_pasta.zo import Zo
+from marginpy.utp.zo.utils.copy_pasta.config import configs
 
 if TYPE_CHECKING:
     from marginpy import MarginfiClient, MarginfiAccount
@@ -133,135 +148,140 @@ class UtpZoAccount(UtpAccount):
         await self._marginfi_account.reload()
         return sig
 
-    async def make_deposit_ix(self):
+    async def make_deposit_ix(
+        self, amount: float
+    ) -> Tuple[List[TransactionInstruction], Keypair]:
         """
         Create transaction instruction to deposit collateral into the Mango account.
 
         :param amount Amount to deposit (mint native unit)
         :returns Transaction instruction
         """
-        # async makeDepositIx(amount: UiAmount): Promise<InstructionsWrapper> {
-        #     const zoProgramId = this._config.zo.programId;
 
-        #     const [utpAuthorityPk] = await this.authority();
-        #     const [tempTokenAccountKey, createTokenAccountIx, initTokenAccountIx] = await createTempTransferAccountIxs(
-        #     this._client.program.provider,
-        #     this._client.group.bank.mint,
-        #     utpAuthorityPk
-        #     );
+        proxy_token_account_key = Keypair()
 
-        #     const [bankAuthority] = await getBankAuthority(
-        #     this._config.groupPk,
-        #     this._program.programId,
-        #     BankVaultType.LiquidityVault
-        #     );
+        zo_authority_pk, _ = await self.authority()
+        margin_bank_authority_pk, _ = get_bank_authority(
+            self._config.group_pk, self._program.program_id
+        )
 
-        #     const [zoStateSigner] = await ZoClient.State.getSigner(this.config.statePk, zoProgramId);
-        #     const zoState = await ZoClient.State.load(
-        #     await ZoClient.createProgram(this._program.provider, this.config.cluster),
-        #     this.config.statePk
-        #     );
-        #     const [zoVaultPk] = await zoState.getVaultCollateralByMint(this._client.group.bank.mint);
-        #     const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
+        create_proxy_token_account_ixs = await self.make_create_proxy_token_account_ixs(
+            proxy_token_account_key.public_key,
+            zo_authority_pk,
+        )
 
-        #     return {
-        #     instructions: [
-        #         createTokenAccountIx,
-        #         initTokenAccountIx,
-        #         await instructions.makeDepositIx(
-        #         this._program,
-        #         {
-        #             marginfiGroup: this._config.groupPk,
-        #             marginfiAccount: this._marginfiAccount.publicKey,
-        #             signer: this._program.provider.wallet.publicKey,
-        #             marginCollateralVault: this._client.group.bank.vault,
-        #             bankAuthority: bankAuthority,
-        #             tempCollateralAccount: tempTokenAccountKey.publicKey,
-        #             utpAuthority: utpAuthorityPk,
-        #             zoProgram: zoProgramId,
-        #             zoState: this.config.statePk,
-        #             zoStateSigner: zoStateSigner,
-        #             zoCache: zoState.cache.pubkey,
-        #             zoMargin: this.address,
-        #             zoVault: zoVaultPk,
-        #         },
-        #         { amount: uiToNative(amount) },
-        #         remainingAccounts
-        #         ),
-        #     ],
-        #     keys: [tempTokenAccountKey],
-        #     };
-        # }
-        pass
+        zo = await Zo.new(
+            conn=self._program.provider.connection,
+            cluster=self.config.cluster,
+            tx_opts=self._program.provider.opts,
+            payer=self._program.provider.wallet.payer,
+            create_margin=False,
+            load_margin=False,
+        )
 
-    async def deposit(self):
-        # async deposit(amount: UiAmount): Promise<string> {
-        #     const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:deposit`);
-        #     debug("Depositing %s into 01", amount);
+        remaining_accounts = await self.get_observation_accounts()
 
-        #     const depositIx = await this.makeDepositIx(amount);
-        #     const tx = new Transaction().add(...depositIx.instructions);
-        #     const sig = await processTransaction(this._program.provider, tx, [...depositIx.keys]);
-        #     debug("Sig %s", sig);
-        #     return sig;
-        # }
-        pass
+        zo_state = configs[self.config.cluster].ZO_STATE_ID
 
-    async def make_withdraw_ix(self):
+        return (
+            [
+                *create_proxy_token_account_ixs,
+                make_deposit_ix(
+                    args=DepositArgs(amount=ui_to_native(amount)),
+                    accounts=DepositAccounts(
+                        marginfi_account=self._marginfi_account.pubkey,
+                        marginfi_group=self._config.group_pk,
+                        signer=self._program.provider.wallet.public_key,
+                        margin_collateral_vault=self._marginfi_account.group.bank.vault,
+                        bank_authority=margin_bank_authority_pk,
+                        temp_collateral_account=proxy_token_account_key.public_key,
+                        utp_authority=zo_authority_pk,
+                        zo_cache=zo._zo_state.cache,
+                        zo_margin=self.address,
+                        zo_program=self.config.program_id,
+                        zo_state=zo_state,
+                        zo_state_signer=zo._zo_state_signer,
+                        zo_vault=zo.collaterals[
+                            self._marginfi_account.group.bank.mint
+                        ].vault,
+                    ),
+                    program_id=self._client.program_id,
+                    remaining_accounts=remaining_accounts,
+                ),
+            ],
+            proxy_token_account_key,
+        )
+
+    async def deposit(self, amount: float):
         """
-        Create transaction instruction to withdraw from the Mango account to the marginfi account.
+        Deposit collateral into the 01 account.
 
-        :param amount Amount to deposit (mint native unit)
+        :param amount: Amount to deposit (mint native unit)
+        :returns: Transaction signature
+        """
+
+        self.verify_active()
+
+        deposit_ixs, proxy_token_account_key = await self.make_deposit_ix(amount)
+
+        tx = Transaction().add(*deposit_ixs)
+        return await self._client.program.provider.send(
+            tx=tx, signers=[proxy_token_account_key]
+        )
+
+    async def make_withdraw_ix(self, amount: float) -> TransactionInstruction:
+        """
+        Create transaction instruction to withdraw from the 01 account to the marginfi account.
+
+        :param amount: amount to deposit (mint native unit)
         :returns: Transaction instruction
         """
-        # async makeWithdrawIx(amount: UiAmount): Promise<TransactionInstruction> {
-        #     const [utpAuthority] = await this.authority();
-        #     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
-        #     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
-        #     const [zoVaultPk] = await zoState.getVaultCollateralByMint(this._client.group.bank.mint);
-        #     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
-        #     const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
-        #     return instructions.makeWithdrawIx(
-        #     this._program,
-        #     {
-        #         marginfiAccount: this._marginfiAccount.publicKey,
-        #         marginfiGroup: this._client.group.publicKey,
-        #         signer: this._program.provider.wallet.publicKey,
-        #         marginCollateralVault: this._client.group.bank.vault,
-        #         utpAuthority: utpAuthority,
-        #         zoMargin: this.address,
-        #         zoProgram: this.config.programId,
-        #         zoState: this.config.statePk,
-        #         zoStateSigner: zoState.signer,
-        #         zoCache: zoState.cache.pubkey,
-        #         zoControl: zoMargin.control.pubkey,
-        #         zoVault: zoVaultPk,
-        #     },
-        #     { amount: uiToNative(amount) },
-        #     remainingAccounts
-        #     );
-        # }
-        pass
+        zo_authority_pk, _ = await self.authority()
 
-    async def withdraw(self):
+        margin = await self.get_zo_margin()
+        zo_state = configs[self.config.cluster].ZO_STATE_ID
+        zo = await Zo.new(
+            conn=self._program.provider.connection,
+            cluster=self.config.cluster,
+            tx_opts=self._program.provider.opts,
+            payer=self._program.provider.wallet.payer,
+            create_margin=False,
+            load_margin=False,
+        )
+        remaining_accounts = await self.get_observation_accounts()
+
+        return make_withdraw_ix(
+            args=WithdrawArgs(amount=ui_to_native(amount)),
+            accounts=WithdrawAccounts(
+                marginfi_account=self._marginfi_account.pubkey,
+                marginfi_group=self._config.group_pk,
+                signer=self._program.provider.wallet.public_key,
+                margin_collateral_vault=self._marginfi_account.group.bank.vault,
+                utp_authority=zo_authority_pk,
+                zo_cache=zo._zo_state.cache,
+                zo_margin=self.address,
+                zo_control=margin.control,
+                zo_program=self.config.program_id,
+                zo_state=zo_state,
+                zo_state_signer=zo._zo_state_signer,
+                zo_vault=zo.collaterals[self._marginfi_account.group.bank.mint].vault,
+            ),
+            program_id=self._client.program_id,
+            remaining_accounts=remaining_accounts,
+        )
+
+    async def withdraw(self, amount: float):
         """
         Withdraw from the Zo account to the marginfi account.
 
         :param amount Amount to deposit (mint native unit)
         :returns: Transaction signature
         """
-        # async withdraw(amount: UiAmount): Promise<string> {
-        #     const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:withdraw`);
-        #     debug("Withdrawing %s from 01", amount);
 
-        #     const withdrawIx = await this.makeWithdrawIx(amount);
-        #     const tx = new Transaction().add(withdrawIx);
-        #     const sig = await processTransaction(this._program.provider, tx);
-        #     debug("Sig %s", sig);
-        #     return sig;
-        # }
-        pass
+        withdraw_ix = await self.make_withdraw_ix(amount)
+        tx = Transaction().add(withdraw_ix)
+        return await self._client.program.provider.send(tx)
 
     async def get_observation_accounts(self):
         """
@@ -271,18 +291,17 @@ class UtpZoAccount(UtpAccount):
         """
 
         # TODO: change to 1 fetch for both accounts + decoding
-        state = await State.fetch(
-            self._program.provider.connection,
-            self.config.state_pk,
-            self._program.provider.opts.preflight_commitment,
-            self.config.program_id,
+        zo = await Zo.new(
+            conn=self._program.provider.connection,
+            cluster=self.config.cluster,
+            tx_opts=self._program.provider.opts,
+            payer=self._program.provider.wallet.payer,
+            create_margin=False,
+            load_margin=False,
         )
-        margin = await Margin.fetch(
-            self._program.provider.connection,
-            self.address,
-            self._program.provider.opts.preflight_commitment,
-            self.config.program_id,
-        )
+        state = await self.get_zo_state()
+        margin = await self.get_zo_margin()
+
         return [
             AccountMeta(
                 pubkey=self.address,
@@ -501,50 +520,66 @@ class UtpZoAccount(UtpAccount):
 
     # Zo-specific
 
-    async def make_create_perp_open_orders_ix(self):
-        # async makeCreatePerpOpenOrdersIx(marketSymbol: string): Promise<InstructionsWrapper> {
-        #     const [utpAuthority] = await this.authority();
-        #     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
-        #     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
-        #     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, zoState.cache, utpAuthority);
-        #     const [openOrdersPk] = await zoMargin.getOpenOrdersKeyBySymbol(marketSymbol, this.config.cluster);
+    async def make_create_perp_open_orders_ix(
+        self,
+        market_symbol: str,
+    ) -> InstructionsWrapper:
+        zo_authority_pk, _ = await self.authority()
 
-        #     return {
-        #     instructions: [
-        #         await instructions.makeCreatePerpOpenOrdersIx(this._program, {
-        #         marginfiAccount: this._marginfiAccount.publicKey,
-        #         marginfiGroup: this._client.group.publicKey,
-        #         utpAuthority,
-        #         signer: this._client.program.provider.wallet.publicKey,
-        #         zoProgram: this.config.programId,
-        #         zoState: this.config.statePk,
-        #         zoStateSigner: zoState.signer,
-        #         zoMargin: this.address,
-        #         zoControl: zoMargin.control.pubkey,
-        #         zoOpenOrders: openOrdersPk,
-        #         zoDexMarket: zoState.getMarketKeyBySymbol(marketSymbol),
-        #         zoDexProgram: this.config.dexProgram,
-        #         }),
-        #     ],
-        #     keys: [],
-        #     };
-        # }
-        pass
+        zo = await Zo.new(
+            conn=self._program.provider.connection,
+            cluster=self.config.cluster,
+            tx_opts=self._program.provider.opts,
+            payer=self._program.provider.wallet.payer,
+            create_margin=False,
+            load_margin=False,
+        )
+        margin = await self.get_zo_margin()
+        print("utp authority", zo_authority_pk)
+        print("marign pk", self.address)
+        print("control", margin.control)
+        market_info = zo.markets[market_symbol]
+        print("SOL market", zo.markets["SOL-PERP"])
+        print("market address", market_info.address)
+        print("program", self.config.program_id)
+        oo_pk, bump = self.get_oo_adress_for_market(margin.control, market_info.address)
+        print("OO account", oo_pk)
+        print("bump", bump)
 
-    async def create_perp_open_orders(self):
-        # async createPerpOpenOrders(symbol: string): Promise<string> {
-        #     const debug = require("debug")(
-        #     `mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:create-perp-open-orders`
-        #     );
-        #     debug("Creating perp open orders account on 01");
+        create_oo_ix = make_create_perp_open_orders_ix(
+            CreatePerpOpenOrdersAccounts(
+                marginfi_account=self._marginfi_account.pubkey,
+                marginfi_group=self._config.group_pk,
+                utp_authority=zo_authority_pk,
+                signer=self._program.provider.wallet.public_key,
+                zo_program=self.config.program_id,
+                state=self.config.state_pk,
+                state_signer=zo._zo_state_signer,
+                margin=self.address,
+                control=margin.control,
+                open_orders=oo_pk,
+                dex_market=market_info.address,
+                dex_program=self.config.dex_program,
+            ),
+            self._client.program_id,
+        )
 
-        #     const createPerpOpenOrdersIx = await this.makeCreatePerpOpenOrdersIx(symbol);
-        #     const tx = new Transaction().add(...createPerpOpenOrdersIx.instructions);
-        #     const sig = await processTransaction(this._client.program.provider, tx);
-        #     debug("Sig %s", sig);
-        #     return sig;
-        # }
-        pass
+        return InstructionsWrapper(
+            instructions=[create_oo_ix],
+            signers=[],
+        )
+
+    async def create_perp_open_orders(self, market_symbol: str):
+        self.verify_active()
+
+        create_perp_open_orders_ix_wrapped = await self.make_create_perp_open_orders_ix(
+            market_symbol
+        )
+
+        tx = Transaction().add(*create_perp_open_orders_ix_wrapped.instructions)
+        return await self._client.program.provider.send(
+            tx=tx, signers=create_perp_open_orders_ix_wrapped.signers
+        )
 
     async def make_settle_funds_ix(self):
         # async makeSettleFundsIx(symbol: string): Promise<InstructionsWrapper> {
@@ -592,55 +627,32 @@ class UtpZoAccount(UtpAccount):
         pass
 
     async def get_zo_state(self):
-        # async getZoState(): Promise<ZoClient.State> {
-        #     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
-        #     return ZoClient.State.load(zoProgram, this.config.statePk);
-        # }
-        pass
+        zo = await Zo.new(
+            conn=self._program.provider.connection,
+            cluster=self.config.cluster,
+            tx_opts=self._program.provider.opts,
+            payer=self._program.provider.wallet.payer,
+            create_margin=False,
+            load_margin=False,
+        )
+        return await zo.program.account["State"].fetch(
+            self.config.state_pk, self._program.provider.opts.preflight_commitment
+        )
 
     async def get_zo_margin(self):
-        # async getZoMargin(zoState?: ZoClient.State): Promise<ZoClient.Margin> {
-        #     const [utpAuthority] = await this.authority();
-
-        #     if (!zoState) {
-        #     zoState = await this.getZoState();
-        #     }
-
-        #     const zoProgram = zoState.program;
-        #     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
-
-        #     return zoMargin;
-        # }
-        pass
+        zo = await Zo.new(
+            conn=self._program.provider.connection,
+            cluster=self.config.cluster,
+            tx_opts=self._program.provider.opts,
+            payer=self._program.provider.wallet.payer,
+            create_margin=False,
+            load_margin=False,
+        )
+        return await zo.program.account["Margin"].fetch(
+            self.address, self._program.provider.opts.preflight_commitment
+        )
 
     async def observe(self):
-        # async observe(): Promise<UtpObservation> {
-        #     const debug = require("debug")(`mfi:utp:${this.address}:zo:local-observe`);
-        #     debug("Observing Locally");
-
-        #     const zoMargin = await this.getZoMargin();
-
-        #     const equity = new BigNumber(zoMargin.unweightedAccountValue.toString());
-        #     const initMarginRequirement = new BigNumber(zoMargin.initialMarginInfo(null)[0].toString());
-        #     const freeCollateral = new BigNumber(zoMargin.freeCollateralValue.toString());
-        #     const isRebalanceDepositNeeded = equity.lt(initMarginRequirement); // TODO: Check disconnect between equity/freeCollateral/initMarginRequirement according 01 and our terminology
-        #     const maxRebalanceDepositAmount = BigNumber.max(0, initMarginRequirement.minus(equity));
-        #     const isEmpty = equity.lt(DUST_THRESHOLD);
-
-        #     const observation = new UtpObservation({
-        #     timestamp: new Date(),
-        #     equity,
-        #     freeCollateral,
-        #     initMarginRequirement,
-        #     liquidationValue: equity,
-        #     isRebalanceDepositNeeded,
-        #     maxRebalanceDepositAmount,
-        #     isEmpty,
-        #     });
-        #     this._cachedObservation = observation;
-        #     return observation;
-        # }
-        # }
         pass
 
     def get_zo_margin_address(
@@ -651,5 +663,19 @@ class UtpZoAccount(UtpAccount):
 
         return PublicKey.find_program_address(
             [bytes(authority), bytes(self.config.state_pk), b"marginv1"],
+            self.config.program_id,
+        )
+
+    def get_oo_adress_for_market(
+        self,
+        zo_control: PublicKey,
+        market_address: PublicKey,
+    ) -> Tuple[PublicKey, int]:
+        """[Internal] Compute the Mango account PDA tied to the specified user."""
+        print("zo_control", zo_control, bytes(zo_control).hex())
+        print("market_address", market_address, bytes(market_address).hex())
+        print("program_id", self.config.program_id)
+        return PublicKey.find_program_address(
+            [bytes(zo_control), bytes(market_address)],
             self.config.program_id,
         )
