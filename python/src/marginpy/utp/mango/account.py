@@ -158,15 +158,16 @@ class UtpMangoAccount(UtpAccount):
 
     async def make_deposit_ix(
         self, 
-        amount: float,
-        proxy_token_account_key: PublicKey
-    ) -> List[TransactionInstruction]:
+        amount: float
+    ) -> Tuple[List[TransactionInstruction], Keypair]:
         """
         Create transaction instruction to deposit collateral into the Mango account.
 
         :param amount Amount to deposit (mint native unit)
         :returns `MangoDepositCollateral` transaction instruction
         """
+
+        proxy_token_account_key = Keypair()
 
         mango_authority_pk, _ = await self.authority()
         margin_bank_authority_pk, _ = get_bank_authority(
@@ -192,7 +193,8 @@ class UtpMangoAccount(UtpAccount):
             mango_authority_pk,
         )
 
-        return [
+        return (
+            [
             *create_proxy_token_account_ixs,
             make_deposit_ix(
                 args=DepositArgs(amount=ui_to_native(amount)),
@@ -215,7 +217,9 @@ class UtpMangoAccount(UtpAccount):
                 program_id=self._client.program_id,
                 remaining_accounts=remaining_accounts,
             ),
-        ]
+        ],
+        proxy_token_account_key
+        )
 
     async def deposit(self, amount: float) -> TransactionSignature:
         """
@@ -226,9 +230,8 @@ class UtpMangoAccount(UtpAccount):
         """
 
         self.verify_active()
-        proxy_token_account_key = Keypair()
 
-        deposit_ixs = await self.make_deposit_ix(
+        deposit_ixs, proxy_token_account_key = await self.make_deposit_ix(
             amount,
             proxy_token_account_key
         )
