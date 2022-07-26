@@ -367,8 +367,9 @@ class UtpMangoAccount(UtpAccount):
         native_quantity = (quantity * base_factor) / float(
             perp_market.lot_size_converter.base_lot_size
         )
+
         native_max_quote_quantity = (
-            (max_quote_quantity * quote_factor)
+            (max_quote_quantity * quote_factor / 10000000000000000) # TODO Figure out out_of_range problem here
             / float(perp_market.lot_size_converter.quote_lot_size)
         ) or float(mango.I64_MAX)
 

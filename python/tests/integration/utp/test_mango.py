@@ -29,31 +29,31 @@ mango_bench = mango_bench()
 @mark.integration
 @mark.devnet
 class TestMangoAccount:
-    async def test_mango_activate_deactivate(self, mango_bench: MangoBench) -> None:
+    # async def test_mango_activate_deactivate(self, mango_bench: MangoBench) -> None:
 
-        marginfi_account, _ = await mango_bench.client.create_marginfi_account()
+    #     marginfi_account, _ = await mango_bench.client.create_marginfi_account()
 
-        sig = await marginfi_account.mango.activate()
-        await marginfi_account.reload()
-        assert marginfi_account.mango.is_active
-        sig = await marginfi_account.mango.deactivate()
-        await marginfi_account.reload()
-        assert marginfi_account.mango.is_active == False
-        print(sig)
+    #     sig = await marginfi_account.mango.activate()
+    #     await marginfi_account.reload()
+    #     assert marginfi_account.mango.is_active
+    #     sig = await marginfi_account.mango.deactivate()
+    #     await marginfi_account.reload()
+    #     assert marginfi_account.mango.is_active == False
+    #     print(sig)
 
-    async def test_mango_deposit_withdraw(
-        self, 
-        mango_bench: MangoBench,
-    ) -> None:
+    # async def test_mango_deposit_withdraw(
+    #     self, 
+    #     mango_bench: MangoBench,
+    # ) -> None:
 
-        marginfi_account = mango_bench.account
+    #     marginfi_account = mango_bench.account
         
-        await marginfi_account.mango.activate()
-        await marginfi_account.reload()
+    #     await marginfi_account.mango.activate()
+    #     await marginfi_account.reload()
 
-        await marginfi_account.mango.deposit(1)
-        sig = await marginfi_account.mango.withdraw(1)
-        print(sig)
+    #     await marginfi_account.mango.deposit(1)
+    #     sig = await marginfi_account.mango.withdraw(1)
+    #     print(sig)
 
     # async def test_place_perp_order(
     #     self,
@@ -68,13 +68,6 @@ class TestMangoAccount:
 
     #     with mango.ContextBuilder.build(cluster_name="devnet") as context:
     #         market = mango.market(context, "SOL-PERP")
-
-    #     print(
-    #         f"""
-    #         MARKET TYPE
-    #         {type(market)}
-    #         """
-    #     )
         
     #     sig = await marginfi_account.mango.place_perp_order(
     #         perp_market=market,
@@ -84,7 +77,47 @@ class TestMangoAccount:
     #     )
     #     print(sig)
 
-    # async def test_cancel_perp_order(
-    #     self
-    # ) -> None:
-    #     pass
+    async def test_cancel_perp_order(
+        self,
+        mango_bench: MangoBench,
+    ) -> None:
+        marginfi_account = mango_bench.account
+
+        await marginfi_account.mango.activate()
+        await marginfi_account.reload()
+
+        await marginfi_account.mango.deposit(100)
+
+        with mango.ContextBuilder.build(cluster_name="devnet") as context:
+            market = mango.market(context, "SOL-PERP")
+        
+        # accept invalid ID
+        await marginfi_account.mango.place_perp_order(
+            perp_market=market,
+            side=mango_side.Bid,
+            price=50,
+            quantity=1,
+        )
+
+        sig = await marginfi_account.mango.cancel_perp_order(
+            perp_market=market,
+            order_id=0,
+            invalid_id_ok=True,
+        )
+
+        # do NOT accept invalid ID
+        await marginfi_account.mango.place_perp_order(
+            perp_market=market,
+            side=mango_side.Bid,
+            price=50,
+            quantity=1,
+        )
+
+        # TODO ADD CLEAN ORDER_ID
+        # sig = await marginfi_account.mango.cancel_perp_order(
+        #     perp_market=market,
+        #     order_id=0,
+        #     invalid_id_ok=False,
+        # )
+
+        print(sig)
