@@ -147,8 +147,8 @@ export interface BankData {
   depositAccumulator: WrappedI8048F;
   borrowAccumulator: WrappedI8048F;
   lastUpdate: BN;
-  nativeDepositBalance: WrappedI8048F;
-  nativeBorrowBalance: WrappedI8048F;
+  totalDepositsRecord: WrappedI8048F;
+  totalBorrowsRecord: WrappedI8048F;
   mint: PublicKey;
   vault: PublicKey;
   bankAutorityBump: number;

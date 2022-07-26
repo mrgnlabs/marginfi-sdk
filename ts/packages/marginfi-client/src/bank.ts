@@ -14,8 +14,8 @@ class Bank {
   public readonly depositAccumulator: BigNumber;
   public readonly borrowAccumulator: BigNumber;
   public readonly lastUpdate: Date;
-  public readonly nativeDepositBalance: BigNumber;
-  public readonly nativeBorrowBalance: BigNumber;
+  public readonly totalDepositsRecord: BigNumber;
+  public readonly totalBorrowsRecord: BigNumber;
   public readonly mint: PublicKey;
   public readonly vault: PublicKey;
   public readonly bankAutorityBump: number;
@@ -33,8 +33,8 @@ class Bank {
     this.depositAccumulator = wrappedI80F48toBigNumber(data.depositAccumulator, 0);
     this.borrowAccumulator = wrappedI80F48toBigNumber(data.borrowAccumulator, 0);
     this.lastUpdate = new Date(data.lastUpdate.toNumber());
-    this.nativeDepositBalance = wrappedI80F48toBigNumber(data.nativeDepositBalance);
-    this.nativeBorrowBalance = wrappedI80F48toBigNumber(data.nativeBorrowBalance);
+    this.totalDepositsRecord = wrappedI80F48toBigNumber(data.totalDepositsRecord);
+    this.totalBorrowsRecord = wrappedI80F48toBigNumber(data.totalBorrowsRecord);
     this.mint = data.mint;
     this.vault = data.vault;
     this.bankAutorityBump = data.bankAutorityBump;
@@ -44,6 +44,14 @@ class Bank {
     this.feeVaultAutorityBump = data.feeVaultAutorityBump;
     this.initMarginRatio = wrappedI80F48toBigNumber(data.initMarginRatio, 0);
     this.maintMarginRatio = wrappedI80F48toBigNumber(data.maintMarginRatio, 0);
+  }
+
+  get nativeDepositBalance(): BigNumber {
+    return this.computeNativeAmount(this.totalDepositsRecord, LendingSide.Deposit);
+  }
+
+  get nativeBorrowBalance(): BigNumber {
+    return this.computeNativeAmount(this.totalBorrowsRecord, LendingSide.Borrow);
   }
 
   public computeNativeAmount(record: BigNumber, side: LendingSide): BigNumber {
