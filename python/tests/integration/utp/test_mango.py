@@ -106,12 +106,12 @@ class TestMangoAccount:
         )
 
         # do NOT accept invalid ID
-        await marginfi_account.mango.place_perp_order(
-            perp_market=market,
-            side=mango_side.Bid,
-            price=50,
-            quantity=1,
-        )
+        # await marginfi_account.mango.place_perp_order(
+        #     perp_market=market,
+        #     side=mango_side.Bid,
+        #     price=50,
+        #     quantity=1,
+        # )
 
         # TODO ADD CLEAN ORDER_ID
         # sig = await marginfi_account.mango.cancel_perp_order(
