@@ -1805,13 +1805,13 @@ export type Marginfi = {
             type: "i64";
           },
           {
-            name: "nativeDepositBalance";
+            name: "totalDepositsRecord";
             type: {
               defined: "WrappedI80F48";
             };
           },
           {
-            name: "nativeBorrowBalance";
+            name: "totalBorrowsRecord";
             type: {
               defined: "WrappedI80F48";
             };
@@ -4072,13 +4072,13 @@ export const IDL: Marginfi = {
             type: "i64",
           },
           {
-            name: "nativeDepositBalance",
+            name: "totalDepositsRecord",
             type: {
               defined: "WrappedI80F48",
             },
           },
           {
-            name: "nativeBorrowBalance",
+            name: "totalBorrowsRecord",
             type: {
               defined: "WrappedI80F48",
             },
