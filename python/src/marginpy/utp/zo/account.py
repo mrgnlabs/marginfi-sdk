@@ -136,7 +136,7 @@ class UtpZoAccount(UtpAccount):
         await self._marginfi_account.reload()
         return sig
 
-    async def make_deactivate_ix(self):
+    async def make_deactivate_ix(self) -> TransactionInstruction:
         """
         Create transaction instruction to deactivate Mango.
 
@@ -144,7 +144,7 @@ class UtpZoAccount(UtpAccount):
         """
         return self._marginfi_account.make_deactivate_utp_ix(self.index)
 
-    async def deactivate(self):
+    async def deactivate(self) -> TransactionSignature:
         """
         Deactivate UTP.
 
@@ -220,7 +220,7 @@ class UtpZoAccount(UtpAccount):
             proxy_token_account_key,
         )
 
-    async def deposit(self, amount: float):
+    async def deposit(self, amount: float) -> TransactionSignature:
         """
         Deposit collateral into the 01 account.
 
@@ -279,7 +279,7 @@ class UtpZoAccount(UtpAccount):
             remaining_accounts=remaining_accounts,
         )
 
-    async def withdraw(self, amount: float):
+    async def withdraw(self, amount: float) -> TransactionSignature:
         """
         Withdraw from the Zo account to the marginfi account.
 
@@ -291,7 +291,7 @@ class UtpZoAccount(UtpAccount):
         tx = Transaction().add(withdraw_ix)
         return await self._client.program.provider.send(tx)
 
-    async def get_observation_accounts(self):
+    async def get_observation_accounts(self) -> List[AccountMeta]:
         """
         Create list of account metas required to observe a Zo account.
 
