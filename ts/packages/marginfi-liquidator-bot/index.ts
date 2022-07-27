@@ -4,6 +4,7 @@ import "./sentry";
 
 import { ONE_I80F48, QUOTE_INDEX, sleep, ZERO_BN, ZERO_I80F48 } from "@blockworks-foundation/mango-client";
 import {
+  DUST_THRESHOLD,
   loadKeypair,
   MangoOrderSide,
   MangoPerpOrderType,
@@ -15,6 +16,7 @@ import {
 } from "@mrgnlabs/marginfi-client";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import debugBuilder from "debug";
+import { captureException } from "./sentry";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
 const wallet = new Wallet(
@@ -27,7 +29,7 @@ const marginfiAccountPk = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
 (async function () {
   const debug = debugBuilder("liquidator");
-  const marginClient = await MarginfiClient.fromEnv();
+  const marginClient = await MarginfiClient.fromEnv({ wallet, connection });
 
   const marginfiGroupPk = marginClient.config.groupPk;
 
@@ -36,8 +38,16 @@ const marginfiAccountPk = new PublicKey(process.env.MARGINFI_ACCOUNT!);
   const marginfiAccount = await MarginfiAccount.fetch(marginfiAccountPk, marginClient);
 
   const round = async function () {
-    await checkForActiveUtps(marginfiAccount);
-    await processAccounts(marginClient, marginfiAccount);
+    try {
+      await checkForActiveUtps(marginfiAccount);
+      await processAccounts(marginClient, marginfiAccount);
+    } catch (e: any) {
+      debug("Error in liquidator: %s", e);
+
+      captureException(e, {
+        extra: { errorCode: e?.logs?.at(-1)?.split(" ")?.at(-1) },
+      });
+    }
 
     setTimeout(round, Number.parseInt(process.env.TIMEOUT!));
   };
@@ -60,10 +70,16 @@ async function processAccounts(client: MarginfiClient, marginfiAccount: Marginfi
   for (let account of accounts) {
     debug("Checking account %s", account.publicKey);
     try {
-      if (await account.canBeLiquidated()) {
+      await account.reload(true);
+      if (account.canBeLiquidated()) {
         await liquidate(account, marginfiAccount);
       }
-    } catch (e) {
+    } catch (e: any) {
+      captureException(e, {
+        user: { id: account.publicKey.toBase58() },
+        extra: { errorCode: e?.logs?.at(-1)?.split(" ")?.at(-1) },
+      });
+      debug("Error in liquidator: %s", e);
       debug("Can't verify if account liquidatable");
     }
   }
@@ -74,22 +90,22 @@ async function liquidate(liquidateeMarginfiAccount: MarginfiAccount, liquidatorM
 
   debug("Liquidating account %s", liquidateeMarginfiAccount.publicKey);
 
-  await liquidateeMarginfiAccount.observeUtps();
-
   const { equity: liquidatorEquity } = await liquidatorMarginfiAccount.computeBalances();
-  debug("Available balance %s", liquidatorEquity.toNumber());
+  debug("Available balance $%s", liquidatorEquity.toFixed(4));
 
   const affordableUtps = liquidateeMarginfiAccount.activeUtps.filter((utp) =>
     utp.computeLiquidationPrices().discountedLiquidatorPrice.lte(liquidatorEquity)
   );
-  const cheapestUtp = affordableUtps.sort((utp1, utp2) =>
-    utp1
-      .computeLiquidationPrices()
-      .discountedLiquidatorPrice.minus(utp2.computeLiquidationPrices().discountedLiquidatorPrice)
-      .toNumber()
-  )[0];
+  const cheapestUtp = affordableUtps
+    .sort((utp1, utp2) =>
+      utp1
+        .computeLiquidationPrices()
+        .discountedLiquidatorPrice.minus(utp2.computeLiquidationPrices().discountedLiquidatorPrice)
+        .toNumber()
+    )
+    .at(0);
 
-  if (!cheapestUtp.index) {
+  if (!cheapestUtp) {
     console.log("Insufficient balance to liquidate any UTP");
     return;
   }
@@ -185,8 +201,10 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
   const observation = await marginfiAccount.zo.observe();
   let withdrawableAmount = observation.freeCollateral.minus(0.0001);
 
-  debug("Withdrawing %s from ZO", withdrawableAmount.toString());
-  await marginfiAccount.zo.withdraw(withdrawableAmount);
+  if (withdrawableAmount.gte(DUST_THRESHOLD)) {
+    debug("Withdrawing %s from ZO", withdrawableAmount.toString());
+    await marginfiAccount.zo.withdraw(withdrawableAmount);
+  }
 
   debug("Deactivating ZO");
   await marginfiAccount.zo.deactivate();
@@ -211,7 +229,7 @@ async function withdrawFromMango(marginfiAccount: MarginfiAccount) {
   let observation = await marginfiAccount.mango.observe();
   let withdrawAmount = observation.freeCollateral.minus(0.000001);
 
-  if (withdrawAmount.lte(0)) {
+  if (withdrawAmount.lte(DUST_THRESHOLD)) {
     return;
   }
 
@@ -314,12 +332,14 @@ async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
   const dis = { memcmp: { offset: 32 + 8, bytes: marginfiGroupPk.toBase58() } };
   const rawMarignAccounts = await mfiClient.program.account.marginfiAccount.all([dis]);
 
-  const marginfiAccounts = rawMarignAccounts.map((a) => {
-    let data: MarginfiAccountData = a.account as any;
-    return MarginfiAccount.fromAccountData(a.publicKey, mfiClient, data, mfiClient.group);
-  });
+  const marginfiAccounts = rawMarignAccounts
+    .map((a) => {
+      let data: MarginfiAccountData = a.account as any;
+      return MarginfiAccount.fromAccountData(a.publicKey, mfiClient, data, mfiClient.group);
+    })
+    .filter((a) => a.borrows.gt(0));
 
-  debug("Loaded %d marginfi accounts", marginfiAccounts.length);
+  debug("Loaded %d marginfi accounts with liabilities", marginfiAccounts.length);
 
   return marginfiAccounts;
 }

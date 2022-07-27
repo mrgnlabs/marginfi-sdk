@@ -5,6 +5,7 @@ import {
   getMfiProgram,
   instructions,
   loadKeypair,
+  MarginfiConfig,
   processTransaction,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
@@ -13,10 +14,15 @@ import { Connection, Keypair, PublicKey, SystemProgram, Transaction, Transaction
 import { OptionValues } from "commander";
 import { getEnvironment } from "../common";
 
-export async function createGroup(_string: string, options: OptionValues) {
+export async function createGroup(options: OptionValues) {
   const connection = new Connection(options.url, "confirmed");
   const wallet = new Wallet(loadKeypair(options.keypair));
-  const config = await getConfig(getEnvironment(options.environment), connection);
+
+  const overrides: Partial<MarginfiConfig> = {
+    programId: process.env.MARGINFI_PROGRAM ? new PublicKey(process.env.MARGINFI_PROGRAM) : undefined,
+  };
+
+  const config = await getConfig(getEnvironment(options.environment), connection, overrides);
   const program = getMfiProgram(config.programId, connection, wallet);
 
   console.log("Program: %s\nSigner: %s", program.programId, wallet.publicKey);

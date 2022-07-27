@@ -13,6 +13,7 @@ import {
   TransactionSignature,
 } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
+import { Decimal } from "decimal.js";
 import { Environment, Wallet } from "..";
 import {
   COLLATERAL_DECIMALS,
@@ -23,8 +24,16 @@ import {
   VERY_VERBOSE_ERROR,
 } from "../constants";
 import { MarginfiIdl, MARGINFI_IDL } from "../idl";
-import { AccountType, BankVaultType, DecimalData, UiAmount } from "../types";
-import { Decimal } from "./decimal";
+import { AccountType, UiAmount } from "../types";
+
+/**
+ * Marginfi bank vault type
+ */
+export enum BankVaultType {
+  LiquidityVault,
+  InsuranceVault,
+  FeeVault,
+}
 
 function getVaultSeeds(type: BankVaultType): Buffer {
   switch (type) {
@@ -47,7 +56,7 @@ export async function getBankAuthority(
   programId: PublicKey,
   bankVaultType: BankVaultType = BankVaultType.LiquidityVault
 ): Promise<[PublicKey, number]> {
-  return PublicKey.findProgramAddress([getVaultSeeds(bankVaultType), marginfiGroupPk.toBuffer()], programId);
+  return PublicKey.findProgramAddress([getVaultSeeds(bankVaultType), marginfiGroupPk.toBytes()], programId);
 }
 
 /**
@@ -73,8 +82,9 @@ export async function processTransaction(
   signers?: Array<Signer>,
   opts?: ConfirmOptions
 ): Promise<TransactionSignature> {
-  const blockhash = await provider.connection.getLatestBlockhash();
-  tx.recentBlockhash = blockhash.blockhash;
+  const { blockhash } = await provider.connection.getLatestBlockhash();
+
+  tx.recentBlockhash = blockhash;
   tx.feePayer = provider.wallet.publicKey;
   tx = await provider.wallet.signTransaction(tx);
 
@@ -101,27 +111,6 @@ export async function processTransaction(
     console.log(e);
     throw e;
   }
-}
-
-/**
- * Converts a token amount stored as `Decimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
- */
-export function decimalToNative(amount: Decimal, decimals: number = COLLATERAL_DECIMALS): BN {
-  return new BN(Math.round((amount.toBN().toString() as any) / 10 ** (amount.scale - decimals)));
-}
-
-/**
- * Converts a token amount stored as `MDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
- */
-export function decimalDataToNative(amount: DecimalData, decimals: number = COLLATERAL_DECIMALS): BN {
-  return decimalToNative(Decimal.fromAccountData(amount), decimals);
-}
-
-/**
- * Converts a token amount stored as `MDecimal` into its native value as `BN`, given the specified mint decimal amount (default to 6 for USDC).
- */
-export function decimalDataToBigNumber(amount: DecimalData): BigNumber {
-  return new BigNumber(Decimal.fromAccountData(amount).toString());
 }
 
 /**
@@ -256,4 +245,9 @@ export function getEnvFromStr(envString: string = "devnet"): Environment {
     default:
       return Environment.DEVNET;
   }
+}
+
+export function wrappedI80F48toBigNumber({ bits }: { bits: BN }, scaleDecimal: number = 6): BigNumber {
+  let numbers = new Decimal(`${bits.isNeg() ? "-" : ""}0b${bits.abs().toString(2)}p-48`).dividedBy(10 ** scaleDecimal);
+  return new BigNumber(numbers.toString());
 }

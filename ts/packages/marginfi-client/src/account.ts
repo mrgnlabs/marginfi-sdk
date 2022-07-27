@@ -9,7 +9,6 @@ import instructions from "./instructions";
 import {
   AccountBalances,
   AccountType,
-  BankVaultType,
   EquityType,
   InstructionsWrapper,
   LendingSide,
@@ -22,7 +21,8 @@ import {
   UtpIndex,
   UTP_NAME,
 } from "./types";
-import { decimalDataToBigNumber, getBankAuthority, processTransaction, uiToNative } from "./utils";
+import { BankVaultType, getBankAuthority, processTransaction, uiToNative } from "./utils";
+import { wrappedI80F48toBigNumber } from "./utils/helpers";
 import UtpAccount from "./utp/account";
 import { UtpMangoAccount } from "./utp/mango";
 import { UtpObservation } from "./utp/observation";
@@ -126,8 +126,8 @@ class MarginfiAccount {
       accountData.authority,
       client,
       await MarginfiGroup.fetch(config, program),
-      decimalDataToBigNumber(accountData.depositRecord),
-      decimalDataToBigNumber(accountData.borrowRecord),
+      wrappedI80F48toBigNumber(accountData.depositRecord),
+      wrappedI80F48toBigNumber(accountData.borrowRecord),
       MarginfiAccount._packUtpData(accountData, config.mango.utpIndex),
       MarginfiAccount._packUtpData(accountData, config.zo.utpIndex)
     );
@@ -165,8 +165,8 @@ class MarginfiAccount {
       accountData.authority,
       client,
       marginfiGroup,
-      decimalDataToBigNumber(accountData.depositRecord),
-      decimalDataToBigNumber(accountData.borrowRecord),
+      wrappedI80F48toBigNumber(accountData.depositRecord),
+      wrappedI80F48toBigNumber(accountData.borrowRecord),
       MarginfiAccount._packUtpData(accountData, client.config.mango.utpIndex),
       MarginfiAccount._packUtpData(accountData, client.config.zo.utpIndex)
     );
@@ -281,8 +281,8 @@ class MarginfiAccount {
    */
   private _updateFromAccountData(data: MarginfiAccountData) {
     this._authority = data.authority;
-    this._depositRecord = decimalDataToBigNumber(data.depositRecord);
-    this._borrowRecord = decimalDataToBigNumber(data.borrowRecord);
+    this._depositRecord = wrappedI80F48toBigNumber(data.depositRecord);
+    this._borrowRecord = wrappedI80F48toBigNumber(data.borrowRecord);
 
     this.mango.update(MarginfiAccount._packUtpData(data, this._config.mango.utpIndex));
     this.zo.update(MarginfiAccount._packUtpData(data, this._config.zo.utpIndex));
@@ -538,6 +538,11 @@ class MarginfiAccount {
     )[0];
     const withdrawAmount = this.computeMaxRebalanceWithdrawAmount(richestUtp);
 
+    if (withdrawAmount.lte(1)) {
+      debug("Withdraw amount below dust ");
+      return;
+    }
+
     debug("Trying to rebalance withdraw UTP:%s, amount %s (RBWA)", richestUtp.index, withdrawAmount);
 
     try {
@@ -653,7 +658,11 @@ class MarginfiAccount {
   public meetsMarginRequirement(type: MarginRequirementType): boolean {
     const { equity } = this.computeBalances();
     const marginRequirement = this.computeMarginRequirement(type);
-    return equity > marginRequirement;
+    const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:margin-requirement`);
+
+    debug("Margin req (type: %s) $%s, equity $%s", type, marginRequirement.toFixed(4), equity.toFixed(4));
+
+    return equity.gte(marginRequirement);
   }
 
   public isUtpActive(utpIndex: UtpIndex): boolean {
@@ -669,9 +678,12 @@ class MarginfiAccount {
   }
 
   public isRebalanceWithdrawNeeded(): boolean {
+    const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:rebalance:withdraw`);
     const { equity } = this.computeBalances();
     const marginRequirementInit = this.computeMarginRequirement(MarginRequirementType.Init);
-    return equity < marginRequirementInit;
+    debug("Margin req (type: Init) $%s, equity $%s", marginRequirementInit.toFixed(4), equity.toFixed(4));
+
+    return equity.lt(marginRequirementInit);
   }
 
   public computeMaxRebalanceWithdrawAmount(utp: UtpAccount): BigNumber {

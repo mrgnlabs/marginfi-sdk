@@ -1,4 +1,3 @@
-import { Decimal } from "@mrgnlabs/marginfi-client";
 import { OptionValues } from "commander";
 import { getClientFromOptions } from "./common";
 

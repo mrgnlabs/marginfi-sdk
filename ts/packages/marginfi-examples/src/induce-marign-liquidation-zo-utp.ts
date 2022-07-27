@@ -1,18 +1,16 @@
 require("dotenv").config();
 
 import { BN } from "@project-serum/anchor";
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import { Connection, Transaction } from "@solana/web3.js";
 
 import {
-  Environment,
-  getConfig,
   instructions,
   loadKeypair,
   MarginfiClient,
   processTransaction,
   Wallet,
+  ZoPerpOrderType,
 } from "@mrgnlabs/marginfi-client";
-import * as zoClient from "@zero_one/client";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!);
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
@@ -41,18 +39,12 @@ async function configureMarginReq(client: MarginfiClient, initMReq: number, main
   });
 }
 
-const depositAmount = 100;
+const depositAmount = 30;
 const MARKET_SYMBOL = "SOL-PERP";
 
 (async function () {
-  const config = await getConfig(Environment.DEVNET, connection, {
-    programId: new PublicKey(process.env.MARGINFI_PROGRAM!),
-    groupPk: new PublicKey(process.env.MARGINFI_GROUP!),
-    collateralMintPk: zoClient.USDC_DEVNET_MINT_ADDRESS,
-  });
-
   // Setup the client
-  const client = await MarginfiClient.fetch(config, wallet, connection);
+  const client = await MarginfiClient.fromEnv({ wallet, connection });
 
   await configureMarginReq(client, 0.075, 0.05);
 
@@ -78,9 +70,7 @@ const MARKET_SYMBOL = "SOL-PERP";
 
   await marginfiAccount.zo.placePerpOrder({
     symbol: MARKET_SYMBOL,
-    orderType: {
-      limit: {},
-    },
+    orderType: ZoPerpOrderType.FillOrKill,
     isLong: true,
     price: price,
     size: positionSize,

@@ -23,8 +23,8 @@ function getMarginfiConfig(
     case Environment.DEVNET:
       return {
         environment,
-        programId: overrides?.programId || new PublicKey("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK"),
-        groupPk: overrides?.groupPk || new PublicKey("7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg"),
+        programId: overrides?.programId || new PublicKey("mf2tjVmwcxgNfscvVNdN9t2LZ8YwPkNQabeTzyYw2Hn"),
+        groupPk: overrides?.groupPk || new PublicKey("GoAzFyYE1xRsbT4C5MHJh8hBd5s6Jks9j4hLrtWR3pba"),
         collateralMintPk: overrides?.collateralMintPk || new PublicKey("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"),
       };
     default:
