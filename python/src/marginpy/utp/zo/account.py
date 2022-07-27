@@ -677,5 +677,5 @@ class UtpZoAccount(UtpAccount):
         print("program_id", self.config.program_id)
         return PublicKey.find_program_address(
             [bytes(zo_control), bytes(market_address)],
-            self.config.program_id,
+            self.config.dex_program,
         )
