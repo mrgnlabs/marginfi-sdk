@@ -12,7 +12,7 @@ from solana.transaction import (
 )
 from solana.system_program import create_account, CreateAccountParams
 from solana.publickey import PublicKey
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING, List, Tuple, Optional
 from marginpy.utp.zo.instruction import (
     ActivateAccounts,
     ActivateArgs,
@@ -21,11 +21,14 @@ from marginpy.utp.zo.instruction import (
     DepositArgs,
     WithdrawAccounts,
     WithdrawArgs,
+    CancelPerpOrderArgs,
+    CancelPerpOrderAccounts,
     SettleFundsAccounts,
     make_activate_ix,
     make_create_perp_open_orders_ix,
     make_deposit_ix,
     make_withdraw_ix,
+    make_cancel_perp_order_ix,
     make_settle_funds_ix,
 )
 from marginpy.utp.zo.utils import CONTROL_ACCOUNT_SIZE
@@ -449,76 +452,85 @@ class UtpZoAccount(UtpAccount):
         # }
         pass
 
-    async def make_cancel_perp_order_ix(self):
+    async def make_cancel_perp_order_ix(
+        self,
+        market_symbol: str,
+        order_id: Optional[int],
+        is_long: Optional[bool],
+        client_id: Optional[int],
+    ):
         """
         Create transaction instruction to cancel a perp order.
 
         :returns: Transaction instruction
         """
-        # async makeCancelPerpOrderIx(args: {
-        #     symbol: string;
-        #     isLong?: boolean;
-        #     orderId?: BN;
-        #     clientId?: BN;
-        # }): Promise<InstructionsWrapper> {
-        #     const [utpAuthority] = await this.authority();
+        zo_authority_pk, _ = await self.authority()
 
-        #     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
-        #     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
-        #     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
-        #     const [openOrdersPk] = await zoMargin.getOpenOrdersKeyBySymbol(args.symbol, this.config.cluster);
-        #     const market = await zoState.getMarketBySymbol(args.symbol);
+        zo = await Zo.new(
+            conn=self._program.provider.connection,
+            cluster=self.config.cluster,
+            tx_opts=self._program.provider.opts,
+            payer=self._program.provider.wallet.payer,
+            create_margin=False,
+            load_margin=False,
+        )
+        margin = await self.get_zo_margin()
+        market_info = zo.markets[market_symbol]
+        oo_pk, _ = self.get_oo_adress_for_market(margin.control, market_info.address)
 
-        #     return {
-        #     instructions: [
-        #         await instructions.makeCancelPerpOrderIx(
-        #         this._client.program,
-        #         {
-        #             marginfiAccount: this._marginfiAccount.publicKey,
-        #             marginfiGroup: this._client.group.publicKey,
-        #             utpAuthority: utpAuthority,
-        #             signer: this._program.provider.wallet.publicKey,
-        #             zoProgram: zoProgram.programId,
-        #             state: zoState.pubkey,
-        #             cache: zoState.cache.pubkey,
-        #             margin: zoMargin.pubkey,
-        #             control: zoMargin.control.pubkey,
-        #             openOrders: openOrdersPk,
-        #             dexMarket: market.publicKey,
-        #             eventQ: market.eventQueueAddress,
-        #             marketBids: market.bidsAddress,
-        #             marketAsks: market.asksAddress,
-        #             dexProgram: this.config.dexProgram,
-        #         },
-        #         {
-        #             clientId: args.clientId,
-        #             isLong: args.isLong,
-        #             orderId: args.orderId,
-        #         }
-        #         ),
-        #     ],
-        #     keys: [],
-        #     };
-        # }
-        pass
+        cancel_ix = make_cancel_perp_order_ix(
+            CancelPerpOrderArgs(
+                order_id=order_id,
+                is_long=is_long,
+                client_id=client_id,
+            ),
+            CancelPerpOrderAccounts(
+                marginfi_account=self._marginfi_account.pubkey,
+                marginfi_group=self._config.group_pk,
+                signer=self._program.provider.wallet.public_key,
+                utp_authority=zo_authority_pk,
+                zo_program=self.config.program_id,
+                state=self.config.state_pk,
+                cache=zo._zo_state.cache,
+                margin=self.address,
+                control=margin.control,
+                open_orders=oo_pk,
+                dex_market=market_info.address,
+                Xmarket_bids=PublicKey, # TODO
+                Xmarket_asks=PublicKey, # TODO
+                Xevent_q=PublicKey, # TODO
+                dex_program=self.config.dex_program,
+            ),
+            self._client.program_id,
+        )
 
-    async def cancel_perp_order(self):
+        return InstructionsWrapper(
+            instructions=[cancel_ix],
+            signers=[],
+        )
+
+    async def cancel_perp_order(
+        self,
+        market_symbol: str,
+        order_id: Optional[int],
+        is_long: Optional[bool],
+        client_id: Optional[int],
+    ):
         """
         Cancel a perp order.
 
         :returns: Transaction signature
         """
-        # async cancelPerpOrder(args: { symbol: string; isLong?: boolean; orderId?: BN; clientId?: BN }): Promise<string> {
-        #     const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:cancel-perp-order`);
-        #     debug("Cancelling perp order on 01");
+        self.verify_active()
 
-        #     const ix = await this.makeCancelPerpOrderIx(args);
-        #     const tx = new Transaction().add(...ix.instructions);
-        #     const sig = await processTransaction(this._client.program.provider, tx);
-        #     debug("Sig %s", sig);
-        #     return sig;
-        # }
-        pass
+        cancel_ix_wrapped = await self.make_cancel_perp_order_ix(
+            market_symbol, order_id, is_long, client_id
+        )
+
+        tx = Transaction().add(*cancel_ix_wrapped.instructions)
+        return await self._client.program.provider.send(
+            tx=tx, signers=cancel_ix_wrapped.signers
+        )
 
     # Zo-specific
 
