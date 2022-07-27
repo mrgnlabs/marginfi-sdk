@@ -22,7 +22,6 @@ mango_bench = mango_bench()
 @mark.devnet
 class TestMangoAccount:
     async def test_mango_activate_deactivate(self, mango_bench: MangoBench) -> None:
-
         marginfi_account, _ = await mango_bench.client.create_marginfi_account()
 
         await marginfi_account.mango.activate()
@@ -34,7 +33,6 @@ class TestMangoAccount:
         self,
         mango_bench: MangoBench,
     ) -> None:
-
         marginfi_account = mango_bench.account
         await marginfi_account.mango.activate()
 

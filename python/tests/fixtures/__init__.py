@@ -291,7 +291,6 @@ class MangoBench:
 def mango_bench() -> Callable:
     @async_fixture
     async def _bench_fixture(basics_fixture: Basics) -> MangoBench:
-
         # Fetch existing marginfi group
         group = await MarginfiGroup.fetch(
             basics_fixture.default_config, basics_fixture.program
@@ -354,7 +353,6 @@ class ZoBench:
 def zo_bench() -> Callable:
     @async_fixture
     async def _bench_fixture(basics_fixture: Basics) -> ZoBench:
-
         # Fetch existing marginfi group
         group = await MarginfiGroup.fetch(
             basics_fixture.default_config, basics_fixture.program

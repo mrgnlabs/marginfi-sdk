@@ -65,7 +65,8 @@ class MarketInfo:
         import warnings
 
         warnings.warn(
-            "Use of deprecated `MarketInfo.funding_rate`, please use `MarketInfo.funding_info`",
+            "Use of deprecated `MarketInfo.funding_rate`, please use"
+            " `MarketInfo.funding_info`",
             DeprecationWarning,
         )
         return 0 if self.funding_info is None else self.funding_info.hourly

@@ -18,7 +18,6 @@ zo_bench = zo_bench()
 @mark.devnet
 class TestZoAccount:
     async def test_zo_activate_deactivate(self, zo_bench: ZoBench) -> None:
-
         marginfi_account, _ = await zo_bench.client.create_marginfi_account()
 
         await marginfi_account.zo.activate()
@@ -30,7 +29,6 @@ class TestZoAccount:
         self,
         zo_bench: ZoBench,
     ) -> None:
-
         marginfi_account = zo_bench.account
         await marginfi_account.zo.activate()
 
@@ -41,7 +39,6 @@ class TestZoAccount:
         self,
         zo_bench: ZoBench,
     ) -> None:
-
         marginfi_account = zo_bench.account
         await marginfi_account.zo.activate()
 

@@ -17,7 +17,4 @@ USDC_TOKEN_DEVNET = mango.Token(
     PublicKey("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"),
 )
 
-USDC_TOKEN_DICT = {
-    "mainnet": USDC_TOKEN_MAINNET,
-    "devnet": USDC_TOKEN_DEVNET
-}
+USDC_TOKEN_DICT = {"mainnet": USDC_TOKEN_MAINNET, "devnet": USDC_TOKEN_DEVNET}

@@ -133,7 +133,8 @@ class Zo:
 
         if state.signer_nonce != state_signer_nonce:
             raise ValueError(
-                f"Invalid state key ({config.ZO_STATE_ID}) for program id ({config.ZO_PROGRAM_ID})"
+                f"Invalid state key ({config.ZO_STATE_ID}) for program id"
+                f" ({config.ZO_PROGRAM_ID})"
             )
 
         margin = None
