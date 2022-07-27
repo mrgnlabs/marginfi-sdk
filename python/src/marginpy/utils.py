@@ -14,6 +14,7 @@ from marginpy.constants import (
     VERY_VERBOSE_ERROR,
 )
 from marginpy.types import BankVaultType
+from solana.transaction import TransactionInstruction
 
 
 def load_idl(idl_path: Optional[str] = None) -> Idl:
@@ -76,3 +77,13 @@ def handle_override(override_key: str, default: Any, overrides: Dict[str, Any] =
     if overrides is None:
         return default
     return overrides[override_key] if override_key in overrides.keys() else default
+
+
+def make_request_units_ix(
+    units: int,
+    additionalFee: int,
+) -> TransactionInstruction:
+    data = b"\x00" + units.to_bytes(4, "little") + additionalFee.to_bytes(4, "little")
+    return TransactionInstruction(
+        [], PublicKey("ComputeBudget111111111111111111111111111111"), data
+    )

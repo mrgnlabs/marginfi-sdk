@@ -4,7 +4,7 @@ from marginpy.generated_client.types.utp_zo_place_perp_order_ix_args import (
     UtpZoPlacePerpOrderIxArgs,
 )
 
-from marginpy.utils import get_bank_authority, ui_to_native
+from marginpy.utils import get_bank_authority, make_request_units_ix, ui_to_native
 from marginpy.utp.account import UtpAccount
 from marginpy.types import InstructionsWrapper, UtpData
 from solana.keypair import Keypair
@@ -331,6 +331,9 @@ class UtpZoAccount(UtpAccount):
 
         :returns: Transaction instruction
         """
+
+        request_cu_ix = make_request_units_ix(units=400_000, additionalFee=0)
+
         zo_authority_pk, _ = await self.authority()
 
         zo = await self.get_zo_client(self.address)
@@ -393,7 +396,7 @@ class UtpZoAccount(UtpAccount):
         )
 
         return InstructionsWrapper(
-            instructions=[place_order_ix],
+            instructions=[request_cu_ix, place_order_ix],
             signers=[],
         )
 
@@ -415,27 +418,6 @@ class UtpZoAccount(UtpAccount):
 
         self.verify_active()
 
-        # https://github.com/solana-labs/solana-web3.js/blob/091faf5/src/compute-budget.ts#L180
-        # layout: BufferLayout.struct<
-        #     ComputeBudgetInstructionInputData['RequestUnits']
-        #     >([
-        #     BufferLayout.u8('instruction'),
-        #     BufferLayout.u32('units'),
-        #     BufferLayout.u32('additionalFee'),
-        #     ]),
-        # static requestUnits(params: RequestUnitsParams): TransactionInstruction {
-        #     const type = COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.RequestUnits;
-        #     const data = encodeData(type, params);
-        #     return new TransactionInstruction({
-        #     keys: [],
-        #     programId: this.programId,
-        #     data,
-        #     });
-        # }
-        #
-        #     units: 400000,
-        #     additionalFee: 0,
-
         place_order_ix_wrapped = await self.make_place_perp_order_ix(
             market_symbol, order_type, is_long, price, size, limit, client_id
         )
@@ -448,9 +430,9 @@ class UtpZoAccount(UtpAccount):
     async def make_cancel_perp_order_ix(
         self,
         market_symbol: str,
-        order_id: Optional[int],
-        is_long: Optional[bool],
-        client_id: Optional[int],
+        order_id: int = None,
+        is_long: bool = None,
+        client_id: int = None,
     ):
         """
         Create transaction instruction to cancel a perp order.
@@ -498,9 +480,9 @@ class UtpZoAccount(UtpAccount):
     async def cancel_perp_order(
         self,
         market_symbol: str,
-        order_id: Optional[int],
-        is_long: Optional[bool],
-        client_id: Optional[int],
+        order_id: int = None,
+        is_long: bool = None,
+        client_id: int = None,
     ):
         """
         Cancel a perp order.
@@ -569,17 +551,9 @@ class UtpZoAccount(UtpAccount):
     async def make_settle_funds_ix(self, market_symbol: str):
         zo_authority_pk, _ = await self.authority()
 
-        zo = await Zo.new(
-            conn=self._program.provider.connection,
-            cluster=self.config.cluster,
-            tx_opts=self._program.provider.opts,
-            payer=self._program.provider.wallet.payer,
-            create_margin=False,
-            load_margin=False,
-        )
-        margin = await self.get_zo_margin()
+        zo = await self.get_zo_client(self.address)
         market_info = zo.markets[market_symbol]
-        oo_pk, _ = self.get_oo_adress_for_market(margin.control, market_info.address)
+        oo_pk, _ = self.get_oo_adress_for_market(zo.margin.control, market_info.address)
 
         settle_funds_ix = make_settle_funds_ix(
             SettleFundsAccounts(
@@ -589,10 +563,10 @@ class UtpZoAccount(UtpAccount):
                 utp_authority=zo_authority_pk,
                 zo_program=self.config.program_id,
                 state=self.config.state_pk,
-                state_signer=zo._zo_state_signer,
-                cache=zo._zo_state.cache,
+                state_signer=zo.state_signer,
+                cache=zo.state.cache,
                 margin=self.address,
-                control=margin.control,
+                control=zo.margin.control,
                 open_orders=oo_pk,
                 dex_market=market_info.address,
                 dex_program=self.config.dex_program,

@@ -1,4 +1,5 @@
-from pytest import mark
+from pytest import mark, raises
+from marginpy.utp.zo.utils.copy_pasta.zo import Zo
 from tests.config import DEVNET_URL
 from tests.fixtures import (
     ZoBench,
@@ -46,7 +47,7 @@ class TestZoAccount:
 
         await marginfi_account.zo.create_perp_open_orders("SOL-PERP")
 
-    async def test_zo_place_perp_order(
+    async def test_zo_place_cancel_perp_order(
         self,
         zo_bench: ZoBench,
     ) -> None:
@@ -54,6 +55,13 @@ class TestZoAccount:
 
         await marginfi_account.zo.activate()
         await marginfi_account.zo.deposit(100)
+
+        zo_client = await Zo.new(
+            conn=zo_bench.basics.rpc_client,
+            cluster="devnet",
+            margin_pk=marginfi_account.zo.address,
+            tx_opts=zo_bench.basics.provider.opts,
+        )
 
         await marginfi_account.zo.create_perp_open_orders("SOL-PERP")
         await marginfi_account.zo.place_perp_order(
@@ -65,66 +73,33 @@ class TestZoAccount:
             client_id=888,
         )
 
-    # async def test_cancel_perp_order(
-    #     self,
-    #     mango_bench: MangoBench,
-    # ) -> None:
-    #     marginfi_account = mango_bench.account
+        await zo_client.refresh(
+            commitment=zo_bench.basics.provider.opts.preflight_commitment
+        )
+        assert len(zo_client.orders["SOL-PERP"]) == 1
 
-    #     await marginfi_account.mango.activate()
-    #     await marginfi_account.reload()
+        await marginfi_account.zo.cancel_perp_order(
+            market_symbol="SOL-PERP",
+            client_id=888,
+        )
 
-    #     await marginfi_account.mango.deposit(100)
+        await zo_client.refresh(
+            commitment=zo_bench.basics.provider.opts.preflight_commitment
+        )
+        assert len(zo_client.orders["SOL-PERP"]) == 0
 
-    #     with mango.ContextBuilder.build(
-    #         cluster_name=mango_bench.config.mango.cluster, group_name="devnet.2"
-    #     ) as context:
-    #         market = mango.market(context, "SOL-PERP")
+        with raises(BaseException):
+            await marginfi_account.zo.cancel_perp_order(
+                market_symbol="SOL-PERP",
+                client_id=888,
+            )
 
-    #     # accept invalid ID
-    #     await marginfi_account.mango.place_perp_order(
-    #         perp_market=market,
-    #         side=mango_side.Bid,
-    #         price=50,
-    #         quantity=1,
-    #         options=UtpMangoPlacePerpOrderOptions(order_type=PostOnlySlide()),
-    #     )
+    async def test_zo_settle(
+        self,
+        zo_bench: ZoBench,
+    ) -> None:
+        marginfi_account = zo_bench.account
 
-    #     with mango.ContextBuilder.build(
-    #         cluster_name=mango_bench.config.mango.cluster, group_name="devnet.2"
-    #     ) as context:
-    #         mango_group = mango.Group.load(context)
-    #         mango_account = mango.Account.load(
-    #             context, marginfi_account.mango.address, mango_group
-    #         )
-
-    #         market_operations = mango.operations(
-    #             context,
-    #             mango_bench.basics.wallet,
-    #             mango_account,
-    #             "SOL-PERP",
-    #             dry_run=False,
-    #         )
-    #         orders = market_operations.load_my_orders()
-
-    #     assert len(orders) == 1
-    #     order = orders[0]
-
-    #     await marginfi_account.mango.cancel_perp_order(
-    #         perp_market=market,
-    #         order_id=order.id,
-    #         invalid_id_ok=False,
-    #     )
-
-    #     with raises(BaseException) as e:
-    #         await marginfi_account.mango.cancel_perp_order(
-    #             perp_market=market,
-    #             order_id=order.id,
-    #             invalid_id_ok=False,
-    #         )
-
-    #     await marginfi_account.mango.cancel_perp_order(
-    #         perp_market=market,
-    #         order_id=order.id,
-    #         invalid_id_ok=True,
-    #     )
+        await marginfi_account.zo.activate()
+        await marginfi_account.zo.create_perp_open_orders("SOL-PERP")
+        await marginfi_account.zo.settle_funds(market_symbol="SOL-PERP")

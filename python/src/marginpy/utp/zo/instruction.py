@@ -192,33 +192,8 @@ def make_place_perp_order_ix(
     args: gen_ix.UtpZoPlacePerpOrderArgs,
     accounts: PlacePerpOrderAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta],
+    remaining_accounts: List[AccountMeta] = [],
 ) -> TransactionInstruction:
-    print(args)
-    print(
-        gen_ix.UtpZoPlacePerpOrderAccounts(
-            header=HeaderNested(
-                marginfi_account=accounts.marginfi_account,
-                marginfi_group=accounts.marginfi_group,
-                signer=accounts.signer,
-                utp_authority=accounts.utp_authority,
-            ),
-            zo_program=accounts.zo_program,
-            state=accounts.state,
-            state_signer=accounts.state_signer,
-            cache=accounts.cache,
-            margin=accounts.margin,
-            control=accounts.control,
-            open_orders=accounts.open_orders,
-            dex_market=accounts.dex_market,
-            req_q=accounts.req_q,
-            event_q=accounts.event_q,
-            market_bids=accounts.market_bids,
-            market_asks=accounts.market_asks,
-            dex_program=accounts.dex_program,
-            rent=SYSVAR_RENT_PUBKEY,
-        )
-    )
     return gen_ix.utp_zo_place_perp_order(
         args,
         accounts=gen_ix.UtpZoPlacePerpOrderAccounts(
@@ -278,7 +253,7 @@ def make_cancel_perp_order_ix(
     args: gen_ix.UtpZoCancelPerpOrderArgs,
     accounts: CancelPerpOrderAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta],
+    remaining_accounts: List[AccountMeta] = [],
 ) -> TransactionInstruction:
     return gen_ix.utp_zo_cancel_perp_order(
         args,
@@ -377,7 +352,7 @@ class SettleFundsAccounts:
 def make_settle_funds_ix(
     accounts: SettleFundsAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta],
+    remaining_accounts: List[AccountMeta] = [],
 ) -> TransactionInstruction:
     return gen_ix.utp_zo_settle_funds(
         accounts=gen_ix.UtpZoSettleFundsAccounts(
