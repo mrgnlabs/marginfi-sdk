@@ -57,13 +57,6 @@ class LiquidationPrices:
     insurance_vault_fee: float
 
 
-# @dataclass
-# class UTPAccountConfig:
-#     address: PublicKey
-#     authority_seed: PublicKey
-#     authority_bump: int
-
-
 @dataclass
 class UtpData:
     is_active: bool
