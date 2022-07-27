@@ -130,9 +130,9 @@ class MarginfiGroup {
   }
 
   /**
-   * Update instance data by loading the latest on-chain state.
+   * Update instance data by fetching and storing the latest on-chain state.
    */
-  async reload() {
+  async fetch() {
     const data = await MarginfiGroup._fetchAccountData(this._config, this._program);
     this.bank = new Bank(data.bank);
   }
