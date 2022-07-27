@@ -13,6 +13,12 @@ abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
   /** @internal */
   protected _cachedObservation: UtpObservation = UtpObservation.EMPTY_OBSERVATION;
 
+  abstract getObservationAccounts(): Promise<AccountMeta[]>;
+  abstract observe(): Promise<UtpObservation>;
+  abstract deposit(amount: UiAmount): Promise<string>;
+  abstract withdraw(amount: UiAmount): Promise<string>;
+  abstract config: UtpConfig;
+
   constructor(
     protected readonly _client: MarginfiClient,
     protected readonly _marginfiAccount: MarginfiAccount,
@@ -23,12 +29,6 @@ abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
     this._utpConfig = utpConfig;
     this._cachedObservation = UtpObservation.EMPTY_OBSERVATION;
   }
-
-  abstract getObservationAccounts(): Promise<AccountMeta[]>;
-  abstract observe(): Promise<UtpObservation>;
-  abstract deposit(amount: UiAmount): Promise<string>;
-  abstract withdraw(amount: UiAmount): Promise<string>;
-  abstract config: UtpConfig;
 
   // --- Getters / Setters
 
