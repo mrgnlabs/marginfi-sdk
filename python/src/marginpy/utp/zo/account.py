@@ -476,6 +476,7 @@ class UtpZoAccount(UtpAccount):
         )
         margin = await self.get_zo_margin()
         market_info = zo.markets[market_symbol]
+        market = zo.__dex_markets[market_symbol]
         oo_pk, _ = self.get_oo_adress_for_market(margin.control, market_info.address)
 
         cancel_ix = make_cancel_perp_order_ix(
@@ -496,9 +497,9 @@ class UtpZoAccount(UtpAccount):
                 control=margin.control,
                 open_orders=oo_pk,
                 dex_market=market_info.address,
-                Xmarket_bids=PublicKey, # TODO
-                Xmarket_asks=PublicKey, # TODO
-                Xevent_q=PublicKey, # TODO
+                market_bids=market.bids,
+                market_asks=market.asks,
+                event_q=market.event_q,
                 dex_program=self.config.dex_program,
             ),
             self._client.program_id,
