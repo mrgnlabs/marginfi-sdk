@@ -1,141 +1,206 @@
-from abc import ABC, abstractmethod, abstractproperty
+from __future__ import annotations
 
+from abc import ABC, abstractmethod
+from datetime import datetime
+from typing import List
+from anchorpy import Program
 from solana.publickey import PublicKey
-
+from solana.transaction import TransactionSignature, AccountMeta, TransactionInstruction
+import solana.system_program as system_program
+from spl.token.constants import TOKEN_PROGRAM_ID, ACCOUNT_LEN
+import spl.token.instructions as spl_token_ixs
+from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
+from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpData, UtpIndex
+from marginpy.utp.observation import EMPTY_OBSERVATION, UtpObservation
+from marginpy.utils import get_utp_authority
 from marginpy.constants import (
     INSURANCE_VAULT_LIQUIDATION_FEE,
     LIQUIDATOR_LIQUIDATION_FEE,
 )
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from marginpy import MarginfiClient, MarginfiAccount, MarginfiConfig
+
 
 class UtpAccount(ABC):
+    _client: MarginfiClient
+    _marginfi_account: MarginfiAccount
     is_active: bool
+    _utp_config: UTPAccountConfig
+    _cached_observation: UtpObservation
 
-    # _utp_config: UTPAccountConfig
-    # _cached_observation: UtpObservation
-
-    def __init__(self, _client, _marginfi_account, is_active, utp_config):
-        self._client = _client
-        self._marginfi_account = _marginfi_account
+    def __init__(
+        self,
+        client: "MarginfiClient",
+        marginfi_account: "MarginfiAccount",
+        is_active: bool,
+        utp_config: UTPAccountConfig,
+    ):
+        self._client = client
+        self._marginfi_account = marginfi_account
         self.is_active = is_active
         self._utp_config = utp_config
-        # @todo
-        # self._cached_observation =
+        self._cached_observation = EMPTY_OBSERVATION
+
+    def __str__(self) -> str:
+        return (
+            f"Timestamp: {self._cached_observation.timestamp}"
+            f"Equity: {self.equity}"
+            f"Free Collateral: {self.free_collateral}"
+            f"Liquidation Value: {self.liquidation_value}"
+            f"Rebalance Needed: {self.is_rebalance_deposit_needed}"
+            f"Max Rebalance: {self.max_rebalance_deposit_amount}"
+            f"Is empty: {self.is_empty}"
+        )
 
     @abstractmethod
-    async def get_observation_accounts(self):
+    async def get_observation_accounts(self) -> List[AccountMeta]:
         pass
 
     @abstractmethod
-    async def observe(self):
+    async def observe(self) -> UtpObservation:
         pass
 
     @abstractmethod
-    async def deposit(self, amount):
+    async def deposit(self, amount) -> TransactionSignature:
         pass
 
     @abstractmethod
-    async def withdraw(self, amount):
+    async def withdraw(self, amount) -> TransactionSignature:
         pass
 
-    # @todo confirm this is right
     @property
     @abstractmethod
-    def config(self):
+    def config(self) -> UtpConfig:
         pass
 
     # --- Getters / Setters
+
     @property
-    def index(self):
+    def index(self) -> UtpIndex:
         return self.config.utp_index
 
-    # internal
     @property
-    def _config(self):
+    def _config(self) -> MarginfiConfig:
+        """[Internal]"""
         return self._client.config
 
-    # internal
     @property
-    def _program(self):
+    def _program(self) -> Program:
+        """[Internal]"""
         return self._client.program
 
-    # @property
-    # def cached_observation(self):
-    #     pass
+    @property
+    def cached_observation(self) -> UtpObservation:
+        # TODO
+        fetch_age = (
+            datetime.now() - self._cached_observation.timestamp
+        ).total_seconds()
+        if fetch_age > 5:
+            print(
+                f"[WARNNG] Last {UTP_NAME[self.index]} observation was fetched"
+                f" {fetch_age} seconds ago"
+            )
+        return self._cached_observation
 
     @property
-    def equity(self):
+    def equity(self) -> float:
         return self.cached_observation.equity
 
     @property
-    def free_collateral(self):
-        self.cached_observation.free_collateral
+    def free_collateral(self) -> float:
+        return self.cached_observation.free_collateral
 
     @property
-    def init_margin_requirement(self):
-        self.cached_observation.init_margin_requirement
+    def init_margin_requirement(self) -> float:
+        return self.cached_observation.init_margin_requirement
 
     @property
-    def liquidation_value(self):
-        self.cached_observation.liquidation_value
+    def liquidation_value(self) -> float:
+        return self.cached_observation.liquidation_value
 
     @property
-    def is_rebalance_deposit_needed(self):
-        self.cached_observation.is_rebalance_deposit_needed
+    def is_rebalance_deposit_needed(self) -> bool:
+        return self.cached_observation.is_rebalance_deposit_needed
 
     @property
-    def max_rebalance_deposit_amount(self):
-        self.cached_observation.max_rebalance_deposit_amount
+    def max_rebalance_deposit_amount(self) -> float:
+        return self.cached_observation.max_rebalance_deposit_amount
 
     @property
-    def is_empty(self):
-        self.cached_observation.is_empty
+    def is_empty(self) -> bool:
+        return self.cached_observation.is_empty
 
     @property
-    def address(self):
-        self._utp_config.address
+    def address(self) -> PublicKey:
+        return self._utp_config.address
 
-    ###
-    # UTP authority (PDA)
-    ###
-    # async def authority(
-    #     self,
-    #     seed: PublicKey = None
-    # ):
-    #     return get_utp_authority(
-    #         self.config.program_id,
-    #         seed || self._utp_config.authority_seed,
-    #         self._program.program_id
-    #     )
+    async def authority(self, seed: PublicKey = None):
+        """UTP authority (PDA)"""
+
+        return get_utp_authority(
+            self.config.program_id,
+            seed if seed is not None else self._utp_config.authority_seed,
+            self._program.program_id,
+        )
 
     # --- Others
 
-    ###
-    # Calculates liquidation parameters given an account value.
-    ###
-    def compute_liquidation_prices(self):
+    def compute_liquidation_prices(self) -> LiquidationPrices:
+        """Calculates liquidation parameters given an account value."""
+
         liquidator_fee = self.liquidation_value * LIQUIDATOR_LIQUIDATION_FEE
         insurance_vault_fee = self.liquidation_value * INSURANCE_VAULT_LIQUIDATION_FEE
 
         discounted_liquidator_price = self.liquidation_value - liquidator_fee
         final_price = discounted_liquidator_price - insurance_vault_fee
 
-        return {final_price, discounted_liquidator_price, insurance_vault_fee}
+        return LiquidationPrices(
+            final_price=final_price,
+            discounted_liquidator_price=discounted_liquidator_price,
+            insurance_vault_fee=insurance_vault_fee,
+        )
 
-    ###
-    # Update instance data from provided data struct.
-    #
-    # @internal
-    ###
-    def update(self, data):
+    def update(self, data: UtpData) -> None:
+        """
+        [Internal] Update instance data from provided data struct.
+        """
+
         self.is_active = data.is_active
         self._utp_config = data.account_config
 
-    def to_string(self):
-        return f"""Timestamp: {self._cached_observation.timestamp}
-                Equity: {self.equity}
-                Free Collateral: {self.free_collateral}
-                Liquidation Value: {self.liquidation_value}
-                Rebalance Needed: {self.is_rebalance_deposit_needed}
-                Max Rebalance: {self.max_rebalance_deposit_amount}
-                Is empty: {self.is_empty}"""
+    def verify_active(self):
+        """[Internal]"""
+
+        if not self.is_active:
+            raise Exception("Utp isn't active")
+
+    async def make_create_proxy_token_account_ixs(
+        self, proxy_token_account_key_pk, mango_authority_pk
+    ) -> List[TransactionInstruction]:
+        create_token_account_ix = system_program.create_account(
+            system_program.CreateAccountParams(
+                from_pubkey=self._program.provider.wallet.public_key,
+                new_account_pubkey=proxy_token_account_key_pk,
+                lamports=int(
+                    (
+                        await self._program.provider.connection.get_minimum_balance_for_rent_exemption(
+                            ACCOUNT_LEN
+                        )
+                    )["result"]
+                ),
+                space=ACCOUNT_LEN,
+                program_id=TOKEN_PROGRAM_ID,
+            )
+        )
+        init_token_account_ix = spl_token_ixs.initialize_account(
+            spl_token_ixs.InitializeAccountParams(
+                program_id=TOKEN_PROGRAM_ID,
+                mint=self._marginfi_account.group.bank.mint,
+                account=proxy_token_account_key_pk,
+                owner=mango_authority_pk,
+            )
+        )
+        return [create_token_account_ix, init_token_account_ix]

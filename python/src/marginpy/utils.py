@@ -1,22 +1,20 @@
 import base64
 import json
 import os
-import enum
-from dataclasses import dataclass
 from typing import Dict, Any, Tuple, Optional
-
 from anchorpy import Idl
 from solana.rpc.responses import AccountInfo
 from solana.publickey import PublicKey
-
 from marginpy.constants import (
     COLLATERAL_DECIMALS,
     PDA_BANK_VAULT_SEED,
     PDA_BANK_INSURANCE_VAULT_SEED,
     PDA_BANK_FEE_VAULT_SEED,
+    PDA_UTP_AUTH_SEED,
     VERY_VERBOSE_ERROR,
 )
-from marginpy.generated_client.types import UTPAccountConfig
+from marginpy.types import BankVaultType
+from solana.transaction import TransactionInstruction
 
 
 def load_idl(idl_path: Optional[str] = None) -> Idl:
@@ -26,25 +24,6 @@ def load_idl(idl_path: Optional[str] = None) -> Idl:
         raw_idl = json.load(f)
     idl = Idl.from_json(raw_idl)
     return idl
-
-
-class UtpIndex(enum.Enum):
-    Mango = 0
-    Zo = 1
-
-    def __index__(self):
-        return self.value
-
-
-class AccountType(enum.Enum):
-    MarginfiGroup = "MarginfiGroup"
-    MarginfiAccount = "MarginfiAccount"
-
-
-@dataclass
-class UtpData:
-    is_active: bool
-    account_config: UTPAccountConfig
 
 
 def b64str_to_bytes(data_str: str) -> bytes:
@@ -65,15 +44,6 @@ def ui_to_native(amount: float, decimals: int = COLLATERAL_DECIMALS) -> int:
     return int(amount * 10**decimals)
 
 
-class BankVaultType(enum.Enum):
-    LiquidityVault = "LiquidityVault"
-    InsuranceVault = "InsuranceVault"
-    FeeVault = "FeeVault"
-
-    def __index__(self):
-        return self.value
-
-
 def get_vault_seeds(vault_type: BankVaultType) -> bytes:
     if vault_type == BankVaultType.LiquidityVault:
         return PDA_BANK_VAULT_SEED
@@ -85,6 +55,14 @@ def get_vault_seeds(vault_type: BankVaultType) -> bytes:
         raise Exception(VERY_VERBOSE_ERROR)
 
 
+def get_utp_authority(
+    utp_program_id: PublicKey, authority_seed: PublicKey, program_id: PublicKey
+) -> Tuple[PublicKey, int]:
+    return PublicKey.find_program_address(
+        [PDA_UTP_AUTH_SEED, bytes(utp_program_id), bytes(authority_seed)], program_id
+    )
+
+
 def get_bank_authority(
     marginfi_group_pk: PublicKey,
     program_id: PublicKey,
@@ -92,4 +70,20 @@ def get_bank_authority(
 ) -> Tuple[PublicKey, int]:
     return PublicKey.find_program_address(
         [get_vault_seeds(bank_vault_type), bytes(marginfi_group_pk)], program_id
+    )
+
+
+def handle_override(override_key: str, default: Any, overrides: Dict[str, Any] = {}):
+    if overrides is None:
+        return default
+    return overrides[override_key] if override_key in overrides.keys() else default
+
+
+def make_request_units_ix(
+    units: int,
+    additionalFee: int,
+) -> TransactionInstruction:
+    data = b"\x00" + units.to_bytes(4, "little") + additionalFee.to_bytes(4, "little")
+    return TransactionInstruction(
+        [], PublicKey("ComputeBudget111111111111111111111111111111"), data
     )

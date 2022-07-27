@@ -1,39 +1,53 @@
-# from NEED_MANGO_LIBRARY import Config, GroupConfig, IDS
-# Config: https://github.com/blockworks-foundation/mango-client-v3/blob/main/src/config.ts#L276-L312
-# GroupConfig: https://github.com/blockworks-foundation/mango-client-v3/blob/main/src/config.ts#L129-L140
-# IDS: https://github.com/blockworks-foundation/mango-client-v3/blob/main/src/ids.json
-# ^ these are just starters
-
+from typing import Any, Dict
+from solana.publickey import PublicKey
 from marginpy.config import Environment
+from marginpy.utils import handle_override
+from marginpy.generated_client.types.utp_config import UTPConfig
 
 
-class MangoConfig:
-    def __init__(self, environment, overrides=None):
+class MangoConfig(UTPConfig):
+    """
+    [Internal]
+    Define Mango-specific config per profile
+    """
+
+    cluster: str
+    group_pk: PublicKey
+
+    def __init__(
+        self, environment: Environment, overrides: Dict[str, Any] = {}
+    ) -> None:
+        self.utp_index = handle_override(
+            overrides=overrides, override_key="utp_index", default=0
+        )
+
         if environment == Environment.MAINNET:
-            # mango_config = Config(IDS)
-            # group_config = mango_config.get_group("mainnet", "mainnet.1")
-            # program_id = group_config.mango_program_id
-            # return {
-            #     "utp_index": 0,
-            #     "program_id": program_id,
-            #     "group_config": group_config,
-            #     "overrides": overrides,
-            # }
-            pass
-
-        elif environment == Environment.DEVNET:
-            # mango_config = Config(IDS)
-            # group_config = mango_config.get_group("devnet", "devnet.1")
-            # program_id = group_config.mango_program_id
-            # return {
-            #     "utp_index": 0,
-            #     "program_id": program_id,
-            #     "group_config": group_config,
-            #     "overrides": overrides,
-            # }
-            pass
-
-        else:
-            raise Exception(
-                "Unknown environment for Mango UTP config {}".format(environment)
+            self.cluster = "mainnet"
+            self.program_id = handle_override(
+                overrides=overrides,
+                override_key="program_id",
+                default=PublicKey("mv3ekLzLbnVPNxjSKvqBpU3ZeZXPQdEC3bp5MDEBG68"),
             )
+            self.group_pk = handle_override(
+                overrides=overrides,
+                override_key="group_pk",
+                default=PublicKey("98pjRuQjK3qA6gXts96PqZT4Ze5QmnCmt3QYjhbUSPue"),
+            )
+        elif environment == Environment.DEVNET:
+            self.cluster = "devnet"
+            self.program_id = handle_override(
+                overrides=overrides,
+                override_key="program_id",
+                default=PublicKey("4skJ85cdxQAFVKbcGgfun8iZPL7BadVYXG3kGEGkufqA"),
+            )
+            self.group_pk = handle_override(
+                overrides=overrides,
+                override_key="group_pk",
+                default=PublicKey("Ec2enZyoC4nGpEfu2sUNAa2nUGJHWxoUWYSEJ2hNTWTA"),
+            )
+        elif environment == Environment.LOCALNET:
+            self.cluster = None
+            self.program_id = None
+            self.group_pk = None
+        else:
+            raise Exception(f"Unknown environment for Mango UTP config {environment}")

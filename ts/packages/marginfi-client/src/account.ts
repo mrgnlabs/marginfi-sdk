@@ -9,6 +9,7 @@ import instructions from "./instructions";
 import {
   AccountBalances,
   AccountType,
+  BankVaultType,
   EquityType,
   InstructionsWrapper,
   LendingSide,

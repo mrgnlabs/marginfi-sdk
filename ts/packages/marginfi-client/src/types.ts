@@ -13,12 +13,12 @@ export type UiAmount = BigNumber | number | I80F48 | string;
 
 export enum UtpIndex {
   Mango = 0,
-  ZO = 1,
+  Zo = 1,
 }
 
 export const UTP_NAME = {
   [UtpIndex.Mango]: "Mango",
-  [UtpIndex.ZO]: "01",
+  [UtpIndex.Zo]: "01",
 };
 
 /**
@@ -27,6 +27,15 @@ export const UTP_NAME = {
 export enum Environment {
   DEVNET = "devnet",
   MAINNET = "mainnet",
+}
+
+/**
+ * Marginfi bank vault type
+ */
+export enum BankVaultType {
+  LiquidityVault,
+  InsuranceVault,
+  FeeVault,
 }
 
 export interface MarginfiDedicatedConfig {

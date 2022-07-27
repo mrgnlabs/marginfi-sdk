@@ -1,7 +1,7 @@
 from time import sleep
 from pytest import mark
 from solana.rpc.async_api import AsyncClient
-from marginpy.utils import load_idl, AccountType
+from marginpy.utils import load_idl
 from tests.fixtures import REAL_ACCOUNT_PUBKEY_2
 from tests.config import LOCALNET_URL, DEVNET_URL
 from solana.rpc.commitment import Confirmed
@@ -10,7 +10,7 @@ from os import path
 from pathlib import Path
 from anchorpy import localnet_fixture, Wallet, Provider, Program
 from marginpy import MarginfiConfig, Environment, load_idl, MarginfiClient
-from marginpy.types import GroupConfig, BankConfig
+from marginpy.types import AccountType, GroupConfig, BankConfig
 from tests.utils import (
     create_collateral_mint,
     create_marginfi_group,
