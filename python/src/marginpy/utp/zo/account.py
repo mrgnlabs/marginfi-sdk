@@ -21,6 +21,8 @@ from marginpy.utp.zo.instruction import (
     DepositArgs,
     WithdrawAccounts,
     WithdrawArgs,
+    PlacePerpOrderArgs,
+    PlacePerpOrderAccounts,
     CancelPerpOrderArgs,
     CancelPerpOrderAccounts,
     SettleFundsAccounts,
@@ -28,6 +30,7 @@ from marginpy.utp.zo.instruction import (
     make_create_perp_open_orders_ix,
     make_deposit_ix,
     make_withdraw_ix,
+    make_place_perp_order_ix,
     make_cancel_perp_order_ix,
     make_settle_funds_ix,
 )
@@ -330,39 +333,27 @@ class UtpZoAccount(UtpAccount):
             ),
         ]
 
-    async def make_place_perp_order_ix(self):
+    async def make_place_perp_order_ix(self, args):
         """
         Create transaction instruction to place a perp order.
 
         :returns: Transaction instruction
         """
-        # async makePlacePerpOrderIx({
-        #     symbol,
-        #     orderType,
-        #     isLong,
-        #     price,
-        #     size,
-        #     limit,
-        #     clientId,
-        # }: Readonly<{
-        #     symbol: string;
-        #     orderType: OrderType;
-        #     isLong: boolean;
-        #     price: number;
-        #     size: number;
-        #     limit?: number;
-        #     clientId?: BN;
-        # }>): Promise<InstructionsWrapper> {
-        #     const [utpAuthority] = await this.authority();
+        zo_authority_pk, _ = await self.authority()
 
-        #     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
-        #     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
+        zo = await Zo.new(
+            conn=self._program.provider.connection,
+            cluster=self.config.cluster,
+            tx_opts=self._program.provider.opts,
+            payer=self._program.provider.wallet.payer,
+            create_margin=False,
+            load_margin=False,
+        )
+        margin = await self.get_zo_margin()
+        market_info = zo.markets[args.market_symbol]
+        market = zo.__dex_markets[args.market_symbol]
+        oo_pk, _ = self.get_oo_adress_for_market(margin.control, market_info.address)
 
-        #     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, zoState.cache, utpAuthority);
-
-        #     const [openOrdersPk] = await zoMargin.getOpenOrdersKeyBySymbol(symbol, this.config.cluster);
-
-        #     const market = await zoState.getMarketBySymbol(symbol);
         #     const limitPriceBn = market.priceNumberToLots(price);
         #     const maxBaseQtyBn = market.baseSizeNumberToLots(size);
         #     const takerFee =
@@ -387,39 +378,39 @@ class UtpZoAccount(UtpAccount):
         #     clientId: clientId ?? new BN(0),
         #     };
 
-        #     return {
-        #     instructions: [
-        #         await instructions.makePlacePerpOrderIx(
-        #         this._client.program,
-        #         {
-        #             marginfiAccount: this._marginfiAccount.publicKey,
-        #             marginfiGroup: this._client.group.publicKey,
-        #             utpAuthority: utpAuthority,
-        #             signer: this._program.provider.wallet.publicKey,
-        #             zoProgram: zoProgram.programId,
-        #             state: zoState.pubkey,
-        #             stateSigner: zoState.signer,
-        #             cache: zoState.cache.pubkey,
-        #             margin: zoMargin.pubkey,
-        #             control: zoMargin.control.pubkey,
-        #             openOrders: openOrdersPk,
-        #             dexMarket: market.publicKey,
-        #             reqQ: market.requestQueueAddress,
-        #             eventQ: market.eventQueueAddress,
-        #             marketBids: market.bidsAddress,
-        #             marketAsks: market.asksAddress,
-        #             dexProgram: this.config.dexProgram,
-        #         },
-        #         { args },
-        #         remainingAccounts
-        #         ),
-        #     ],
-        #     keys: [],
-        #     };
-        # }
-        pass
+        remaining_accounts = await self.get_observation_accounts()
 
-    async def place_perp_order(self):
+        place_order_ix = make_place_perp_order_ix(
+            PlacePerpOrderArgs(args=args),
+            PlacePerpOrderAccounts(
+                marginfi_account=self._marginfi_account.pubkey,
+                marginfi_group=self._config.group_pk,
+                signer=self._program.provider.wallet.public_key,
+                utp_authority=zo_authority_pk,
+                zo_program=self.config.program_id,
+                state=self.config.state_pk,
+                state_signer=zo._zo_state_signer,
+                cache=zo._zo_state.cache,
+                margin=self.address,
+                control=margin.control,
+                open_orders=oo_pk,
+                dex_market=market_info.address,
+                req_q=market.req_q,
+                event_q=market.event_q,
+                market_bids=market.bids,
+                market_asks=market.asks,
+                dex_program=self.config.dex_program,
+            ),
+            self._client.program_id,
+            remaining_accounts=remaining_accounts,
+        )
+
+        return InstructionsWrapper(
+            instructions=[place_order_ix],
+            signers=[],
+        )
+
+    async def place_perp_order(self, args):
         """
         Place a perp order.
 
@@ -436,21 +427,36 @@ class UtpZoAccount(UtpAccount):
         #     clientId?: BN;
         #     }>
         # ): Promise<string> {
-        #     const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:place-perp-order`);
-        #     debug("Placing perp order on 01");
-        #     debug("%s", args);
+        
+        self.verify_active()
 
-        #     const requestCUIx = ComputeBudgetProgram.requestUnits({
+        # https://github.com/solana-labs/solana-web3.js/blob/091faf5/src/compute-budget.ts#L180
+        # layout: BufferLayout.struct<
+        #     ComputeBudgetInstructionInputData['RequestUnits']
+        #     >([
+        #     BufferLayout.u8('instruction'),
+        #     BufferLayout.u32('units'),
+        #     BufferLayout.u32('additionalFee'),
+        #     ]),
+        # static requestUnits(params: RequestUnitsParams): TransactionInstruction {
+        #     const type = COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.RequestUnits;
+        #     const data = encodeData(type, params);
+        #     return new TransactionInstruction({
+        #     keys: [],
+        #     programId: this.programId,
+        #     data,
+        #     });
+        # }
+        #
         #     units: 400000,
         #     additionalFee: 0,
-        #     });
-        #     const placeOrderIx = await this.makePlacePerpOrderIx(args);
-        #     const tx = new Transaction().add(requestCUIx, ...placeOrderIx.instructions);
-        #     const sig = await processTransaction(this._program.provider, tx);
-        #     debug("Sig %s", sig);
-        #     return sig;
-        # }
-        pass
+
+        place_order_ix_wrapped = await self.make_place_perp_order_ix(args)
+
+        tx = Transaction().add(*place_order_ix_wrapped.instructions)
+        return await self._client.program.provider.send(
+            tx=tx, signers=place_order_ix_wrapped.signers
+        )
 
     async def make_cancel_perp_order_ix(
         self,
