@@ -46,28 +46,24 @@ class TestZoAccount:
 
         await marginfi_account.zo.create_perp_open_orders("SOL-PERP")
 
-    # async def test_place_perp_order(
-    #     self,
-    #     mango_bench: MangoBench,
-    # ) -> None:
-    #     marginfi_account = mango_bench.account
+    async def test_zo_place_perp_order(
+        self,
+        zo_bench: ZoBench,
+    ) -> None:
+        marginfi_account = zo_bench.account
 
-    #     await marginfi_account.mango.activate()
-    #     await marginfi_account.reload()
+        await marginfi_account.zo.activate()
+        await marginfi_account.zo.deposit(100)
 
-    #     await marginfi_account.mango.deposit(100)
-
-    #     with mango.ContextBuilder.build(
-    #         cluster_name=mango_bench.config.mango.cluster, group_name="devnet.2"
-    #     ) as context:
-    #         market = mango.market(context, "SOL-PERP")
-
-    #     await marginfi_account.mango.place_perp_order(
-    #         perp_market=market,
-    #         side=mango_side.Bid,
-    #         price=50,
-    #         quantity=1,
-    #     )
+        await marginfi_account.zo.create_perp_open_orders("SOL-PERP")
+        await marginfi_account.zo.place_perp_order(
+            market_symbol="SOL-PERP",
+            order_type="PostOnly",
+            is_long=True,
+            price=33,
+            size=0.1,
+            client_id=888,
+        )
 
     # async def test_cancel_perp_order(
     #     self,

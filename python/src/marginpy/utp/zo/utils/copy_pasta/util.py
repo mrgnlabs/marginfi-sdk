@@ -8,6 +8,8 @@ from solana.rpc.types import TxOpts
 from solana.sysvar import SYSVAR_RENT_PUBKEY
 import solana.system_program
 
+from marginpy.utp.zo.utils.copy_pasta.types import PerpType
+
 CONTROL_ACCOUNT_SIZE = 8 + 4482
 
 
@@ -157,3 +159,13 @@ async def create_margin(
             ),
         ),
     )
+
+
+def compute_taker_fee(t: PerpType, /) -> float:
+    if t == "future":
+        return 10 / 10000
+    if t == "calloption" or t == "putoption":
+        return 10 / 10000
+    if t == "square":
+        return 15 / 10000
+    raise LookupError(f"invalid perp type {t}")

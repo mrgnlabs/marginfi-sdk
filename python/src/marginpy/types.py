@@ -82,7 +82,7 @@ class UtpMangoPlacePerpOrderOptions:
     limit: Optional[int] = None
     order_type: Optional[gen_types.MangoOrderTypeKind] = None
     client_order_id: Optional[int] = None
-    reduce_only: Optional[bool] = False
+    reduce_only: Optional[bool] = None
     expiry_timestamp: Optional[int] = None
     expiry_type: Optional[gen_types.MangoExpiryTypeKind] = None
 

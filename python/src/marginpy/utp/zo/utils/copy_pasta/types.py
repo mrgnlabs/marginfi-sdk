@@ -6,7 +6,12 @@ from solana.publickey import PublicKey
 
 Side = Literal["bid", "ask"]
 OrderType = Literal[
-    "limit", "ioc", "postonly", "reduceonlyioc", "reduceonlylimit", "fok"
+    "Limit",
+    "ImmediateOrCancel",
+    "PostOnly",
+    "ReduceOnlyIoc",
+    "ReduceOnlyLimit",
+    "FillOrKill",
 ]
 PerpType = Literal["future", "calloption", "putoption", "square"]
 

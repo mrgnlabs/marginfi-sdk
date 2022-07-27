@@ -29,13 +29,3 @@ configs = {
         SERUM_DEX_ID=PublicKey("9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"),
     ),
 }
-
-
-def taker_fee(t: PerpType, /) -> float:
-    if t == "future":
-        return 10 / 10000
-    if t == "calloption" or t == "putoption":
-        return 10 / 10000
-    if t == "square":
-        return 15 / 10000
-    raise LookupError(f"invalid perp type {t}")

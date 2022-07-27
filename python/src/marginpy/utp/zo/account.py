@@ -1,4 +1,8 @@
 from __future__ import annotations
+from marginpy.generated_client.types.mango_order_type import from_decoded
+from marginpy.generated_client.types.utp_zo_place_perp_order_ix_args import (
+    UtpZoPlacePerpOrderIxArgs,
+)
 
 from marginpy.utils import get_bank_authority, ui_to_native
 from marginpy.utp.account import UtpAccount
@@ -35,6 +39,12 @@ from marginpy.utp.zo.instruction import (
     make_settle_funds_ix,
 )
 from marginpy.utp.zo.utils import CONTROL_ACCOUNT_SIZE
+from marginpy.utp.zo.utils.copy_pasta.types import OrderType, order_type_from_str
+from marginpy.utp.zo.utils.copy_pasta.util import (
+    compute_taker_fee,
+    price_to_lots,
+    size_to_lots,
+)
 from marginpy.utp.zo.utils.copy_pasta.zo import Zo
 from marginpy.utp.zo.utils.copy_pasta.config import configs
 
@@ -178,18 +188,9 @@ class UtpZoAccount(UtpAccount):
             zo_authority_pk,
         )
 
-        zo = await Zo.new(
-            conn=self._program.provider.connection,
-            cluster=self.config.cluster,
-            tx_opts=self._program.provider.opts,
-            payer=self._program.provider.wallet.payer,
-            create_margin=False,
-            load_margin=False,
-        )
+        zo = await self.get_zo_client(self.address)
 
         remaining_accounts = await self.get_observation_accounts()
-
-        zo_state = configs[self.config.cluster].ZO_STATE_ID
 
         return (
             [
@@ -204,11 +205,11 @@ class UtpZoAccount(UtpAccount):
                         bank_authority=margin_bank_authority_pk,
                         temp_collateral_account=proxy_token_account_key.public_key,
                         utp_authority=zo_authority_pk,
-                        zo_cache=zo._zo_state.cache,
+                        zo_cache=zo.state.cache,
                         zo_margin=self.address,
                         zo_program=self.config.program_id,
-                        zo_state=zo_state,
-                        zo_state_signer=zo._zo_state_signer,
+                        zo_state=zo.config.ZO_STATE_ID,
+                        zo_state_signer=zo.state_signer,
                         zo_vault=zo.collaterals[
                             self._marginfi_account.group.bank.mint
                         ].vault,
@@ -247,16 +248,8 @@ class UtpZoAccount(UtpAccount):
 
         zo_authority_pk, _ = await self.authority()
 
-        margin = await self.get_zo_margin()
-        zo_state = configs[self.config.cluster].ZO_STATE_ID
-        zo = await Zo.new(
-            conn=self._program.provider.connection,
-            cluster=self.config.cluster,
-            tx_opts=self._program.provider.opts,
-            payer=self._program.provider.wallet.payer,
-            create_margin=False,
-            load_margin=False,
-        )
+        zo = await self.get_zo_client(self.address)
+
         remaining_accounts = await self.get_observation_accounts()
 
         return make_withdraw_ix(
@@ -267,12 +260,12 @@ class UtpZoAccount(UtpAccount):
                 signer=self._program.provider.wallet.public_key,
                 margin_collateral_vault=self._marginfi_account.group.bank.vault,
                 utp_authority=zo_authority_pk,
-                zo_cache=zo._zo_state.cache,
+                zo_cache=zo.state.cache,
                 zo_margin=self.address,
-                zo_control=margin.control,
+                zo_control=zo.margin.control,
                 zo_program=self.config.program_id,
-                zo_state=zo_state,
-                zo_state_signer=zo._zo_state_signer,
+                zo_state=zo.config.ZO_STATE_ID,
+                zo_state_signer=zo.state_signer,
                 zo_vault=zo.collaterals[self._marginfi_account.group.bank.mint].vault,
             ),
             program_id=self._client.program_id,
@@ -298,17 +291,7 @@ class UtpZoAccount(UtpAccount):
         :returns: `AccountMeta[]` list of account metas
         """
 
-        # TODO: change to 1 fetch for both accounts + decoding
-        zo = await Zo.new(
-            conn=self._program.provider.connection,
-            cluster=self.config.cluster,
-            tx_opts=self._program.provider.opts,
-            payer=self._program.provider.wallet.payer,
-            create_margin=False,
-            load_margin=False,
-        )
-        state = await self.get_zo_state()
-        margin = await self.get_zo_margin()
+        zo = await self.get_zo_client(self.address)
 
         return [
             AccountMeta(
@@ -317,7 +300,7 @@ class UtpZoAccount(UtpAccount):
                 is_writable=False,
             ),
             AccountMeta(
-                pubkey=margin.control,
+                pubkey=zo.margin.control,
                 is_signer=False,
                 is_writable=False,
             ),
@@ -327,13 +310,22 @@ class UtpZoAccount(UtpAccount):
                 is_writable=False,
             ),
             AccountMeta(
-                pubkey=state.cache,
+                pubkey=zo.state.cache,
                 is_signer=False,
                 is_writable=False,
             ),
         ]
 
-    async def make_place_perp_order_ix(self, args):
+    async def make_place_perp_order_ix(
+        self,
+        market_symbol: str,
+        order_type: OrderType,
+        is_long: bool,
+        price: float,
+        size: float,
+        limit: float = 10,
+        client_id: int = 0,
+    ):
         """
         Create transaction instruction to place a perp order.
 
@@ -341,47 +333,42 @@ class UtpZoAccount(UtpAccount):
         """
         zo_authority_pk, _ = await self.authority()
 
-        zo = await Zo.new(
-            conn=self._program.provider.connection,
-            cluster=self.config.cluster,
-            tx_opts=self._program.provider.opts,
-            payer=self._program.provider.wallet.payer,
-            create_margin=False,
-            load_margin=False,
+        zo = await self.get_zo_client(self.address)
+        market_info = zo.markets[market_symbol]
+        market = zo.dex_markets[market_symbol]
+        oo_pk, _ = self.get_oo_adress_for_market(zo.margin.control, market_info.address)
+
+        price = price_to_lots(
+            price,
+            base_decimals=market_info.base_decimals,
+            quote_decimals=market_info.quote_decimals,
+            base_lot_size=market_info.base_lot_size,
+            quote_lot_size=market_info.quote_lot_size,
         )
-        margin = await self.get_zo_margin()
-        market_info = zo.markets[args.market_symbol]
-        market = zo.__dex_markets[args.market_symbol]
-        oo_pk, _ = self.get_oo_adress_for_market(margin.control, market_info.address)
-
-        #     const limitPriceBn = market.priceNumberToLots(price);
-        #     const maxBaseQtyBn = market.baseSizeNumberToLots(size);
-        #     const takerFee =
-        #     market.decoded.perpType.toNumber() === 1
-        #         ? ZoClient.ZO_FUTURE_TAKER_FEE
-        #         : market.decoded.perpType.toNumber() === 2
-        #         ? ZoClient.ZO_OPTION_TAKER_FEE
-        #         : ZoClient.ZO_SQUARE_TAKER_FEE;
-        #     const feeMultiplier = isLong ? 1 + takerFee : 1 - takerFee;
-        #     const maxQuoteQtyBn = new BN(
-        #     Math.round(limitPriceBn.mul(maxBaseQtyBn).mul(market.decoded["quoteLotSize"]).toNumber() * feeMultiplier)
-        #     );
-        #     const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
-
-        #     const args: UtpZoPlacePerpOrderArgs = {
-        #     isLong,
-        #     limitPrice: limitPriceBn,
-        #     maxBaseQuantity: maxBaseQtyBn,
-        #     maxQuoteQuantity: maxQuoteQtyBn,
-        #     orderType,
-        #     limit: limit ?? 10,
-        #     clientId: clientId ?? new BN(0),
-        #     };
+        _order_type = from_decoded({order_type: {}})
+        taker_fee = compute_taker_fee(market_info.perp_type)
+        fee_multiplier = 1 + taker_fee if is_long else 1 - taker_fee
+        max_base_quantity = size_to_lots(
+            size, decimals=market_info.base_decimals, lot_size=market_info.base_lot_size
+        )
+        max_quote_quantity = round(
+            price * fee_multiplier * max_base_quantity * market_info.quote_lot_size
+        )
 
         remaining_accounts = await self.get_observation_accounts()
 
         place_order_ix = make_place_perp_order_ix(
-            PlacePerpOrderArgs(args=args),
+            PlacePerpOrderArgs(
+                args=UtpZoPlacePerpOrderIxArgs(
+                    is_long=is_long,
+                    order_type=_order_type,
+                    limit=limit,
+                    limit_price=price,
+                    client_id=client_id,
+                    max_base_quantity=max_base_quantity,
+                    max_quote_quantity=max_quote_quantity,
+                )
+            ),
             PlacePerpOrderAccounts(
                 marginfi_account=self._marginfi_account.pubkey,
                 marginfi_group=self._config.group_pk,
@@ -389,10 +376,10 @@ class UtpZoAccount(UtpAccount):
                 utp_authority=zo_authority_pk,
                 zo_program=self.config.program_id,
                 state=self.config.state_pk,
-                state_signer=zo._zo_state_signer,
-                cache=zo._zo_state.cache,
+                state_signer=zo.state_signer,
+                cache=zo.state.cache,
                 margin=self.address,
-                control=margin.control,
+                control=zo.margin.control,
                 open_orders=oo_pk,
                 dex_market=market_info.address,
                 req_q=market.req_q,
@@ -410,24 +397,22 @@ class UtpZoAccount(UtpAccount):
             signers=[],
         )
 
-    async def place_perp_order(self, args):
+    async def place_perp_order(
+        self,
+        market_symbol: str,
+        order_type: OrderType,
+        is_long: bool,
+        price: float,
+        size: float,
+        limit: float = 10,
+        client_id: int = 0,
+    ):
         """
         Place a perp order.
 
         :returns: Transaction signature
         """
-        # async placePerpOrder(
-        #     args: Readonly<{
-        #     symbol: string;
-        #     orderType: OrderType;
-        #     isLong: boolean;
-        #     price: number;
-        #     size: number;
-        #     limit?: number;
-        #     clientId?: BN;
-        #     }>
-        # ): Promise<string> {
-        
+
         self.verify_active()
 
         # https://github.com/solana-labs/solana-web3.js/blob/091faf5/src/compute-budget.ts#L180
@@ -451,7 +436,9 @@ class UtpZoAccount(UtpAccount):
         #     units: 400000,
         #     additionalFee: 0,
 
-        place_order_ix_wrapped = await self.make_place_perp_order_ix(args)
+        place_order_ix_wrapped = await self.make_place_perp_order_ix(
+            market_symbol, order_type, is_long, price, size, limit, client_id
+        )
 
         tx = Transaction().add(*place_order_ix_wrapped.instructions)
         return await self._client.program.provider.send(
@@ -472,18 +459,10 @@ class UtpZoAccount(UtpAccount):
         """
         zo_authority_pk, _ = await self.authority()
 
-        zo = await Zo.new(
-            conn=self._program.provider.connection,
-            cluster=self.config.cluster,
-            tx_opts=self._program.provider.opts,
-            payer=self._program.provider.wallet.payer,
-            create_margin=False,
-            load_margin=False,
-        )
-        margin = await self.get_zo_margin()
+        zo = await self.get_zo_client(self.address)
         market_info = zo.markets[market_symbol]
-        market = zo.__dex_markets[market_symbol]
-        oo_pk, _ = self.get_oo_adress_for_market(margin.control, market_info.address)
+        market = zo.dex_markets[market_symbol]
+        oo_pk, _ = self.get_oo_adress_for_market(zo.margin.control, market_info.address)
 
         cancel_ix = make_cancel_perp_order_ix(
             CancelPerpOrderArgs(
@@ -498,9 +477,9 @@ class UtpZoAccount(UtpAccount):
                 utp_authority=zo_authority_pk,
                 zo_program=self.config.program_id,
                 state=self.config.state_pk,
-                cache=zo._zo_state.cache,
+                cache=zo.state.cache,
                 margin=self.address,
-                control=margin.control,
+                control=zo.margin.control,
                 open_orders=oo_pk,
                 dex_market=market_info.address,
                 market_bids=market.bids,
@@ -547,17 +526,10 @@ class UtpZoAccount(UtpAccount):
     ) -> InstructionsWrapper:
         zo_authority_pk, _ = await self.authority()
 
-        zo = await Zo.new(
-            conn=self._program.provider.connection,
-            cluster=self.config.cluster,
-            tx_opts=self._program.provider.opts,
-            payer=self._program.provider.wallet.payer,
-            create_margin=False,
-            load_margin=False,
-        )
-        margin = await self.get_zo_margin()
+        zo = await self.get_zo_client(self.address)
+
         market_info = zo.markets[market_symbol]
-        oo_pk, _ = self.get_oo_adress_for_market(margin.control, market_info.address)
+        oo_pk, _ = self.get_oo_adress_for_market(zo.margin.control, market_info.address)
 
         create_oo_ix = make_create_perp_open_orders_ix(
             CreatePerpOpenOrdersAccounts(
@@ -567,9 +539,9 @@ class UtpZoAccount(UtpAccount):
                 signer=self._program.provider.wallet.public_key,
                 zo_program=self.config.program_id,
                 state=self.config.state_pk,
-                state_signer=zo._zo_state_signer,
+                state_signer=zo.state_signer,
                 margin=self.address,
-                control=margin.control,
+                control=zo.margin.control,
                 open_orders=oo_pk,
                 dex_market=market_info.address,
                 dex_program=self.config.dex_program,
@@ -636,39 +608,11 @@ class UtpZoAccount(UtpAccount):
     async def settle_funds(self, market_symbol: str):
         self.verify_active()
 
-        settle_ix_wrapped = await self.make_settle_funds_ix(
-            market_symbol
-        )
+        settle_ix_wrapped = await self.make_settle_funds_ix(market_symbol)
 
         tx = Transaction().add(*settle_ix_wrapped.instructions)
         return await self._client.program.provider.send(
             tx=tx, signers=settle_ix_wrapped.signers
-        )
-
-    async def get_zo_state(self):
-        zo = await Zo.new(
-            conn=self._program.provider.connection,
-            cluster=self.config.cluster,
-            tx_opts=self._program.provider.opts,
-            payer=self._program.provider.wallet.payer,
-            create_margin=False,
-            load_margin=False,
-        )
-        return await zo.program.account["State"].fetch(
-            self.config.state_pk, self._program.provider.opts.preflight_commitment
-        )
-
-    async def get_zo_margin(self):
-        zo = await Zo.new(
-            conn=self._program.provider.connection,
-            cluster=self.config.cluster,
-            tx_opts=self._program.provider.opts,
-            payer=self._program.provider.wallet.payer,
-            create_margin=False,
-            load_margin=False,
-        )
-        return await zo.program.account["Margin"].fetch(
-            self.address, self._program.provider.opts.preflight_commitment
         )
 
     async def observe(self):
@@ -685,12 +629,22 @@ class UtpZoAccount(UtpAccount):
             self.config.program_id,
         )
 
+    async def get_zo_client(self, margin_pk: PublicKey = None):
+        return await Zo.new(
+            conn=self._program.provider.connection,
+            cluster=self.config.cluster,
+            tx_opts=self._program.provider.opts,
+            payer=self._program.provider.wallet.payer,
+            margin_pk=margin_pk,
+        )
+
     def get_oo_adress_for_market(
         self,
         zo_control: PublicKey,
         market_address: PublicKey,
     ) -> Tuple[PublicKey, int]:
         """[Internal] Compute the Mango account PDA tied to the specified user."""
+
         return PublicKey.find_program_address(
             [bytes(zo_control), bytes(market_address)],
             self.config.dex_program,
