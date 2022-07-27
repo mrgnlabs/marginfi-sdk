@@ -24,7 +24,7 @@ function getMarginfiConfig(
       return {
         environment,
         programId: overrides?.programId || new PublicKey("mf2tjVmwcxgNfscvVNdN9t2LZ8YwPkNQabeTzyYw2Hn"),
-        groupPk: overrides?.groupPk || new PublicKey("2bV5MGd6wyHHtmNPbhJbapjUNCRPzptrsPkVGntmx2qZ"),
+        groupPk: overrides?.groupPk || new PublicKey("GoAzFyYE1xRsbT4C5MHJh8hBd5s6Jks9j4hLrtWR3pba"),
         collateralMintPk: overrides?.collateralMintPk || new PublicKey("8FRFC6MoGGkMFQwngccyu69VnYbzykGeez7ignHVAFSN"),
       };
     default:
