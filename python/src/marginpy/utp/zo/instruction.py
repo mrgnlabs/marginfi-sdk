@@ -305,20 +305,6 @@ def make_create_perp_open_orders_ix(
     program_id: PublicKey,
     remaining_accounts: List[AccountMeta] = [],
 ) -> TransactionInstruction:
-    # print(
-    #     f"{accounts.marginfi_account}\n",
-    #     f"{accounts.marginfi_group}\n",
-    #     f"{accounts.signer}\n",
-    #     f"{accounts.utp_authority}\n",
-    #     f"{accounts.zo_program}\n",
-    #     f"{accounts.state}\n",
-    #     f"{accounts.state_signer}\n",
-    #     f"{accounts.margin}\n",
-    #     f"{accounts.control}\n",
-    #     f"{accounts.open_orders}\n",
-    #     f"{accounts.dex_market}\n",
-    #     f"{accounts.dex_program}\n",
-    # )
     return gen_ix.utp_zo_create_perp_open_orders(
         accounts=gen_ix.UtpZoCreatePerpOpenOrdersAccounts(
             header=HeaderNested(
@@ -363,7 +349,7 @@ class SettleFundsAccounts:
     dex_program: PublicKey
 
 
-def settle_funds_ix(
+def make_settle_funds_ix(
     accounts: SettleFundsAccounts,
     program_id: PublicKey,
     remaining_accounts: List[AccountMeta],

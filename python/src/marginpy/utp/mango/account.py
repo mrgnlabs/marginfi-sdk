@@ -128,8 +128,6 @@ class UtpMangoAccount(UtpAccount):
         await self._marginfi_account.reload()
         return sig
 
-    # FINISH
-    # @todo check deactivate fns
     async def make_deactivate_ix(self) -> TransactionInstruction:
         """
         Create transaction instruction to deactivate Mango.
@@ -139,7 +137,6 @@ class UtpMangoAccount(UtpAccount):
 
         return self._marginfi_account.make_deactivate_utp_ix(self.index)
 
-    # FINISH
     async def deactivate(self) -> TransactionSignature:
         """
         Deactivate UTP.

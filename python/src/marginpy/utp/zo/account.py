@@ -21,10 +21,12 @@ from marginpy.utp.zo.instruction import (
     DepositArgs,
     WithdrawAccounts,
     WithdrawArgs,
+    SettleFundsAccounts,
     make_activate_ix,
     make_create_perp_open_orders_ix,
     make_deposit_ix,
     make_withdraw_ix,
+    make_settle_funds_ix,
 )
 from marginpy.utp.zo.utils import CONTROL_ACCOUNT_SIZE
 from marginpy.utp.zo.utils.copy_pasta.zo import Zo
@@ -573,50 +575,56 @@ class UtpZoAccount(UtpAccount):
             tx=tx, signers=create_perp_open_orders_ix_wrapped.signers
         )
 
-    async def make_settle_funds_ix(self):
-        # async makeSettleFundsIx(symbol: string): Promise<InstructionsWrapper> {
-        #     const [utpAuthority] = await await this.authority();
+    async def make_settle_funds_ix(self, market_symbol: str):
+        zo_authority_pk, _ = await self.authority()
 
-        #     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
-        #     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
-        #     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
+        zo = await Zo.new(
+            conn=self._program.provider.connection,
+            cluster=self.config.cluster,
+            tx_opts=self._program.provider.opts,
+            payer=self._program.provider.wallet.payer,
+            create_margin=False,
+            load_margin=False,
+        )
+        margin = await self.get_zo_margin()
+        market_info = zo.markets[market_symbol]
+        oo_pk, _ = self.get_oo_adress_for_market(margin.control, market_info.address)
 
-        #     const [openOrdersPk] = await zoMargin.getOpenOrdersKeyBySymbol(symbol, this.config.cluster);
+        settle_funds_ix = make_settle_funds_ix(
+            SettleFundsAccounts(
+                marginfi_account=self._marginfi_account.pubkey,
+                marginfi_group=self._config.group_pk,
+                signer=self._program.provider.wallet.public_key,
+                utp_authority=zo_authority_pk,
+                zo_program=self.config.program_id,
+                state=self.config.state_pk,
+                state_signer=zo._zo_state_signer,
+                cache=zo._zo_state.cache,
+                margin=self.address,
+                control=margin.control,
+                open_orders=oo_pk,
+                dex_market=market_info.address,
+                dex_program=self.config.dex_program,
+            ),
+            self._client.program_id,
+        )
 
-        #     return {
-        #     instructions: [
-        #         await instructions.makeSettleFundsIx(this._client.program, {
-        #         marginfiAccount: this._marginfiAccount.publicKey,
-        #         marginfiGroup: this._client.group.publicKey,
-        #         utpAuthority: utpAuthority,
-        #         signer: this._program.provider.wallet.publicKey,
-        #         zoProgram: zoProgram.programId,
-        #         state: zoState.pubkey,
-        #         stateSigner: zoState.signer,
-        #         cache: zoState.cache.pubkey,
-        #         margin: zoMargin.pubkey,
-        #         control: zoMargin.control.pubkey,
-        #         openOrders: openOrdersPk,
-        #         dexMarket: zoState.getMarketKeyBySymbol(symbol),
-        #         dexProgram: this.config.dexProgram,
-        #         }),
-        #     ],
-        #     keys: [],
-        #     };
-        # }
-        pass
+        return InstructionsWrapper(
+            instructions=[settle_funds_ix],
+            signers=[],
+        )
 
-    async def settle_funds(self):
-        #  async settleFunds(symbol: string): Promise<string> {
-        #     const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:settle-funds`);
-        #     debug(`Settling funds on market ${symbol}`);
-        #     const ix = await this.makeSettleFundsIx(symbol);
-        #     const tx = new Transaction().add(...ix.instructions);
-        #     const sig = processTransaction(this._client.program.provider, tx);
-        #     debug("Sig %s", sig);
-        #     return sig;
-        # }
-        pass
+    async def settle_funds(self, market_symbol: str):
+        self.verify_active()
+
+        settle_ix_wrapped = await self.make_settle_funds_ix(
+            market_symbol
+        )
+
+        tx = Transaction().add(*settle_ix_wrapped.instructions)
+        return await self._client.program.provider.send(
+            tx=tx, signers=settle_ix_wrapped.signers
+        )
 
     async def get_zo_state(self):
         zo = await Zo.new(
