@@ -23,17 +23,8 @@ import {
   VERY_VERBOSE_ERROR,
 } from "../constants";
 import { MarginfiIdl, MARGINFI_IDL } from "../idl";
-import { AccountType, DecimalData, UiAmount } from "../types";
+import { AccountType, BankVaultType, DecimalData, UiAmount } from "../types";
 import { Decimal } from "./decimal";
-
-/**
- * Marginfi bank vault type
- */
-export enum BankVaultType {
-  LiquidityVault,
-  InsuranceVault,
-  FeeVault,
-}
 
 function getVaultSeeds(type: BankVaultType): Buffer {
   switch (type) {
@@ -56,7 +47,7 @@ export async function getBankAuthority(
   programId: PublicKey,
   bankVaultType: BankVaultType = BankVaultType.LiquidityVault
 ): Promise<[PublicKey, number]> {
-  return PublicKey.findProgramAddress([getVaultSeeds(bankVaultType), marginfiGroupPk.toBytes()], programId);
+  return PublicKey.findProgramAddress([getVaultSeeds(bankVaultType), marginfiGroupPk.toBuffer()], programId);
 }
 
 /**

@@ -1,8 +1,7 @@
 """This module contains the Provider class and associated utilities."""
 from __future__ import annotations
-
 from builtins import enumerate
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 from anchorpy import Wallet, Provider, Program, AccountsCoder, ProgramAccount
 from anchorpy.provider import DEFAULT_OPTIONS
 from based58 import b58encode
@@ -12,13 +11,13 @@ from solana.rpc.async_api import AsyncClient
 from solana.rpc.types import DataSliceOpts, MemcmpOpts
 from solana.transaction import Transaction, TransactionSignature
 from solana.publickey import PublicKey
-
 import marginpy
 from marginpy.instruction import (
     make_init_marginfi_account_ix,
     InitMarginfiAccountAccounts,
 )
-from marginpy.utils import load_idl, AccountType
+from marginpy.types import AccountType
+from marginpy.utils import load_idl
 
 
 class MarginfiClient:
@@ -165,7 +164,8 @@ class MarginfiClient:
         )
         if "error" in rpc_response.keys():
             raise Exception(
-                f"Error while fetching marginfi accounts addresses: {rpc_response['error']}"
+                "Error while fetching marginfi accounts addresses:"
+                f" {rpc_response['error']}"
             )
         accounts = rpc_response["result"]
         return [a["pubkey"] for a in accounts if a is not None]
@@ -226,7 +226,8 @@ class MarginfiClient:
         )
         if "error" in rpc_response.keys():
             raise Exception(
-                f"Error while fetching marginfi accounts addresses: {rpc_response['error']}"
+                "Error while fetching marginfi accounts addresses:"
+                f" {rpc_response['error']}"
             )
         accounts = rpc_response["result"]
         return [a["pubkey"] for a in accounts if a is not None]

@@ -5,11 +5,12 @@ description = ""
 authors = ["MRGN Labs", "man0s <95379755+losman0s@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.10 <3.11"
 anchorpy = "^0.9.4"
-solana = "0.25.0"
+solana = "^0.25.0"
 buffer = "^0.2.1"
-spl = "^0.0.1-alpha.0"
+construct = "^2.10.67"
+mango-explorer = { git = "https://github.com/mrgnlabs/mango-explorer.git", rev = "7c79390f5a4ebbbebf3c59dabd07e0211777163f" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -17,7 +18,6 @@ pytest-asyncio = "^0.17.2"
 pytest-cov = "^3.0.0"
 testfixtures = "^7.0.0"
 autoflake = "^1.4"
-flake8 = "^4.0.1"
 mypy = "^0.961"
 typer = "0.4.1"
 ipython = "^8.0.1"
@@ -26,7 +26,6 @@ black = "^22.3.0"
 bumpversion = "^0.6.0"
 sphinx = "^5.0.2"
 sphinx-rtd-theme = "^1.0.0"
-
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

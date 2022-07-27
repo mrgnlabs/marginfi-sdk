@@ -30,15 +30,9 @@ from tests.fixtures import (
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
 _localnet = localnet_fixture(path=PATH, timeout_seconds=5, scope="function")
 user = user_fixture()
-bench_fixture = (
-    bench_fixture()
-)  # needs to be called that way to be found by `user_fixture`
-mint_fixture = (
-    mint_fixture()
-)  # needs to be called that way to be found by `user_fixture`
-basics_fixture = (
-    basics_fixture()
-)  # needs to be called that way to be found by `user_fixture`
+bench_fixture = bench_fixture()
+mint_fixture = mint_fixture()
+basics_fixture = basics_fixture()
 
 
 @mark.asyncio

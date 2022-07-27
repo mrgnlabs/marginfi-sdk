@@ -1,3 +1,4 @@
+import { BN } from "@project-serum/anchor";
 import {
   AccountMeta,
   ComputeBudgetProgram,
@@ -6,25 +7,22 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
+import * as ZoClient from "@zero_one/client";
+import { CONTROL_ACCOUNT_SIZE, OrderType } from "@zero_one/client";
+import BigNumber from "bignumber.js";
 import MarginfiAccount from "../../account";
 import MarginfiClient from "../../client";
-import { InstructionsWrapper, UiAmount, UtpData } from "../../types";
+import { DUST_THRESHOLD } from "../../constants";
+import { BankVaultType, InstructionsWrapper, UiAmount, UtpData } from "../../types";
 import {
-  BankVaultType,
   createTempTransferAccounts as createTempTransferAccountIxs,
   getBankAuthority,
   processTransaction,
   uiToNative,
 } from "../../utils";
-import instructions from "./instructions";
-
-import { BN } from "@project-serum/anchor";
-import * as ZoClient from "@zero_one/client";
-import { CONTROL_ACCOUNT_SIZE, OrderType } from "@zero_one/client";
-import BigNumber from "bignumber.js";
-import { DUST_THRESHOLD } from "../../constants";
 import UtpAccount from "../account";
 import { UtpObservation } from "../observation";
+import instructions from "./instructions";
 import { UtpZoPlacePerpOrderArgs } from "./types";
 
 /**
