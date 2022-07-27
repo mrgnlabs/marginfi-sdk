@@ -1,8 +1,9 @@
-.PHONY: help
-
 ##@ Utility
 help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+
+clean:
+	rm -rf dist build __pycache__ *.egg-info
 
 ##@ Testing
 test:  ## Run all tests
@@ -24,12 +25,30 @@ test-cov:  ## Generate coverage report
 	poetry run pytest --cov -s
 
 ##@ Type-checking / Linting
-check:  ## Run type-checkers adn linters
+check:  ## Run type-checkers and format
 	poetry run mypy src tests
 	poetry run black --preview --check .
 
+lint:  ## Run linters
+	poetry run black --check --diff --line-length=120 src tests
+	poetry run pydocstyle src tests
+	poetry run flake8 src tests
+	poetry run mypy src
+	poetry run pylint --rcfile=.pylintrc src tests
+
 format:  ## Format workspace code
 	poetry run black --preview .
+
+##@ Publishing
+publish:  ## Publish to pypi
+	make clean
+	poetry build
+	poetry publish
+
+test-publish:  ## Publish to testpypi
+	make clean
+	poetry build
+	poetry publish -r testpypi
 
 ##@ Documentation
 generate-doc:   ## Serve doc locally
