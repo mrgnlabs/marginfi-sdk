@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.8-alpha.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-liquidator-bot@0.3.8-alpha.0...@mrgnlabs/marginfi-liquidator-bot@0.3.8-alpha.1) (2022-07-27)
+
+
+### Bug Fixes
+
+* preventi withdrawing empty accounts ([9b0e39a](https://github.com/mrgnlabs/marginfi-sdk/commit/9b0e39af697e477df696fae734453ac775574f2f))
+
+
+
+
+
 ## [0.3.8-alpha.0](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-liquidator-bot@0.3.7...@mrgnlabs/marginfi-liquidator-bot@0.3.8-alpha.0) (2022-07-26)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-liquidator-bot
