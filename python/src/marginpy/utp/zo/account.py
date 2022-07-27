@@ -535,16 +535,8 @@ class UtpZoAccount(UtpAccount):
             load_margin=False,
         )
         margin = await self.get_zo_margin()
-        print("utp authority", zo_authority_pk)
-        print("marign pk", self.address)
-        print("control", margin.control)
         market_info = zo.markets[market_symbol]
-        print("SOL market", zo.markets["SOL-PERP"])
-        print("market address", market_info.address)
-        print("program", self.config.program_id)
-        oo_pk, bump = self.get_oo_adress_for_market(margin.control, market_info.address)
-        print("OO account", oo_pk)
-        print("bump", bump)
+        oo_pk, _ = self.get_oo_adress_for_market(margin.control, market_info.address)
 
         create_oo_ix = make_create_perp_open_orders_ix(
             CreatePerpOpenOrdersAccounts(
@@ -672,9 +664,6 @@ class UtpZoAccount(UtpAccount):
         market_address: PublicKey,
     ) -> Tuple[PublicKey, int]:
         """[Internal] Compute the Mango account PDA tied to the specified user."""
-        print("zo_control", zo_control, bytes(zo_control).hex())
-        print("market_address", market_address, bytes(market_address).hex())
-        print("program_id", self.config.program_id)
         return PublicKey.find_program_address(
             [bytes(zo_control), bytes(market_address)],
             self.config.dex_program,
