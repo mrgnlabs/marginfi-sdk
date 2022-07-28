@@ -72,14 +72,10 @@ class MarginfiDedicatedConfig:
 @dataclass
 class MarginfiConfig(MarginfiDedicatedConfig):
     mango: MangoConfig
-    zo: ZoConfig
+    zo: ZoConfig  # pylint: disable=invalid-name
 
     def __init__(self, environment: Environment, overrides: Dict[str, Any] = {}):
-        marginfi_dedicated_config = MarginfiDedicatedConfig(environment, overrides)
-        self.environment = marginfi_dedicated_config.environment
-        self.program_id = marginfi_dedicated_config.program_id
-        self.group_pk = marginfi_dedicated_config.group_pk
-        self.collateral_mint_pk = marginfi_dedicated_config.collateral_mint_pk
+        super().__init__(environment, overrides)
 
         if overrides is None:
             overrides = {}

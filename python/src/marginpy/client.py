@@ -94,7 +94,7 @@ class MarginfiClient:
         print(f"Creating Marginfi account {account_pk}")
 
         create_marginfi_account_account_ix = await self._program.account[
-            AccountType.MarginfiAccount.value
+            AccountType.MARGINFI_ACCOUNT.value
         ].create_instruction(account_keypair)
         init_marginfi_account_ix = make_init_marginfi_account_ix(
             InitMarginfiAccountAccounts(
@@ -104,10 +104,10 @@ class MarginfiClient:
             ),
             self.program_id,
         )
-        tx = Transaction().add(
+        transaction = Transaction().add(
             create_marginfi_account_account_ix, init_marginfi_account_ix
         )
-        sig = await self._program.provider.send(tx, signers=[account_keypair])
+        sig = await self._program.provider.send(transaction, signers=[account_keypair])
         await self._program.provider.connection.confirm_transaction(sig)
         account = await marginpy.MarginfiAccount.fetch(account_pk, self)
         return account, sig
@@ -137,9 +137,9 @@ class MarginfiClient:
             ]
         )
 
-        def convert(pa: ProgramAccount):
+        def convert(program_account: ProgramAccount):
             return marginpy.MarginfiAccount.from_account_data(
-                pa.public_key, self, pa.account, marginfi_group  # type: ignore
+                program_account.public_key, self, program_account.account, marginfi_group  # type: ignore
             )
 
         own_accounts = map(convert, all_accounts)
@@ -148,7 +148,7 @@ class MarginfiClient:
     async def get_all_marginfi_account_addresses(self) -> List[PublicKey]:
         coder = AccountsCoder(load_idl())
         discriminator: bytes = coder.acc_name_to_discriminator[
-            AccountType.MarginfiAccount.value
+            AccountType.MARGINFI_ACCOUNT.value
         ]
         rpc_response = await self._program.provider.connection.get_program_accounts(
             self.program_id,
@@ -180,7 +180,7 @@ class MarginfiClient:
         marginfi_group = await marginpy.MarginfiGroup.fetch(self._config, self._program)
         marginfi_account_addresses = await self.get_all_marginfi_account_addresses()
         fetch_results = await self._program.account[
-            AccountType.MarginfiAccount.value
+            AccountType.MARGINFI_ACCOUNT.value
         ].fetch_multiple(marginfi_account_addresses)
         all_accounts = []
         for i, account_data in enumerate(fetch_results):

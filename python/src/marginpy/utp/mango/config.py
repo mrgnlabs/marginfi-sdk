@@ -19,7 +19,7 @@ class MangoConfig(UTPConfig):
         self, environment: Environment, overrides: Dict[str, Any] = {}
     ) -> None:
         self.utp_index = handle_override(
-            overrides=overrides, override_key="utp_index", default=UtpIndex.Mango
+            overrides=overrides, override_key="utp_index", default=UtpIndex.MANGOP
         )
 
         if environment == Environment.MAINNET:

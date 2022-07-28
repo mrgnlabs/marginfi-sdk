@@ -113,7 +113,7 @@ class TestMarginfiClient:
     @mark.asyncio
     async def test_get_all_program_account_addresses(self):
         client = load_client()
-        await client.get_all_program_account_addresses(AccountType.MarginfiGroup)
+        await client.get_all_program_account_addresses(AccountType.MARGINFI_GROUP)
 
     @mark.asyncio
     async def test_create_marginfi_account(self):

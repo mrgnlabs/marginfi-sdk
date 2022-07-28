@@ -11,6 +11,7 @@ solana = "^0.25.0"
 buffer = "^0.2.1"
 construct = "^2.10.67"
 mango-explorer = { git = "https://github.com/mrgnlabs/mango-explorer.git", rev = "7c79390f5a4ebbbebf3c59dabd07e0211777163f" }
+isort = "^5.10.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -28,6 +29,7 @@ sphinx = "^5.0.2"
 sphinx-rtd-theme = "^1.0.0"
 pydocstyle = "^6.1.1"
 flake8 = "^4.0.1"
+pylint = "^2.14.5"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

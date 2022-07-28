@@ -3,9 +3,9 @@ from typing import Dict, List, Optional
 from solana.publickey import PublicKey
 from solana.keypair import Keypair
 from solana.transaction import TransactionInstruction
-import marginpy.generated_client.types as gen_types
-from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
 from enum import Enum
+from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
+import marginpy.generated_client.types as gen_types
 
 
 class Environment(Enum):
@@ -15,28 +15,28 @@ class Environment(Enum):
 
 
 class AccountType(Enum):
-    MarginfiGroup = "MarginfiGroup"
-    MarginfiAccount = "MarginfiAccount"
+    MARGINFI_GROUP = "MarginfiGroup"
+    MARGINFI_ACCOUNT = "MarginfiAccount"
 
 
 class BankVaultType(Enum):
-    LiquidityVault = "LiquidityVault"
-    InsuranceVault = "InsuranceVault"
-    FeeVault = "FeeVault"
+    LIQUIDITY_VAULT = "LiquidityVault"
+    INSURANCE_VAULT = "InsuranceVault"
+    FEE_VAULT = "FeeVault"
 
     def __index__(self):
         return self.value
 
 
 class UtpIndex(Enum):
-    Mango = 0
-    Zo = 1
+    MANGOP = 0
+    ZO = 1
 
     def __index__(self):
         return self.value
 
 
-UTP_NAME: Dict[UtpIndex, str] = {UtpIndex.Mango: "Mango", UtpIndex.Zo: "01"}
+UTP_NAME: Dict[UtpIndex, str] = {UtpIndex.MANGOP: "Mango", UtpIndex.ZO: "01"}
 
 
 @dataclass

@@ -7,7 +7,7 @@ clean:
 
 ##@ Testing
 test:  ## Run all tests
-	poetry run pytest -vv -s
+	poetry run pytest -vv -s # option to prevent capturing output required, or test validator process will not be cleaned up
 
 test-unit:  ## Run unit tests
 	poetry run pytest -vv -m unit
@@ -25,26 +25,18 @@ test-cov:  ## Generate coverage report
 	poetry run pytest --cov -s
 
 ##@ Type-checking / Linting
-check:  ## Run type and format checkers
-	poetry run mypy src tests
-	poetry run black --preview --check .
-	poetry run pylint --rcfile=.pylintrc src tests
+lint:  ## Run type and format checkers
+	make lint-code
+	make lint-docs
 
-lint:  ## Run linters
-	poetry run black --check --diff src tests
-	poetry run pydocstyle src tests
-	poetry run flake8 src tests
+lint-code:
 	poetry run mypy src
+	poetry run black --check --preview --diff src tests
+	poetry run flake8 src tests
 	poetry run pylint --rcfile=.pylintrc src tests
 
 lint-docs:
-	poetry run black --check --diff src tests
 	poetry run pydocstyle src tests
-
-lint-code:
-	poetry run black --check --diff src tests
-	poetry run flake8 src tests
-	poetry run mypy src
 
 format:
 	poetry run black --preview .

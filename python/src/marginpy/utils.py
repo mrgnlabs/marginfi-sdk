@@ -45,11 +45,11 @@ def ui_to_native(amount: float, decimals: int = COLLATERAL_DECIMALS) -> int:
 
 
 def get_vault_seeds(vault_type: BankVaultType) -> bytes:
-    if vault_type == BankVaultType.LiquidityVault:
+    if vault_type == BankVaultType.LIQUIDITY_VAULT:
         return PDA_BANK_VAULT_SEED
-    elif vault_type == BankVaultType.InsuranceVault:
+    elif vault_type == BankVaultType.INSURANCE_VAULT:
         return PDA_BANK_INSURANCE_VAULT_SEED
-    elif vault_type == BankVaultType.FeeVault:
+    elif vault_type == BankVaultType.FEE_VAULT:
         return PDA_BANK_FEE_VAULT_SEED
     else:
         raise Exception(VERY_VERBOSE_ERROR)
@@ -66,7 +66,7 @@ def get_utp_authority(
 def get_bank_authority(
     marginfi_group_pk: PublicKey,
     program_id: PublicKey,
-    bank_vault_type: BankVaultType = BankVaultType.LiquidityVault,
+    bank_vault_type: BankVaultType = BankVaultType.LIQUIDITY_VAULT,
 ) -> Tuple[PublicKey, int]:
     return PublicKey.find_program_address(
         [get_vault_seeds(bank_vault_type), bytes(marginfi_group_pk)], program_id

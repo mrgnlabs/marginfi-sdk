@@ -169,13 +169,13 @@ async def create_marginfi_group(
     ].create_instruction(group_keypair)
 
     liquidity_vault_authority, liquidity_vault_bump = get_bank_authority(
-        group_pk, program.program_id, BankVaultType.LiquidityVault
+        group_pk, program.program_id, BankVaultType.LIQUIDITY_VAULT
     )
     insurance_vault_authority, insurance_vault_bump = get_bank_authority(
-        group_pk, program.program_id, BankVaultType.InsuranceVault
+        group_pk, program.program_id, BankVaultType.INSURANCE_VAULT
     )
     fee_vault_authority, fee_vault_bump = get_bank_authority(
-        group_pk, program.program_id, BankVaultType.FeeVault
+        group_pk, program.program_id, BankVaultType.FEE_VAULT
     )
 
     liquidity_vault_keypair, liquidity_vault_ixs = await make_create_vault_account_ixs(

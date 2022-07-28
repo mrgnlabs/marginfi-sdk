@@ -10,6 +10,8 @@ from marginpy.generated_client.types import (
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.generated_client.types.margin_requirement import Init, Maint
 
+# pylint: disable=too-many-instance-attributes
+
 
 class Bank:
     scaling_factor_c: float
@@ -84,25 +86,28 @@ class Bank:
     ):
         if side == Borrow:
             return record * self.borrow_accumulator
-        elif side == Deposit:
+
+        if side == Deposit:
             return record * self.deposit_accumulator
-        else:
-            raise Exception("Unknown lending side: {}".format(side))
+
+        raise Exception(f"Unknown lending side: {side}")
 
     # @todo should we error on negative `record` values?
     def compute_record_amount(self, record: float, side: LendingSideKind):
         if side == Borrow:
             return record / self.borrow_accumulator
-        elif side == Deposit:
+
+        if side == Deposit:
             return record / self.deposit_accumulator
-        else:
-            raise Exception("Unknown lending side: {}".format(side))
+
+        raise Exception(f"Unknown lending side: {side}")
 
     # @todo checks here that it should be 0 <= x <= 1 ?
     def margin_ratio(self, mreq_type: MarginRequirementKind):
         if mreq_type == Init:
             return self.init_margin_ratio
-        elif mreq_type == Maint:
+
+        if mreq_type == Maint:
             return self.maint_margin_ratio
-        else:
-            raise Exception("Unknown margin requirement type: {}".format(type))
+
+        raise Exception(f"Unknown margin requirement type: {mreq_type}")

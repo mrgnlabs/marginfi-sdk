@@ -114,8 +114,8 @@ class MarginfiAccount:
             await marginpy.MarginfiGroup.fetch(client.config, client.program),
             Decimal.from_account_data(account_data.deposit_record).to_float(),
             Decimal.from_account_data(account_data.borrow_record).to_float(),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Mango),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Zo),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.MANGOP),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.ZO),
         )
 
         # @todo logging may need to be taken to the finish line
@@ -158,8 +158,8 @@ class MarginfiAccount:
             marginfi_group,
             Decimal.from_account_data(account_data.deposit_record).to_float(),
             Decimal.from_account_data(account_data.borrow_record).to_float(),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Mango),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Zo),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.MANGOP),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.ZO),
         )
 
     @staticmethod
@@ -363,8 +363,8 @@ class MarginfiAccount:
         self._deposit_record = Decimal.from_account_data(data.deposit_record).to_float()
         self._borrow_record = Decimal.from_account_data(data.borrow_record).to_float()
 
-        self.mango.update(self._pack_utp_data(data, UtpIndex.Mango))
-        self.zo.update(self._pack_utp_data(data, UtpIndex.Zo))
+        self.mango.update(self._pack_utp_data(data, UtpIndex.MANGOP))
+        self.zo.update(self._pack_utp_data(data, UtpIndex.ZO))
 
     async def get_observation_accounts(self) -> List[AccountMeta]:
         accounts = []
@@ -501,7 +501,7 @@ class MarginfiAccount:
         insurance_vault_authority_pk, _ = get_bank_authority(
             self._config.group_pk,
             self._program.program_id,
-            BankVaultType.InsuranceVault,
+            BankVaultType.INSURANCE_VAULT,
         )
         remaining_accounts = await self.get_observation_accounts()
 

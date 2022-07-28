@@ -20,7 +20,7 @@ class ZoConfig(UtpConfig):
         self, environment: Environment, overrides: Dict[str, Any] = {}
     ) -> None:
         self.utp_index = handle_override(
-            overrides=overrides, override_key="utp_index", default=UtpIndex.Zo
+            overrides=overrides, override_key="utp_index", default=UtpIndex.ZO
         )
         if environment == Environment.MAINNET:
             self.program_id = handle_override(

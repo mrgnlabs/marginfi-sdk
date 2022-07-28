@@ -37,7 +37,7 @@ class TestUtils:
         authority, bump = get_bank_authority(
             PublicKey("6ovvJd93CZqn6GgW29j39yJKnbuqqYKET2G55AXbbSNR"),
             PublicKey("DzEv7WuxdzRJ1iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ"),
-            BankVaultType.LiquidityVault,
+            BankVaultType.LIQUIDITY_VAULT,
         )
         assert authority == PublicKey("Ah2FBNwdgTxrY4HgJqzr2B3H4XZ6wQ5dYPBvPtQeACM8")
         assert bump == 255
