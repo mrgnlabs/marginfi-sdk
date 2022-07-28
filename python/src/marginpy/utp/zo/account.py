@@ -406,7 +406,7 @@ class UtpZoAccount(UtpAccount):
         is_long: bool,
         price: float,
         size: float,
-        limit: float = 10,
+        limit: int = 10,
         client_id: int = 0,
     ):
         """

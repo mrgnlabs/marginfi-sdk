@@ -388,38 +388,41 @@ class UtpMangoAccount(UtpAccount):
 
         remaining_accounts = await self.get_observation_accounts()
 
-        return make_place_perp_order_ix(
-            PlacePerpOrderArgs(
-                args=UtpMangoPlacePerpOrderArgs(
-                    side=side,
-                    price=int(native_price),
-                    max_base_quantity=int(native_quantity),
-                    max_quote_quantity=int(native_max_quote_quantity),
-                    client_order_id=client_order_id,
-                    order_type=order_type,
-                    reduce_only=reduce_only,
-                    expiry_timestamp=expiry_timestamp,
-                    limit=limit,
-                    expiry_type=expiry_type,
-                )
-            ),
-            PlacePerpOrderAccounts(
-                marginfi_account=self._marginfi_account.pubkey,
-                marginfi_group=self._marginfi_account.group.pubkey,
-                authority=self._program.provider.wallet.public_key,
-                mango_authority=mango_authority_pk,
-                mango_account=self.address,
-                mango_program=self._config.mango.program_id,
-                mango_group=self._config.mango.group_pk,
-                mango_cache=mango_group.cache,
-                mango_perp_market=perp_market.address,
-                mango_bids=perp_market.bids_address,
-                mango_asks=perp_market.asks_address,
-                mango_event_queue=perp_market.event_queue_address,
-            ),
-            self._client.program_id,
-            remaining_accounts,
-        )
+        if self._config.mango.group_pk is None:
+            raise Exception("Mango group cannot be none.")
+        else:
+            return make_place_perp_order_ix(
+                PlacePerpOrderArgs(
+                    args=UtpMangoPlacePerpOrderArgs(
+                        side=side,
+                        price=int(native_price),
+                        max_base_quantity=int(native_quantity),
+                        max_quote_quantity=int(native_max_quote_quantity),
+                        client_order_id=client_order_id,
+                        order_type=order_type,
+                        reduce_only=reduce_only,
+                        expiry_timestamp=expiry_timestamp,
+                        limit=limit,
+                        expiry_type=expiry_type,
+                    )
+                ),
+                PlacePerpOrderAccounts(
+                    marginfi_account=self._marginfi_account.pubkey,
+                    marginfi_group=self._marginfi_account.group.pubkey,
+                    authority=self._program.provider.wallet.public_key,
+                    mango_authority=mango_authority_pk,
+                    mango_account=self.address,
+                    mango_program=self._config.mango.program_id,
+                    mango_group=self._config.mango.group_pk,
+                    mango_cache=mango_group.cache,
+                    mango_perp_market=perp_market.address,
+                    mango_bids=perp_market.bids_address,
+                    mango_asks=perp_market.asks_address,
+                    mango_event_queue=perp_market.event_queue_address,
+                ),
+                self._client.program_id,
+                remaining_accounts,
+            )
 
     async def place_perp_order(
         self,
@@ -454,26 +457,29 @@ class UtpMangoAccount(UtpAccount):
         mango_authority_pk, _ = await self.authority()
         remaining_accounts = await self.get_observation_accounts()
 
-        return make_cancel_perp_order_ix(
-            CancelPerpOrderArgs(
-                order_id=order_id,
-                invalid_id_ok=invalid_id_ok,
-            ),
-            CancelPerpOrderAccounts(
-                marginfi_account=self._marginfi_account.pubkey,
-                marginfi_group=self._marginfi_account.group.pubkey,
-                authority=self._program.provider.wallet.public_key,
-                mango_authority=mango_authority_pk,
-                mango_account=self.address,
-                mango_program=self._config.mango.program_id,
-                mango_group=self._config.mango.group_pk,
-                mango_perp_market=perp_market.address,
-                mango_bids=perp_market.bids_address,
-                mango_asks=perp_market.asks_address,
-            ),
-            self._client.program_id,
-            remaining_accounts,
-        )
+        if self._config.mango.group_pk is None:
+            raise Exception("Mango group cannot be none.")
+        else:
+            return make_cancel_perp_order_ix(
+                CancelPerpOrderArgs(
+                    order_id=order_id,
+                    invalid_id_ok=invalid_id_ok,
+                ),
+                CancelPerpOrderAccounts(
+                    marginfi_account=self._marginfi_account.pubkey,
+                    marginfi_group=self._marginfi_account.group.pubkey,
+                    authority=self._program.provider.wallet.public_key,
+                    mango_authority=mango_authority_pk,
+                    mango_account=self.address,
+                    mango_program=self._config.mango.program_id,
+                    mango_group=self._config.mango.group_pk,
+                    mango_perp_market=perp_market.address,
+                    mango_bids=perp_market.bids_address,
+                    mango_asks=perp_market.asks_address,
+                ),
+                self._client.program_id,
+                remaining_accounts,
+            )
 
     async def cancel_perp_order(
         self,
@@ -500,6 +506,9 @@ class UtpMangoAccount(UtpAccount):
     async def compute_utp_account_address(self, account_number: int = 0):
         """[Internal]"""
         utp_authority_pk, _ = await self.authority()
+
+        if self._config.mango.group_pk is None:
+            raise Exception("Mango group cannot be none.")
         utp_account_pk, _ = get_mango_account_pda(
             self._config.mango.group_pk,
             utp_authority_pk,
