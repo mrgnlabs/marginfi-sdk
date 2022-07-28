@@ -66,7 +66,7 @@ class UtpData:
 @dataclass
 class UtpConfig:
     utp_index: UtpIndex
-    program_id: PublicKey
+    program_id: Optional[PublicKey]
 
 
 @dataclass

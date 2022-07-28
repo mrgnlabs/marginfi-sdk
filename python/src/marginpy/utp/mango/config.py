@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Literal, Optional
 from solana.publickey import PublicKey
 from marginpy.config import Environment
 from marginpy.utils import handle_override
@@ -11,8 +11,8 @@ class MangoConfig(UTPConfig):
     Define Mango-specific config per profile
     """
 
-    cluster: str
-    group_pk: PublicKey
+    cluster: Optional[Literal["devnet", "mainnet"]]
+    group_pk: Optional[PublicKey]
 
     def __init__(
         self, environment: Environment, overrides: Dict[str, Any] = {}

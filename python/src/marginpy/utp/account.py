@@ -140,11 +140,14 @@ class UtpAccount(ABC):
     async def authority(self, seed: PublicKey = None):
         """UTP authority (PDA)"""
 
-        return get_utp_authority(
-            self.config.program_id,
-            seed if seed is not None else self._utp_config.authority_seed,
-            self._program.program_id,
-        )
+        if self.config.program_id is None:
+            raise Exception
+        else:
+            return get_utp_authority(
+                self.config.program_id,
+                seed if seed is not None else self._utp_config.authority_seed,
+                self._program.program_id,
+            )
 
     # --- Others
 

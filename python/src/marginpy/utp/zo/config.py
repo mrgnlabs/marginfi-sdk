@@ -1,4 +1,4 @@
-from typing import Any, Dict, Literal
+from typing import Any, Dict, Literal, Optional
 from solana.publickey import PublicKey
 from marginpy.config import Environment
 from marginpy.types import UtpConfig
@@ -11,9 +11,10 @@ class ZoConfig(UtpConfig):
     Define Zo-specific config per profile
     """
 
-    cluster: Literal["devnet", "mainnet"]
+    cluster: Optional[Literal["devnet", "mainnet"]]
     state_pk: PublicKey
     dex_program: PublicKey
+    group_pk: Optional[PublicKey]
 
     def __init__(
         self, environment: Environment, overrides: Dict[str, Any] = {}
