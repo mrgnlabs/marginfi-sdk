@@ -45,11 +45,8 @@ lint-code:
 	poetry run flake8 src tests
 	poetry run mypy src
 
-format-black:  ## Format workspace code using black
+format:
 	poetry run black --preview .
-
-format-autopep:  ## Format workspace code using the more aggressive autopep8
-	poetry run autopep8 -r --in-place --aggressive --aggressive *.py
 
 ##@ Publishing
 publish:  ## Publish to pypi
