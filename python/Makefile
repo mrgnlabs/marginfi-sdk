@@ -44,7 +44,6 @@ lint-code:
 	poetry run black --check --diff src tests
 	poetry run flake8 src tests
 	poetry run mypy src
-	poetry run pylint --rcfile=.pylintrc src tests
 
 format:  ## Format workspace code
 	poetry run black --preview .

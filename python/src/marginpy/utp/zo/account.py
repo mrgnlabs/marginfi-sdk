@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import Coroutine, Any
-from marginpy.generated_client.types.order_type import from_decoded # TODO handle ambiguous `order_type` naming issue
+from marginpy.generated_client.types.order_type import (
+    from_decoded,
+)  # TODO handle ambiguous `order_type` naming issue
 from marginpy.generated_client.types.utp_zo_place_perp_order_ix_args import (
     UtpZoPlacePerpOrderIxArgs,
 )
