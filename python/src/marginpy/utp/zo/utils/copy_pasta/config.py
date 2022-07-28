@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from solana.publickey import PublicKey
 
-from .types import PerpType
-
 
 @dataclass(kw_only=True)
 class Config:

@@ -1,4 +1,4 @@
-from typing import *
+from typing import Tuple
 import math
 from anchorpy import Program, Context
 from solana.publickey import PublicKey
