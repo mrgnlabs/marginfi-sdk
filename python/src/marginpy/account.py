@@ -1,5 +1,5 @@
 import logging
-from typing import Tuple, List
+from typing import TYPE_CHECKING, List, Tuple
 
 from anchorpy import AccountsCoder
 from solana.publickey import PublicKey
@@ -8,47 +8,51 @@ from solana.rpc.responses import AccountInfo
 from solana.rpc.types import RPCResponse
 from solana.transaction import (
     AccountMeta,
-    TransactionInstruction,
     Transaction,
+    TransactionInstruction,
     TransactionSignature,
 )
 from spl.token.instructions import get_associated_token_address
 
-import marginpy
-from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
-from marginpy.generated_client.types.lending_side import Deposit, Borrow
 from marginpy.decimal import Decimal
-from marginpy.instruction import (
-    make_deposit_ix,
+from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
+from marginpy.generated_client.types.lending_side import Borrow, Deposit
+from marginpy.group import MarginfiGroup
+from marginpy.instructions import (
+    DeactivateUtpAccounts,
+    DeactivateUtpArgs,
     DepositAccounts,
     DepositArgs,
-    WithdrawArgs,
-    WithdrawAccounts,
-    make_withdraw_ix,
-    DeactivateUtpArgs,
-    DeactivateUtpAccounts,
-    make_deactivate_utp_ix,
     HandleBankruptcyAccounts,
+    WithdrawAccounts,
+    WithdrawArgs,
+    make_deactivate_utp_ix,
+    make_deposit_ix,
     make_handle_bankruptcy_ix,
+    make_withdraw_ix,
 )
 from marginpy.types import UtpData, UtpIndex
 from marginpy.utils import (
-    load_idl,
-    json_to_account_info,
-    b64str_to_bytes,
-    ui_to_native,
-    get_bank_authority,
     BankVaultType,
+    b64str_to_bytes,
+    get_bank_authority,
+    json_to_account_info,
+    load_idl,
+    ui_to_native,
 )
-from marginpy.utp.mango.account import UtpMangoAccount
-from marginpy.utp.zo.account import UtpZoAccount
+from marginpy.utp.mango import UtpMangoAccount
+from marginpy.utp.zo import UtpZoAccount
+
+if TYPE_CHECKING:
+    from marginpy.client import MarginfiClient
+    from marginpy.config import MarginfiConfig
 
 
 class MarginfiAccount:
     _pubkey: PublicKey
-    _group: marginpy.MarginfiGroup
+    _group: MarginfiGroup
     # TODO: observation_cache
-    _client: marginpy.MarginfiClient
+    _client: "MarginfiClient"
 
     _authority: PublicKey
     _deposit_record: float
@@ -57,12 +61,12 @@ class MarginfiAccount:
     mango: UtpMangoAccount
     zo: UtpZoAccount
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         marginfi_account_pk: PublicKey,
         authority: PublicKey,
-        client: marginpy.MarginfiClient,
-        group: marginpy.MarginfiGroup,
+        client: "MarginfiClient",
+        group: MarginfiGroup,
         deposit_record: float,
         borrow_record: float,
         mango_utp_data,
@@ -93,7 +97,7 @@ class MarginfiAccount:
     # --- Factories
 
     @staticmethod
-    async def fetch(marginfi_account_pk: PublicKey, client: marginpy.MarginfiClient):
+    async def fetch(marginfi_account_pk: PublicKey, client: "MarginfiClient"):
         """
         MarginfiAccount network factory.
         Fetch account data according to the config and instantiate the corresponding MarginfiAccount.
@@ -111,16 +115,16 @@ class MarginfiAccount:
             marginfi_account_pk,
             account_data.authority,
             client,
-            await marginpy.MarginfiGroup.fetch(client.config, client.program),
+            await MarginfiGroup.fetch(client.config, client.program),
             Decimal.from_account_data(account_data.deposit_record).to_float(),
             Decimal.from_account_data(account_data.borrow_record).to_float(),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Mango),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Zo),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.MANGO),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.ZO),
         )
 
         # @todo logging may need to be taken to the finish line
         logging.debug(
-            f"mfi:margin-account Loaded marginfi account {marginfi_account_pk}"
+            "mfi:margin-account Loaded marginfi account %s", marginfi_account_pk
         )
 
         return marginfi_account
@@ -128,9 +132,9 @@ class MarginfiAccount:
     @staticmethod
     def from_account_data(
         marginfi_account_pk: PublicKey,
-        client: marginpy.MarginfiClient,
+        client: "MarginfiClient",
         account_data: MarginfiAccountData,
-        marginfi_group: marginpy.MarginfiGroup,
+        marginfi_group: MarginfiGroup,
     ):
         """
         MarginfiAccount local factory (decoded)
@@ -145,7 +149,7 @@ class MarginfiAccount:
         :returns: marginfi account instance
         """
 
-        if not (account_data.marginfi_group == client.config.group_pk):
+        if not account_data.marginfi_group == client.config.group_pk:
             raise Exception(
                 f"Marginfi account tied to group {account_data.marginfi_group}."
                 f" Expected: {client.config.group_pk}"
@@ -158,16 +162,16 @@ class MarginfiAccount:
             marginfi_group,
             Decimal.from_account_data(account_data.deposit_record).to_float(),
             Decimal.from_account_data(account_data.borrow_record).to_float(),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Mango),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.Zo),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.MANGO),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.ZO),
         )
 
     @staticmethod
     def from_account_data_raw(
         marginfi_account_pk: PublicKey,
-        client: marginpy.MarginfiClient,
+        client: "MarginfiClient",
         data: bytes,
-        marginfi_group: marginpy.MarginfiGroup,
+        marginfi_group: MarginfiGroup,
     ):
         """
         MarginfiAccount local factory (encoded)
@@ -257,7 +261,7 @@ class MarginfiAccount:
     @staticmethod
     async def _fetch_account_data(
         marginfi_account_pk: PublicKey,
-        config: marginpy.MarginfiConfig,
+        config: "MarginfiConfig",
         rpc_client: AsyncClient,
     ):
         """
@@ -280,7 +284,7 @@ class MarginfiAccount:
         )
         if data is None:
             raise Exception(f"Account {marginfi_account_pk} not found")
-        if not (data.marginfi_group == config.group_pk):
+        if not data.marginfi_group == config.group_pk:
             raise Exception(
                 f"Marginfi account tied to group {data.marginfi_group}. Expected:"
                 f" {config.group_pk}"
@@ -332,7 +336,7 @@ class MarginfiAccount:
         :param observe_utps: [optional] flag to request UTP observation as well
         """
 
-        logging.debug(f"PublicKey: {self.pubkey}. Reloading account data")
+        logging.debug("PublicKey: %s. Reloading account data", self.pubkey)
 
         marginfi_group_ai, marginfi_account_ai = await self.load_group_and_account_ai()
         marginfi_account_data = MarginfiAccount.decode(b64str_to_bytes(marginfi_account_ai.data[0]))  # type: ignore
@@ -342,15 +346,15 @@ class MarginfiAccount:
                 f" {marginfi_account_data.marginfi_group}, Expected"
                 " {self._config.group_pk}"
             )
-        self._group = marginpy.MarginfiGroup.from_account_data_raw(
+        self._group = MarginfiGroup.from_account_data_raw(
             self._config,
             self._program,
             b64str_to_bytes(marginfi_group_ai.data[0]),  # type: ignore
         )
         self._update_from_account_data(marginfi_account_data)
-        # @todo
-        # if observe_utps:
-        # self.observe_utps()
+
+        if observe_utps:
+            pass  # self.observe_utps()
 
     def _update_from_account_data(self, data: MarginfiAccountData) -> None:
         """
@@ -363,8 +367,8 @@ class MarginfiAccount:
         self._deposit_record = Decimal.from_account_data(data.deposit_record).to_float()
         self._borrow_record = Decimal.from_account_data(data.borrow_record).to_float()
 
-        self.mango.update(self._pack_utp_data(data, UtpIndex.Mango))
-        self.zo.update(self._pack_utp_data(data, UtpIndex.Zo))
+        self.mango.update(self._pack_utp_data(data, UtpIndex.MANGO))
+        self.zo.update(self._pack_utp_data(data, UtpIndex.ZO))
 
     async def get_observation_accounts(self) -> List[AccountMeta]:
         accounts = []
@@ -470,7 +474,7 @@ class MarginfiAccount:
 
         remaining_accounts = await self.get_observation_accounts()
         return make_deactivate_utp_ix(
-            DeactivateUtpArgs(utp_index=utp_index),
+            DeactivateUtpArgs(utp_index=utp_index.value),
             DeactivateUtpAccounts(
                 marginfi_account=self.pubkey,
                 authority=self._program.provider.wallet.public_key,
@@ -501,7 +505,7 @@ class MarginfiAccount:
         insurance_vault_authority_pk, _ = get_bank_authority(
             self._config.group_pk,
             self._program.program_id,
-            BankVaultType.InsuranceVault,
+            BankVaultType.INSURANCE_VAULT,
         )
         remaining_accounts = await self.get_observation_accounts()
 
@@ -550,7 +554,9 @@ class MarginfiAccount:
 
     async def load_group_and_account_ai(self) -> Tuple[AccountInfo, AccountInfo]:
         logging.debug(
-            f"Loading marginfi account {self.pubkey}, and group {self._config.group_pk}"
+            "Loading marginfi account %s, and group %s",
+            self.pubkey,
+            self._config.group_pk,
         )
 
         pubkeys = [self._config.group_pk, self.pubkey]

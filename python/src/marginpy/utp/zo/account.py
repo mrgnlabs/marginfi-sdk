@@ -1,55 +1,59 @@
 from __future__ import annotations
-from marginpy.generated_client.types.mango_order_type import from_decoded
-from marginpy.generated_client.types.utp_zo_place_perp_order_ix_args import (
-    UtpZoPlacePerpOrderIxArgs,
-)
 
-from marginpy.utils import get_bank_authority, make_request_units_ix, ui_to_native
-from marginpy.utp.account import UtpAccount
-from marginpy.types import InstructionsWrapper, UtpData
+from typing import TYPE_CHECKING, List, Tuple
+
 from solana.keypair import Keypair
+from solana.publickey import PublicKey
+from solana.system_program import CreateAccountParams, create_account
 from solana.transaction import (
     AccountMeta,
     Transaction,
-    TransactionSignature,
     TransactionInstruction,
+    TransactionSignature,
 )
-from solana.system_program import create_account, CreateAccountParams
-from solana.publickey import PublicKey
-from typing import TYPE_CHECKING, List, Tuple, Optional
-from marginpy.utp.zo.instruction import (
+
+from marginpy.generated_client.types.order_type import (  # TODO handle ambiguous `order_type` naming issue
+    from_decoded,
+)
+from marginpy.generated_client.types.utp_zo_place_perp_order_ix_args import (
+    UtpZoPlacePerpOrderIxArgs,
+)
+from marginpy.types import InstructionsWrapper
+from marginpy.utils import get_bank_authority, make_request_units_ix, ui_to_native
+from marginpy.utp.account import UtpAccount
+from marginpy.utp.zo.instructions import (
     ActivateAccounts,
     ActivateArgs,
+    CancelPerpOrderAccounts,
+    CancelPerpOrderArgs,
     CreatePerpOpenOrdersAccounts,
     DepositAccounts,
     DepositArgs,
+    PlacePerpOrderAccounts,
+    PlacePerpOrderArgs,
+    SettleFundsAccounts,
     WithdrawAccounts,
     WithdrawArgs,
-    PlacePerpOrderArgs,
-    PlacePerpOrderAccounts,
-    CancelPerpOrderArgs,
-    CancelPerpOrderAccounts,
-    SettleFundsAccounts,
     make_activate_ix,
+    make_cancel_perp_order_ix,
     make_create_perp_open_orders_ix,
     make_deposit_ix,
-    make_withdraw_ix,
     make_place_perp_order_ix,
-    make_cancel_perp_order_ix,
     make_settle_funds_ix,
+    make_withdraw_ix,
 )
 from marginpy.utp.zo.utils import CONTROL_ACCOUNT_SIZE
-from marginpy.utp.zo.utils.copy_pasta.types import OrderType, order_type_from_str
-from marginpy.utp.zo.utils.copy_pasta.util import (
+from marginpy.utp.zo.utils.client import Zo
+from marginpy.utp.zo.utils.client.types import OrderType
+from marginpy.utp.zo.utils.client.util import (
     compute_taker_fee,
     price_to_lots,
     size_to_lots,
 )
-from marginpy.utp.zo.utils.copy_pasta.zo import Zo
-from marginpy.utp.zo.utils.copy_pasta.config import configs
 
 if TYPE_CHECKING:
-    from marginpy import MarginfiClient, MarginfiAccount
+    from marginpy import MarginfiAccount, MarginfiClient
+    from marginpy.types import UtpData
 
 
 class UtpZoAccount(UtpAccount):
@@ -59,7 +63,7 @@ class UtpZoAccount(UtpAccount):
         self,
         client: MarginfiClient,
         marginfi_account: MarginfiAccount,
-        account_data: UtpData,
+        account_data: "UtpData",
     ):
         """[Internal]"""
         super().__init__(
@@ -152,7 +156,7 @@ class UtpZoAccount(UtpAccount):
 
         :returns: `DeactivateUtp` transaction instruction
         """
-        return self._marginfi_account.make_deactivate_utp_ix(self.index)
+        return await self._marginfi_account.make_deactivate_utp_ix(self.index)
 
     async def deactivate(self) -> TransactionSignature:
         """
@@ -208,7 +212,7 @@ class UtpZoAccount(UtpAccount):
                         zo_cache=zo.state.cache,
                         zo_margin=self.address,
                         zo_program=self.config.program_id,
-                        zo_state=zo.config.ZO_STATE_ID,
+                        zo_state=zo.config.zo_state_id,
                         zo_state_signer=zo.state_signer,
                         zo_vault=zo.collaterals[
                             self._marginfi_account.group.bank.mint
@@ -264,7 +268,7 @@ class UtpZoAccount(UtpAccount):
                 zo_margin=self.address,
                 zo_control=zo.margin.control,
                 zo_program=self.config.program_id,
-                zo_state=zo.config.ZO_STATE_ID,
+                zo_state=zo.config.zo_state_id,
                 zo_state_signer=zo.state_signer,
                 zo_vault=zo.collaterals[self._marginfi_account.group.bank.mint].vault,
             ),
@@ -323,16 +327,16 @@ class UtpZoAccount(UtpAccount):
         is_long: bool,
         price: float,
         size: float,
-        limit: float = 10,
+        limit: int = 10,
         client_id: int = 0,
-    ):
+    ):  # pylint: disable=too-many-arguments, too-many-locals
         """
         Create transaction instruction to place a perp order.
 
         :returns: Transaction instruction
         """
 
-        request_cu_ix = make_request_units_ix(units=400_000, additionalFee=0)
+        request_cu_ix = make_request_units_ix(units=400_000, additional_fee=0)
 
         zo_authority_pk, _ = await self.authority()
 
@@ -407,9 +411,9 @@ class UtpZoAccount(UtpAccount):
         is_long: bool,
         price: float,
         size: float,
-        limit: float = 10,
+        limit: int = 10,
         client_id: int = 0,
-    ):
+    ):  # pylint: disable=too-many-arguments
         """
         Place a perp order.
 

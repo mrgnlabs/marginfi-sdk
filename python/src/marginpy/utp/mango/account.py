@@ -1,8 +1,18 @@
 from __future__ import annotations
 
-from typing import Tuple, List
+from typing import TYPE_CHECKING, List, Tuple
 
 import mango
+from solana.keypair import Keypair
+from solana.publickey import PublicKey
+from solana.transaction import (
+    AccountMeta,
+    Transaction,
+    TransactionInstruction,
+    TransactionSignature,
+)
+
+import marginpy.generated_client.types as gen_types
 from marginpy.generated_client.types.mango_expiry_type import (
     Absolute,
     MangoExpiryTypeKind,
@@ -11,48 +21,34 @@ from marginpy.generated_client.types.mango_order_type import (
     ImmediateOrCancel,
     MangoOrderTypeKind,
 )
-from marginpy.generated_client.types.mango_side import Ask
 from marginpy.generated_client.types.utp_mango_place_perp_order_args import (
     UtpMangoPlacePerpOrderArgs,
 )
-from marginpy.types import (
-    UtpData,
-    UtpMangoPlacePerpOrderOptions,
-)
-from solana.transaction import (
-    AccountMeta,
-    TransactionInstruction,
-    Transaction,
-    TransactionSignature,
-)
-from solana.publickey import PublicKey
-from solana.keypair import Keypair
+from marginpy.types import UtpMangoPlacePerpOrderOptions
 from marginpy.utils import get_bank_authority, ui_to_native
 from marginpy.utp.account import UtpAccount
-from marginpy.utp.mango.instruction import (
-    make_activate_ix,
-    ActivateArgs,
+from marginpy.utp.mango.instructions import (
     ActivateAccounts,
-    make_deposit_ix,
-    DepositArgs,
-    DepositAccounts,
-    make_withdraw_ix,
-    WithdrawArgs,
-    WithdrawAccounts,
-    make_place_perp_order_ix,
-    PlacePerpOrderArgs,
-    PlacePerpOrderAccounts,
-    make_cancel_perp_order_ix,
-    CancelPerpOrderArgs,
+    ActivateArgs,
     CancelPerpOrderAccounts,
+    CancelPerpOrderArgs,
+    DepositAccounts,
+    DepositArgs,
+    PlacePerpOrderAccounts,
+    PlacePerpOrderArgs,
+    WithdrawAccounts,
+    WithdrawArgs,
+    make_activate_ix,
+    make_cancel_perp_order_ix,
+    make_deposit_ix,
+    make_place_perp_order_ix,
+    make_withdraw_ix,
 )
 from marginpy.utp.mango.types import USDC_TOKEN_DICT
-import marginpy.generated_client.types as gen_types
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from marginpy import MarginfiClient, MarginfiAccount
+    from marginpy import MarginfiAccount, MarginfiClient
+    from marginpy.types import UtpData
 
 
 class UtpMangoAccount(UtpAccount):
@@ -62,7 +58,7 @@ class UtpMangoAccount(UtpAccount):
         self,
         client: MarginfiClient,
         marginfi_account: MarginfiAccount,
-        account_data: UtpData,
+        account_data: "UtpData",
     ):
         """[Internal]"""
         super().__init__(
@@ -123,8 +119,8 @@ class UtpMangoAccount(UtpAccount):
         """
 
         activate_ix = await self.make_activate_ix()
-        tx = Transaction().add(activate_ix)
-        sig = await self._client.program.provider.send(tx)
+        transation = Transaction().add(activate_ix)
+        sig = await self._client.program.provider.send(transation)
         await self._marginfi_account.reload()
         return sig
 
@@ -135,7 +131,7 @@ class UtpMangoAccount(UtpAccount):
         :returns: `DeactivateUtp` transaction instruction
         """
 
-        return self._marginfi_account.make_deactivate_utp_ix(self.index)
+        return await self._marginfi_account.make_deactivate_utp_ix(self.index)
 
     async def deactivate(self) -> TransactionSignature:
         """
@@ -289,8 +285,8 @@ class UtpMangoAccount(UtpAccount):
         """
 
         withdraw_ix = await self.make_withdraw_ix(amount)
-        tx = Transaction().add(withdraw_ix)
-        return await self._client.program.provider.send(tx)
+        transation = Transaction().add(withdraw_ix)
+        return await self._client.program.provider.send(transation)
 
     async def get_observation_accounts(self) -> List[AccountMeta]:
         """
@@ -321,7 +317,7 @@ class UtpMangoAccount(UtpAccount):
             ),
         ]
 
-    async def make_place_perp_order_ix(
+    async def make_place_perp_order_ix(  # pylint: disable=too-many-locals
         self,
         perp_market: mango.PerpMarket,
         side: gen_types.MangoSideKind,
@@ -431,8 +427,8 @@ class UtpMangoAccount(UtpAccount):
         place_perp_order_ix = await self.make_place_perp_order_ix(
             perp_market, side, price, quantity, options
         )
-        tx = Transaction().add(place_perp_order_ix)
-        return await self._client.program.provider.send(tx)
+        transation = Transaction().add(place_perp_order_ix)
+        return await self._client.program.provider.send(transation)
 
     async def make_cancel_perp_order_ix(
         self, perp_market: mango.PerpMarket, order_id: int, invalid_id_ok: bool
@@ -486,12 +482,13 @@ class UtpMangoAccount(UtpAccount):
             order_id,
             invalid_id_ok,
         )
-        tx = Transaction().add(cancel_perp_order_ix)
-        return await self._client.program.provider.send(tx)
+        transation = Transaction().add(cancel_perp_order_ix)
+        return await self._client.program.provider.send(transation)
 
     async def compute_utp_account_address(self, account_number: int = 0):
         """[Internal]"""
         utp_authority_pk, _ = await self.authority()
+
         utp_account_pk, _ = get_mango_account_pda(
             self._config.mango.group_pk,
             utp_authority_pk,
@@ -507,7 +504,6 @@ class UtpMangoAccount(UtpAccount):
 
         :returns: Health cache for the Mango UTP
         """
-        pass
 
 
 def get_mango_account_pda(

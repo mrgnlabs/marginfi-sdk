@@ -1,7 +1,7 @@
 from decimal import Decimal
+
 import mango
 from solana.publickey import PublicKey
-
 
 USDC_TOKEN_MAINNET = mango.Token(
     "USDC",

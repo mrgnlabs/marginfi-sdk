@@ -1,8 +1,9 @@
+from dataclasses import dataclass
 from typing import Tuple
 
 from pytest import mark
+
 from marginpy.decimal import Decimal
-from dataclasses import dataclass
 
 
 @mark.unit

@@ -1,12 +1,13 @@
-.PHONY: help
-
 ##@ Utility
 help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
+clean:
+	rm -rf dist build __pycache__ *.egg-info
+
 ##@ Testing
 test:  ## Run all tests
-	poetry run pytest -vv -s
+	poetry run pytest -vv -s # option to prevent capturing output required, or test validator process will not be cleaned up
 
 test-unit:  ## Run unit tests
 	poetry run pytest -vv -m unit
@@ -20,16 +21,44 @@ test-localnet:  ## Run localnet tests
 test-devnet:  ## Run devnet tests
 	poetry run pytest -vv -m devnet
 
-test-cov:  ## Generate coverage report
-	poetry run pytest --cov -s
+coverage:  ## Generate coverage report
+	poetry run pytest --cov --cov-report=html -s
+
+serve-cov:   ## Serve coverage HTML report
+	python -m http.server -d htmlcov --bind 127.0.0.1
 
 ##@ Type-checking / Linting
-check:  ## Run type-checkers adn linters
-	poetry run mypy src tests
-	poetry run black --preview --check .
+lint:  ## Run type and format checkers
+	make lint-code
+	# make lint-docs
 
-format:  ## Format workspace code
+lint-code:
+	poetry run mypy src
+	poetry run black --check --preview --diff src tests
+	poetry run flake8 src tests
+	poetry run pylint --rcfile=.pylintrc src
+	poetry run isort --check-only src
+
+lint-docs:
+	poetry run pydocstyle src
+
+lint-tests:
+	poetry run pydocstyle tests
+
+format:
 	poetry run black --preview .
+	poetry run isort src tests
+
+##@ Publishing
+publish:  ## Publish to pypi
+	make clean
+	poetry build
+	poetry publish
+
+test-publish:  ## Publish to testpypi
+	make clean
+	poetry build
+	poetry publish -r testpypi
 
 ##@ Documentation
 generate-doc:   ## Serve doc locally

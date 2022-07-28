@@ -1,13 +1,9 @@
 from pytest import mark, raises
-from marginpy.utp.zo.utils.copy_pasta.zo import Zo
-from tests.config import DEVNET_URL
-from tests.fixtures import (
-    ZoBench,
-    basics_fixture,
-    zo_bench,
-)
-from marginpy import Environment
 
+from marginpy import Environment
+from marginpy.utp.zo.utils.client.zo import Zo
+from tests.config import DEVNET_URL
+from tests.fixtures import ZoBench, basics_fixture, zo_bench
 
 basics_fixture = basics_fixture(environment=Environment.DEVNET, rpc_url=DEVNET_URL)
 zo_bench = zo_bench()
@@ -23,7 +19,7 @@ class TestZoAccount:
         await marginfi_account.zo.activate()
         assert marginfi_account.zo.is_active
         await marginfi_account.zo.deactivate()
-        assert marginfi_account.zo.is_active == False
+        assert marginfi_account.zo.is_active is False
 
     async def test_zo_deposit_withdraw(
         self,

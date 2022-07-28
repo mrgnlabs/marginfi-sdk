@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 from typing import List
+
 from solana.publickey import PublicKey
 from solana.system_program import SYS_PROGRAM_ID
-from spl.token.constants import TOKEN_PROGRAM_ID
 from solana.sysvar import SYSVAR_RENT_PUBKEY
 from solana.transaction import AccountMeta, TransactionInstruction
+from spl.token.constants import TOKEN_PROGRAM_ID
+
 import marginpy.generated_client.instructions as gen_ix
 from marginpy.generated_client.instructions.utp_zo_cancel_perp_order import HeaderNested
-
 
 # --- Activate
 
@@ -32,7 +33,6 @@ def make_activate_ix(
     args: gen_ix.UtpZoActivateArgs,
     accounts: ActivateAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta] = [],
 ) -> TransactionInstruction:
     return gen_ix.utp_zo_activate(
         args,
@@ -49,7 +49,6 @@ def make_activate_ix(
             system_program=SYS_PROGRAM_ID,
         ),
         program_id=program_id,
-        remaining_accounts=remaining_accounts,
     )
 
 
@@ -192,7 +191,7 @@ def make_place_perp_order_ix(
     args: gen_ix.UtpZoPlacePerpOrderArgs,
     accounts: PlacePerpOrderAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta] = [],
+    remaining_accounts: List[AccountMeta],
 ) -> TransactionInstruction:
     return gen_ix.utp_zo_place_perp_order(
         args,
@@ -253,7 +252,6 @@ def make_cancel_perp_order_ix(
     args: gen_ix.UtpZoCancelPerpOrderArgs,
     accounts: CancelPerpOrderAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta] = [],
 ) -> TransactionInstruction:
     return gen_ix.utp_zo_cancel_perp_order(
         args,
@@ -277,7 +275,6 @@ def make_cancel_perp_order_ix(
             dex_program=accounts.dex_program,
         ),
         program_id=program_id,
-        remaining_accounts=remaining_accounts,
     )
 
 
@@ -303,7 +300,6 @@ class CreatePerpOpenOrdersAccounts:
 def make_create_perp_open_orders_ix(
     accounts: CreatePerpOpenOrdersAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta] = [],
 ) -> TransactionInstruction:
     return gen_ix.utp_zo_create_perp_open_orders(
         accounts=gen_ix.UtpZoCreatePerpOpenOrdersAccounts(
@@ -325,7 +321,6 @@ def make_create_perp_open_orders_ix(
             system_program=SYS_PROGRAM_ID,
         ),
         program_id=program_id,
-        remaining_accounts=remaining_accounts,
     )
 
 
@@ -352,7 +347,6 @@ class SettleFundsAccounts:
 def make_settle_funds_ix(
     accounts: SettleFundsAccounts,
     program_id: PublicKey,
-    remaining_accounts: List[AccountMeta] = [],
 ) -> TransactionInstruction:
     return gen_ix.utp_zo_settle_funds(
         accounts=gen_ix.UtpZoSettleFundsAccounts(
@@ -373,5 +367,4 @@ def make_settle_funds_ix(
             dex_program=accounts.dex_program,
         ),
         program_id=program_id,
-        remaining_accounts=remaining_accounts,
     )

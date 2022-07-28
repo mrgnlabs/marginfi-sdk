@@ -1,18 +1,19 @@
+from anchorpy import Program, Provider, Wallet
 from pytest import mark
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
-from anchorpy import Wallet, Program, Provider
-from marginpy import MarginfiConfig, Environment, MarginfiClient, MarginfiAccount
+
+from marginpy import Environment, MarginfiAccount, MarginfiClient, MarginfiConfig
 from marginpy.types import UtpData, UtpIndex
 from marginpy.utils import b64str_to_bytes, load_idl
+from marginpy.utp.mango import UtpMangoAccount
 from tests.fixtures import REAL_ACCOUNT_PUBKEY_2
 from tests.utils import (
     load_marginfi_account,
+    load_marginfi_account_data,
     load_marginfi_group,
     load_sample_account_info,
-    load_marginfi_account_data,
 )
-from marginpy.utp.mango import UtpMangoAccount
 
 
 @mark.unit
@@ -84,7 +85,7 @@ class TestMarginfiAccountUnit:
     def test_all_utps(self):
         _, account = load_marginfi_account("marginfi_account_2")
         assert len(account.all_utps) == 2
-        assert type(account.all_utps[0]) == UtpMangoAccount
+        assert isinstance(account.all_utps[0], UtpMangoAccount)
 
     def test_active_utps(self):
         _, account = load_marginfi_account("marginfi_account_2")
@@ -95,7 +96,7 @@ class TestMarginfiAccountUnit:
         data_raw = b64str_to_bytes(account_info.data[0])
         data_decoded = MarginfiAccount.decode(data_raw)
         res_exp = UtpData(
-            account_config=data_decoded.utp_account_config[UtpIndex.Mango],
-            is_active=data_decoded.active_utps[UtpIndex.Mango],
+            account_config=data_decoded.utp_account_config[UtpIndex.MANGO],
+            is_active=data_decoded.active_utps[UtpIndex.MANGO],
         )
-        assert MarginfiAccount._pack_utp_data(data_decoded, UtpIndex.Mango) == res_exp
+        assert MarginfiAccount._pack_utp_data(data_decoded, UtpIndex.MANGO) == res_exp

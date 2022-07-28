@@ -4,7 +4,7 @@ from marginpy import Bank
 from marginpy.generated_client.types import Bank as BankDecoded
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.generated_client.types.margin_requirement import Init, Maint
-from tests.fixtures import SAMPLE_BANK, MDECIMAL_ZERO, SAMPLE_ACCOUNT_PUBKEY_1
+from tests.fixtures import MDECIMAL_ZERO, SAMPLE_ACCOUNT_PUBKEY_1, SAMPLE_BANK
 
 
 @mark.unit

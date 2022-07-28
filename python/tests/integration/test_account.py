@@ -1,27 +1,22 @@
 from os import path
 from pathlib import Path
-from anchorpy import localnet_fixture, Wallet, Provider, Program
+
+from anchorpy import Program, Provider, Wallet, localnet_fixture
 from pytest import mark
 from solana.rpc.async_api import AsyncClient
 
-from marginpy import (
-    MarginfiConfig,
-    Environment,
-    load_idl,
-    MarginfiClient,
-    MarginfiAccount,
-)
+from marginpy import Environment, MarginfiAccount, MarginfiClient, MarginfiConfig
+from marginpy.utils import load_idl
+from tests.config import DEVNET_URL
 from tests.fixtures import (
     REAL_ACCOUNT_PUBKEY_2,
     User,
-    user_fixture,
+    basics_fixture,
     bench_fixture,
     mint_fixture,
-    basics_fixture,
+    user_fixture,
 )
-from tests.utils import load_marginfi_account
-from tests.config import DEVNET_URL
-from tests.utils import load_marginfi_group
+from tests.utils import load_marginfi_account, load_marginfi_group
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
 _localnet = localnet_fixture(path=PATH, timeout_seconds=5, scope="function")
