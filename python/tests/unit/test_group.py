@@ -9,7 +9,7 @@ from tests.utils import load_sample_account_info
 @mark.unit
 class TestMarginfiGroupUnit:
     def test_decode(self):
-        account_address, account_info = load_sample_account_info("marginfi_group_2")
+        _, account_info = load_sample_account_info("marginfi_group_2")
         account_data = b64str_to_bytes(account_info.data[0])  # type: ignore
         marginfi_group_data = MarginfiGroup.decode(account_data)
         assert marginfi_group_data.admin == PublicKey(

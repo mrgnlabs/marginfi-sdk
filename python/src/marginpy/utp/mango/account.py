@@ -24,7 +24,7 @@ from marginpy.generated_client.types.mango_order_type import (
 from marginpy.generated_client.types.utp_mango_place_perp_order_args import (
     UtpMangoPlacePerpOrderArgs,
 )
-from marginpy.types import UtpData, UtpMangoPlacePerpOrderOptions
+from marginpy.types import UtpMangoPlacePerpOrderOptions
 from marginpy.utils import get_bank_authority, ui_to_native
 from marginpy.utp.account import UtpAccount
 from marginpy.utp.mango.instruction import (
@@ -48,6 +48,7 @@ from marginpy.utp.mango.types import USDC_TOKEN_DICT
 
 if TYPE_CHECKING:
     from marginpy import MarginfiAccount, MarginfiClient
+    from marginpy.types import UtpData
 
 
 class UtpMangoAccount(UtpAccount):
@@ -57,7 +58,7 @@ class UtpMangoAccount(UtpAccount):
         self,
         client: MarginfiClient,
         marginfi_account: MarginfiAccount,
-        account_data: UtpData,
+        account_data: "UtpData",
     ):
         """[Internal]"""
         super().__init__(

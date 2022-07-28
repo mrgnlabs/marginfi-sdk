@@ -18,7 +18,7 @@ from marginpy.generated_client.types.order_type import (  # TODO handle ambiguou
 from marginpy.generated_client.types.utp_zo_place_perp_order_ix_args import (
     UtpZoPlacePerpOrderIxArgs,
 )
-from marginpy.types import InstructionsWrapper, UtpData
+from marginpy.types import InstructionsWrapper
 from marginpy.utils import get_bank_authority, make_request_units_ix, ui_to_native
 from marginpy.utp.account import UtpAccount
 from marginpy.utp.zo.instruction import (
@@ -52,7 +52,7 @@ from marginpy.utp.zo.utils.client.util import (
 )
 
 if TYPE_CHECKING:
-    from marginpy import MarginfiAccount, MarginfiClient
+    from marginpy import MarginfiAccount, MarginfiClient, UtpData
 
 
 class UtpZoAccount(UtpAccount):
@@ -62,7 +62,7 @@ class UtpZoAccount(UtpAccount):
         self,
         client: MarginfiClient,
         marginfi_account: MarginfiAccount,
-        account_data: UtpData,
+        account_data: "UtpData",
     ):
         """[Internal]"""
         super().__init__(
@@ -211,7 +211,7 @@ class UtpZoAccount(UtpAccount):
                         zo_cache=zo.state.cache,
                         zo_margin=self.address,
                         zo_program=self.config.program_id,
-                        zo_state=zo.config.ZO_STATE_ID,
+                        zo_state=zo.config.zo_state_id,
                         zo_state_signer=zo.state_signer,
                         zo_vault=zo.collaterals[
                             self._marginfi_account.group.bank.mint
@@ -267,7 +267,7 @@ class UtpZoAccount(UtpAccount):
                 zo_margin=self.address,
                 zo_control=zo.margin.control,
                 zo_program=self.config.program_id,
-                zo_state=zo.config.ZO_STATE_ID,
+                zo_state=zo.config.zo_state_id,
                 zo_state_signer=zo.state_signer,
                 zo_vault=zo.collaterals[self._marginfi_account.group.bank.mint].vault,
             ),

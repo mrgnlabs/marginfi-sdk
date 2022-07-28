@@ -96,7 +96,7 @@ class TestMarginfiAccountUnit:
         data_raw = b64str_to_bytes(account_info.data[0])
         data_decoded = MarginfiAccount.decode(data_raw)
         res_exp = UtpData(
-            account_config=data_decoded.utp_account_config[UtpIndex.MANGOP],
-            is_active=data_decoded.active_utps[UtpIndex.MANGOP],
+            account_config=data_decoded.utp_account_config[UtpIndex.MANGO],
+            is_active=data_decoded.active_utps[UtpIndex.MANGO],
         )
-        assert MarginfiAccount._pack_utp_data(data_decoded, UtpIndex.MANGOP) == res_exp
+        assert MarginfiAccount._pack_utp_data(data_decoded, UtpIndex.MANGO) == res_exp

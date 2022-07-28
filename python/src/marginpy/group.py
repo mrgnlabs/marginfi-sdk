@@ -1,9 +1,9 @@
+from typing import TYPE_CHECKING
 from anchorpy import AccountsCoder, Program
 from solana.publickey import PublicKey
 from solana.transaction import Transaction, TransactionInstruction, TransactionSignature
 
 from marginpy.bank import Bank
-from marginpy.config import MarginfiConfig
 from marginpy.generated_client.accounts import MarginfiGroup as MarginfiGroupDecoded
 from marginpy.instruction import (
     UpdateInterestAccumulatorAccounts,
@@ -11,17 +11,20 @@ from marginpy.instruction import (
 )
 from marginpy.utils import get_bank_authority, load_idl
 
+if TYPE_CHECKING:
+    from marginpy.config import MarginfiConfig
+
 
 class MarginfiGroup:
     _pubkey: PublicKey
-    _config: MarginfiConfig
+    _config: "MarginfiConfig"
     _program: Program
     _admin: PublicKey
     _bank: Bank
 
     def __init__(
         self,
-        config: MarginfiConfig,
+        config: "MarginfiConfig",
         program: Program,
         admin: PublicKey,
         bank: Bank,
@@ -39,7 +42,7 @@ class MarginfiGroup:
     # we also vary between using `init` as our factory fn and using `get/fetch``
     @staticmethod
     async def fetch(
-        config: MarginfiConfig,
+        config: "MarginfiConfig",
         program: Program,
     ):
         """
@@ -59,7 +62,7 @@ class MarginfiGroup:
 
     @staticmethod
     def from_account_data(
-        config: MarginfiConfig, program: Program, account_raw: MarginfiGroupDecoded
+        config: "MarginfiConfig", program: Program, account_raw: MarginfiGroupDecoded
     ):
         """
         MarginfiGroup local factory (decoded)
@@ -81,7 +84,7 @@ class MarginfiGroup:
         return MarginfiGroup(config, program, account_raw.admin, Bank(account_raw.bank))
 
     @staticmethod
-    def from_account_data_raw(config: MarginfiConfig, program: Program, data: bytes):
+    def from_account_data_raw(config: "MarginfiConfig", program: Program, data: bytes):
         """
         MarginfiGroup local factory (encoded)
 
@@ -120,7 +123,7 @@ class MarginfiGroup:
 
     @staticmethod
     async def __fetch_account_data(
-        config: MarginfiConfig, program: Program
+        config: "MarginfiConfig", program: Program
     ) -> MarginfiGroupDecoded:
         """
         Fetch marginfi group account data according to the config.

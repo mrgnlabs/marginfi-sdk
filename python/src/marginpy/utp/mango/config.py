@@ -2,8 +2,7 @@ from typing import Any, Dict, Literal
 
 from solana.publickey import PublicKey
 
-from marginpy.config import Environment
-from marginpy.types import UtpConfig, UtpIndex
+from marginpy.types import Environment, UtpConfig, UtpIndex
 from marginpy.utils import handle_override
 
 
@@ -22,7 +21,7 @@ class MangoConfig(UtpConfig):
         overrides: Dict[str, Any] = {},
     ) -> None:
         utp_index = handle_override(
-            overrides=overrides, override_key="utp_index", default=UtpIndex.MANGOP
+            overrides=overrides, override_key="utp_index", default=UtpIndex.MANGO
         )
         if environment == Environment.MAINNET:
             program_id = handle_override(

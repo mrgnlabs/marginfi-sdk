@@ -31,14 +31,14 @@ class BankVaultType(Enum):
 
 
 class UtpIndex(Enum):
-    MANGOP = 0
+    MANGO = 0
     ZO = 1
 
     def __index__(self):
         return self.value
 
 
-UTP_NAME: Dict[UtpIndex, str] = {UtpIndex.MANGOP: "Mango", UtpIndex.ZO: "01"}
+UTP_NAME: Dict[UtpIndex, str] = {UtpIndex.MANGO: "Mango", UtpIndex.ZO: "01"}
 
 
 @dataclass

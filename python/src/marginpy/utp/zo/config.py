@@ -2,8 +2,7 @@ from typing import Any, Dict, Literal
 
 from solana.publickey import PublicKey
 
-from marginpy.config import Environment
-from marginpy.types import UtpConfig, UtpIndex
+from marginpy.types import Environment, UtpConfig, UtpIndex
 from marginpy.utils import handle_override
 
 

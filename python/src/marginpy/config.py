@@ -5,8 +5,8 @@ from solana.publickey import PublicKey
 
 from marginpy.types import Environment
 from marginpy.utils import handle_override
-from marginpy.utp.mango.config import MangoConfig
-from marginpy.utp.zo.config import ZoConfig
+from marginpy.utp.mango import MangoConfig
+from marginpy.utp.zo import ZoConfig
 
 # pylint: disable=dangerous-default-value
 

@@ -1,5 +1,5 @@
 import logging
-from typing import List, Tuple
+from typing import TYPE_CHECKING, List, Tuple
 
 from anchorpy import AccountsCoder
 from solana.publickey import PublicKey
@@ -14,10 +14,11 @@ from solana.transaction import (
 )
 from spl.token.instructions import get_associated_token_address
 
-import marginpy
+
 from marginpy.decimal import Decimal
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
+from marginpy.group import MarginfiGroup
 from marginpy.instruction import (
     DeactivateUtpAccounts,
     DeactivateUtpArgs,
@@ -40,15 +41,19 @@ from marginpy.utils import (
     load_idl,
     ui_to_native,
 )
-from marginpy.utp.mango.account import UtpMangoAccount
-from marginpy.utp.zo.account import UtpZoAccount
+from marginpy.utp.mango import UtpMangoAccount
+from marginpy.utp.zo import UtpZoAccount
+
+if TYPE_CHECKING:
+    from marginpy.client import MarginfiClient
+    from marginpy.config import MarginfiConfig
 
 
 class MarginfiAccount:
     _pubkey: PublicKey
-    _group: marginpy.MarginfiGroup
+    _group: MarginfiGroup
     # TODO: observation_cache
-    _client: marginpy.MarginfiClient
+    _client: "MarginfiClient"
 
     _authority: PublicKey
     _deposit_record: float
@@ -61,8 +66,8 @@ class MarginfiAccount:
         self,
         marginfi_account_pk: PublicKey,
         authority: PublicKey,
-        client: marginpy.MarginfiClient,
-        group: marginpy.MarginfiGroup,
+        client: "MarginfiClient",
+        group: MarginfiGroup,
         deposit_record: float,
         borrow_record: float,
         mango_utp_data,
@@ -93,7 +98,7 @@ class MarginfiAccount:
     # --- Factories
 
     @staticmethod
-    async def fetch(marginfi_account_pk: PublicKey, client: marginpy.MarginfiClient):
+    async def fetch(marginfi_account_pk: PublicKey, client: "MarginfiClient"):
         """
         MarginfiAccount network factory.
         Fetch account data according to the config and instantiate the corresponding MarginfiAccount.
@@ -111,10 +116,10 @@ class MarginfiAccount:
             marginfi_account_pk,
             account_data.authority,
             client,
-            await marginpy.MarginfiGroup.fetch(client.config, client.program),
+            await MarginfiGroup.fetch(client.config, client.program),
             Decimal.from_account_data(account_data.deposit_record).to_float(),
             Decimal.from_account_data(account_data.borrow_record).to_float(),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.MANGOP),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.MANGO),
             MarginfiAccount._pack_utp_data(account_data, UtpIndex.ZO),
         )
 
@@ -128,9 +133,9 @@ class MarginfiAccount:
     @staticmethod
     def from_account_data(
         marginfi_account_pk: PublicKey,
-        client: marginpy.MarginfiClient,
+        client: "MarginfiClient",
         account_data: MarginfiAccountData,
-        marginfi_group: marginpy.MarginfiGroup,
+        marginfi_group: MarginfiGroup,
     ):
         """
         MarginfiAccount local factory (decoded)
@@ -158,16 +163,16 @@ class MarginfiAccount:
             marginfi_group,
             Decimal.from_account_data(account_data.deposit_record).to_float(),
             Decimal.from_account_data(account_data.borrow_record).to_float(),
-            MarginfiAccount._pack_utp_data(account_data, UtpIndex.MANGOP),
+            MarginfiAccount._pack_utp_data(account_data, UtpIndex.MANGO),
             MarginfiAccount._pack_utp_data(account_data, UtpIndex.ZO),
         )
 
     @staticmethod
     def from_account_data_raw(
         marginfi_account_pk: PublicKey,
-        client: marginpy.MarginfiClient,
+        client: "MarginfiClient",
         data: bytes,
-        marginfi_group: marginpy.MarginfiGroup,
+        marginfi_group: MarginfiGroup,
     ):
         """
         MarginfiAccount local factory (encoded)
@@ -257,7 +262,7 @@ class MarginfiAccount:
     @staticmethod
     async def _fetch_account_data(
         marginfi_account_pk: PublicKey,
-        config: marginpy.MarginfiConfig,
+        config: "MarginfiConfig",
         rpc_client: AsyncClient,
     ):
         """
@@ -342,7 +347,7 @@ class MarginfiAccount:
                 f" {marginfi_account_data.marginfi_group}, Expected"
                 " {self._config.group_pk}"
             )
-        self._group = marginpy.MarginfiGroup.from_account_data_raw(
+        self._group = MarginfiGroup.from_account_data_raw(
             self._config,
             self._program,
             b64str_to_bytes(marginfi_group_ai.data[0]),  # type: ignore
@@ -363,7 +368,7 @@ class MarginfiAccount:
         self._deposit_record = Decimal.from_account_data(data.deposit_record).to_float()
         self._borrow_record = Decimal.from_account_data(data.borrow_record).to_float()
 
-        self.mango.update(self._pack_utp_data(data, UtpIndex.MANGOP))
+        self.mango.update(self._pack_utp_data(data, UtpIndex.MANGO))
         self.zo.update(self._pack_utp_data(data, UtpIndex.ZO))
 
     async def get_observation_accounts(self) -> List[AccountMeta]:
