@@ -9,7 +9,7 @@ from solana.rpc.types import TxOpts
 from os import path
 from pathlib import Path
 from anchorpy import localnet_fixture, Wallet, Provider, Program
-from marginpy import MarginfiConfig, Environment, load_idl, MarginfiClient
+from marginpy import MarginfiConfig, Environment, MarginfiClient
 from marginpy.types import AccountType, GroupConfig, BankConfig
 from tests.utils import (
     create_collateral_mint,
@@ -18,7 +18,6 @@ from tests.utils import (
     load_marginfi_group,
     load_client,
 )
-from tests.utils import load_marginfi_group
 
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))

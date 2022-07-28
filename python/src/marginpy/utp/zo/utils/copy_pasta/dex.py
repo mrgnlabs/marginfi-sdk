@@ -1,7 +1,7 @@
 import base64
 import enum
 import struct
-from typing import *
+from typing import NewType, NamedTuple, Literal, Generator
 from solana.publickey import PublicKey
 
 from . import util
@@ -196,7 +196,7 @@ class Slab(NamedTuple):
 
         nodes = []
         for i in range(0, len(tail), 72):
-            x = SlabNode._from_bytes(tail[i : i + 72])
+            x = SlabNode._from_bytes(tail[i : i + 72])  # noqa: E203
             if isinstance(x, SlabNode.Uninitialized):
                 break
             nodes.append(x)

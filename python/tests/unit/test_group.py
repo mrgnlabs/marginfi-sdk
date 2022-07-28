@@ -1,11 +1,9 @@
-from anchorpy import Wallet, Provider, Program
 from pytest import mark
 from solana.publickey import PublicKey
-from solana.rpc.async_api import AsyncClient
 
-from marginpy import MarginfiGroup, Environment, MarginfiConfig, load_idl
+from marginpy import MarginfiGroup
 from marginpy.utils import b64str_to_bytes
-from tests.utils import load_sample_account_info, load_marginfi_group_data
+from tests.utils import load_sample_account_info
 
 
 @mark.unit

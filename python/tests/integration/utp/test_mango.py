@@ -4,7 +4,6 @@ from marginpy.types import UtpMangoPlacePerpOrderOptions
 from tests.config import DEVNET_URL
 from tests.fixtures import (
     basics_fixture,
-    basics_fixture,
     MangoBench,
     mango_bench,
 )
@@ -27,7 +26,7 @@ class TestMangoAccount:
         await marginfi_account.mango.activate()
         assert marginfi_account.mango.is_active
         await marginfi_account.mango.deactivate()
-        assert marginfi_account.mango.is_active == False
+        assert marginfi_account.mango.is_active is False
 
     async def test_mango_deposit_withdraw(
         self,
@@ -110,7 +109,7 @@ class TestMangoAccount:
         )
 
         # Check cancelling inexistent open order throws
-        with raises(BaseException) as e:
+        with raises(BaseException):
             await marginfi_account.mango.cancel_perp_order(
                 perp_market=market,
                 order_id=order.id,

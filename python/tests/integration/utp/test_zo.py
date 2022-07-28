@@ -23,7 +23,7 @@ class TestZoAccount:
         await marginfi_account.zo.activate()
         assert marginfi_account.zo.is_active
         await marginfi_account.zo.deactivate()
-        assert marginfi_account.zo.is_active == False
+        assert marginfi_account.zo.is_active is False
 
     async def test_zo_deposit_withdraw(
         self,

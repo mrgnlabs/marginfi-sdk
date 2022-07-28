@@ -1,4 +1,3 @@
-import pytest
 from testfixtures import compare
 
 from solana.publickey import PublicKey
