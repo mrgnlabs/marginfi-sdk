@@ -197,7 +197,7 @@ class Slab(NamedTuple):
 
         nodes = []
         for i in range(0, len(tail), 72):
-            x = SlabNode._from_bytes(tail[i : i + 72])  # noqa: E203
+            x = SlabNode._from_bytes(tail[i: i + 72])  # noqa: E203
             if isinstance(x, SlabNode.Uninitialized):
                 break
             nodes.append(x)

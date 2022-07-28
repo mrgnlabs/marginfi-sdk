@@ -84,7 +84,7 @@ class TestMarginfiAccountUnit:
     def test_all_utps(self):
         _, account = load_marginfi_account("marginfi_account_2")
         assert len(account.all_utps) == 2
-        assert type(account.all_utps[0]) == UtpMangoAccount
+        assert isinstance(account.all_utps[0], UtpMangoAccount)
 
     def test_active_utps(self):
         _, account = load_marginfi_account("marginfi_account_2")
