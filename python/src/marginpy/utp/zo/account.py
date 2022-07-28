@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Coroutine, Any
 from marginpy.generated_client.types.mango_order_type import from_decoded
 from marginpy.generated_client.types.utp_zo_place_perp_order_ix_args import (
     UtpZoPlacePerpOrderIxArgs,
@@ -145,7 +146,7 @@ class UtpZoAccount(UtpAccount):
         await self._marginfi_account.reload()
         return sig
 
-    async def make_deactivate_ix(self) -> TransactionInstruction:
+    async def make_deactivate_ix(self) -> Coroutine[Any, Any, TransactionInstruction]:
         """
         Create transaction instruction to deactivate Mango.
 
