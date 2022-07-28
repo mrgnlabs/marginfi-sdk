@@ -56,5 +56,7 @@ class ZoConfig(UtpConfig):
                 override_key="dex_program",
                 default=PublicKey("ZDxUi178LkcuwdxcEqsSo2E7KATH99LAAXN5LcSVMBC"),
             )
+        elif environment == Environment.LOCALNET:
+            pass
         else:
             raise Exception(f"Unknown environment for Zo UTP config {environment}")

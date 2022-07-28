@@ -46,5 +46,7 @@ class MangoConfig(UTPConfig):
                 override_key="group_pk",
                 default=PublicKey("Ec2enZyoC4nGpEfu2sUNAa2nUGJHWxoUWYSEJ2hNTWTA"),
             )
+        elif environment == Environment.LOCALNET:
+            pass
         else:
             raise Exception(f"Unknown environment for Mango UTP config {environment}")
