@@ -1,12 +1,13 @@
-import os
 import json
-from pytest import mark
-from testfixtures import compare
+import os
+
 from anchorpy import Idl
+from pytest import mark
+from solana.publickey import PublicKey
+from testfixtures import compare
+
 from marginpy.types import BankVaultType
 from marginpy.utils import get_bank_authority, get_utp_authority, load_idl
-from solana.publickey import PublicKey
-
 from marginpy.utp.mango.account import get_mango_account_pda
 
 
@@ -37,7 +38,7 @@ class TestUtils:
         authority, bump = get_bank_authority(
             PublicKey("6ovvJd93CZqn6GgW29j39yJKnbuqqYKET2G55AXbbSNR"),
             PublicKey("DzEv7WuxdzRJ1iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ"),
-            BankVaultType.LiquidityVault,
+            BankVaultType.LIQUIDITY_VAULT,
         )
         assert authority == PublicKey("Ah2FBNwdgTxrY4HgJqzr2B3H4XZ6wQ5dYPBvPtQeACM8")
         assert bump == 255
@@ -52,7 +53,7 @@ class TestUtils:
         assert pda == PublicKey("F8H1zRowNeJ8mbxMLDYzL9Kejd24wu7yEAz65f87UMSa")
         assert bump == 255
 
-    def test_mango_account_pda(self):
+    def test_mango_account_pda_2(self):
         pda, bump = PublicKey.find_program_address(
             [
                 bytes(PublicKey("6ovvJd93CZqn6GgW29j39yJKnbuqqYKET2G55AXbbSNR")),

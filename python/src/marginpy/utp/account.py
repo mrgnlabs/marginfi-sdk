@@ -2,26 +2,26 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import List
-from anchorpy import Program
-from solana.publickey import PublicKey
-from solana.transaction import TransactionSignature, AccountMeta, TransactionInstruction
-import solana.system_program as system_program
-from spl.token.constants import TOKEN_PROGRAM_ID, ACCOUNT_LEN
+from typing import TYPE_CHECKING, List
+
 import spl.token.instructions as spl_token_ixs
-from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
-from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpData, UtpIndex
-from marginpy.utp.observation import EMPTY_OBSERVATION, UtpObservation
-from marginpy.utils import get_utp_authority
+from anchorpy import Program
+from solana import system_program
+from solana.publickey import PublicKey
+from solana.transaction import AccountMeta, TransactionInstruction, TransactionSignature
+from spl.token.constants import ACCOUNT_LEN, TOKEN_PROGRAM_ID
+
 from marginpy.constants import (
     INSURANCE_VAULT_LIQUIDATION_FEE,
     LIQUIDATOR_LIQUIDATION_FEE,
 )
-
-from typing import TYPE_CHECKING
+from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
+from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpData, UtpIndex
+from marginpy.utils import get_utp_authority
+from marginpy.utp.observation import EMPTY_OBSERVATION, UtpObservation
 
 if TYPE_CHECKING:
-    from marginpy import MarginfiClient, MarginfiAccount, MarginfiConfig
+    from marginpy import MarginfiAccount, MarginfiClient, MarginfiConfig
 
 
 class UtpAccount(ABC):

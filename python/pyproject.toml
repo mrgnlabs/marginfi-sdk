@@ -26,6 +26,14 @@ black = "^22.3.0"
 bumpversion = "^0.6.0"
 sphinx = "^5.0.2"
 sphinx-rtd-theme = "^1.0.0"
+pydocstyle = "^6.1.1"
+flake8 = "^4.0.1"
+pylint = "^2.14.5"
+isort = "^5.10.1"
+
+[tool.isort]
+profile = "black"
+known_first_party = "poetry"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

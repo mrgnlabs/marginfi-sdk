@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from time import sleep
-from typing import Optional, Callable, cast
+from typing import Callable, Optional, cast
 
-from anchorpy import Provider, Wallet, Program
+from anchorpy import Program, Provider, Wallet
 from pytest import fixture
 from pytest_asyncio import fixture as async_fixture
 from solana.publickey import PublicKey
@@ -16,15 +16,16 @@ from spl.token.instructions import get_associated_token_address
 
 from marginpy import (
     Bank,
-    MarginfiGroup,
-    MarginfiConfig,
     Environment,
-    load_idl,
-    MarginfiClient,
     MarginfiAccount,
+    MarginfiClient,
+    MarginfiConfig,
+    MarginfiGroup,
 )
-from marginpy.generated_client.types import MDecimal as DecimalData, Bank as BankDecoded
+from marginpy.generated_client.types import Bank as BankDecoded
+from marginpy.generated_client.types import MDecimal as DecimalData
 from marginpy.types import BankConfig, GroupConfig
+from marginpy.utils import load_idl
 from tests.config import LOCALNET_URL
 from tests.utils import (
     airdrop_collateral,
@@ -33,10 +34,9 @@ from tests.utils import (
     get_ata_or_create,
 )
 
-
 REAL_ACCOUNT_PUBKEY_1 = PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9")
 REAL_ACCOUNT_PUBKEY_2 = PublicKey("7bCwUANGE8YLWVde1eqDf8zhrwaJJeCUVLGDuPABdNTe")
-7
+
 SAMPLE_ACCOUNT_PUBKEY_1 = PublicKey("4HMfMtGPdbWEnTvDSWqa9c9TxgjdfsTKM2EX5GzTLKEe")
 SAMPLE_ACCOUNT_PUBKEY_2 = PublicKey("Bt9DiJbRZXuSKhmxdSdn4jcApTs9xYqJhr5squkwo9H4")
 
@@ -132,7 +132,13 @@ def mint_fixture() -> Callable:
             basics_fixture.provider.connection
         )
         # Construct transaction
-        token, txn, _, mint_account, _ = _TokenCore._create_mint_args(
+        (
+            token,
+            txn,
+            _,
+            mint_account,
+            _,
+        ) = _TokenCore._create_mint_args(  # pylint: disable=protected-access
             basics_fixture.provider.connection,
             basics_fixture.wallet.payer,
             basics_fixture.wallet.public_key,

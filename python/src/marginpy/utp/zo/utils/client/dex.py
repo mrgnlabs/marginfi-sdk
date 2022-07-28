@@ -1,7 +1,8 @@
 import base64
 import enum
 import struct
-from typing import *
+from typing import Generator, Literal, NamedTuple, NewType
+
 from solana.publickey import PublicKey
 
 from . import util
@@ -196,7 +197,7 @@ class Slab(NamedTuple):
 
         nodes = []
         for i in range(0, len(tail), 72):
-            x = SlabNode._from_bytes(tail[i : i + 72])
+            x = SlabNode._from_bytes(tail[i : i + 72])  # noqa: E203
             if isinstance(x, SlabNode.Uninitialized):
                 break
             nodes.append(x)
@@ -241,18 +242,19 @@ class Orderbook:
             )
             for o in bids.__reversed__()
         ]
+
         self.asks = [
             Order._make(
-                [
+                (
                     *o,
-                    util.lots_to_price(o.key >> 64, **kw),
+                    util.lots_to_price(o.key >> 64, **kw),  # type: ignore
                     util.lots_to_size(
-                        o.quantity,
+                        o.quantity,  # type: ignore
                         decimals=mkt.base_decimals,
                         lot_size=mkt.base_lot_size,
                     ),
                     "ask",
-                ]
+                )  # type: ignore
             )
             for o in asks
         ]

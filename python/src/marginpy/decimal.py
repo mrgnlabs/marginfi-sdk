@@ -34,11 +34,10 @@ class Decimal:
         return not self.is_negative
 
     def to_base_integer(self):
-        nb = 0 | self.lo | self.mid << 32 | self.hi << 64
+        number = 0 | self.lo | self.mid << 32 | self.hi << 64
         if self.is_negative:
-            return -nb
-        else:
-            return nb
+            return -number
+        return number
 
     def to_float(self):
         return self.to_base_integer() / 10**self.scale
