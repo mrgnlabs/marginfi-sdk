@@ -45,7 +45,7 @@ from marginpy.utp.zo.utils.copy_pasta.util import (
     price_to_lots,
     size_to_lots,
 )
-from marginpy.utp.zo.utils.copy_pasta.zo import Zo
+from marginpy.utp.zo.utils.copy_pasta.zo import Zo  # type: ignore # TODO solve this lint issue
 
 if TYPE_CHECKING:
     from marginpy import MarginfiClient, MarginfiAccount
@@ -322,7 +322,7 @@ class UtpZoAccount(UtpAccount):
         is_long: bool,
         price: float,
         size: float,
-        limit: float = 10,
+        limit: int = 10,
         client_id: int = 0,
     ):
         """
