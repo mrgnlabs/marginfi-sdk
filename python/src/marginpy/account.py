@@ -470,7 +470,7 @@ class MarginfiAccount:
 
         remaining_accounts = await self.get_observation_accounts()
         return make_deactivate_utp_ix(
-            DeactivateUtpArgs(utp_index=utp_index),
+            DeactivateUtpArgs(utp_index=utp_index.value),
             DeactivateUtpAccounts(
                 marginfi_account=self.pubkey,
                 authority=self._program.provider.wallet.public_key,
