@@ -28,6 +28,7 @@ test-cov:  ## Generate coverage report
 check:  ## Run type-checkers and format
 	poetry run mypy src tests
 	poetry run black --preview --check .
+	poetry run pylint --rcfile=.pylintrc src tests
 
 lint:  ## Run linters
 	poetry run black --check --diff src tests
