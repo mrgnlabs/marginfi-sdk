@@ -27,6 +27,6 @@ export async function getClientFromOptions(options: OptionValues): Promise<Margi
     overrides.groupPk = new PublicKey(options.group);
   }
 
-  const config = await getConfig(getEnvironment(options.environment), connection, overrides);
+  const config = await getConfig(getEnvironment(options.environment), overrides);
   return MarginfiClient.fetch(config, new Wallet(loadKeypair(options.keypair)), connection);
 }
