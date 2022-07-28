@@ -161,19 +161,7 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
     await zoState.loadMarkets();
 
     let closeDirectionLong = !position.isLong;
-    let price;
-    let market = await zoState.getMarketBySymbol(position.marketKey);
-
-    if (closeDirectionLong) {
-      let asks = await market.loadAsks(connection);
-      price = [...asks.items(true)][0].price;
-    } else {
-      let bidsOrderbook = await market.loadBids(connection);
-      let bids = [...bidsOrderbook.items(true)];
-      price = bids[bids.length - 1].price;
-    }
-
-    debug("Closing position on %s %s @ %s", position.coins.number, position.marketKey, price);
+    debug("Market closing position on %s %s @ %s", position.coins.number, position.marketKey);
 
     let oo = await zoMargin.getOpenOrdersInfoBySymbol(position.marketKey, false);
     if (!oo) {
@@ -183,7 +171,7 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
       symbol: position.marketKey,
       orderType: ZoPerpOrderType.ReduceOnlyIoc,
       isLong: closeDirectionLong,
-      price: price,
+      price: closeDirectionLong ? 1_000_000 : 1,
       size: position.coins.number,
     });
   }
