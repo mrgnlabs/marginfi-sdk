@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.8-alpha.2](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-liquidator-bot@0.3.8-alpha.1...@mrgnlabs/marginfi-liquidator-bot@0.3.8-alpha.2) (2022-07-28)
+
+
+### Bug Fixes
+
+* correctly close zo open-orders ([52632de](https://github.com/mrgnlabs/marginfi-sdk/commit/52632deb2d8fee27e76177212e16bf626f0be700))
+
+
+
+
+
 ## [0.3.8-alpha.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-liquidator-bot@0.3.8-alpha.0...@mrgnlabs/marginfi-liquidator-bot@0.3.8-alpha.1) (2022-07-27)
 
 

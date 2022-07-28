@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-alpha.2](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.0-alpha.1...@mrgnlabs/marginfi-client@0.7.0-alpha.2) (2022-07-28)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-client
+
+
+
+
+
 # [0.7.0-alpha.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.0-alpha.0...@mrgnlabs/marginfi-client@0.7.0-alpha.1) (2022-07-27)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-client
