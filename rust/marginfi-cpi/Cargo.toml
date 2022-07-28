@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["cpi", "mainnet-beta"]
+default = ["cpi"]
 no-entrypoint = []
 no-idl = []
 no-log-ix-name = []
