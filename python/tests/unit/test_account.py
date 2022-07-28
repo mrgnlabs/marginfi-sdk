@@ -39,10 +39,10 @@ class TestMarginfiAccountUnit:
         assert isinstance(account, MarginfiAccount)
         assert account.pubkey == REAL_ACCOUNT_PUBKEY_2
         assert account.authority == PublicKey(
-            "E5SUBkeCKPrmT77f6grSJXnLgLMed2pkSWr9NVXu9Nog"
+            "3xo9RzjFEKRqLYQjfxTP9oKCPF6ukfDsqJ2hUhJhv55W"
         )
         assert account.group.pubkey == PublicKey(
-            "7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg"
+            "GoAzFyYE1xRsbT4C5MHJh8hBd5s6Jks9j4hLrtWR3pba"
         )
         assert account.deposits == 100323.12943728785
         assert account.borrows == 0.0
@@ -62,7 +62,7 @@ class TestMarginfiAccountUnit:
         assert isinstance(account, MarginfiAccount)
         assert account.pubkey == REAL_ACCOUNT_PUBKEY_2
         assert account.authority == PublicKey(
-            "E5SUBkeCKPrmT77f6grSJXnLgLMed2pkSWr9NVXu9Nog"
+            "3xo9RzjFEKRqLYQjfxTP9oKCPF6ukfDsqJ2hUhJhv55W"
         )
         assert account.group.pubkey == PublicKey(
             "7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg"
@@ -74,7 +74,7 @@ class TestMarginfiAccountUnit:
         _, account = load_marginfi_account("marginfi_account_2")
         assert account.pubkey == REAL_ACCOUNT_PUBKEY_2
         assert account.authority == PublicKey(
-            "E5SUBkeCKPrmT77f6grSJXnLgLMed2pkSWr9NVXu9Nog"
+            "3xo9RzjFEKRqLYQjfxTP9oKCPF6ukfDsqJ2hUhJhv55W"
         )
         assert account.group.pubkey == PublicKey(
             "7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg"

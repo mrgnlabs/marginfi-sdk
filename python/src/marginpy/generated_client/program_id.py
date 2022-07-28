@@ -1,3 +1,3 @@
 from solana.publickey import PublicKey
 
-PROGRAM_ID = PublicKey("DzEv7WuxdzRJ9iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ")
+PROGRAM_ID = PublicKey("mf2tjVmwcxgNfscvVNdN9t2LZ8YwPkNQabeTzyYw2Hn")

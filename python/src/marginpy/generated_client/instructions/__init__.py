@@ -1,82 +1,81 @@
-# flake8: noqa
-from .bank_fee_vault_withdraw import (
-    BankFeeVaultWithdrawAccounts,
-    BankFeeVaultWithdrawArgs,
-    bank_fee_vault_withdraw,
-)
-from .bank_insurance_vault_withdraw import (
-    BankInsuranceVaultWithdrawAccounts,
-    BankInsuranceVaultWithdrawArgs,
-    bank_insurance_vault_withdraw,
+from .init_marginfi_group import (
+    init_marginfi_group,
+    InitMarginfiGroupArgs,
+    InitMarginfiGroupAccounts,
 )
 from .configure_marginfi_group import (
-    ConfigureMarginfiGroupAccounts,
-    ConfigureMarginfiGroupArgs,
     configure_marginfi_group,
+    ConfigureMarginfiGroupArgs,
+    ConfigureMarginfiGroupAccounts,
 )
-from .deactivate_utp import DeactivateUtpAccounts, DeactivateUtpArgs, deactivate_utp
-from .handle_bankruptcy import HandleBankruptcyAccounts, handle_bankruptcy
-from .init_marginfi_account import InitMarginfiAccountAccounts, init_marginfi_account
-from .init_marginfi_group import (
-    InitMarginfiGroupAccounts,
-    InitMarginfiGroupArgs,
-    init_marginfi_group,
+from .bank_fee_vault_withdraw import (
+    bank_fee_vault_withdraw,
+    BankFeeVaultWithdrawArgs,
+    BankFeeVaultWithdrawAccounts,
 )
-from .liquidate import LiquidateAccounts, LiquidateArgs, liquidate
+from .init_marginfi_account import init_marginfi_account, InitMarginfiAccountAccounts
+from .bank_insurance_vault_withdraw import (
+    bank_insurance_vault_withdraw,
+    BankInsuranceVaultWithdrawArgs,
+    BankInsuranceVaultWithdrawAccounts,
+)
 from .margin_deposit_collateral import (
-    MarginDepositCollateralAccounts,
-    MarginDepositCollateralArgs,
     margin_deposit_collateral,
+    MarginDepositCollateralArgs,
+    MarginDepositCollateralAccounts,
 )
 from .margin_withdraw_collateral import (
-    MarginWithdrawCollateralAccounts,
-    MarginWithdrawCollateralArgs,
     margin_withdraw_collateral,
+    MarginWithdrawCollateralArgs,
+    MarginWithdrawCollateralAccounts,
 )
+from .liquidate import liquidate, LiquidateArgs, LiquidateAccounts
+from .deactivate_utp import deactivate_utp, DeactivateUtpArgs, DeactivateUtpAccounts
+from .handle_bankruptcy import handle_bankruptcy, HandleBankruptcyAccounts
 from .update_interest_accumulator import (
-    UpdateInterestAccumulatorAccounts,
     update_interest_accumulator,
+    UpdateInterestAccumulatorAccounts,
 )
 from .utp_mango_activate import (
-    UtpMangoActivateAccounts,
-    UtpMangoActivateArgs,
     utp_mango_activate,
+    UtpMangoActivateArgs,
+    UtpMangoActivateAccounts,
 )
 from .utp_mango_deposit import (
-    UtpMangoDepositAccounts,
-    UtpMangoDepositArgs,
     utp_mango_deposit,
-)
-from .utp_mango_use_cancel_perp_order import (
-    UtpMangoUseCancelPerpOrderAccounts,
-    UtpMangoUseCancelPerpOrderArgs,
-    utp_mango_use_cancel_perp_order,
-)
-from .utp_mango_use_place_perp_order import (
-    UtpMangoUsePlacePerpOrderAccounts,
-    UtpMangoUsePlacePerpOrderArgs,
-    utp_mango_use_place_perp_order,
+    UtpMangoDepositArgs,
+    UtpMangoDepositAccounts,
 )
 from .utp_mango_withdraw import (
-    UtpMangoWithdrawAccounts,
-    UtpMangoWithdrawArgs,
     utp_mango_withdraw,
+    UtpMangoWithdrawArgs,
+    UtpMangoWithdrawAccounts,
 )
-from .utp_zo_activate import UtpZoActivateAccounts, UtpZoActivateArgs, utp_zo_activate
-from .utp_zo_cancel_perp_order import (
-    UtpZoCancelPerpOrderAccounts,
-    UtpZoCancelPerpOrderArgs,
-    utp_zo_cancel_perp_order,
+from .utp_mango_use_place_perp_order import (
+    utp_mango_use_place_perp_order,
+    UtpMangoUsePlacePerpOrderArgs,
+    UtpMangoUsePlacePerpOrderAccounts,
 )
+from .utp_mango_use_cancel_perp_order import (
+    utp_mango_use_cancel_perp_order,
+    UtpMangoUseCancelPerpOrderArgs,
+    UtpMangoUseCancelPerpOrderAccounts,
+)
+from .utp_zo_activate import utp_zo_activate, UtpZoActivateArgs, UtpZoActivateAccounts
+from .utp_zo_deposit import utp_zo_deposit, UtpZoDepositArgs, UtpZoDepositAccounts
+from .utp_zo_withdraw import utp_zo_withdraw, UtpZoWithdrawArgs, UtpZoWithdrawAccounts
 from .utp_zo_create_perp_open_orders import (
-    UtpZoCreatePerpOpenOrdersAccounts,
     utp_zo_create_perp_open_orders,
+    UtpZoCreatePerpOpenOrdersAccounts,
 )
-from .utp_zo_deposit import UtpZoDepositAccounts, UtpZoDepositArgs, utp_zo_deposit
 from .utp_zo_place_perp_order import (
-    UtpZoPlacePerpOrderAccounts,
-    UtpZoPlacePerpOrderArgs,
     utp_zo_place_perp_order,
+    UtpZoPlacePerpOrderArgs,
+    UtpZoPlacePerpOrderAccounts,
 )
-from .utp_zo_settle_funds import UtpZoSettleFundsAccounts, utp_zo_settle_funds
-from .utp_zo_withdraw import UtpZoWithdrawAccounts, UtpZoWithdrawArgs, utp_zo_withdraw
+from .utp_zo_cancel_perp_order import (
+    utp_zo_cancel_perp_order,
+    UtpZoCancelPerpOrderArgs,
+    UtpZoCancelPerpOrderAccounts,
+)
+from .utp_zo_settle_funds import utp_zo_settle_funds, UtpZoSettleFundsAccounts

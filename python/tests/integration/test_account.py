@@ -9,6 +9,7 @@ from marginpy import Environment, MarginfiAccount, MarginfiClient, MarginfiConfi
 from marginpy.utils import load_idl
 from tests.config import DEVNET_URL
 from tests.fixtures import (
+    REAL_ACCOUNT_PUBKEY_1,
     REAL_ACCOUNT_PUBKEY_2,
     User,
     basics_fixture,
@@ -61,7 +62,8 @@ class TestMarginfiAccountDevnet:
         _, group = load_marginfi_group("marginfi_group_2")
         client = MarginfiClient(config, program, group)
         marginfi_account_pk = REAL_ACCOUNT_PUBKEY_2
-        await MarginfiAccount.fetch(marginfi_account_pk, client)
+        account = await MarginfiAccount.fetch(marginfi_account_pk, client)
+        print(account.authority)
 
     async def test_reload(self):
         _, account = load_marginfi_account("marginfi_account_2")

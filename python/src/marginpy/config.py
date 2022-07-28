@@ -40,12 +40,12 @@ class MarginfiDedicatedConfig:
             self.program_id = handle_override(
                 overrides=overrides,
                 override_key="program_id",
-                default=PublicKey("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK"),
+                default=PublicKey("mf2tjVmwcxgNfscvVNdN9t2LZ8YwPkNQabeTzyYw2Hn"),
             )
             self.group_pk = handle_override(
                 overrides=overrides,
                 override_key="group_pk",
-                default=PublicKey("7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg"),
+                default=PublicKey("GoAzFyYE1xRsbT4C5MHJh8hBd5s6Jks9j4hLrtWR3pba"),
             )
             self.collateral_mint_pk = handle_override(
                 overrides=overrides,

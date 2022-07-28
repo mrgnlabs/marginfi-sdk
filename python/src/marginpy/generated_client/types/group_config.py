@@ -1,14 +1,13 @@
 from __future__ import annotations
-
+from . import (
+    bank_config,
+)
 import typing
 from dataclasses import dataclass
-
-import borsh_construct as borsh
-from anchorpy.borsh_extension import BorshPubkey
 from construct import Container
 from solana.publickey import PublicKey
-
-from . import bank_config
+from anchorpy.borsh_extension import BorshPubkey
+import borsh_construct as borsh
 
 
 class GroupConfigJSON(typing.TypedDict):

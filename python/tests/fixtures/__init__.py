@@ -34,8 +34,8 @@ from tests.utils import (
     get_ata_or_create,
 )
 
-REAL_ACCOUNT_PUBKEY_1 = PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9")
-REAL_ACCOUNT_PUBKEY_2 = PublicKey("7bCwUANGE8YLWVde1eqDf8zhrwaJJeCUVLGDuPABdNTe")
+REAL_ACCOUNT_PUBKEY_1 = PublicKey("5mwUQhDgyPyGNxkAeP8Bdu4caina2Z8gCcM4ekp2LD4R")
+REAL_ACCOUNT_PUBKEY_2 = PublicKey("C2HNxh6u1Pifs2qAHQfK9REemQxWcePiEL2Ftwqn4kAr")
 
 SAMPLE_ACCOUNT_PUBKEY_1 = PublicKey("4HMfMtGPdbWEnTvDSWqa9c9TxgjdfsTKM2EX5GzTLKEe")
 SAMPLE_ACCOUNT_PUBKEY_2 = PublicKey("Bt9DiJbRZXuSKhmxdSdn4jcApTs9xYqJhr5squkwo9H4")

@@ -1,25 +1,23 @@
 import typing
-from base64 import b64decode
 from dataclasses import dataclass
-
-import borsh_construct as borsh
-from anchorpy.borsh_extension import BorshPubkey
-from anchorpy.coder.accounts import ACCOUNT_DISCRIMINATOR_SIZE
-from anchorpy.error import AccountInvalidDiscriminator
-from anchorpy.utils.rpc import get_multiple_accounts
+from base64 import b64decode
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.commitment import Commitment
-
-from .. import types
+import borsh_construct as borsh
+from anchorpy.coder.accounts import ACCOUNT_DISCRIMINATOR_SIZE
+from anchorpy.error import AccountInvalidDiscriminator
+from anchorpy.utils.rpc import get_multiple_accounts
+from anchorpy.borsh_extension import BorshPubkey
 from ..program_id import PROGRAM_ID
+from .. import types
 
 
 class MarginfiAccountJSON(typing.TypedDict):
     authority: str
     marginfi_group: str
-    deposit_record: types.m_decimal.MDecimalJSON
-    borrow_record: types.m_decimal.MDecimalJSON
+    deposit_record: types.wrapped_i80f48.WrappedI80F48JSON
+    borrow_record: types.wrapped_i80f48.WrappedI80F48JSON
     active_utps: list[bool]
     utp_account_config: list[types.utp_account_config.UTPAccountConfigJSON]
     reserved_space: list[int]
@@ -31,16 +29,16 @@ class MarginfiAccount:
     layout: typing.ClassVar = borsh.CStruct(
         "authority" / BorshPubkey,
         "marginfi_group" / BorshPubkey,
-        "deposit_record" / types.m_decimal.MDecimal.layout,
-        "borrow_record" / types.m_decimal.MDecimal.layout,
+        "deposit_record" / types.wrapped_i80f48.WrappedI80F48.layout,
+        "borrow_record" / types.wrapped_i80f48.WrappedI80F48.layout,
         "active_utps" / borsh.Bool[32],
         "utp_account_config" / types.utp_account_config.UTPAccountConfig.layout[32],
         "reserved_space" / borsh.U128[256],
     )
     authority: PublicKey
     marginfi_group: PublicKey
-    deposit_record: types.m_decimal.MDecimal
-    borrow_record: types.m_decimal.MDecimal
+    deposit_record: types.wrapped_i80f48.WrappedI80F48
+    borrow_record: types.wrapped_i80f48.WrappedI80F48
     active_utps: list[bool]
     utp_account_config: list[types.utp_account_config.UTPAccountConfig]
     reserved_space: list[int]
@@ -91,8 +89,12 @@ class MarginfiAccount:
         return cls(
             authority=dec.authority,
             marginfi_group=dec.marginfi_group,
-            deposit_record=types.m_decimal.MDecimal.from_decoded(dec.deposit_record),
-            borrow_record=types.m_decimal.MDecimal.from_decoded(dec.borrow_record),
+            deposit_record=types.wrapped_i80f48.WrappedI80F48.from_decoded(
+                dec.deposit_record
+            ),
+            borrow_record=types.wrapped_i80f48.WrappedI80F48.from_decoded(
+                dec.borrow_record
+            ),
             active_utps=dec.active_utps,
             utp_account_config=list(
                 map(
@@ -123,8 +125,12 @@ class MarginfiAccount:
         return cls(
             authority=PublicKey(obj["authority"]),
             marginfi_group=PublicKey(obj["marginfi_group"]),
-            deposit_record=types.m_decimal.MDecimal.from_json(obj["deposit_record"]),
-            borrow_record=types.m_decimal.MDecimal.from_json(obj["borrow_record"]),
+            deposit_record=types.wrapped_i80f48.WrappedI80F48.from_json(
+                obj["deposit_record"]
+            ),
+            borrow_record=types.wrapped_i80f48.WrappedI80F48.from_json(
+                obj["borrow_record"]
+            ),
             active_utps=obj["active_utps"],
             utp_account_config=list(
                 map(

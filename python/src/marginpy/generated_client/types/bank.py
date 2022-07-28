@@ -1,126 +1,135 @@
 from __future__ import annotations
-
+from . import (
+    wrapped_i80f48,
+)
 import typing
 from dataclasses import dataclass
-
-import borsh_construct as borsh
-from anchorpy.borsh_extension import BorshPubkey
 from construct import Container
 from solana.publickey import PublicKey
-
-from . import m_decimal
+from anchorpy.borsh_extension import BorshPubkey
+import borsh_construct as borsh
 
 
 class BankJSON(typing.TypedDict):
-    scaling_factor_c: m_decimal.MDecimalJSON
-    fixed_fee: m_decimal.MDecimalJSON
-    interest_fee: m_decimal.MDecimalJSON
-    deposit_accumulator: m_decimal.MDecimalJSON
-    borrow_accumulator: m_decimal.MDecimalJSON
+    scaling_factor_c: wrapped_i80f48.WrappedI80F48JSON
+    fixed_fee: wrapped_i80f48.WrappedI80F48JSON
+    interest_fee: wrapped_i80f48.WrappedI80F48JSON
+    deposit_accumulator: wrapped_i80f48.WrappedI80F48JSON
+    borrow_accumulator: wrapped_i80f48.WrappedI80F48JSON
     last_update: int
-    native_deposit_balance: m_decimal.MDecimalJSON
-    native_borrow_balance: m_decimal.MDecimalJSON
+    total_deposits_record: wrapped_i80f48.WrappedI80F48JSON
+    total_borrows_record: wrapped_i80f48.WrappedI80F48JSON
     mint: str
     vault: str
     vault_authority_pda_bump: int
     insurance_vault: str
     insurance_vault_authority_pda_bump: int
-    insurance_vault_outstanding_transfers: m_decimal.MDecimalJSON
+    insurance_vault_outstanding_transfers: wrapped_i80f48.WrappedI80F48JSON
     fee_vault: str
     fee_vault_authority_pda_bump: int
-    fee_vault_outstanding_transfers: m_decimal.MDecimalJSON
-    init_margin_ratio: m_decimal.MDecimalJSON
-    maint_margin_ratio: m_decimal.MDecimalJSON
-    account_deposit_limit: m_decimal.MDecimalJSON
-    lp_deposit_limit: m_decimal.MDecimalJSON
+    fee_vault_outstanding_transfers: wrapped_i80f48.WrappedI80F48JSON
+    init_margin_ratio: wrapped_i80f48.WrappedI80F48JSON
+    maint_margin_ratio: wrapped_i80f48.WrappedI80F48JSON
+    account_deposit_limit: wrapped_i80f48.WrappedI80F48JSON
+    lp_deposit_limit: wrapped_i80f48.WrappedI80F48JSON
     reserved_space: list[int]
 
 
 @dataclass
 class Bank:
     layout: typing.ClassVar = borsh.CStruct(
-        "scaling_factor_c" / m_decimal.MDecimal.layout,
-        "fixed_fee" / m_decimal.MDecimal.layout,
-        "interest_fee" / m_decimal.MDecimal.layout,
-        "deposit_accumulator" / m_decimal.MDecimal.layout,
-        "borrow_accumulator" / m_decimal.MDecimal.layout,
+        "scaling_factor_c" / wrapped_i80f48.WrappedI80F48.layout,
+        "fixed_fee" / wrapped_i80f48.WrappedI80F48.layout,
+        "interest_fee" / wrapped_i80f48.WrappedI80F48.layout,
+        "deposit_accumulator" / wrapped_i80f48.WrappedI80F48.layout,
+        "borrow_accumulator" / wrapped_i80f48.WrappedI80F48.layout,
         "last_update" / borsh.I64,
-        "native_deposit_balance" / m_decimal.MDecimal.layout,
-        "native_borrow_balance" / m_decimal.MDecimal.layout,
+        "total_deposits_record" / wrapped_i80f48.WrappedI80F48.layout,
+        "total_borrows_record" / wrapped_i80f48.WrappedI80F48.layout,
         "mint" / BorshPubkey,
         "vault" / BorshPubkey,
         "vault_authority_pda_bump" / borsh.U8,
         "insurance_vault" / BorshPubkey,
         "insurance_vault_authority_pda_bump" / borsh.U8,
-        "insurance_vault_outstanding_transfers" / m_decimal.MDecimal.layout,
+        "insurance_vault_outstanding_transfers" / wrapped_i80f48.WrappedI80F48.layout,
         "fee_vault" / BorshPubkey,
         "fee_vault_authority_pda_bump" / borsh.U8,
-        "fee_vault_outstanding_transfers" / m_decimal.MDecimal.layout,
-        "init_margin_ratio" / m_decimal.MDecimal.layout,
-        "maint_margin_ratio" / m_decimal.MDecimal.layout,
-        "account_deposit_limit" / m_decimal.MDecimal.layout,
-        "lp_deposit_limit" / m_decimal.MDecimal.layout,
+        "fee_vault_outstanding_transfers" / wrapped_i80f48.WrappedI80F48.layout,
+        "init_margin_ratio" / wrapped_i80f48.WrappedI80F48.layout,
+        "maint_margin_ratio" / wrapped_i80f48.WrappedI80F48.layout,
+        "account_deposit_limit" / wrapped_i80f48.WrappedI80F48.layout,
+        "lp_deposit_limit" / wrapped_i80f48.WrappedI80F48.layout,
         "reserved_space" / borsh.U128[31],
     )
-    scaling_factor_c: m_decimal.MDecimal
-    fixed_fee: m_decimal.MDecimal
-    interest_fee: m_decimal.MDecimal
-    deposit_accumulator: m_decimal.MDecimal
-    borrow_accumulator: m_decimal.MDecimal
+    scaling_factor_c: wrapped_i80f48.WrappedI80F48
+    fixed_fee: wrapped_i80f48.WrappedI80F48
+    interest_fee: wrapped_i80f48.WrappedI80F48
+    deposit_accumulator: wrapped_i80f48.WrappedI80F48
+    borrow_accumulator: wrapped_i80f48.WrappedI80F48
     last_update: int
-    native_deposit_balance: m_decimal.MDecimal
-    native_borrow_balance: m_decimal.MDecimal
+    total_deposits_record: wrapped_i80f48.WrappedI80F48
+    total_borrows_record: wrapped_i80f48.WrappedI80F48
     mint: PublicKey
     vault: PublicKey
     vault_authority_pda_bump: int
     insurance_vault: PublicKey
     insurance_vault_authority_pda_bump: int
-    insurance_vault_outstanding_transfers: m_decimal.MDecimal
+    insurance_vault_outstanding_transfers: wrapped_i80f48.WrappedI80F48
     fee_vault: PublicKey
     fee_vault_authority_pda_bump: int
-    fee_vault_outstanding_transfers: m_decimal.MDecimal
-    init_margin_ratio: m_decimal.MDecimal
-    maint_margin_ratio: m_decimal.MDecimal
-    account_deposit_limit: m_decimal.MDecimal
-    lp_deposit_limit: m_decimal.MDecimal
+    fee_vault_outstanding_transfers: wrapped_i80f48.WrappedI80F48
+    init_margin_ratio: wrapped_i80f48.WrappedI80F48
+    maint_margin_ratio: wrapped_i80f48.WrappedI80F48
+    account_deposit_limit: wrapped_i80f48.WrappedI80F48
+    lp_deposit_limit: wrapped_i80f48.WrappedI80F48
     reserved_space: list[int]
 
     @classmethod
     def from_decoded(cls, obj: Container) -> "Bank":
         return cls(
-            scaling_factor_c=m_decimal.MDecimal.from_decoded(obj.scaling_factor_c),
-            fixed_fee=m_decimal.MDecimal.from_decoded(obj.fixed_fee),
-            interest_fee=m_decimal.MDecimal.from_decoded(obj.interest_fee),
-            deposit_accumulator=m_decimal.MDecimal.from_decoded(
+            scaling_factor_c=wrapped_i80f48.WrappedI80F48.from_decoded(
+                obj.scaling_factor_c
+            ),
+            fixed_fee=wrapped_i80f48.WrappedI80F48.from_decoded(obj.fixed_fee),
+            interest_fee=wrapped_i80f48.WrappedI80F48.from_decoded(obj.interest_fee),
+            deposit_accumulator=wrapped_i80f48.WrappedI80F48.from_decoded(
                 obj.deposit_accumulator
             ),
-            borrow_accumulator=m_decimal.MDecimal.from_decoded(obj.borrow_accumulator),
-            last_update=obj.last_update,
-            native_deposit_balance=m_decimal.MDecimal.from_decoded(
-                obj.native_deposit_balance
+            borrow_accumulator=wrapped_i80f48.WrappedI80F48.from_decoded(
+                obj.borrow_accumulator
             ),
-            native_borrow_balance=m_decimal.MDecimal.from_decoded(
-                obj.native_borrow_balance
+            last_update=obj.last_update,
+            total_deposits_record=wrapped_i80f48.WrappedI80F48.from_decoded(
+                obj.total_deposits_record
+            ),
+            total_borrows_record=wrapped_i80f48.WrappedI80F48.from_decoded(
+                obj.total_borrows_record
             ),
             mint=obj.mint,
             vault=obj.vault,
             vault_authority_pda_bump=obj.vault_authority_pda_bump,
             insurance_vault=obj.insurance_vault,
             insurance_vault_authority_pda_bump=obj.insurance_vault_authority_pda_bump,
-            insurance_vault_outstanding_transfers=m_decimal.MDecimal.from_decoded(
+            insurance_vault_outstanding_transfers=wrapped_i80f48.WrappedI80F48.from_decoded(
                 obj.insurance_vault_outstanding_transfers
             ),
             fee_vault=obj.fee_vault,
             fee_vault_authority_pda_bump=obj.fee_vault_authority_pda_bump,
-            fee_vault_outstanding_transfers=m_decimal.MDecimal.from_decoded(
+            fee_vault_outstanding_transfers=wrapped_i80f48.WrappedI80F48.from_decoded(
                 obj.fee_vault_outstanding_transfers
             ),
-            init_margin_ratio=m_decimal.MDecimal.from_decoded(obj.init_margin_ratio),
-            maint_margin_ratio=m_decimal.MDecimal.from_decoded(obj.maint_margin_ratio),
-            account_deposit_limit=m_decimal.MDecimal.from_decoded(
+            init_margin_ratio=wrapped_i80f48.WrappedI80F48.from_decoded(
+                obj.init_margin_ratio
+            ),
+            maint_margin_ratio=wrapped_i80f48.WrappedI80F48.from_decoded(
+                obj.maint_margin_ratio
+            ),
+            account_deposit_limit=wrapped_i80f48.WrappedI80F48.from_decoded(
                 obj.account_deposit_limit
             ),
-            lp_deposit_limit=m_decimal.MDecimal.from_decoded(obj.lp_deposit_limit),
+            lp_deposit_limit=wrapped_i80f48.WrappedI80F48.from_decoded(
+                obj.lp_deposit_limit
+            ),
             reserved_space=obj.reserved_space,
         )
 
@@ -132,8 +141,8 @@ class Bank:
             "deposit_accumulator": self.deposit_accumulator.to_encodable(),
             "borrow_accumulator": self.borrow_accumulator.to_encodable(),
             "last_update": self.last_update,
-            "native_deposit_balance": self.native_deposit_balance.to_encodable(),
-            "native_borrow_balance": self.native_borrow_balance.to_encodable(),
+            "total_deposits_record": self.total_deposits_record.to_encodable(),
+            "total_borrows_record": self.total_borrows_record.to_encodable(),
             "mint": self.mint,
             "vault": self.vault,
             "vault_authority_pda_bump": self.vault_authority_pda_bump,
@@ -158,8 +167,8 @@ class Bank:
             "deposit_accumulator": self.deposit_accumulator.to_json(),
             "borrow_accumulator": self.borrow_accumulator.to_json(),
             "last_update": self.last_update,
-            "native_deposit_balance": self.native_deposit_balance.to_json(),
-            "native_borrow_balance": self.native_borrow_balance.to_json(),
+            "total_deposits_record": self.total_deposits_record.to_json(),
+            "total_borrows_record": self.total_borrows_record.to_json(),
             "mint": str(self.mint),
             "vault": str(self.vault),
             "vault_authority_pda_bump": self.vault_authority_pda_bump,
@@ -179,19 +188,23 @@ class Bank:
     @classmethod
     def from_json(cls, obj: BankJSON) -> "Bank":
         return cls(
-            scaling_factor_c=m_decimal.MDecimal.from_json(obj["scaling_factor_c"]),
-            fixed_fee=m_decimal.MDecimal.from_json(obj["fixed_fee"]),
-            interest_fee=m_decimal.MDecimal.from_json(obj["interest_fee"]),
-            deposit_accumulator=m_decimal.MDecimal.from_json(
+            scaling_factor_c=wrapped_i80f48.WrappedI80F48.from_json(
+                obj["scaling_factor_c"]
+            ),
+            fixed_fee=wrapped_i80f48.WrappedI80F48.from_json(obj["fixed_fee"]),
+            interest_fee=wrapped_i80f48.WrappedI80F48.from_json(obj["interest_fee"]),
+            deposit_accumulator=wrapped_i80f48.WrappedI80F48.from_json(
                 obj["deposit_accumulator"]
             ),
-            borrow_accumulator=m_decimal.MDecimal.from_json(obj["borrow_accumulator"]),
-            last_update=obj["last_update"],
-            native_deposit_balance=m_decimal.MDecimal.from_json(
-                obj["native_deposit_balance"]
+            borrow_accumulator=wrapped_i80f48.WrappedI80F48.from_json(
+                obj["borrow_accumulator"]
             ),
-            native_borrow_balance=m_decimal.MDecimal.from_json(
-                obj["native_borrow_balance"]
+            last_update=obj["last_update"],
+            total_deposits_record=wrapped_i80f48.WrappedI80F48.from_json(
+                obj["total_deposits_record"]
+            ),
+            total_borrows_record=wrapped_i80f48.WrappedI80F48.from_json(
+                obj["total_borrows_record"]
             ),
             mint=PublicKey(obj["mint"]),
             vault=PublicKey(obj["vault"]),
@@ -200,19 +213,25 @@ class Bank:
             insurance_vault_authority_pda_bump=obj[
                 "insurance_vault_authority_pda_bump"
             ],
-            insurance_vault_outstanding_transfers=m_decimal.MDecimal.from_json(
+            insurance_vault_outstanding_transfers=wrapped_i80f48.WrappedI80F48.from_json(
                 obj["insurance_vault_outstanding_transfers"]
             ),
             fee_vault=PublicKey(obj["fee_vault"]),
             fee_vault_authority_pda_bump=obj["fee_vault_authority_pda_bump"],
-            fee_vault_outstanding_transfers=m_decimal.MDecimal.from_json(
+            fee_vault_outstanding_transfers=wrapped_i80f48.WrappedI80F48.from_json(
                 obj["fee_vault_outstanding_transfers"]
             ),
-            init_margin_ratio=m_decimal.MDecimal.from_json(obj["init_margin_ratio"]),
-            maint_margin_ratio=m_decimal.MDecimal.from_json(obj["maint_margin_ratio"]),
-            account_deposit_limit=m_decimal.MDecimal.from_json(
+            init_margin_ratio=wrapped_i80f48.WrappedI80F48.from_json(
+                obj["init_margin_ratio"]
+            ),
+            maint_margin_ratio=wrapped_i80f48.WrappedI80F48.from_json(
+                obj["maint_margin_ratio"]
+            ),
+            account_deposit_limit=wrapped_i80f48.WrappedI80F48.from_json(
                 obj["account_deposit_limit"]
             ),
-            lp_deposit_limit=m_decimal.MDecimal.from_json(obj["lp_deposit_limit"]),
+            lp_deposit_limit=wrapped_i80f48.WrappedI80F48.from_json(
+                obj["lp_deposit_limit"]
+            ),
             reserved_space=obj["reserved_space"],
         )

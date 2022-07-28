@@ -1,12 +1,11 @@
 from __future__ import annotations
-
+from . import (
+    order_type,
+)
 import typing
 from dataclasses import dataclass
-
-import borsh_construct as borsh
 from construct import Container
-
-from . import order_type
+import borsh_construct as borsh
 
 
 class UtpZoPlacePerpOrderIxArgsJSON(typing.TypedDict):
