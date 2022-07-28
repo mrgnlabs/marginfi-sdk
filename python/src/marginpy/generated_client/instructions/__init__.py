@@ -1,3 +1,4 @@
+# flake8: noqa
 from .init_marginfi_group import (
     init_marginfi_group,
     InitMarginfiGroupArgs,

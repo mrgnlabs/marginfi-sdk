@@ -1,3 +1,4 @@
+# flake8: noqa
 import typing
 from . import utp_mango_place_perp_order_args
 from .utp_mango_place_perp_order_args import (

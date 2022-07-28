@@ -1,3 +1,4 @@
+# flake8: noqa
 """The Marginfi python SDK."""
 from marginpy.config import MarginfiConfig
 from marginpy.client import MarginfiClient
