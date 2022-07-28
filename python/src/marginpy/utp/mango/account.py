@@ -1,7 +1,5 @@
 from __future__ import annotations
-
-from typing import Tuple, List, Coroutine, Any
-
+from typing import Tuple, List
 import mango
 from marginpy.generated_client.types.mango_expiry_type import (
     Absolute,
@@ -130,14 +128,14 @@ class UtpMangoAccount(UtpAccount):
         await self._marginfi_account.reload()
         return sig
 
-    async def make_deactivate_ix(self) -> Coroutine[Any, Any, TransactionInstruction]:
+    async def make_deactivate_ix(self) -> TransactionInstruction:
         """
         Create transaction instruction to deactivate Mango.
 
         :returns: `DeactivateUtp` transaction instruction
         """
 
-        return self._marginfi_account.make_deactivate_utp_ix(self.index)
+        return await self._marginfi_account.make_deactivate_utp_ix(self.index)
 
     async def deactivate(self) -> TransactionSignature:
         """

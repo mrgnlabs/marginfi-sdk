@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Coroutine, Any
 from marginpy.generated_client.types.order_type import (
     from_decoded,
 )  # TODO handle ambiguous `order_type` naming issue
@@ -148,13 +147,13 @@ class UtpZoAccount(UtpAccount):
         await self._marginfi_account.reload()
         return sig
 
-    async def make_deactivate_ix(self) -> Coroutine[Any, Any, TransactionInstruction]:
+    async def make_deactivate_ix(self) -> TransactionInstruction:
         """
         Create transaction instruction to deactivate Mango.
 
         :returns: `DeactivateUtp` transaction instruction
         """
-        return self._marginfi_account.make_deactivate_utp_ix(self.index)
+        return await self._marginfi_account.make_deactivate_utp_ix(self.index)
 
     async def deactivate(self) -> TransactionSignature:
         """
