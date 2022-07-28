@@ -118,8 +118,8 @@ class UtpMangoAccount(UtpAccount):
         """
 
         activate_ix = await self.make_activate_ix()
-        tx = Transaction().add(activate_ix)
-        sig = await self._client.program.provider.send(tx)
+        transation = Transaction().add(activate_ix)
+        sig = await self._client.program.provider.send(transation)
         await self._marginfi_account.reload()
         return sig
 
@@ -284,8 +284,8 @@ class UtpMangoAccount(UtpAccount):
         """
 
         withdraw_ix = await self.make_withdraw_ix(amount)
-        tx = Transaction().add(withdraw_ix)
-        return await self._client.program.provider.send(tx)
+        transation = Transaction().add(withdraw_ix)
+        return await self._client.program.provider.send(transation)
 
     async def get_observation_accounts(self) -> List[AccountMeta]:
         """
@@ -316,7 +316,7 @@ class UtpMangoAccount(UtpAccount):
             ),
         ]
 
-    async def make_place_perp_order_ix(
+    async def make_place_perp_order_ix(  # pylint: disable=too-many-locals
         self,
         perp_market: mango.PerpMarket,
         side: gen_types.MangoSideKind,
@@ -426,8 +426,8 @@ class UtpMangoAccount(UtpAccount):
         place_perp_order_ix = await self.make_place_perp_order_ix(
             perp_market, side, price, quantity, options
         )
-        tx = Transaction().add(place_perp_order_ix)
-        return await self._client.program.provider.send(tx)
+        transation = Transaction().add(place_perp_order_ix)
+        return await self._client.program.provider.send(transation)
 
     async def make_cancel_perp_order_ix(
         self, perp_market: mango.PerpMarket, order_id: int, invalid_id_ok: bool
@@ -481,8 +481,8 @@ class UtpMangoAccount(UtpAccount):
             order_id,
             invalid_id_ok,
         )
-        tx = Transaction().add(cancel_perp_order_ix)
-        return await self._client.program.provider.send(tx)
+        transation = Transaction().add(cancel_perp_order_ix)
+        return await self._client.program.provider.send(transation)
 
     async def compute_utp_account_address(self, account_number: int = 0):
         """[Internal]"""
@@ -503,7 +503,6 @@ class UtpMangoAccount(UtpAccount):
 
         :returns: Health cache for the Mango UTP
         """
-        pass
 
 
 def get_mango_account_pda(

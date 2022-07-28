@@ -27,17 +27,20 @@ test-cov:  ## Generate coverage report
 ##@ Type-checking / Linting
 lint:  ## Run type and format checkers
 	make lint-code
-	make lint-docs
+	# make lint-docs
 
 lint-code:
 	poetry run mypy src
 	poetry run black --check --preview --diff src tests
 	poetry run flake8 src tests
-	poetry run pylint --rcfile=.pylintrc src tests
-	poetry run isort --check-only src tests
+	poetry run pylint --rcfile=.pylintrc src
+	poetry run isort --check-only src
 
 lint-docs:
-	poetry run pydocstyle src tests
+	poetry run pydocstyle src
+
+lint-tests:
+	poetry run pydocstyle tests
 
 format:
 	poetry run black --preview .

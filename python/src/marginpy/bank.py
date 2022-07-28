@@ -8,8 +8,6 @@ from marginpy.generated_client.types import LendingSideKind, MarginRequirementKi
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.generated_client.types.margin_requirement import Init, Maint
 
-# pylint: disable=too-many-instance-attributes
-
 
 class Bank:
     scaling_factor_c: float

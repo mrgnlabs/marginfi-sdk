@@ -8,6 +8,8 @@ from marginpy.utils import handle_override
 from marginpy.utp.mango.config import MangoConfig
 from marginpy.utp.zo.config import ZoConfig
 
+# pylint: disable=dangerous-default-value
+
 
 @dataclass
 class MarginfiDedicatedConfig:
@@ -73,7 +75,7 @@ class MarginfiDedicatedConfig:
 @dataclass
 class MarginfiConfig(MarginfiDedicatedConfig):
     mango: MangoConfig
-    zo: ZoConfig  # pylint: disable=invalid-name
+    zo: ZoConfig
 
     def __init__(self, environment: Environment, overrides: Dict[str, Any] = {}):
         super().__init__(environment, overrides)

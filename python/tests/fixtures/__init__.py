@@ -36,7 +36,7 @@ from tests.utils import (
 
 REAL_ACCOUNT_PUBKEY_1 = PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9")
 REAL_ACCOUNT_PUBKEY_2 = PublicKey("7bCwUANGE8YLWVde1eqDf8zhrwaJJeCUVLGDuPABdNTe")
-7
+
 SAMPLE_ACCOUNT_PUBKEY_1 = PublicKey("4HMfMtGPdbWEnTvDSWqa9c9TxgjdfsTKM2EX5GzTLKEe")
 SAMPLE_ACCOUNT_PUBKEY_2 = PublicKey("Bt9DiJbRZXuSKhmxdSdn4jcApTs9xYqJhr5squkwo9H4")
 
@@ -132,7 +132,13 @@ def mint_fixture() -> Callable:
             basics_fixture.provider.connection
         )
         # Construct transaction
-        token, txn, _, mint_account, _ = _TokenCore._create_mint_args(
+        (
+            token,
+            txn,
+            _,
+            mint_account,
+            _,
+        ) = _TokenCore._create_mint_args(  # pylint: disable=protected-access
             basics_fixture.provider.connection,
             basics_fixture.wallet.payer,
             basics_fixture.wallet.public_key,

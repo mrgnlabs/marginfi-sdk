@@ -18,18 +18,33 @@ class ZoConfig(UtpConfig):
     dex_program: PublicKey
     group_pk: PublicKey
 
-    def __init__(
-        self, environment: Environment, overrides: Dict[str, Any] = {}
+    def __init__(  # pylint: disable=dangerous-default-value
+        self,
+        environment: Environment,
+        overrides: Dict[str, Any] = {},
     ) -> None:
-        self.utp_index = handle_override(
+        utp_index = handle_override(
             overrides=overrides, override_key="utp_index", default=UtpIndex.ZO
         )
+
         if environment == Environment.MAINNET:
-            self.program_id = handle_override(
+            program_id = handle_override(
                 overrides=overrides,
                 override_key="program_id",
                 default=PublicKey("Zo1ggzTUKMY5bYnDvT5mtVeZxzf2FaLTbKkmvGUhUQk"),
             )
+        elif environment in (Environment.DEVNET, Environment.LOCALNET):
+            program_id = handle_override(
+                overrides=overrides,
+                override_key="program_id",
+                default=PublicKey("Zo1ThtSHMh9tZGECwBDL81WJRL6s3QTHf733Tyko7KQ"),
+            )
+        else:
+            raise Exception(f"Unknown environment for Mango UTP config {environment}")
+
+        super().__init__(utp_index, program_id)
+
+        if environment == Environment.MAINNET:
             self.cluster = "mainnet"
             self.state_pk = handle_override(
                 overrides=overrides,
@@ -41,12 +56,7 @@ class ZoConfig(UtpConfig):
                 override_key="dex_program",
                 default=PublicKey("ZDx8a8jBqGmJyxi1whFxxCo5vG6Q9t4hTzW2GSixMKK"),
             )
-        elif environment == Environment.DEVNET:
-            self.program_id = handle_override(
-                overrides=overrides,
-                override_key="program_id",
-                default=PublicKey("Zo1ThtSHMh9tZGECwBDL81WJRL6s3QTHf733Tyko7KQ"),
-            )
+        elif environment in (Environment.DEVNET, Environment.LOCALNET):
             self.cluster = "devnet"
             self.state_pk = handle_override(
                 overrides=overrides,
@@ -58,7 +68,5 @@ class ZoConfig(UtpConfig):
                 override_key="dex_program",
                 default=PublicKey("ZDxUi178LkcuwdxcEqsSo2E7KATH99LAAXN5LcSVMBC"),
             )
-        elif environment == Environment.LOCALNET:
-            pass
         else:
             raise Exception(f"Unknown environment for Zo UTP config {environment}")

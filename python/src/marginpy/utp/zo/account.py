@@ -43,14 +43,12 @@ from marginpy.utp.zo.instruction import (
     make_withdraw_ix,
 )
 from marginpy.utp.zo.utils import CONTROL_ACCOUNT_SIZE
-from marginpy.utp.zo.utils.copy_pasta.types import OrderType
-from marginpy.utp.zo.utils.copy_pasta.util import (
+from marginpy.utp.zo.utils.client import Zo
+from marginpy.utp.zo.utils.client.types import OrderType
+from marginpy.utp.zo.utils.client.util import (
     compute_taker_fee,
     price_to_lots,
     size_to_lots,
-)
-from marginpy.utp.zo.utils.copy_pasta.zo import (
-    Zo,  # type: ignore # TODO solve this lint issue
 )
 
 if TYPE_CHECKING:
@@ -330,14 +328,14 @@ class UtpZoAccount(UtpAccount):
         size: float,
         limit: int = 10,
         client_id: int = 0,
-    ):
+    ):  # pylint: disable=too-many-arguments, too-many-locals
         """
         Create transaction instruction to place a perp order.
 
         :returns: Transaction instruction
         """
 
-        request_cu_ix = make_request_units_ix(units=400_000, additionalFee=0)
+        request_cu_ix = make_request_units_ix(units=400_000, additional_fee=0)
 
         zo_authority_pk, _ = await self.authority()
 
@@ -414,7 +412,7 @@ class UtpZoAccount(UtpAccount):
         size: float,
         limit: int = 10,
         client_id: int = 0,
-    ):
+    ):  # pylint: disable=too-many-arguments
         """
         Place a perp order.
 

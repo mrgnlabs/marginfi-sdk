@@ -1,10 +1,9 @@
-# type: ignore
 import asyncio
 import json
 import os
 from datetime import datetime
 from datetime import timezone as tz
-from typing import Any, Callable, Generic, Literal, TypeVar
+from typing import Any, Callable, Generic, List, Literal, TypeVar, Union
 
 from anchorpy import Idl, Program, Provider, Wallet
 from solana.keypair import Keypair
@@ -12,7 +11,6 @@ from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.commitment import Commitment, Processed
 from solana.rpc.types import TxOpts
-from typing_extensions import Self
 
 from . import types, util
 from .config import Config, configs
@@ -53,8 +51,8 @@ class Zo:
     dex_markets: dict[str, Market]
     _orders: dict[str, list[Order]]
 
-    markets_map: dict[str | int, str]
-    collaterals_map: dict[str | int, str]
+    _markets_map: dict[str | int, str]
+    _collaterals_map: dict[str | int, str]
 
     state: Any
     state_signer: PublicKey
@@ -92,7 +90,7 @@ class Zo:
             skip_confirmation=False,
             skip_preflight=False,
         ),
-    ) -> Self:
+    ):
         """Create a new client instance.
 
         Args:
@@ -113,7 +111,7 @@ class Zo:
         config = configs[cluster]
 
         if url is None:
-            url = config.CLUSTER_URL
+            url = config.cluster_url
 
         idl_path = os.path.join(os.path.dirname(__file__), "../idl.json")
         with open(idl_path) as f:
@@ -122,17 +120,17 @@ class Zo:
         idl = Idl.from_json(raw_idl)
         wallet = Wallet(payer) if payer is not None else Wallet.local()
         provider = Provider(conn, wallet, opts=tx_opts)
-        program = Program(idl, config.ZO_PROGRAM_ID, provider=provider)
+        program = Program(idl, config.zo_program_id, provider=provider)
 
-        state = await program.account["State"].fetch(config.ZO_STATE_ID)
+        state = await program.account["State"].fetch(config.zo_state_id)
         state_signer, state_signer_nonce = util.state_signer_pda(
-            state=config.ZO_STATE_ID, program_id=config.ZO_PROGRAM_ID
+            state=config.zo_state_id, program_id=config.zo_program_id
         )
 
         if state.signer_nonce != state_signer_nonce:
             raise ValueError(
-                f"Invalid state key ({config.ZO_STATE_ID}) for program id"
-                f" ({config.ZO_PROGRAM_ID})"
+                f"Invalid state key ({config.zo_state_id}) for program id"
+                f" ({config.zo_program_id})"
             )
 
         margin = None
@@ -200,7 +198,7 @@ class Zo:
     async def refresh(self, *, commitment: Commitment = Processed):
         """Refresh the loaded accounts to see updates."""
         self.state, self.cache, _ = await asyncio.gather(
-            self._program.account["State"].fetch(self.config.ZO_STATE_ID, commitment),
+            self._program.account["State"].fetch(self.config.zo_state_id, commitment),
             self._program.account["Cache"].fetch(self.state.cache, commitment),
             self.__refresh_margin(),
         )
@@ -405,7 +403,7 @@ class Zo:
         }
 
     async def __reload_orders(self, *, commitment: None | Commitment = None):
-        ks = []
+        ks: List[Union[PublicKey, str]] = []
         for i in range(len(self._markets)):
             mkt = self.dex_markets[self._markets_map[i]]
             ks.extend((mkt.bids, mkt.asks))

@@ -107,10 +107,10 @@ class MarginfiClient:
             ),
             self.program_id,
         )
-        transaction = Transaction().add(
+        tx = Transaction().add(
             create_marginfi_account_account_ix, init_marginfi_account_ix
         )
-        sig = await self._program.provider.send(transaction, signers=[account_keypair])
+        sig = await self._program.provider.send(tx, signers=[account_keypair])
         await self._program.provider.connection.confirm_transaction(sig)
         account = await marginpy.MarginfiAccount.fetch(account_pk, self)
         return account, sig

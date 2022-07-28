@@ -1,4 +1,3 @@
-# type: ignore
 import base64
 import enum
 import struct
@@ -243,18 +242,19 @@ class Orderbook:
             )
             for o in bids.__reversed__()
         ]
+
         self.asks = [
             Order._make(
-                [
+                (
                     *o,
-                    util.lots_to_price(o.key >> 64, **kw),
+                    util.lots_to_price(o.key >> 64, **kw),  # type: ignore
                     util.lots_to_size(
-                        o.quantity,
+                        o.quantity,  # type: ignore
                         decimals=mkt.base_decimals,
                         lot_size=mkt.base_lot_size,
                     ),
                     "ask",
-                ]
+                )  # type: ignore
             )
             for o in asks
         ]

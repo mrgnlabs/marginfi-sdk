@@ -9,7 +9,7 @@ from solana.rpc.commitment import Finalized
 from solana.rpc.types import TxOpts
 from solana.sysvar import SYSVAR_RENT_PUBKEY
 
-from marginpy.utp.zo.utils.copy_pasta.types import PerpType
+from marginpy.utp.zo.utils.client.types import PerpType
 
 CONTROL_ACCOUNT_SIZE = 8 + 4482
 

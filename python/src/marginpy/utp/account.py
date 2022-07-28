@@ -4,9 +4,9 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import TYPE_CHECKING, List
 
-import solana.system_program as system_program
 import spl.token.instructions as spl_token_ixs
 from anchorpy import Program
+from solana import system_program
 from solana.publickey import PublicKey
 from solana.transaction import AccountMeta, TransactionInstruction, TransactionSignature
 from spl.token.constants import ACCOUNT_LEN, TOKEN_PROGRAM_ID
@@ -140,14 +140,11 @@ class UtpAccount(ABC):
     async def authority(self, seed: PublicKey = None):
         """UTP authority (PDA)"""
 
-        if self.config.program_id is None:
-            raise Exception
-        else:
-            return get_utp_authority(
-                self.config.program_id,
-                seed if seed is not None else self._utp_config.authority_seed,
-                self._program.program_id,
-            )
+        return get_utp_authority(
+            self.config.program_id,
+            seed if seed is not None else self._utp_config.authority_seed,
+            self._program.program_id,
+        )
 
     # --- Others
 

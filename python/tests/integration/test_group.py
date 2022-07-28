@@ -44,7 +44,7 @@ class TestMarginfiGroupLocalnet:
         program = basics_fixture.program
 
         mint_pk, _ = await create_collateral_mint(wallet, program)
-        group_pk, sig = await create_marginfi_group(mint_pk, wallet, program)
+        group_pk, _ = await create_marginfi_group(mint_pk, wallet, program)
 
         config = MarginfiConfig(
             Environment.LOCALNET,

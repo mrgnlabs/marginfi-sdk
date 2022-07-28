@@ -72,7 +72,7 @@ class MarginfiGroup:
         :param account_raw Decoded marginfi group data
         :returns: MarginfiGroup instance
         """
-        if not (account_raw.bank.mint == config.collateral_mint_pk):
+        if not account_raw.bank.mint == config.collateral_mint_pk:
             raise Exception(
                 f"Marginfi group uses collateral {account_raw.bank.mint}. Expected:"
                 f" {config.collateral_mint_pk}"

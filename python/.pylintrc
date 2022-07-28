@@ -10,7 +10,9 @@ fail-under=9.95
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=CVS
+ignore=CVS,
+       generated_client,
+       src/marginpy/utp/zo/utils/client
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
@@ -74,6 +76,10 @@ disable=raw-checker-failed,
         missing-module-docstring,
         missing-class-docstring,
         missing-function-docstring,
+        too-many-instance-attributes,
+        too-many-public-methods,
+        too-few-public-methods,
+        cyclic-import # should disable that once we get rid of warnings from `marginpy.utp.zo.utils.__init__` 
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -351,7 +357,11 @@ function-naming-style=snake_case
 #function-rgx=
 
 # Good variable names which should always be accepted, separated by a comma.
-good-names=i,
+good-names=tx,
+           zo,
+           hi,
+           lo,
+           i,
            j,
            k,
            e,

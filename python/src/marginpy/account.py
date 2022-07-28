@@ -57,7 +57,7 @@ class MarginfiAccount:
     mango: UtpMangoAccount
     zo: UtpZoAccount
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         marginfi_account_pk: PublicKey,
         authority: PublicKey,
@@ -120,7 +120,7 @@ class MarginfiAccount:
 
         # @todo logging may need to be taken to the finish line
         logging.debug(
-            f"mfi:margin-account Loaded marginfi account {marginfi_account_pk}"
+            "mfi:margin-account Loaded marginfi account %s", marginfi_account_pk
         )
 
         return marginfi_account
@@ -145,7 +145,7 @@ class MarginfiAccount:
         :returns: marginfi account instance
         """
 
-        if not (account_data.marginfi_group == client.config.group_pk):
+        if not account_data.marginfi_group == client.config.group_pk:
             raise Exception(
                 f"Marginfi account tied to group {account_data.marginfi_group}."
                 f" Expected: {client.config.group_pk}"
@@ -280,7 +280,7 @@ class MarginfiAccount:
         )
         if data is None:
             raise Exception(f"Account {marginfi_account_pk} not found")
-        if not (data.marginfi_group == config.group_pk):
+        if not data.marginfi_group == config.group_pk:
             raise Exception(
                 f"Marginfi account tied to group {data.marginfi_group}. Expected:"
                 f" {config.group_pk}"
@@ -332,7 +332,7 @@ class MarginfiAccount:
         :param observe_utps: [optional] flag to request UTP observation as well
         """
 
-        logging.debug(f"PublicKey: {self.pubkey}. Reloading account data")
+        logging.debug("PublicKey: %s. Reloading account data", self.pubkey)
 
         marginfi_group_ai, marginfi_account_ai = await self.load_group_and_account_ai()
         marginfi_account_data = MarginfiAccount.decode(b64str_to_bytes(marginfi_account_ai.data[0]))  # type: ignore
@@ -348,9 +348,9 @@ class MarginfiAccount:
             b64str_to_bytes(marginfi_group_ai.data[0]),  # type: ignore
         )
         self._update_from_account_data(marginfi_account_data)
-        # @todo
-        # if observe_utps:
-        # self.observe_utps()
+
+        if observe_utps:
+            pass  # self.observe_utps()
 
     def _update_from_account_data(self, data: MarginfiAccountData) -> None:
         """
@@ -550,7 +550,9 @@ class MarginfiAccount:
 
     async def load_group_and_account_ai(self) -> Tuple[AccountInfo, AccountInfo]:
         logging.debug(
-            f"Loading marginfi account {self.pubkey}, and group {self._config.group_pk}"
+            "Loading marginfi account %s, and group %s",
+            self.pubkey,
+            self._config.group_pk,
         )
 
         pubkeys = [self._config.group_pk, self.pubkey]
