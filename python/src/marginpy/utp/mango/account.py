@@ -27,7 +27,7 @@ from marginpy.generated_client.types.utp_mango_place_perp_order_args import (
 from marginpy.types import UtpMangoPlacePerpOrderOptions
 from marginpy.utils import get_bank_authority, ui_to_native
 from marginpy.utp.account import UtpAccount
-from marginpy.utp.mango.instruction import (
+from marginpy.utp.mango.instructions import (
     ActivateAccounts,
     ActivateArgs,
     CancelPerpOrderAccounts,

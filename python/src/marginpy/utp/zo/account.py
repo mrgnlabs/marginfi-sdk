@@ -21,7 +21,7 @@ from marginpy.generated_client.types.utp_zo_place_perp_order_ix_args import (
 from marginpy.types import InstructionsWrapper
 from marginpy.utils import get_bank_authority, make_request_units_ix, ui_to_native
 from marginpy.utp.account import UtpAccount
-from marginpy.utp.zo.instruction import (
+from marginpy.utp.zo.instructions import (
     ActivateAccounts,
     ActivateArgs,
     CancelPerpOrderAccounts,
