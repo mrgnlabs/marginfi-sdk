@@ -1,4 +1,4 @@
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Literal
 from solana.publickey import PublicKey
 from marginpy.config import Environment
 from marginpy.utils import handle_override
@@ -12,8 +12,8 @@ class MangoConfig(UTPConfig):
     Define Mango-specific config per profile
     """
 
-    cluster: Optional[Literal["devnet", "mainnet"]]
-    group_pk: Optional[PublicKey]
+    cluster: Literal["devnet", "mainnet"]
+    group_pk: PublicKey
 
     def __init__(
         self, environment: Environment, overrides: Dict[str, Any] = {}
@@ -46,9 +46,5 @@ class MangoConfig(UTPConfig):
                 override_key="group_pk",
                 default=PublicKey("Ec2enZyoC4nGpEfu2sUNAa2nUGJHWxoUWYSEJ2hNTWTA"),
             )
-        elif environment == Environment.LOCALNET:
-            self.cluster = None
-            self.program_id = None
-            self.group_pk = None
         else:
             raise Exception(f"Unknown environment for Mango UTP config {environment}")

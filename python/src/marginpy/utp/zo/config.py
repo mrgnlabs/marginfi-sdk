@@ -1,4 +1,4 @@
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Literal
 from solana.publickey import PublicKey
 from marginpy.config import Environment
 from marginpy.types import UtpConfig, UtpIndex
@@ -11,10 +11,10 @@ class ZoConfig(UtpConfig):
     Define Zo-specific config per profile
     """
 
-    cluster: Optional[Literal["devnet", "mainnet"]]
+    cluster: Literal["devnet", "mainnet"]
     state_pk: PublicKey
     dex_program: PublicKey
-    group_pk: Optional[PublicKey]
+    group_pk: PublicKey
 
     def __init__(
         self, environment: Environment, overrides: Dict[str, Any] = {}
@@ -56,9 +56,5 @@ class ZoConfig(UtpConfig):
                 override_key="dex_program",
                 default=PublicKey("ZDxUi178LkcuwdxcEqsSo2E7KATH99LAAXN5LcSVMBC"),
             )
-        elif environment == Environment.LOCALNET:
-            self.cluster = None
-            self.program_id = None
-            self.group_pk = None
         else:
             raise Exception(f"Unknown environment for Zo UTP config {environment}")
