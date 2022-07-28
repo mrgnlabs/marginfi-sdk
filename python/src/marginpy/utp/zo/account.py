@@ -16,7 +16,7 @@ from solana.transaction import (
 )
 from solana.system_program import create_account, CreateAccountParams
 from solana.publickey import PublicKey
-from typing import TYPE_CHECKING, List, Tuple, Optional
+from typing import TYPE_CHECKING, List, Tuple
 from marginpy.utp.zo.instruction import (
     ActivateAccounts,
     ActivateArgs,
@@ -39,14 +39,13 @@ from marginpy.utp.zo.instruction import (
     make_settle_funds_ix,
 )
 from marginpy.utp.zo.utils import CONTROL_ACCOUNT_SIZE
-from marginpy.utp.zo.utils.copy_pasta.types import OrderType, order_type_from_str
+from marginpy.utp.zo.utils.copy_pasta.types import OrderType
 from marginpy.utp.zo.utils.copy_pasta.util import (
     compute_taker_fee,
     price_to_lots,
     size_to_lots,
 )
 from marginpy.utp.zo.utils.copy_pasta.zo import Zo
-from marginpy.utp.zo.utils.copy_pasta.config import configs
 
 if TYPE_CHECKING:
     from marginpy import MarginfiClient, MarginfiAccount

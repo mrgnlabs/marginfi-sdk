@@ -11,7 +11,6 @@ from marginpy.generated_client.types.mango_order_type import (
     ImmediateOrCancel,
     MangoOrderTypeKind,
 )
-from marginpy.generated_client.types.mango_side import Ask
 from marginpy.generated_client.types.utp_mango_place_perp_order_args import (
     UtpMangoPlacePerpOrderArgs,
 )
