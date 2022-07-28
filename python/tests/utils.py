@@ -25,7 +25,6 @@ from spl.token.instructions import (
 )
 
 from marginpy import (
-    BankVaultType,
     Environment,
     MarginfiAccount,
     MarginfiClient,
@@ -36,7 +35,7 @@ from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccoun
 from marginpy.generated_client.accounts import MarginfiGroup as MarginfiGroupData
 
 # --- Marginfi group
-from marginpy.instruction import (
+from marginpy.instructions import (
     ConfigureMarginfiGroupAccounts,
     ConfigureMarginfiGroupArgs,
     InitMarginfiGroupAccounts,
@@ -44,7 +43,7 @@ from marginpy.instruction import (
     make_configure_marginfi_group_ix,
     make_init_marginfi_group_ix,
 )
-from marginpy.types import BankConfig, GroupConfig
+from marginpy.types import BankConfig, BankVaultType, GroupConfig
 from marginpy.utils import (
     b64str_to_bytes,
     get_bank_authority,

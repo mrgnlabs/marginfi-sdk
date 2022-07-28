@@ -52,7 +52,8 @@ from marginpy.utp.zo.utils.client.util import (
 )
 
 if TYPE_CHECKING:
-    from marginpy import MarginfiAccount, MarginfiClient, UtpData
+    from marginpy import MarginfiAccount, MarginfiClient
+    from marginpy.types import UtpData
 
 
 class UtpZoAccount(UtpAccount):

@@ -1,6 +1,6 @@
+from . import mango, zo
 from .account import UtpAccount
 from .observation import EMPTY_OBSERVATION, IUtpObservation, UtpObservation
-from . import mango, zo
 
 __all__ = [
     "UtpAccount",

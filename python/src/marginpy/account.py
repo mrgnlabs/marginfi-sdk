@@ -14,12 +14,11 @@ from solana.transaction import (
 )
 from spl.token.instructions import get_associated_token_address
 
-
 from marginpy.decimal import Decimal
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.group import MarginfiGroup
-from marginpy.instruction import (
+from marginpy.instructions import (
     DeactivateUtpAccounts,
     DeactivateUtpArgs,
     DepositAccounts,

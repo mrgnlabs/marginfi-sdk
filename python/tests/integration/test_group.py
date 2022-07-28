@@ -6,9 +6,9 @@ from pytest import mark
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 
-from marginpy import Environment, MarginfiConfig, MarginfiGroup, load_idl
+from marginpy import Environment, MarginfiConfig, MarginfiGroup
 from marginpy.types import BankConfig, GroupConfig
-from marginpy.utils import b64str_to_bytes
+from marginpy.utils import b64str_to_bytes, load_idl
 from tests.config import DEVNET_URL
 from tests.fixtures import (
     Basics,

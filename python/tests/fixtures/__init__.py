@@ -21,11 +21,11 @@ from marginpy import (
     MarginfiClient,
     MarginfiConfig,
     MarginfiGroup,
-    load_idl,
 )
 from marginpy.generated_client.types import Bank as BankDecoded
 from marginpy.generated_client.types import MDecimal as DecimalData
 from marginpy.types import BankConfig, GroupConfig
+from marginpy.utils import load_idl
 from tests.config import LOCALNET_URL
 from tests.utils import (
     airdrop_collateral,

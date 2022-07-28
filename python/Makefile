@@ -21,8 +21,11 @@ test-localnet:  ## Run localnet tests
 test-devnet:  ## Run devnet tests
 	poetry run pytest -vv -m devnet
 
-test-cov:  ## Generate coverage report
-	poetry run pytest --cov -s
+coverage:  ## Generate coverage report
+	poetry run pytest --cov --cov-report=html:coverage_html_report -s
+
+serve-cov:   ## Serve coverage HTML report
+	python -m http.server -d coverage_html_report --bind 127.0.0.1
 
 ##@ Type-checking / Linting
 lint:  ## Run type and format checkers

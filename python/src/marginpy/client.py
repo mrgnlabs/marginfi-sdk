@@ -16,7 +16,7 @@ from solana.transaction import Transaction, TransactionSignature
 
 from marginpy.account import MarginfiAccount
 from marginpy.group import MarginfiGroup
-from marginpy.instruction import (
+from marginpy.instructions import (
     InitMarginfiAccountAccounts,
     make_init_marginfi_account_ix,
 )
