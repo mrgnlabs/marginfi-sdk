@@ -1,7 +1,7 @@
 from typing import Any, Dict, Literal, Optional
 from solana.publickey import PublicKey
 from marginpy.config import Environment
-from marginpy.types import UtpConfig
+from marginpy.types import UtpConfig, UtpIndex
 from marginpy.utils import handle_override
 
 
@@ -19,10 +19,10 @@ class ZoConfig(UtpConfig):
     def __init__(
         self, environment: Environment, overrides: Dict[str, Any] = {}
     ) -> None:
+        self.utp_index = handle_override(
+            overrides=overrides, override_key="utp_index", default=UtpIndex.Zo
+        )
         if environment == Environment.MAINNET:
-            self.utp_index = handle_override(
-                overrides=overrides, override_key="utp_index", default=1
-            )
             self.program_id = handle_override(
                 overrides=overrides,
                 override_key="program_id",
@@ -40,9 +40,6 @@ class ZoConfig(UtpConfig):
                 default=PublicKey("ZDx8a8jBqGmJyxi1whFxxCo5vG6Q9t4hTzW2GSixMKK"),
             )
         elif environment == Environment.DEVNET:
-            self.utp_index = handle_override(
-                overrides=overrides, override_key="utp_index", default=1
-            )
             self.program_id = handle_override(
                 overrides=overrides,
                 override_key="program_id",

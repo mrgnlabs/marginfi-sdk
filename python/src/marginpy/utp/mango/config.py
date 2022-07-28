@@ -3,6 +3,7 @@ from solana.publickey import PublicKey
 from marginpy.config import Environment
 from marginpy.utils import handle_override
 from marginpy.generated_client.types.utp_config import UTPConfig
+from marginpy.types import UtpIndex
 
 
 class MangoConfig(UTPConfig):
@@ -18,7 +19,7 @@ class MangoConfig(UTPConfig):
         self, environment: Environment, overrides: Dict[str, Any] = {}
     ) -> None:
         self.utp_index = handle_override(
-            overrides=overrides, override_key="utp_index", default=0
+            overrides=overrides, override_key="utp_index", default=UtpIndex.Mango
         )
 
         if environment == Environment.MAINNET:
