@@ -1,5 +1,5 @@
 import logging
-from typing import Tuple, List
+from typing import List, Tuple
 
 from anchorpy import AccountsCoder
 from solana.publickey import PublicKey
@@ -8,37 +8,37 @@ from solana.rpc.responses import AccountInfo
 from solana.rpc.types import RPCResponse
 from solana.transaction import (
     AccountMeta,
-    TransactionInstruction,
     Transaction,
+    TransactionInstruction,
     TransactionSignature,
 )
 from spl.token.instructions import get_associated_token_address
 
 import marginpy
-from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
-from marginpy.generated_client.types.lending_side import Deposit, Borrow
 from marginpy.decimal import Decimal
+from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
+from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.instruction import (
-    make_deposit_ix,
+    DeactivateUtpAccounts,
+    DeactivateUtpArgs,
     DepositAccounts,
     DepositArgs,
-    WithdrawArgs,
-    WithdrawAccounts,
-    make_withdraw_ix,
-    DeactivateUtpArgs,
-    DeactivateUtpAccounts,
-    make_deactivate_utp_ix,
     HandleBankruptcyAccounts,
+    WithdrawAccounts,
+    WithdrawArgs,
+    make_deactivate_utp_ix,
+    make_deposit_ix,
     make_handle_bankruptcy_ix,
+    make_withdraw_ix,
 )
 from marginpy.types import UtpData, UtpIndex
 from marginpy.utils import (
-    load_idl,
-    json_to_account_info,
-    b64str_to_bytes,
-    ui_to_native,
-    get_bank_authority,
     BankVaultType,
+    b64str_to_bytes,
+    get_bank_authority,
+    json_to_account_info,
+    load_idl,
+    ui_to_native,
 )
 from marginpy.utp.mango.account import UtpMangoAccount
 from marginpy.utp.zo.account import UtpZoAccount

@@ -1,12 +1,10 @@
 from datetime import datetime
 
 from solana.publickey import PublicKey
+
 from marginpy.decimal import Decimal
-from marginpy.generated_client.types import (
-    Bank as BankDecoded,
-    LendingSideKind,
-    MarginRequirementKind,
-)
+from marginpy.generated_client.types import Bank as BankDecoded
+from marginpy.generated_client.types import LendingSideKind, MarginRequirementKind
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.generated_client.types.margin_requirement import Init, Maint
 

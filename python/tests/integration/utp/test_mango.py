@@ -1,16 +1,12 @@
+import mango
 from pytest import mark, raises
+
+import marginpy.generated_client.types.mango_side as mango_side
+from marginpy import Environment
 from marginpy.generated_client.types.mango_order_type import PostOnlySlide
 from marginpy.types import UtpMangoPlacePerpOrderOptions
 from tests.config import DEVNET_URL
-from tests.fixtures import (
-    basics_fixture,
-    MangoBench,
-    mango_bench,
-)
-from marginpy import Environment
-import mango
-import marginpy.generated_client.types.mango_side as mango_side
-
+from tests.fixtures import MangoBench, basics_fixture, mango_bench
 
 basics_fixture = basics_fixture(environment=Environment.DEVNET, rpc_url=DEVNET_URL)
 mango_bench = mango_bench()

@@ -1,18 +1,19 @@
+from anchorpy import Program, Provider, Wallet
 from pytest import mark
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
-from anchorpy import Wallet, Program, Provider
-from marginpy import MarginfiConfig, Environment, MarginfiClient, MarginfiAccount
+
+from marginpy import Environment, MarginfiAccount, MarginfiClient, MarginfiConfig
 from marginpy.types import UtpData, UtpIndex
 from marginpy.utils import b64str_to_bytes, load_idl
+from marginpy.utp.mango import UtpMangoAccount
 from tests.fixtures import REAL_ACCOUNT_PUBKEY_2
 from tests.utils import (
     load_marginfi_account,
+    load_marginfi_account_data,
     load_marginfi_group,
     load_sample_account_info,
-    load_marginfi_account_data,
 )
-from marginpy.utp.mango import UtpMangoAccount
 
 
 @mark.unit

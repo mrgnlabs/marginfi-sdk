@@ -34,12 +34,14 @@ lint-code:
 	poetry run black --check --preview --diff src tests
 	poetry run flake8 src tests
 	poetry run pylint --rcfile=.pylintrc src tests
+	poetry run isort --check-only src tests
 
 lint-docs:
 	poetry run pydocstyle src tests
 
 format:
 	poetry run black --preview .
+	poetry run isort src tests
 
 ##@ Publishing
 publish:  ## Publish to pypi

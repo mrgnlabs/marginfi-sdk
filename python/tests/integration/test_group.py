@@ -1,30 +1,30 @@
 from os import path
 from pathlib import Path
 
-from anchorpy import localnet_fixture, Wallet, Provider, Program
+from anchorpy import Program, Provider, Wallet, localnet_fixture
 from pytest import mark
-from solana.rpc.async_api import AsyncClient
 from solana.publickey import PublicKey
+from solana.rpc.async_api import AsyncClient
 
-from marginpy import MarginfiConfig, Environment, load_idl, MarginfiGroup
-from marginpy.utils import b64str_to_bytes
-from tests.utils import (
-    create_collateral_mint,
-    create_marginfi_group,
-    load_sample_account_info,
-    load_marginfi_group_data,
-    configure_marginfi_group,
-)
+from marginpy import Environment, MarginfiConfig, MarginfiGroup, load_idl
 from marginpy.types import BankConfig, GroupConfig
+from marginpy.utils import b64str_to_bytes
 from tests.config import DEVNET_URL
 from tests.fixtures import (
+    Basics,
+    Bench,
     User,
-    user_fixture,
+    basics_fixture,
     bench_fixture,
     mint_fixture,
-    basics_fixture,
-    Bench,
-    Basics,
+    user_fixture,
+)
+from tests.utils import (
+    configure_marginfi_group,
+    create_collateral_mint,
+    create_marginfi_group,
+    load_marginfi_group_data,
+    load_sample_account_info,
 )
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))

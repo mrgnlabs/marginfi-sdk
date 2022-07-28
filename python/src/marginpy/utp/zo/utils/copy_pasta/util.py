@@ -1,12 +1,13 @@
-from typing import Tuple
 import math
-from anchorpy import Program, Context
-from solana.publickey import PublicKey
+from typing import Tuple
+
+import solana.system_program
+from anchorpy import Context, Program
 from solana.keypair import Keypair
+from solana.publickey import PublicKey
 from solana.rpc.commitment import Finalized
 from solana.rpc.types import TxOpts
 from solana.sysvar import SYSVAR_RENT_PUBKEY
-import solana.system_program
 
 from marginpy.utp.zo.utils.copy_pasta.types import PerpType
 

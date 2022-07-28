@@ -1,9 +1,11 @@
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import List, Optional
+
 from solana.publickey import PublicKey
 from solana.system_program import SYS_PROGRAM_ID
 from solana.transaction import AccountMeta, TransactionInstruction
 from spl.token.constants import TOKEN_PROGRAM_ID
+
 import marginpy.generated_client.instructions as gen_ix
 
 

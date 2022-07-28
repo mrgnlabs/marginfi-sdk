@@ -1,7 +1,7 @@
+from solana.publickey import PublicKey
 from testfixtures import compare
 
-from solana.publickey import PublicKey
-from marginpy import MarginfiConfig, Environment
+from marginpy import Environment, MarginfiConfig
 
 
 class TestEnvironment:

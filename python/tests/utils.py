@@ -1,58 +1,57 @@
 import json
 import os
-from typing import Tuple, List
+from typing import List, Tuple
 
-from anchorpy import Wallet, Program, Provider
+import spl.token.instructions as spl_token_ixs
+from anchorpy import Program, Provider, Wallet
 from solana.keypair import Keypair
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.commitment import Confirmed
 from solana.rpc.responses import AccountInfo
-from solana.system_program import create_account, CreateAccountParams
+from solana.rpc.types import TxOpts
+from solana.system_program import CreateAccountParams, create_account
 from solana.transaction import (
-    TransactionInstruction,
-    Transaction,
-    TransactionSignature,
     AccountMeta,
+    Transaction,
+    TransactionInstruction,
+    TransactionSignature,
 )
 from spl.token.async_client import AsyncToken
-from spl.token.constants import TOKEN_PROGRAM_ID, ACCOUNT_LEN, MINT_LEN
+from spl.token.constants import ACCOUNT_LEN, MINT_LEN, TOKEN_PROGRAM_ID
 from spl.token.instructions import (
     create_associated_token_account,
     get_associated_token_address,
 )
-from tests.config import LOCALNET_URL, DEVNET_URL
-import spl.token.instructions as spl_token_ixs
-from solana.rpc.types import TxOpts
+
 from marginpy import (
-    MarginfiAccount,
-    MarginfiConfig,
-    Environment,
-    MarginfiClient,
-    MarginfiGroup,
     BankVaultType,
+    Environment,
+    MarginfiAccount,
+    MarginfiClient,
+    MarginfiConfig,
+    MarginfiGroup,
 )
-from marginpy.generated_client.accounts import (
-    MarginfiAccount as MarginfiAccountData,
-    MarginfiGroup as MarginfiGroupData,
-)
-from marginpy.types import BankConfig, GroupConfig
+from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
+from marginpy.generated_client.accounts import MarginfiGroup as MarginfiGroupData
 
 # --- Marginfi group
 from marginpy.instruction import (
-    make_init_marginfi_group_ix,
-    InitMarginfiGroupArgs,
-    InitMarginfiGroupAccounts,
-    make_configure_marginfi_group_ix,
-    ConfigureMarginfiGroupArgs,
     ConfigureMarginfiGroupAccounts,
+    ConfigureMarginfiGroupArgs,
+    InitMarginfiGroupAccounts,
+    InitMarginfiGroupArgs,
+    make_configure_marginfi_group_ix,
+    make_init_marginfi_group_ix,
 )
+from marginpy.types import BankConfig, GroupConfig
 from marginpy.utils import (
-    json_to_account_info,
     b64str_to_bytes,
-    load_idl,
     get_bank_authority,
+    json_to_account_info,
+    load_idl,
 )
+from tests.config import DEVNET_URL, LOCALNET_URL
 
 
 async def create_collateral_mint(

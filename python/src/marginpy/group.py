@@ -1,15 +1,15 @@
-from anchorpy import Program, AccountsCoder
+from anchorpy import AccountsCoder, Program
 from solana.publickey import PublicKey
-from solana.transaction import TransactionInstruction, Transaction, TransactionSignature
+from solana.transaction import Transaction, TransactionInstruction, TransactionSignature
 
 from marginpy.bank import Bank
 from marginpy.config import MarginfiConfig
 from marginpy.generated_client.accounts import MarginfiGroup as MarginfiGroupDecoded
-from marginpy.utils import load_idl, get_bank_authority
 from marginpy.instruction import (
     UpdateInterestAccumulatorAccounts,
     make_update_interest_accumulator_ix,
 )
+from marginpy.utils import get_bank_authority, load_idl
 
 
 class MarginfiGroup:

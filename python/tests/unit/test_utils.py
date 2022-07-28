@@ -1,12 +1,13 @@
-import os
 import json
-from pytest import mark
-from testfixtures import compare
+import os
+
 from anchorpy import Idl
+from pytest import mark
+from solana.publickey import PublicKey
+from testfixtures import compare
+
 from marginpy.types import BankVaultType
 from marginpy.utils import get_bank_authority, get_utp_authority, load_idl
-from solana.publickey import PublicKey
-
 from marginpy.utp.mango.account import get_mango_account_pda
 
 

@@ -1,20 +1,23 @@
 """This module contains the Provider class and associated utilities."""
 from __future__ import annotations
+
 from builtins import enumerate
 from typing import List, Tuple
-from anchorpy import Wallet, Provider, Program, AccountsCoder, ProgramAccount
+
+from anchorpy import AccountsCoder, Program, ProgramAccount, Provider, Wallet
 from anchorpy.provider import DEFAULT_OPTIONS
 from based58 import b58encode
 from solana.keypair import Keypair
+from solana.publickey import PublicKey
 from solana.rpc import types
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.types import DataSliceOpts, MemcmpOpts
 from solana.transaction import Transaction, TransactionSignature
-from solana.publickey import PublicKey
+
 import marginpy
 from marginpy.instruction import (
-    make_init_marginfi_account_ix,
     InitMarginfiAccountAccounts,
+    make_init_marginfi_account_ix,
 )
 from marginpy.types import AccountType
 from marginpy.utils import load_idl

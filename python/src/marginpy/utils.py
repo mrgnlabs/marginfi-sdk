@@ -1,20 +1,22 @@
 import base64
 import json
 import os
-from typing import Dict, Any, Tuple, Optional
+from typing import Any, Dict, Optional, Tuple
+
 from anchorpy import Idl
-from solana.rpc.responses import AccountInfo
 from solana.publickey import PublicKey
+from solana.rpc.responses import AccountInfo
+from solana.transaction import TransactionInstruction
+
 from marginpy.constants import (
     COLLATERAL_DECIMALS,
-    PDA_BANK_VAULT_SEED,
-    PDA_BANK_INSURANCE_VAULT_SEED,
     PDA_BANK_FEE_VAULT_SEED,
+    PDA_BANK_INSURANCE_VAULT_SEED,
+    PDA_BANK_VAULT_SEED,
     PDA_UTP_AUTH_SEED,
     VERY_VERBOSE_ERROR,
 )
 from marginpy.types import BankVaultType
-from solana.transaction import TransactionInstruction
 
 
 def load_idl(idl_path: Optional[str] = None) -> Idl:

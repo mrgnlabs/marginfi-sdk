@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from time import sleep
-from typing import Optional, Callable, cast
+from typing import Callable, Optional, cast
 
-from anchorpy import Provider, Wallet, Program
+from anchorpy import Program, Provider, Wallet
 from pytest import fixture
 from pytest_asyncio import fixture as async_fixture
 from solana.publickey import PublicKey
@@ -16,14 +16,15 @@ from spl.token.instructions import get_associated_token_address
 
 from marginpy import (
     Bank,
-    MarginfiGroup,
-    MarginfiConfig,
     Environment,
-    load_idl,
-    MarginfiClient,
     MarginfiAccount,
+    MarginfiClient,
+    MarginfiConfig,
+    MarginfiGroup,
+    load_idl,
 )
-from marginpy.generated_client.types import MDecimal as DecimalData, Bank as BankDecoded
+from marginpy.generated_client.types import Bank as BankDecoded
+from marginpy.generated_client.types import MDecimal as DecimalData
 from marginpy.types import BankConfig, GroupConfig
 from tests.config import LOCALNET_URL
 from tests.utils import (
@@ -32,7 +33,6 @@ from tests.utils import (
     create_marginfi_group,
     get_ata_or_create,
 )
-
 
 REAL_ACCOUNT_PUBKEY_1 = PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9")
 REAL_ACCOUNT_PUBKEY_2 = PublicKey("7bCwUANGE8YLWVde1eqDf8zhrwaJJeCUVLGDuPABdNTe")

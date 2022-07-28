@@ -1,6 +1,18 @@
 from __future__ import annotations
-from typing import Tuple, List
+
+from typing import TYPE_CHECKING, List, Tuple
+
 import mango
+from solana.keypair import Keypair
+from solana.publickey import PublicKey
+from solana.transaction import (
+    AccountMeta,
+    Transaction,
+    TransactionInstruction,
+    TransactionSignature,
+)
+
+import marginpy.generated_client.types as gen_types
 from marginpy.generated_client.types.mango_expiry_type import (
     Absolute,
     MangoExpiryTypeKind,
@@ -12,44 +24,30 @@ from marginpy.generated_client.types.mango_order_type import (
 from marginpy.generated_client.types.utp_mango_place_perp_order_args import (
     UtpMangoPlacePerpOrderArgs,
 )
-from marginpy.types import (
-    UtpData,
-    UtpMangoPlacePerpOrderOptions,
-)
-from solana.transaction import (
-    AccountMeta,
-    TransactionInstruction,
-    Transaction,
-    TransactionSignature,
-)
-from solana.publickey import PublicKey
-from solana.keypair import Keypair
+from marginpy.types import UtpData, UtpMangoPlacePerpOrderOptions
 from marginpy.utils import get_bank_authority, ui_to_native
 from marginpy.utp.account import UtpAccount
 from marginpy.utp.mango.instruction import (
-    make_activate_ix,
-    ActivateArgs,
     ActivateAccounts,
-    make_deposit_ix,
-    DepositArgs,
-    DepositAccounts,
-    make_withdraw_ix,
-    WithdrawArgs,
-    WithdrawAccounts,
-    make_place_perp_order_ix,
-    PlacePerpOrderArgs,
-    PlacePerpOrderAccounts,
-    make_cancel_perp_order_ix,
-    CancelPerpOrderArgs,
+    ActivateArgs,
     CancelPerpOrderAccounts,
+    CancelPerpOrderArgs,
+    DepositAccounts,
+    DepositArgs,
+    PlacePerpOrderAccounts,
+    PlacePerpOrderArgs,
+    WithdrawAccounts,
+    WithdrawArgs,
+    make_activate_ix,
+    make_cancel_perp_order_ix,
+    make_deposit_ix,
+    make_place_perp_order_ix,
+    make_withdraw_ix,
 )
 from marginpy.utp.mango.types import USDC_TOKEN_DICT
-import marginpy.generated_client.types as gen_types
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from marginpy import MarginfiClient, MarginfiAccount
+    from marginpy import MarginfiAccount, MarginfiClient
 
 
 class UtpMangoAccount(UtpAccount):

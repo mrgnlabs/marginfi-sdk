@@ -1,44 +1,46 @@
 from __future__ import annotations
-from marginpy.generated_client.types.order_type import (
-    from_decoded,
-)  # TODO handle ambiguous `order_type` naming issue
-from marginpy.generated_client.types.utp_zo_place_perp_order_ix_args import (
-    UtpZoPlacePerpOrderIxArgs,
-)
 
-from marginpy.utils import get_bank_authority, make_request_units_ix, ui_to_native
-from marginpy.utp.account import UtpAccount
-from marginpy.types import InstructionsWrapper, UtpData
+from typing import TYPE_CHECKING, List, Tuple
+
 from solana.keypair import Keypair
+from solana.publickey import PublicKey
+from solana.system_program import CreateAccountParams, create_account
 from solana.transaction import (
     AccountMeta,
     Transaction,
-    TransactionSignature,
     TransactionInstruction,
+    TransactionSignature,
 )
-from solana.system_program import create_account, CreateAccountParams
-from solana.publickey import PublicKey
-from typing import TYPE_CHECKING, List, Tuple
+
+from marginpy.generated_client.types.order_type import (  # TODO handle ambiguous `order_type` naming issue
+    from_decoded,
+)
+from marginpy.generated_client.types.utp_zo_place_perp_order_ix_args import (
+    UtpZoPlacePerpOrderIxArgs,
+)
+from marginpy.types import InstructionsWrapper, UtpData
+from marginpy.utils import get_bank_authority, make_request_units_ix, ui_to_native
+from marginpy.utp.account import UtpAccount
 from marginpy.utp.zo.instruction import (
     ActivateAccounts,
     ActivateArgs,
+    CancelPerpOrderAccounts,
+    CancelPerpOrderArgs,
     CreatePerpOpenOrdersAccounts,
     DepositAccounts,
     DepositArgs,
+    PlacePerpOrderAccounts,
+    PlacePerpOrderArgs,
+    SettleFundsAccounts,
     WithdrawAccounts,
     WithdrawArgs,
-    PlacePerpOrderArgs,
-    PlacePerpOrderAccounts,
-    CancelPerpOrderArgs,
-    CancelPerpOrderAccounts,
-    SettleFundsAccounts,
     make_activate_ix,
+    make_cancel_perp_order_ix,
     make_create_perp_open_orders_ix,
     make_deposit_ix,
-    make_withdraw_ix,
     make_place_perp_order_ix,
-    make_cancel_perp_order_ix,
     make_settle_funds_ix,
+    make_withdraw_ix,
 )
 from marginpy.utp.zo.utils import CONTROL_ACCOUNT_SIZE
 from marginpy.utp.zo.utils.copy_pasta.types import OrderType
@@ -47,10 +49,12 @@ from marginpy.utp.zo.utils.copy_pasta.util import (
     price_to_lots,
     size_to_lots,
 )
-from marginpy.utp.zo.utils.copy_pasta.zo import Zo  # type: ignore # TODO solve this lint issue
+from marginpy.utp.zo.utils.copy_pasta.zo import (
+    Zo,  # type: ignore # TODO solve this lint issue
+)
 
 if TYPE_CHECKING:
-    from marginpy import MarginfiClient, MarginfiAccount
+    from marginpy import MarginfiAccount, MarginfiClient
 
 
 class UtpZoAccount(UtpAccount):

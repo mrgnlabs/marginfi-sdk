@@ -2,7 +2,8 @@
 import base64
 import enum
 import struct
-from typing import NewType, NamedTuple, Literal, Generator
+from typing import Generator, Literal, NamedTuple, NewType
+
 from solana.publickey import PublicKey
 
 from . import util

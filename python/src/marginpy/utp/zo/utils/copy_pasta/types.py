@@ -1,6 +1,7 @@
-from typing import Literal, Any
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any, Literal
+
 from anchorpy import Program
 from solana.publickey import PublicKey
 
