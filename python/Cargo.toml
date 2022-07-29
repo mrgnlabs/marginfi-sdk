@@ -1,0 +1,25 @@
+[package]
+name = "marginpy"
+version = "0.1.0"
+edition = "2021"
+include = ["/src", "/pyproject.toml"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "marginpy"
+path = "src/rust/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "^0.16.5", features = ["extension-module", "abi3-py37"] }
+marginfi = { path = "../../programs/marginfi", features = ["client"] }
+bytemuck = "^1.7.2"
+mango-protocol = { git = "https://github.com/mrgnlabs/mango-v3.git", rev="3589b9d35beb6a01921bc32112b694e00dfb7ccc", package= "mango", features = ["no-entrypoint", "client"] }
+mango-common = { git = "https://github.com/blockworks-foundation/mango-v3", gitref = "f4294688fb00ff18b2bf0b730d79ce005f7d124e" }
+serum_dex = { git = "https://github.com/blockworks-foundation/serum-dex.git", rev = "7f55a5ef5f7937b74381a3124021a261cd7d7283", default-features=false, features = ["no-entrypoint", "program"] }
+solana-sdk = "^1.9.13"
+fixed = { version = "^1.11.0", features = ["serde"] }
+zo-abi = { git = "https://github.com/01protocol/zo-abi.git", rev = "3ff8def2c747899c9d534f5de36988b6f0a0d46c", features = [ "cpi" ] }
+
+[package.metadata.maturin]
+python-source = "src/python"

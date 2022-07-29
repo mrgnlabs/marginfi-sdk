@@ -7,6 +7,7 @@ from marginpy.client import MarginfiClient
 from marginpy.config import MarginfiConfig
 from marginpy.group import MarginfiGroup
 from marginpy.types import Environment
+from marginpy.marginpy import utp_observation
 
 __all__ = [
     "MarginfiAccount",
@@ -19,6 +20,7 @@ __all__ = [
     "instructions",
     "constants",
     "types",
+    "utp_observation",
 ]
 
 __version__ = "0.1.0"

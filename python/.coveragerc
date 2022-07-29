@@ -1,6 +1,6 @@
 [run]
 branch = True
 omit =
-    src/marginpy/generated_client/*
-    src/marginpy/utp/zo/utils/client/*
+    src/python/marginpy/generated_client/*
+    src/python/marginpy/utp/zo/utils/client/*
     tests/*
