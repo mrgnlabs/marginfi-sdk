@@ -4,7 +4,7 @@ from marginpy import Bank
 from marginpy.generated_client.types import Bank as BankDecoded
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.generated_client.types.margin_requirement import Init, Maint
-from tests.fixtures import MDECIMAL_ZERO, SAMPLE_ACCOUNT_PUBKEY_1, SAMPLE_BANK
+from tests.fixtures import I80F48_ZERO, SAMPLE_ACCOUNT_PUBKEY_1, SAMPLE_BANK
 
 
 @mark.unit
@@ -12,27 +12,27 @@ class TestBank:
     def test___init__(self):
         bank = Bank(
             BankDecoded(
-                MDECIMAL_ZERO,
-                MDECIMAL_ZERO,
-                MDECIMAL_ZERO,
-                MDECIMAL_ZERO,
-                MDECIMAL_ZERO,
+                I80F48_ZERO,
+                I80F48_ZERO,
+                I80F48_ZERO,
+                I80F48_ZERO,
+                I80F48_ZERO,
                 0,
-                MDECIMAL_ZERO,
-                MDECIMAL_ZERO,
+                I80F48_ZERO,
+                I80F48_ZERO,
                 SAMPLE_ACCOUNT_PUBKEY_1,
                 SAMPLE_ACCOUNT_PUBKEY_1,
                 0,
                 SAMPLE_ACCOUNT_PUBKEY_1,
                 0,
-                MDECIMAL_ZERO,
+                I80F48_ZERO,
                 SAMPLE_ACCOUNT_PUBKEY_1,
                 0,
-                MDECIMAL_ZERO,
-                MDECIMAL_ZERO,
-                MDECIMAL_ZERO,
-                MDECIMAL_ZERO,
-                MDECIMAL_ZERO,
+                I80F48_ZERO,
+                I80F48_ZERO,
+                I80F48_ZERO,
+                I80F48_ZERO,
+                I80F48_ZERO,
                 [],
             )
         )

@@ -61,8 +61,8 @@ class TestMarginfiGroupLocalnet:
         assert group.bank.maint_margin_ratio == 1
         assert group.bank.fixed_fee == 0
         assert group.bank.interest_fee == 0
-        assert group.bank.native_borrow_balance == 0
-        assert group.bank.native_deposit_balance == 0
+        assert group.bank.total_borrows_record == 0
+        assert group.bank.total_deposits_record == 0
 
     async def test_configure_group(self, _localnet, bench_fixture: Bench) -> None:
         new_group_config = GroupConfig(
@@ -98,8 +98,8 @@ class TestMarginfiGroupLocalnet:
         assert group.bank.maint_margin_ratio == 1.05
         assert group.bank.fixed_fee == 0
         assert group.bank.interest_fee == 0
-        assert group.bank.native_borrow_balance == 0
-        assert group.bank.native_deposit_balance == 1_000_000_000
+        assert group.bank.total_borrows_record == 0
+        assert group.bank.total_deposits_record == 1_000
 
     # @todo this test needs to be more robust
     async def test_update_interest_accumulator(self, _localnet, user: User) -> None:

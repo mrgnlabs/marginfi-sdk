@@ -1,5 +1,5 @@
 from anchorpy import Program, Provider, Wallet
-from pytest import mark
+from pytest import approx, mark
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 
@@ -44,7 +44,7 @@ class TestMarginfiAccountUnit:
         assert account.group.pubkey == PublicKey(
             "GoAzFyYE1xRsbT4C5MHJh8hBd5s6Jks9j4hLrtWR3pba"
         )
-        assert account.deposits == 100323.12943728785
+        assert account.deposits == approx(143, 0.000001)
         assert account.borrows == 0.0
 
     def test_from_account_data_factory(self):
@@ -65,9 +65,9 @@ class TestMarginfiAccountUnit:
             "3xo9RzjFEKRqLYQjfxTP9oKCPF6ukfDsqJ2hUhJhv55W"
         )
         assert account.group.pubkey == PublicKey(
-            "7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg"
+            "GoAzFyYE1xRsbT4C5MHJh8hBd5s6Jks9j4hLrtWR3pba"
         )
-        assert account.deposits == 100323.12943728785
+        assert account.deposits == approx(143, 0.000001)
         assert account.borrows == 0.0
 
     def test_accessors(self):
@@ -77,9 +77,9 @@ class TestMarginfiAccountUnit:
             "3xo9RzjFEKRqLYQjfxTP9oKCPF6ukfDsqJ2hUhJhv55W"
         )
         assert account.group.pubkey == PublicKey(
-            "7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg"
+            "GoAzFyYE1xRsbT4C5MHJh8hBd5s6Jks9j4hLrtWR3pba"
         )
-        assert account.deposits == 100323.12943728785
+        assert account.deposits == approx(143, 0.000001)
         assert account.borrows == 0.0
 
     def test_all_utps(self):
@@ -89,7 +89,7 @@ class TestMarginfiAccountUnit:
 
     def test_active_utps(self):
         _, account = load_marginfi_account("marginfi_account_2")
-        assert account.active_utps == []
+        assert len(account.active_utps) == 2
 
     def test__pack_utp_data(self):
         _, account_info = load_sample_account_info("marginfi_account_2")

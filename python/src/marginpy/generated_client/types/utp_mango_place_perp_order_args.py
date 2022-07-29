@@ -1,13 +1,12 @@
 from __future__ import annotations
-from . import (
-    mango_order_type,
-    mango_side,
-    mango_expiry_type,
-)
+
 import typing
 from dataclasses import dataclass
-from construct import Container
+
 import borsh_construct as borsh
+from construct import Container
+
+from . import mango_expiry_type, mango_order_type, mango_side
 
 
 class UtpMangoPlacePerpOrderArgsJSON(typing.TypedDict):

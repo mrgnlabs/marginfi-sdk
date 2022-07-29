@@ -9,7 +9,6 @@ from marginpy import Environment, MarginfiAccount, MarginfiClient, MarginfiConfi
 from marginpy.utils import load_idl
 from tests.config import DEVNET_URL
 from tests.fixtures import (
-    REAL_ACCOUNT_PUBKEY_1,
     REAL_ACCOUNT_PUBKEY_2,
     User,
     basics_fixture,

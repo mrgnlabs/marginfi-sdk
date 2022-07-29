@@ -1,13 +1,14 @@
 from __future__ import annotations
-from . import (
-    wrapped_i80f48,
-)
+
 import typing
 from dataclasses import dataclass
+
+import borsh_construct as borsh
+from anchorpy.borsh_extension import BorshPubkey
 from construct import Container
 from solana.publickey import PublicKey
-from anchorpy.borsh_extension import BorshPubkey
-import borsh_construct as borsh
+
+from . import wrapped_i80f48
 
 
 class BankJSON(typing.TypedDict):
