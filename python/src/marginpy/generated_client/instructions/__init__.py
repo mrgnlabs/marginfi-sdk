@@ -1,4 +1,3 @@
-# flake8: noqa
 from .bank_fee_vault_withdraw import (
     BankFeeVaultWithdrawAccounts,
     BankFeeVaultWithdrawArgs,

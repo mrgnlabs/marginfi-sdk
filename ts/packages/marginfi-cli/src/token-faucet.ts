@@ -8,7 +8,7 @@ import { getEnvironment } from "./common";
 
 export async function airdropCollateral(amountDec: string, options: OptionValues) {
   const connection = new Connection(options.url, "confirmed");
-  const config = await getConfig(getEnvironment(options.env), connection);
+  const config = await getConfig(getEnvironment(options.env));
 
   const program = getMfiProgram(config.programId, connection, new Wallet(loadKeypair(options.keypair)));
 

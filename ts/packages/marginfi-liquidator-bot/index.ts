@@ -143,12 +143,13 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
   const marketSymbols = Object.keys(zoState.markets);
 
   debug("Cancelling Open Orders");
-  for (let sym of marketSymbols) {
-    let oo = await zoMargin.getOpenOrdersInfoBySymbol(sym, false);
-    let empty = !oo || (oo.coinOnAsks.isZero() && oo.coinOnBids.isZero());
-    if (!empty) {
-      await marginfiAccount.zo.cancelPerpOrder({ symbol: sym });
-    }
+  await zoMargin.loadOrders();
+  for (let order of zoMargin.orders) {
+    await marginfiAccount.zo.cancelPerpOrder({
+      symbol: order.symbol,
+      orderId: order.orderId,
+      isLong: order.long,
+    });
   }
 
   /// Close positions

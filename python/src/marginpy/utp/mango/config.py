@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Any, Dict, Literal
 
 from solana.publickey import PublicKey
@@ -5,7 +6,13 @@ from solana.publickey import PublicKey
 from marginpy.types import Environment, UtpConfig, UtpIndex
 from marginpy.utils import handle_override
 
+# empty dictionnary default safe here because we do use `overrides` read-only
+# ref: https://stackoverflow.com/questions/26320899/ \
+#        why-is-the-empty-dictionary-a-dangerous-default-value-in-python/26320917#26320917)
+# pylint: disable=dangerous-default-value
 
+
+@dataclass
 class MangoConfig(UtpConfig):
     """
     [Internal]
@@ -15,7 +22,7 @@ class MangoConfig(UtpConfig):
     cluster: Literal["devnet", "mainnet", "localnet"]
     group_pk: PublicKey
 
-    def __init__(  # pylint: disable=dangerous-default-value
+    def __init__(
         self,
         environment: Environment,
         overrides: Dict[str, Any] = {},

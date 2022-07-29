@@ -8,6 +8,9 @@ from marginpy.utils import handle_override
 from marginpy.utp.mango import MangoConfig
 from marginpy.utp.zo import ZoConfig
 
+# empty dictionnary default safe here because we do use `overrides` read-only
+# ref: https://stackoverflow.com/questions/26320899/ \
+#        why-is-the-empty-dictionary-a-dangerous-default-value-in-python/26320917#26320917)
 # pylint: disable=dangerous-default-value
 
 
@@ -40,12 +43,12 @@ class MarginfiDedicatedConfig:
             self.program_id = handle_override(
                 overrides=overrides,
                 override_key="program_id",
-                default=PublicKey("mfi5YpVKT1bAJbKv7h55c6LgoTsW3LvZyRm2k811XtK"),
+                default=PublicKey("mf2tjVmwcxgNfscvVNdN9t2LZ8YwPkNQabeTzyYw2Hn"),
             )
             self.group_pk = handle_override(
                 overrides=overrides,
                 override_key="group_pk",
-                default=PublicKey("7AYHgp3Z8AriGTVKYZ8c7GdW5m2Y3cBDacmWEuPGD2Gg"),
+                default=PublicKey("GoAzFyYE1xRsbT4C5MHJh8hBd5s6Jks9j4hLrtWR3pba"),
             )
             self.collateral_mint_pk = handle_override(
                 overrides=overrides,
@@ -56,7 +59,7 @@ class MarginfiDedicatedConfig:
             self.program_id = handle_override(
                 overrides=overrides,
                 override_key="program_id",
-                default=PublicKey("DzEv7WuxdzRJ9iTdT5X6RmX2gdzSXUvyQ14ELmveiFSQ"),
+                default=PublicKey("Ghv4WbkASX6mVjeGiRfqRMLuh4CzgLtsPSLz8YaKHqxc"),
             )
             self.group_pk = handle_override(
                 overrides=overrides,

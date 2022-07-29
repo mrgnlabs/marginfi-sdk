@@ -247,7 +247,7 @@ async function makeCancelPerpOrderIx(
   }
 ): Promise<TransactionInstruction> {
   return mfProgram.methods
-    .utpZoCancelPerpOrder(args.orderId || null, args.isLong || null, args.clientId || null)
+    .utpZoCancelPerpOrder(args.orderId ?? null, args.isLong ?? null, args.clientId ?? null)
     .accounts({
       header: {
         marginfiAccount: accounts.marginfiAccount,

@@ -12,26 +12,33 @@ version = "0.9.4"
 description = "The Python Anchor client."
 category = "main"
 optional = false
-python-versions = ">=3.9,<4.0"
+python-versions = "^3.9"
+develop = false
 
 [package.dependencies]
-apischema = ">=0.17.5,<0.18.0"
-borsh-construct = ">=0.1.0,<0.2.0"
-construct-typing = ">=0.5.1,<0.6.0"
-jsonrpcclient = ">=4.0.1,<5.0.0"
-more-itertools = ">=8.11.0,<9.0.0"
-pyheck = ">=0.1.4,<0.2.0"
-pytest = ">=6.2.5,<7.0.0"
-pytest-asyncio = ">=0.17.2,<0.18.0"
-pytest-xprocess = ">=0.18.1,<0.19.0"
-solana = ">=0.25.0,<0.26.0"
-sumtypes = ">=0.1a6,<0.2"
-toolz = ">=0.11.2,<0.12.0"
-websockets = ">=10.0,<11.0"
-zstandard = ">=0.17.0,<0.18.0"
+apischema = "^0.17.5"
+borsh-construct = "^0.1.0"
+construct-typing = "^0.5.1"
+jsonrpcclient = "^4.0.1"
+more-itertools = "^8.11.0"
+pyheck = "^0.1.4"
+pytest = "^6.2.5"
+pytest-asyncio = "^0.17.2"
+pytest-xprocess = "^0.18.1"
+solana = "^0.25.0"
+sumtypes = "^0.1a6"
+toolz = "^0.11.2"
+websockets = "^10.0"
+zstandard = "^0.17.0"
 
 [package.extras]
 cli = ["typer (==0.4.1)", "ipython (>=8.0.1,<9.0.0)", "genpy (>=2021.1,<2022.0)", "black (>=22.3.0,<23.0.0)", "autoflake (>=1.4,<2.0)"]
+
+[package.source]
+type = "git"
+url = "https://github.com/kevinheavey/anchorpy"
+reference = "5d7cdcc03b70f60fc6c9f0eb928177240d0cdffd"
+resolved_reference = "5d7cdcc03b70f60fc6c9f0eb928177240d0cdffd"
 
 [[package]]
 name = "anyio"
@@ -492,7 +499,7 @@ test_extra = ["pytest (<7.1)", "pytest-asyncio", "testpath", "curio", "matplotli
 name = "isort"
 version = "5.10.1"
 description = "A Python utility / library to sort Python imports."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6.1,<4.0"
 
@@ -1460,7 +1467,7 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10 <3.11"
-content-hash = "a0e3609b3cd34da610df509f13f03129feea45d3f812c331912905868ab5eb7f"
+content-hash = "959bcfbfa5fa530f326f30a44cd6c0270745f5b6f2c2004c6232a57eaf5d8162"
 
 [metadata.files]
 alabaster = []

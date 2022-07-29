@@ -1412,13 +1412,13 @@
           {
             "name": "depositRecord",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
             "name": "borrowRecord",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
@@ -1635,25 +1635,13 @@
       }
     },
     {
-      "name": "MDecimal",
+      "name": "WrappedI80F48",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "flags",
-            "type": "u32"
-          },
-          {
-            "name": "hi",
-            "type": "u32"
-          },
-          {
-            "name": "lo",
-            "type": "u32"
-          },
-          {
-            "name": "mid",
-            "type": "u32"
+            "name": "bits",
+            "type": "i128"
           }
         ]
       }
@@ -1708,7 +1696,7 @@
           {
             "name": "marginRequirementDepositBuffer",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           }
         ]
@@ -1800,31 +1788,31 @@
           {
             "name": "scalingFactorC",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
             "name": "fixedFee",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
             "name": "interestFee",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
             "name": "depositAccumulator",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
             "name": "borrowAccumulator",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
@@ -1832,15 +1820,15 @@
             "type": "i64"
           },
           {
-            "name": "nativeDepositBalance",
+            "name": "totalDepositsRecord",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
-            "name": "nativeBorrowBalance",
+            "name": "totalBorrowsRecord",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
@@ -1866,7 +1854,7 @@
           {
             "name": "insuranceVaultOutstandingTransfers",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
@@ -1880,31 +1868,31 @@
           {
             "name": "feeVaultOutstandingTransfers",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
             "name": "initMarginRatio",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
             "name": "maintMarginRatio",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
             "name": "accountDepositLimit",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
             "name": "lpDepositLimit",
             "type": {
-              "defined": "MDecimal"
+              "defined": "WrappedI80F48"
             }
           },
           {
@@ -2087,21 +2075,21 @@
         {
           "name": "feesCollected",
           "type": {
-            "defined": "MDecimal"
+            "defined": "WrappedI80F48"
           },
           "index": false
         },
         {
           "name": "utilizationRate",
           "type": {
-            "defined": "MDecimal"
+            "defined": "WrappedI80F48"
           },
           "index": false
         },
         {
           "name": "interestRate",
           "type": {
-            "defined": "MDecimal"
+            "defined": "WrappedI80F48"
           },
           "index": false
         }
@@ -2118,14 +2106,14 @@
         {
           "name": "equity",
           "type": {
-            "defined": "MDecimal"
+            "defined": "WrappedI80F48"
           },
           "index": false
         },
         {
           "name": "marginRequirement",
           "type": {
-            "defined": "MDecimal"
+            "defined": "WrappedI80F48"
           },
           "index": false
         }
@@ -2142,7 +2130,7 @@
         {
           "name": "value",
           "type": {
-            "defined": "MDecimal"
+            "defined": "WrappedI80F48"
           },
           "index": false
         }
@@ -2157,16 +2145,9 @@
           "index": false
         },
         {
-          "name": "collateralOrEquity",
+          "name": "netFreeCollateral",
           "type": {
-            "defined": "MDecimal"
-          },
-          "index": false
-        },
-        {
-          "name": "marginRequirement",
-          "type": {
-            "defined": "MDecimal"
+            "defined": "WrappedI80F48"
           },
           "index": false
         }
@@ -2299,8 +2280,5 @@
       "name": "MangoError",
       "msg": "Mango error"
     }
-  ],
-  "metadata": {
-    "address": "Ghv4WbkASX6mVjeGiRfqRMLuh4CzgLtsPSLz8YaKHqxc"
-  }
+  ]
 }

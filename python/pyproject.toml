@@ -6,7 +6,7 @@ authors = ["MRGN Labs", "man0s <95379755+losman0s@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.10 <3.11"
-anchorpy = "^0.9.4"
+anchorpy = {git = "https://github.com/kevinheavey/anchorpy", rev = "5d7cdcc03b70f60fc6c9f0eb928177240d0cdffd"}
 solana = "^0.25.0"
 buffer = "^0.2.1"
 construct = "^2.10.67"

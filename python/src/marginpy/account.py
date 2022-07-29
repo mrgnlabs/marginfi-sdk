@@ -14,7 +14,7 @@ from solana.transaction import (
 )
 from spl.token.instructions import get_associated_token_address
 
-from marginpy.decimal import Decimal
+from marginpy.constants import COLLATERAL_SCALING_FACTOR
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.group import MarginfiGroup
@@ -39,6 +39,7 @@ from marginpy.utils import (
     json_to_account_info,
     load_idl,
     ui_to_native,
+    wrapped_fixed_to_float,
 )
 from marginpy.utp.mango import UtpMangoAccount
 from marginpy.utp.zo import UtpZoAccount
@@ -116,8 +117,10 @@ class MarginfiAccount:
             account_data.authority,
             client,
             await MarginfiGroup.fetch(client.config, client.program),
-            Decimal.from_account_data(account_data.deposit_record).to_float(),
-            Decimal.from_account_data(account_data.borrow_record).to_float(),
+            wrapped_fixed_to_float(account_data.deposit_record)
+            / COLLATERAL_SCALING_FACTOR,
+            wrapped_fixed_to_float(account_data.borrow_record)
+            / COLLATERAL_SCALING_FACTOR,
             MarginfiAccount._pack_utp_data(account_data, UtpIndex.MANGO),
             MarginfiAccount._pack_utp_data(account_data, UtpIndex.ZO),
         )
@@ -160,8 +163,10 @@ class MarginfiAccount:
             account_data.authority,
             client,
             marginfi_group,
-            Decimal.from_account_data(account_data.deposit_record).to_float(),
-            Decimal.from_account_data(account_data.borrow_record).to_float(),
+            wrapped_fixed_to_float(account_data.deposit_record)
+            / COLLATERAL_SCALING_FACTOR,
+            wrapped_fixed_to_float(account_data.borrow_record)
+            / COLLATERAL_SCALING_FACTOR,
             MarginfiAccount._pack_utp_data(account_data, UtpIndex.MANGO),
             MarginfiAccount._pack_utp_data(account_data, UtpIndex.ZO),
         )
@@ -364,8 +369,12 @@ class MarginfiAccount:
         """
 
         self._authority = data.authority
-        self._deposit_record = Decimal.from_account_data(data.deposit_record).to_float()
-        self._borrow_record = Decimal.from_account_data(data.borrow_record).to_float()
+        self._deposit_record = (
+            wrapped_fixed_to_float(data.deposit_record) / COLLATERAL_SCALING_FACTOR
+        )
+        self._borrow_record = (
+            wrapped_fixed_to_float(data.borrow_record) / COLLATERAL_SCALING_FACTOR
+        )
 
         self.mango.update(self._pack_utp_data(data, UtpIndex.MANGO))
         self.zo.update(self._pack_utp_data(data, UtpIndex.ZO))
