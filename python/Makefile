@@ -33,21 +33,21 @@ lint:  ## Run type and format checkers
 	# make lint-docs
 
 lint-code:
-	poetry run mypy src
-	poetry run black --check --preview --diff src tests
-	poetry run flake8 src tests
-	poetry run pylint --rcfile=.pylintrc src
-	poetry run isort --check-only src
+	poetry run mypy src/python
+	poetry run black --check --preview --diff src/python tests
+	poetry run flake8 src/python tests
+	poetry run pylint --rcfile=.pylintrc src/python
+	poetry run isort --check-only src/python
 
 lint-docs:
-	poetry run pydocstyle src
+	poetry run pydocstyle src/python
 
 lint-tests:
 	poetry run pydocstyle tests
 
 format:
 	poetry run black --preview .
-	poetry run isort src tests
+	poetry run isort src/python tests
 
 ##@ Publishing
 publish:  ## Publish to pypi
@@ -62,7 +62,7 @@ test-publish:  ## Publish to testpypi
 
 ##@ Documentation
 generate-doc:   ## Serve doc locally
-	cd docs && sphinx-apidoc -f -o source ../src/marginpy ../src/marginpy/generated_client --separate --force && make html
+	cd docs && sphinx-apidoc -f -o source ../src/python/marginpy ../src/python/marginpy/generated_client --separate --force && make html
 
 serve-doc:   ## Serve doc locally
 	python -m http.server -d docs/build/html --bind 127.0.0.1
