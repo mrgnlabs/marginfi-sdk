@@ -61,7 +61,7 @@ class TestZoAccount:
             market_symbol="SOL-PERP",
             order_type="PostOnly",
             is_long=True,
-            price=33,
+            price=42,
             size=0.1,
             client_id=888,
         )

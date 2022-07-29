@@ -16,6 +16,7 @@ from marginpy.constants import (
     PDA_UTP_AUTH_SEED,
     VERY_VERBOSE_ERROR,
 )
+from marginpy.generated_client.types.wrapped_i80f48 import WrappedI80F48
 from marginpy.types import BankVaultType
 
 
@@ -87,6 +88,9 @@ def make_request_units_ix(
     )
 
 
+# empty dictionnary default safe here because we do use `overrides` read-only
+# ref: https://stackoverflow.com/questions/26320899/ \
+#        why-is-the-empty-dictionary-a-dangerous-default-value-in-python/26320917#26320917)
 def handle_override(
     override_key: str,
     default: Any,
@@ -95,3 +99,10 @@ def handle_override(
     if overrides is None:
         return default
     return overrides[override_key] if override_key in overrides.keys() else default
+
+
+# TODO: be a bit more professional about this
+def wrapped_fixed_to_float(raw: WrappedI80F48) -> float:
+    fixed_point_in_bits = 8 * 6
+    divisor = 2**fixed_point_in_bits
+    return round(raw.bits / divisor, 6)

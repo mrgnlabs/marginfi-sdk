@@ -9,7 +9,6 @@ from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.commitment import Confirmed
 from solana.rpc.responses import AccountInfo
-from solana.rpc.types import TxOpts
 from solana.system_program import CreateAccountParams, create_account
 from solana.transaction import (
     AccountMeta,
@@ -17,7 +16,6 @@ from solana.transaction import (
     TransactionInstruction,
     TransactionSignature,
 )
-from spl.token.async_client import AsyncToken
 from spl.token.constants import ACCOUNT_LEN, MINT_LEN, TOKEN_PROGRAM_ID
 from spl.token.instructions import (
     create_associated_token_account,
@@ -43,14 +41,14 @@ from marginpy.instructions import (
     make_configure_marginfi_group_ix,
     make_init_marginfi_group_ix,
 )
-from marginpy.types import BankConfig, BankVaultType, GroupConfig
+from marginpy.types import BankVaultType, GroupConfig
 from marginpy.utils import (
     b64str_to_bytes,
     get_bank_authority,
     json_to_account_info,
     load_idl,
 )
-from tests.config import DEVNET_URL, LOCALNET_URL
+from tests.config import DEVNET_URL
 
 
 async def create_collateral_mint(
@@ -272,66 +270,6 @@ def load_marginfi_group(
 
 
 # --- Marginfi account
-
-
-async def create_marginfi_account():
-    config_base = MarginfiConfig(Environment.LOCALNET)
-    wallet = Wallet.local()
-    rpc_client = AsyncClient(LOCALNET_URL, commitment=Confirmed)
-    provider = Provider(rpc_client, wallet, opts=TxOpts(skip_preflight=True))
-    program = Program(load_idl(), config_base.program_id, provider=provider)
-
-    mint = await AsyncToken.create_mint(
-        provider.connection,
-        wallet.payer,
-        wallet.public_key,
-        6,
-        TOKEN_PROGRAM_ID,
-        skip_confirmation=True,
-    )
-
-    group_pk, sig = await create_marginfi_group(mint.pubkey, wallet, program)
-
-    new_group_config = GroupConfig(
-        bank=BankConfig(
-            init_margin_ratio=int(1.15 * 10**6),
-            maint_margin_ratio=int(1.05 * 10**6),
-            account_deposit_limit=None,
-            fixed_fee=None,
-            interest_fee=None,
-            lp_deposit_limit=None,
-            scaling_factor_c=None,
-        ),
-        paused=False,
-        admin=None,
-    )
-    await configure_marginfi_group(group_pk, new_group_config, wallet, program)
-
-    config = MarginfiConfig(
-        Environment.LOCALNET,
-        overrides={
-            "group_pk": group_pk,
-            "collateral_mint_pk": mint.pubkey,
-            "program_id": config_base.program_id,
-        },
-    )
-
-    await rpc_client.confirm_transaction(sig)
-    client = await MarginfiClient.fetch(config, wallet, rpc_client)
-
-    marginfi_account, account_sig = await client.create_marginfi_account()
-    await rpc_client.confirm_transaction(account_sig)
-
-    ata = await mint.create_associated_token_account(wallet.public_key)
-    mint_sig = await mint.mint_to(
-        ata,
-        wallet.public_key,
-        1_000_000_000,
-        [wallet.payer],
-    )
-    await rpc_client.confirm_transaction(mint_sig["result"])
-
-    return marginfi_account
 
 
 def load_marginfi_account_data(

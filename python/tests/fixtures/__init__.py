@@ -23,7 +23,7 @@ from marginpy import (
     MarginfiGroup,
 )
 from marginpy.generated_client.types import Bank as BankDecoded
-from marginpy.generated_client.types import MDecimal as DecimalData
+from marginpy.generated_client.types.wrapped_i80f48 import WrappedI80F48
 from marginpy.types import BankConfig, GroupConfig
 from marginpy.utils import load_idl
 from tests.config import LOCALNET_URL
@@ -34,42 +34,37 @@ from tests.utils import (
     get_ata_or_create,
 )
 
-REAL_ACCOUNT_PUBKEY_1 = PublicKey("C51P2JKDB3KFPGgcFGmyaWtKcKo58Dez5VSccGjhVfX9")
-REAL_ACCOUNT_PUBKEY_2 = PublicKey("7bCwUANGE8YLWVde1eqDf8zhrwaJJeCUVLGDuPABdNTe")
+REAL_ACCOUNT_PUBKEY_1 = PublicKey("5mwUQhDgyPyGNxkAeP8Bdu4caina2Z8gCcM4ekp2LD4R")
+REAL_ACCOUNT_PUBKEY_2 = PublicKey("C2HNxh6u1Pifs2qAHQfK9REemQxWcePiEL2Ftwqn4kAr")
 
 SAMPLE_ACCOUNT_PUBKEY_1 = PublicKey("4HMfMtGPdbWEnTvDSWqa9c9TxgjdfsTKM2EX5GzTLKEe")
 SAMPLE_ACCOUNT_PUBKEY_2 = PublicKey("Bt9DiJbRZXuSKhmxdSdn4jcApTs9xYqJhr5squkwo9H4")
 
-MDECIMAL_ZERO = DecimalData(
-    0,
-    0,
-    0,
-    0,
-)
+I80F48_ZERO = WrappedI80F48.from_json({"bits": 0})
 
 SAMPLE_BANK = Bank(
     BankDecoded(
-        MDECIMAL_ZERO,
-        MDECIMAL_ZERO,
-        MDECIMAL_ZERO,
-        MDECIMAL_ZERO,
-        MDECIMAL_ZERO,
+        I80F48_ZERO,
+        I80F48_ZERO,
+        I80F48_ZERO,
+        I80F48_ZERO,
+        I80F48_ZERO,
         0,
-        MDECIMAL_ZERO,
-        MDECIMAL_ZERO,
+        I80F48_ZERO,
+        I80F48_ZERO,
         SAMPLE_ACCOUNT_PUBKEY_1,
         SAMPLE_ACCOUNT_PUBKEY_1,
         0,
         SAMPLE_ACCOUNT_PUBKEY_1,
         0,
-        MDECIMAL_ZERO,
+        I80F48_ZERO,
         SAMPLE_ACCOUNT_PUBKEY_1,
         0,
-        MDECIMAL_ZERO,
-        MDECIMAL_ZERO,
-        MDECIMAL_ZERO,
-        MDECIMAL_ZERO,
-        MDECIMAL_ZERO,
+        I80F48_ZERO,
+        I80F48_ZERO,
+        I80F48_ZERO,
+        I80F48_ZERO,
+        I80F48_ZERO,
         [],
     )
 )
@@ -85,6 +80,7 @@ class Basics:
     rpc_client: AsyncClient
     provider: Provider
     program: Program
+    tx_opts: TxOpts
 
 
 def basics_fixture(
@@ -97,17 +93,19 @@ def basics_fixture(
     def _basics_fixture() -> Basics:
         sleep(VALIDATOR_WARMUP_DURATION)
 
+        tx_opts = TxOpts(
+            skip_preflight=False,
+            preflight_commitment=commitment,
+            skip_confirmation=False,
+        )
+
         default_config = MarginfiConfig(environment)
         wallet = Wallet.local()
         rpc_client = AsyncClient(rpc_url, commitment=commitment)
         provider = Provider(
             rpc_client,
             wallet,
-            opts=TxOpts(
-                skip_preflight=False,
-                preflight_commitment=commitment,
-                skip_confirmation=False,
-            ),
+            opts=tx_opts,
         )
         program = Program(
             load_idl(idl_path), default_config.program_id, provider=provider
@@ -119,6 +117,7 @@ def basics_fixture(
             rpc_client=rpc_client,
             provider=provider,
             program=program,
+            tx_opts=tx_opts,
         )
 
     return _basics_fixture

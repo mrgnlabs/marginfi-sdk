@@ -22,7 +22,7 @@ export async function createGroup(options: OptionValues) {
     programId: process.env.MARGINFI_PROGRAM ? new PublicKey(process.env.MARGINFI_PROGRAM) : undefined,
   };
 
-  const config = await getConfig(getEnvironment(options.environment), connection, overrides);
+  const config = await getConfig(getEnvironment(options.environment), overrides);
   const program = getMfiProgram(config.programId, connection, wallet);
 
   console.log("Program: %s\nSigner: %s", program.programId, wallet.publicKey);

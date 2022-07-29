@@ -2,11 +2,12 @@ from datetime import datetime
 
 from solana.publickey import PublicKey
 
-from marginpy.decimal import Decimal
+from marginpy.constants import COLLATERAL_SCALING_FACTOR
 from marginpy.generated_client.types import Bank as BankDecoded
 from marginpy.generated_client.types import LendingSideKind, MarginRequirementKind
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.generated_client.types.margin_requirement import Init, Maint
+from marginpy.utils import wrapped_fixed_to_float
 
 
 class Bank:
@@ -16,8 +17,8 @@ class Bank:
     deposit_accumulator: float
     borrow_accumulator: float
     last_update: datetime
-    native_deposit_balance: float
-    native_borrow_balance: float
+    total_deposits_record: float
+    total_borrows_record: float
     mint: PublicKey
     vault: PublicKey
     vault_authority_pda_bump: int
@@ -31,24 +32,20 @@ class Bank:
     lp_deposit_limit: float
 
     def __init__(self, data: BankDecoded) -> None:
-        self.scaling_factor_c = Decimal.from_account_data(
-            data.scaling_factor_c
-        ).to_float()
-        self.fixed_fee = Decimal.from_account_data(data.fixed_fee).to_float()
-        self.interest_fee = Decimal.from_account_data(data.interest_fee).to_float()
-        self.deposit_accumulator = Decimal.from_account_data(
-            data.deposit_accumulator
-        ).to_float()
-        self.borrow_accumulator = Decimal.from_account_data(
-            data.borrow_accumulator
-        ).to_float()
+        self.scaling_factor_c = wrapped_fixed_to_float(data.scaling_factor_c)
+        self.fixed_fee = wrapped_fixed_to_float(data.fixed_fee)
+        self.interest_fee = wrapped_fixed_to_float(data.interest_fee)
+        self.deposit_accumulator = wrapped_fixed_to_float(data.deposit_accumulator)
+        self.borrow_accumulator = wrapped_fixed_to_float(data.borrow_accumulator)
         self.last_update = datetime.fromtimestamp(data.last_update)
-        self.native_deposit_balance = Decimal.from_account_data(
-            data.native_deposit_balance
-        ).to_float()
-        self.native_borrow_balance = Decimal.from_account_data(
-            data.native_borrow_balance
-        ).to_float()
+        self.total_deposits_record = (
+            wrapped_fixed_to_float(data.total_deposits_record)
+            / COLLATERAL_SCALING_FACTOR
+        )
+        self.total_borrows_record = (
+            wrapped_fixed_to_float(data.total_borrows_record)
+            / COLLATERAL_SCALING_FACTOR
+        )
         self.mint = data.mint
         self.vault = data.vault
         self.vault_authority_pda_bump = data.vault_authority_pda_bump
@@ -61,18 +58,15 @@ class Bank:
         )
         self.fee_vault = data.fee_vault
         self.fee_vault_authority_pda_bump = data.fee_vault_authority_pda_bump
-        self.init_margin_ratio = Decimal.from_account_data(
-            data.init_margin_ratio
-        ).to_float()
-        self.maint_margin_ratio = Decimal.from_account_data(
-            data.maint_margin_ratio
-        ).to_float()
-        self.account_deposit_limit = Decimal.from_account_data(
-            data.account_deposit_limit
-        ).to_float()
-        self.lp_deposit_limit = Decimal.from_account_data(
-            data.lp_deposit_limit
-        ).to_float()
+        self.init_margin_ratio = wrapped_fixed_to_float(data.init_margin_ratio)
+        self.maint_margin_ratio = wrapped_fixed_to_float(data.maint_margin_ratio)
+        self.account_deposit_limit = (
+            wrapped_fixed_to_float(data.account_deposit_limit)
+            / COLLATERAL_SCALING_FACTOR
+        )
+        self.lp_deposit_limit = (
+            wrapped_fixed_to_float(data.lp_deposit_limit) / COLLATERAL_SCALING_FACTOR
+        )
 
     # @todo should we error on negative `record` values?
     def compute_native_amount(

@@ -5,14 +5,12 @@ from time import sleep
 from anchorpy import Program, Provider, Wallet, localnet_fixture
 from pytest import mark
 from solana.rpc.async_api import AsyncClient
-from solana.rpc.commitment import Confirmed
-from solana.rpc.types import TxOpts
 
 from marginpy import Environment, MarginfiClient, MarginfiConfig
 from marginpy.types import AccountType, BankConfig, GroupConfig
 from marginpy.utils import load_idl
-from tests.config import DEVNET_URL, LOCALNET_URL
-from tests.fixtures import REAL_ACCOUNT_PUBKEY_2
+from tests.config import DEVNET_URL
+from tests.fixtures import REAL_ACCOUNT_PUBKEY_2, Basics, basics_fixture
 from tests.utils import (
     configure_marginfi_group,
     create_collateral_mint,
@@ -22,29 +20,32 @@ from tests.utils import (
 )
 
 PATH = Path(path.abspath(path.join(__file__, "../../../../")))
-_localnet = localnet_fixture(path=PATH, timeout_seconds=5, scope="function")
+localnet = localnet_fixture(path=PATH, timeout_seconds=5, scope="function")
+basics = basics_fixture()
 
 
 @mark.asyncio
 @mark.integration
 @mark.localnet
 class TestMarginfiClientLocalnet:
-    async def test_create_marginfi_account(self, _localnet) -> None:
+    async def test_create_marginfi_account(self, localnet, basics: Basics) -> None:
         sleep(5.0)
 
-        config_base = MarginfiConfig(Environment.LOCALNET)
-        wallet = Wallet.local()
-        rpc_client = AsyncClient(LOCALNET_URL, commitment=Confirmed)
-        provider = Provider(rpc_client, wallet, opts=TxOpts(skip_preflight=True))
-        program = Program(load_idl(), config_base.program_id, provider=provider)
+        # config_base = MarginfiConfig(Environment.LOCALNET)
+        # wallet = Wallet.local()
+        # rpc_client = AsyncClient(LOCALNET_URL, commitment=Confirmed)
+        # provider = Provider(rpc_client, wallet, opts=TxOpts(skip_preflight=True))
+        # program = Program(load_idl(), config_base.program_id, provider=provider)
 
-        mint_pk, _ = await create_collateral_mint(wallet, program)
-        group_pk, sig = await create_marginfi_group(mint_pk, wallet, program)
+        mint_pk, _ = await create_collateral_mint(basics.wallet, basics.program)
+        group_pk, _ = await create_marginfi_group(
+            mint_pk, basics.wallet, basics.program
+        )
 
         new_group_config = GroupConfig(
             bank=BankConfig(
-                init_margin_ratio=int(1.05 * 10**6),
-                maint_margin_ratio=int(1.15 * 10**6),
+                init_margin_ratio=int(1.15 * 10**6),
+                maint_margin_ratio=int(1.05 * 10**6),
                 account_deposit_limit=None,
                 fixed_fee=None,
                 interest_fee=None,
@@ -54,14 +55,17 @@ class TestMarginfiClientLocalnet:
             paused=False,
             admin=None,
         )
-        await configure_marginfi_group(group_pk, new_group_config, wallet, program)
+        await configure_marginfi_group(
+            group_pk, new_group_config, basics.wallet, basics.program
+        )
         config = MarginfiConfig(
             Environment.LOCALNET,
             overrides={"group_pk": group_pk, "collateral_mint_pk": mint_pk},
         )
 
-        await rpc_client.confirm_transaction(sig)
-        client = await MarginfiClient.fetch(config, wallet, rpc_client)
+        client = await MarginfiClient.fetch(
+            config, basics.wallet, basics.rpc_client, basics.tx_opts
+        )
 
         marginfi_account, _ = await client.create_marginfi_account()
 

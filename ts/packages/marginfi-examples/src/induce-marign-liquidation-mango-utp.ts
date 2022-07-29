@@ -48,7 +48,7 @@ async function configureMarginReq(client: MarginfiClient, initMReq: number, main
 const depositAmount = 100;
 
 (async function () {
-  const config = await getConfig(Environment.DEVNET, connection);
+  const config = await getConfig(Environment.DEVNET);
 
   // Setup the client
   const client = await MarginfiClient.fetch(config, wallet, connection);
