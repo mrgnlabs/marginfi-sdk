@@ -1424,7 +1424,10 @@
           {
             "name": "activeUtps",
             "type": {
-              "array": ["bool", 32]
+              "array": [
+                "bool",
+                32
+              ]
             }
           },
           {
@@ -1441,7 +1444,10 @@
           {
             "name": "reservedSpace",
             "type": {
-              "array": ["u128", 256]
+              "array": [
+                "u128",
+                256
+              ]
             }
           }
         ]
@@ -1469,7 +1475,10 @@
           {
             "name": "reservedSpace",
             "type": {
-              "array": ["u128", 384]
+              "array": [
+                "u128",
+                384
+              ]
             }
           }
         ]
@@ -1657,13 +1666,19 @@
           {
             "name": "utpAddressBook",
             "type": {
-              "array": ["publicKey", 4]
+              "array": [
+                "publicKey",
+                4
+              ]
             }
           },
           {
             "name": "reservedSpace",
             "type": {
-              "array": ["u32", 32]
+              "array": [
+                "u32",
+                32
+              ]
             }
           }
         ]
@@ -1805,13 +1820,13 @@
             "type": "i64"
           },
           {
-            "name": "nativeDepositBalance",
+            "name": "totalDepositsRecord",
             "type": {
               "defined": "WrappedI80F48"
             }
           },
           {
-            "name": "nativeBorrowBalance",
+            "name": "totalBorrowsRecord",
             "type": {
               "defined": "WrappedI80F48"
             }
@@ -1883,7 +1898,10 @@
           {
             "name": "reservedSpace",
             "type": {
-              "array": ["u128", 31]
+              "array": [
+                "u128",
+                31
+              ]
             }
           }
         ]
