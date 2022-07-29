@@ -11,7 +11,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.10 <3.11"
-anchorpy = {git = "https://github.com/kevinheavey/anchorpy", rev = "5d7cdcc03b70f60fc6c9f0eb928177240d0cdffd"}
+anchorpy = "^0.9.4"
 solana = "^0.25.0"
 buffer = "^0.2.1"
 construct = "^2.10.67"
