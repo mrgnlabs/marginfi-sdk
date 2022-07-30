@@ -1,11 +1,11 @@
 <div align="center">
-  <img height="170" src="https://github.com/mrgnlabs/marginfi-sdk/logo.png" />
+  <img height="170" src="https://raw.githubusercontent.com/mrgnlabs/marginfi-sdk/main/logo.png" />
 
   <h1>marginfi</h1>
   
   <p>
     <!-- License -->
-    <a href="http://www.apache.org/licenses/LICENSE-2.0"><img alt="License" src="https://img.shields.io/github/license/mrgnlabs/marginfi-sdk/rust/marginfi-cpi?style=flat-square&color=ffff00"/></a>
+    <a href="http://www.apache.org/licenses/LICENSE-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
   </p>
 
   <h4>
