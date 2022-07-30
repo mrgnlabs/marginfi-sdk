@@ -574,6 +574,15 @@ class MarginfiAccount {
       let cappedRebalanceAmount = rebalanceAmountDecimal.times(0.95);
       debug("Trying to rebalance deposit UTP:%s amount %s (RBDA)", utp.index, cappedRebalanceAmount);
 
+      if (cappedRebalanceAmount.lte(1)) {
+        debug("Rebalance amount below dust ");
+        continue;
+      }
+
+      if (cappedRebalanceAmount.isNaN()) {
+        throw new Error("Rebalance amount is NaN");
+      }
+
       try {
         let sig = await this.utpFromIndex(utp.index).deposit(cappedRebalanceAmount);
         debug("Rebalance success (RBDS) sig %s", sig);
