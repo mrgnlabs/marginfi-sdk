@@ -11,16 +11,24 @@ import {
   MarginfiConfig,
   getBankAuthority,
   uiToNative,
+  nativetoUi,
 } from "@mrgnlabs/marginfi-client";
 import {
   Connection,
   Keypair,
   Transaction,
   ConfirmOptions,
+  SystemProgram,
 } from "@solana/web3.js";
 import { SYSTEM_PROGRAM_ID } from "@zero_one/client";
-import { airdropCollateral } from "./utils";
-import { AccountInfo, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { airdropCollateral, getMangoAccountPda } from "./utils";
+import {
+  AccountInfo,
+  AccountLayout,
+  Token,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
+import { BN } from "bn.js";
 
 describe("example-cpi", () => {
   anchor.setProvider(anchor.Provider.env());
@@ -36,7 +44,10 @@ describe("example-cpi", () => {
   let mfClient: MarginfiClient;
 
   before(async () => {
+    // Load general configs for the deployment + UTPs on the specified cluster
     config = await getConfig(Environment.DEVNET, connection);
+
+    // Setup USDC mint ATA (collateral used by marginfi)
     collateral = new Token(
       connection,
       config.collateralMintPk,
@@ -45,7 +56,7 @@ describe("example-cpi", () => {
     );
     ataAi = await collateral.getOrCreateAssociatedAccountInfo(wallet.publicKey);
 
-    // Setup the client for easy feedback
+    // Setup a marginfi client to have a view on the account and access helpers
     mfClient = await MarginfiClient.fetch(config, wallet, connection, txOpts);
   });
 
@@ -83,16 +94,17 @@ describe("example-cpi", () => {
       marginfiAccountKeypair.publicKey
     );
     console.log(
-      `Marginfi account initialized: ${marginfiAccountKeypair.publicKey} (sig: ${sig})`
+      `Marginfi account created: ${marginfiAccountKeypair.publicKey} (sig: ${sig})`
     );
+    console.log(marginfiAccount.toString());
   });
 
-  it("deposits and withdraws", async () => {
-    const amount = uiToNative(10);
+  it("separately deposits and withdraws", async () => {
+    const depositAmount = uiToNative(10);
 
     await airdropCollateral(
       mfClient.program.provider,
-      amount.toNumber(),
+      depositAmount.toNumber(),
       config.collateralMintPk,
       ataAi.address
     );
@@ -103,7 +115,7 @@ describe("example-cpi", () => {
     );
 
     const depositIx = await program.methods
-      .deposit(amount)
+      .deposit(depositAmount)
       .accounts({
         marginfiAccount: marginfiAccount.publicKey,
         marginfiGroup: mfClient.config.groupPk,
@@ -117,13 +129,17 @@ describe("example-cpi", () => {
 
     const tx1 = new Transaction().add(depositIx);
     const sig1 = await processTransaction(program.provider, tx1, [], txOpts);
-    console.log(`\nDeposit sig: ${sig1}`);
+    console.log(
+      `\n${nativetoUi(depositAmount, 6)} USDC deposited from GMA: ${sig1}`
+    );
 
     await marginfiAccount.reload();
     console.log(marginfiAccount.toString());
 
+    const withdrawAmount = depositAmount.subn(1);
+
     const withdrawIx = await program.methods
-      .withdraw(amount.subn(1))
+      .withdraw(withdrawAmount)
       .accounts({
         marginfiAccount: marginfiAccount.publicKey,
         marginfiGroup: mfClient.config.groupPk,
@@ -138,7 +154,9 @@ describe("example-cpi", () => {
 
     const tx2 = new Transaction().add(withdrawIx);
     const sig2 = await processTransaction(program.provider, tx2, [], txOpts);
-    console.log(`\nWithdraw sig: ${sig2}`);
+    console.log(
+      `\n${nativetoUi(withdrawAmount, 6)} USDC withdrawn from GMA: ${sig2}`
+    );
 
     await marginfiAccount.reload();
     console.log(marginfiAccount.toString());
@@ -174,10 +192,113 @@ describe("example-cpi", () => {
       .instruction();
 
     const tx = new Transaction().add(depositAndWithdrawIx);
-    const sig = await processTransaction(program.provider, tx);
-    console.log(`DepositAndWithdraw sig: ${sig}`);
+    const sig = await processTransaction(program.provider, tx, [], txOpts);
+    console.log(
+      `\n${nativetoUi(amount, 6)} USDC deposited and withdrawn: ${sig}`
+    );
 
     await marginfiAccount.reload();
+    console.log(marginfiAccount.toString());
+  });
+
+  it("atomically deposits, activate Mango UTP, fund Mango UTP", async () => {
+    const amount = uiToNative(10);
+
+    await airdropCollateral(
+      mfClient.program.provider,
+      amount.toNumber(),
+      config.collateralMintPk,
+      ataAi.address
+    );
+
+    const [marginBankAuthority] = await getBankAuthority(
+      config.groupPk,
+      config.programId
+    );
+
+    const authoritySeed = Keypair.generate();
+
+    const [mangoAuthority, mangAuthorityBump] =
+      await marginfiAccount.mango.authority(authoritySeed.publicKey);
+    const [mangoAccount] = await getMangoAccountPda(
+      config.mango.groupConfig.publicKey,
+      mangoAuthority,
+      new BN(0),
+      config.mango.programId
+    );
+
+    const proxyTokenAccountKey = Keypair.generate();
+    const createProxyTokenAccountIx = SystemProgram.createAccount({
+      fromPubkey: program.provider.wallet.publicKey,
+      lamports:
+        await program.provider.connection.getMinimumBalanceForRentExemption(
+          AccountLayout.span
+        ),
+      newAccountPubkey: proxyTokenAccountKey.publicKey,
+      programId: TOKEN_PROGRAM_ID,
+      space: AccountLayout.span,
+    });
+    const initProxyTokenAccountIx = Token.createInitAccountInstruction(
+      TOKEN_PROGRAM_ID,
+      marginfiAccount.group.bank.mint,
+      proxyTokenAccountKey.publicKey,
+      mangoAuthority
+    );
+
+    const mangoGroup = await marginfiAccount.mango.getMangoGroup();
+
+    const collateralMintIndex = mangoGroup.getTokenIndex(
+      config.collateralMintPk
+    );
+    await mangoGroup.loadRootBanks(program.provider.connection);
+    const mangoRootBank = mangoGroup.tokens[collateralMintIndex].rootBank;
+    const mangoNodeBank =
+      mangoGroup.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0]
+        .publicKey;
+    const mangoVault =
+      mangoGroup.rootBankAccounts[collateralMintIndex]!.nodeBankAccounts[0]
+        .vault;
+
+    const remainingAccounts =
+      await marginfiAccount.mango.getObservationAccounts();
+    // Little hack required when activating + despositing atomically, until fixed in SDK
+    remainingAccounts[0].pubkey = mangoAccount;
+
+    const tx = await program.methods
+      .setupMango(amount, authoritySeed.publicKey, mangAuthorityBump)
+      .accounts({
+        marginfiAccount: marginfiAccount.publicKey,
+        marginfiGroup: mfClient.config.groupPk,
+        marginfiProgram: mfClient.programId,
+        signer: wallet.publicKey,
+        marginBankAuthority,
+        tempCollateralAccount: proxyTokenAccountKey.publicKey,
+        fundingAccount: ataAi.address,
+        mangoAccount,
+        mangoAuthority,
+        mangoGroup: config.mango.groupConfig.publicKey,
+        mangoProgram: config.mango.programId,
+        mangoCache: mangoGroup.mangoCache,
+        mangoNodeBank,
+        mangoRootBank,
+        mangoVault,
+        tokenVault: mfClient.group.bank.vault,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: SYSTEM_PROGRAM_ID,
+      })
+      .remainingAccounts(remainingAccounts)
+      .preInstructions([createProxyTokenAccountIx, initProxyTokenAccountIx])
+      .transaction();
+
+    const sig = await processTransaction(
+      program.provider,
+      tx,
+      [proxyTokenAccountKey],
+      txOpts
+    );
+    console.log(`\n${nativetoUi(amount, 6)} USDC deposited to mango: ${sig}`);
+
+    await marginfiAccount.reload(true);
     console.log(marginfiAccount.toString());
   });
 });

@@ -6,7 +6,7 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { BN } from "bn.js";
+import BN from "bn.js";
 
 export const DEVNET_USDC_FAUCET = new PublicKey(
   "B87AhxX6BkBsj3hnyHzcerX2WxPoACC7ZyDr8E7H9geN"
@@ -47,4 +47,19 @@ export async function airdropCollateral(
   return processTransaction(provider, tx, [], {
     skipPreflight: true,
   });
+}
+export async function getMangoAccountPda(
+  mangoGroupPk: PublicKey,
+  authority: PublicKey,
+  accountNumber: BN,
+  programId: PublicKey
+): Promise<[PublicKey, number]> {
+  return PublicKey.findProgramAddress(
+    [
+      mangoGroupPk.toBytes(),
+      authority.toBytes(),
+      new BN(accountNumber).toBuffer("le", 8),
+    ],
+    programId
+  );
 }
