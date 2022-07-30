@@ -1,0 +1,9 @@
+[workspace]
+
+members = [
+    "marginfi-cpi",
+]
+
+exclude = [
+    "examples/"
+]
