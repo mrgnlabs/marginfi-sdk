@@ -10,7 +10,7 @@ wallet = "~/.config/solana/id.json"
 example_cpi = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
 
 [programs.devnet]
-example_cpi = "7zJZFQtYZ7Q3YKC3FFkof9QWUs3LVpN9aCF25VMCYtsR"
+example_cpi = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
 
 [registry]
 url = "https://api.apr.dev"
