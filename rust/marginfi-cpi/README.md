@@ -23,7 +23,6 @@ This crate provides a CPI interface to the marginfi program. It leverages the [a
 
 ```rs
 use anchor_lang::prelude::*;
-use marginfi_cpi;
 
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
