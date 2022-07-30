@@ -15,13 +15,13 @@ pub mod example_cpi {
 
     #[derive(Accounts)]
     pub struct InitializeAccount<'info> {
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         pub marginfi_program: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         pub marginfi_group: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(zero)]
         pub marginfi_account: AccountInfo<'info>,
 
@@ -51,24 +51,24 @@ pub mod example_cpi {
 
     #[derive(Accounts)]
     pub struct Deposit<'info> {
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         pub marginfi_program: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub marginfi_account: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub marginfi_group: AccountInfo<'info>,
 
         pub signer: Signer<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub funding_account: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub token_vault: AccountInfo<'info>,
 
@@ -98,27 +98,27 @@ pub mod example_cpi {
 
     #[derive(Accounts)]
     pub struct Withdraw<'info> {
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         pub marginfi_program: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub marginfi_account: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub marginfi_group: AccountInfo<'info>,
 
         pub signer: Signer<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         pub margin_bank_authority: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub receiving_token_account: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub token_vault: AccountInfo<'info>,
 
@@ -149,27 +149,27 @@ pub mod example_cpi {
 
     #[derive(Accounts)]
     pub struct DepositAndWithdraw<'info> {
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         pub marginfi_program: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub marginfi_account: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub marginfi_group: AccountInfo<'info>,
 
         pub signer: Signer<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         pub margin_bank_authority: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub user_token_account: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub token_vault: AccountInfo<'info>,
 
@@ -213,62 +213,62 @@ pub mod example_cpi {
 
     #[derive(Accounts)]
     pub struct SetupMango<'info> {
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         pub marginfi_program: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub marginfi_account: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub marginfi_group: AccountInfo<'info>,
 
         pub signer: Signer<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         pub margin_bank_authority: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub temp_collateral_account: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub funding_account: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub token_vault: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub mango_authority: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub mango_account: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         pub mango_program: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub mango_group: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub mango_cache: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub mango_root_bank: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub mango_node_bank: AccountInfo<'info>,
 
-        /// CHECK: TODO
+        /// CHECK: no validation, for educational purpose only
         #[account(mut)]
         pub mango_vault: AccountInfo<'info>,
 
