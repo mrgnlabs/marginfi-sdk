@@ -1,5 +1,5 @@
 <div align="center">
-  <img height="170" src="https://github.com/mrgnlabs/marginfi/images/logo.png" />
+  <img height="170" src="https://github.com/mrgnlabs/marginfi-sdk/logo.png" />
 
   <h1>marginfi</h1>
   
