@@ -69,4 +69,4 @@ pub mod example_cpi {
 }
 ```
 
-For a more complete example usage, check out the [sample program](https://github.com/mrgnlabs/marginfi-sdk/tree/main/rust/marginfi-cpi/example-cpi)
+For a more complete example usage, check out the [sample program](https://github.com/mrgnlabs/marginfi-sdk/tree/main/rust/marginfi-cpi/example)
