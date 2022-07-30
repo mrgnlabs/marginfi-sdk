@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::Token;
 use marginfi_cpi;
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("7zJZFQtYZ7Q3YKC3FFkof9QWUs3LVpN9aCF25VMCYtsR");
 
 #[program]
 pub mod example_cpi {

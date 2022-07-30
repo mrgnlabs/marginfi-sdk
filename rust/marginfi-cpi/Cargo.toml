@@ -2,6 +2,10 @@
 name = "marginfi-cpi"
 version = "0.1.0"
 edition = "2021"
+license-file = "LICENSE"
+description = "marginfi CPI interface"
+repository = "https://github.com/mrgnlabs/marginfi-sdk/tree/main/rust/marginfi-cpi"
+readme = "README.md"
 
 [features]
 default = ["cpi"]
