@@ -6,6 +6,7 @@ license-file = "LICENSE"
 description = "marginfi CPI interface"
 repository = "https://github.com/mrgnlabs/marginfi-sdk/tree/main/rust/marginfi-cpi"
 readme = "README.md"
+keywords = ["marginfi", "cpi"]
 
 [features]
 default = ["cpi"]
