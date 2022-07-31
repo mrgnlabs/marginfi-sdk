@@ -97,6 +97,7 @@ export enum EquityType {
 
 export enum MarginRequirementType {
   Init,
+  PartialLiquidation,
   Maint,
 }
 

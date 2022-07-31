@@ -12,7 +12,7 @@ import {
   ZoPerpOrderType,
 } from "@mrgnlabs/marginfi-client";
 
-const connection = new Connection(process.env.RPC_ENDPOINT!);
+const connection = new Connection(process.env.RPC_ENDPOINT!, 'confirmed');
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 
 async function configureMarginReq(client: MarginfiClient, initMReq: number, maintMReq: number) {
@@ -66,7 +66,7 @@ const MARKET_SYMBOL = "SOL-PERP";
   let highestAsk = [...asks.items(true)][0];
 
   let price = highestAsk.price;
-  let positionSize = quoteAmount / highestAsk.price;
+  let positionSize = (quoteAmount / highestAsk.price) * 2;
 
   await marginfiAccount.zo.placePerpOrder({
     symbol: MARKET_SYMBOL,

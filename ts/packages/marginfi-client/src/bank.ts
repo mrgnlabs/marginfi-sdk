@@ -1,5 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
+import { PARTIAL_LIQUIDATION_FACTOR } from "./constants";
 import { BankData, LendingSide, MarginRequirementType } from "./types";
 import { wrappedI80F48toBigNumber } from "./utils/helpers";
 
@@ -75,12 +76,17 @@ class Bank {
   }
 
   public marginRatio(type: MarginRequirementType): BigNumber {
-    if (type === MarginRequirementType.Init) {
-      return this.initMarginRatio;
-    } else if (type === MarginRequirementType.Maint) {
-      return this.maintMarginRatio;
-    } else {
-      throw Error(`Unknown margin requirement type: ${type}`);
+    switch (type) {
+      case MarginRequirementType.Init:
+        return this.initMarginRatio;
+      case MarginRequirementType.Maint:
+        return this.maintMarginRatio;
+      case MarginRequirementType.PartialLiquidation:
+        return PARTIAL_LIQUIDATION_FACTOR.times(this.initMarginRatio.minus(this.maintMarginRatio)).plus(
+          this.maintMarginRatio
+        );
+      default:
+        throw Error(`Unknown margin requirement type: ${type}`);
     }
   }
 }

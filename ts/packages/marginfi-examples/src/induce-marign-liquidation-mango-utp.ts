@@ -3,8 +3,6 @@ require("dotenv").config();
 import { Connection, Transaction } from "@solana/web3.js";
 
 import {
-  Environment,
-  getConfig,
   instructions,
   loadKeypair,
   MangoOrderSide,
@@ -22,6 +20,7 @@ const connection = new Connection(process.env.RPC_ENDPOINT!);
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 
 async function configureMarginReq(client: MarginfiClient, initMReq: number, maintMReq: number) {
+  console.log("Setting margin requirements to %s %s on group %s", initMReq, maintMReq, client.group.publicKey);
   const program = client.program;
   const args = {
     bank: {
@@ -40,20 +39,18 @@ async function configureMarginReq(client: MarginfiClient, initMReq: number, main
   );
 
   const tx = new Transaction().add(ix);
-  await processTransaction(program.provider, tx, undefined, {
+  const sig = await processTransaction(program.provider, tx, undefined, {
     skipPreflight: false,
   });
+  console.log("Sig %s", sig);
 }
 
 const depositAmount = 100;
 
 (async function () {
-  const config = await getConfig(Environment.DEVNET, connection);
+  const client = await MarginfiClient.fromEnv({ wallet, connection });
 
-  // Setup the client
-  const client = await MarginfiClient.fetch(config, wallet, connection);
-
-  await configureMarginReq(client, 0.075, 0.05);
+  await configureMarginReq(client, 0.005, 0.0025);
 
   // Prepare user accounts
   const marginfiAccount = await client.createMarginfiAccount();
@@ -66,7 +63,7 @@ const depositAmount = 100;
   const mangoGroup = await marginfiAccount.mango.getMangoGroup();
   const mangoAccount = await marginfiAccount.mango.getMangoAccount();
 
-  const perpMarketConfig = getMarketByBaseSymbolAndKind(marginfiAccount.mango.config.groupConfig, "SOL", "perp");
+  const perpMarketConfig = getMarketByBaseSymbolAndKind(marginfiAccount.mango.config.groupConfig, "MNGO", "perp");
 
   const mangoBtcMarket = await mangoGroup.loadPerpMarket(
     connection,
@@ -82,7 +79,7 @@ const depositAmount = 100;
   const baseAssetAmount = balance
     .div(I80F48.fromNumber(10 ** 6))
     .div(price)
-    .mul(I80F48.fromNumber(5));
+    .mul(I80F48.fromNumber(1));
 
   console.log("Balance: %s, price: %s, amount %s", balance.toNumber(), price.toNumber(), baseAssetAmount.toNumber());
 
@@ -94,7 +91,7 @@ const depositAmount = 100;
     {
       orderType: MangoPerpOrderType.Market,
     }
-  ); // TODO: probably wrong parameters to open symmetrical LONG
+  );
 
   await configureMarginReq(client, 1, 0.5);
 })();
