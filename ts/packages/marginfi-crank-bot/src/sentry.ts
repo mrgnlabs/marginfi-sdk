@@ -61,7 +61,7 @@ if (SENTRY_ACTIVE) {
       },
     });
   });
-  
+
   process.exit();
 }
 
