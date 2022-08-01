@@ -4,5 +4,5 @@ if TYPE_CHECKING:
     from marginpy.types import ObservationRaw
 
 def get_observation(
-    mango_group_data: bytes, mango_account_data: bytes, mango_cache_data: bytes
+    zo_margin: bytes, zo_control: bytes, zo_state: bytes, zo_cache: bytes
 ) -> ObservationRaw: ...

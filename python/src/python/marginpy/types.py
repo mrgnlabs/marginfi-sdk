@@ -85,3 +85,14 @@ class UtpMangoPlacePerpOrderOptions:
 class InstructionsWrapper:
     instructions: List[TransactionInstruction]
     signers: List[Keypair]
+
+
+class ObservationRaw:
+    timestamp: int
+    free_collateral: int
+    is_empty: bool
+    is_rebalance_deposit_valid: bool
+    max_rebalance_deposit_amount: int
+    init_margin_requirement: int
+    equity: int
+    liquidation_value: int

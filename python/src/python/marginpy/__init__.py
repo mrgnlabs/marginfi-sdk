@@ -6,8 +6,6 @@ from marginpy.bank import Bank
 from marginpy.client import MarginfiClient
 from marginpy.config import MarginfiConfig
 from marginpy.group import MarginfiGroup
-
-# from marginpy.marginpy import utp_observation
 from marginpy.marginpy import utp_observation
 from marginpy.types import Environment
 

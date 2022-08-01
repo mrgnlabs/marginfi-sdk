@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING, List, Tuple
 
 import mango
@@ -15,8 +16,14 @@ from marginpy.generated_client.types.mango_order_type import (
 from marginpy.generated_client.types.utp_mango_place_perp_order_args import (
     UtpMangoPlacePerpOrderArgs,
 )
+from marginpy.marginpy import utp_observation
 from marginpy.types import UtpMangoPlacePerpOrderOptions
-from marginpy.utils import get_bank_authority, ui_to_native
+from marginpy.utils import (
+    b64str_to_bytes,
+    get_bank_authority,
+    json_to_account_info,
+    ui_to_native,
+)
 from marginpy.utp.account import UtpAccount
 from marginpy.utp.mango.instructions import (
     ActivateAccounts,
@@ -36,8 +43,10 @@ from marginpy.utp.mango.instructions import (
     make_withdraw_ix,
 )
 from marginpy.utp.mango.types import USDC_TOKEN_DICT
+from marginpy.utp.observation import UtpObservation
 from solana.keypair import Keypair
 from solana.publickey import PublicKey
+from solana.rpc.types import RPCResponse
 from solana.transaction import (
     AccountMeta,
     Transaction,
@@ -497,12 +506,55 @@ class UtpMangoAccount(UtpAccount):
         return utp_account_pk
 
     # @todo
-    async def observe(self):
+    async def observe(self) -> UtpObservation:
         """
         Refresh and retrieve the health cache for the Mango account, directly from the mango account.
 
         :returns: Health cache for the Mango UTP
         """
+
+        with mango.ContextBuilder.build(
+            cluster_name=self.config.cluster, group_name="devnet.2"
+        ) as context:
+            mango_group = mango.Group.load(context)
+            mango_cache = mango_group.cache
+
+        pubkeys = [self.address, self.config.group_pk, mango_cache]
+        response: RPCResponse = (
+            await self._program.provider.connection.get_multiple_accounts(pubkeys)
+        )
+        if "error" in response.keys():
+            raise Exception(f"Error while fetching {pubkeys}: {response['error']}")
+        [mango_account_json, mango_group_json, mango_cache_json] = response["result"][
+            "value"
+        ]
+        if mango_account_json is None:
+            raise Exception(f"Mango account {self.address} not found")
+        if mango_group_json is None:
+            raise Exception(f"Mango group {self.config.group_pk} not found")
+        if mango_cache_json is None:
+            raise Exception(f"Mango cache {mango_cache} not found")
+
+        mango_account_data = b64str_to_bytes(json_to_account_info(mango_account_json).data[0])  # type: ignore
+        mango_group_data = b64str_to_bytes(json_to_account_info(mango_group_json).data[0])  # type: ignore
+        mango_cache_data = b64str_to_bytes(json_to_account_info(mango_cache_json).data[0])  # type: ignore
+
+        observation = utp_observation.mango.get_observation(
+            mango_account_data=mango_account_data,
+            mango_group_data=mango_group_data,
+            mango_cache_data=mango_cache_data,
+        )
+
+        return UtpObservation(
+            timestamp=datetime.fromtimestamp(observation.timestamp),
+            equity=observation.equity,
+            free_collateral=observation.free_collateral,
+            is_empty=observation.is_empty,
+            is_rebalance_deposit_needed=observation.is_rebalance_deposit_valid,
+            liquidation_value=observation.liquidation_value,
+            max_rebalance_deposit_amount=observation.rebalance_deposit_cap,
+            init_margin_requirement=0,
+        )
 
 
 def get_mango_account_pda(

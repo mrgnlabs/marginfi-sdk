@@ -11,7 +11,7 @@ path = "src/rust/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "^0.16.5", features = ["extension-module", "abi3-py37"] }
+pyo3 = { version = "^0.16.5", features = ["extension-module", "abi3-py310"] }
 marginfi = { path = "../../programs/marginfi", features = ["client"] }
 bytemuck = "^1.7.2"
 mango-protocol = { git = "https://github.com/mrgnlabs/mango-v3.git", rev="3589b9d35beb6a01921bc32112b694e00dfb7ccc", package= "mango", features = ["no-entrypoint", "client"] }
