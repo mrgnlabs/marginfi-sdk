@@ -1,9 +1,8 @@
-from pytest import mark, raises
-from marginpy.utils import b64str_to_bytes
-from tests.utils import (
-    load_sample_account_info,
-)
 from marginpy import utp_observation
+from marginpy.utils import b64str_to_bytes
+from pytest import mark, raises
+
+from tests.utils import load_sample_account_info
 
 
 @mark.unit

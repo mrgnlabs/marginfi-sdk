@@ -2,18 +2,6 @@ import logging
 from typing import TYPE_CHECKING, List, Tuple
 
 from anchorpy import AccountsCoder
-from solana.publickey import PublicKey
-from solana.rpc.async_api import AsyncClient
-from solana.rpc.responses import AccountInfo
-from solana.rpc.types import RPCResponse
-from solana.transaction import (
-    AccountMeta,
-    Transaction,
-    TransactionInstruction,
-    TransactionSignature,
-)
-from spl.token.instructions import get_associated_token_address
-
 from marginpy.constants import COLLATERAL_SCALING_FACTOR
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
@@ -43,6 +31,17 @@ from marginpy.utils import (
 )
 from marginpy.utp.mango import UtpMangoAccount
 from marginpy.utp.zo import UtpZoAccount
+from solana.publickey import PublicKey
+from solana.rpc.async_api import AsyncClient
+from solana.rpc.responses import AccountInfo
+from solana.rpc.types import RPCResponse
+from solana.transaction import (
+    AccountMeta,
+    Transaction,
+    TransactionInstruction,
+    TransactionSignature,
+)
+from spl.token.instructions import get_associated_token_address
 
 if TYPE_CHECKING:
     from marginpy.client import MarginfiClient

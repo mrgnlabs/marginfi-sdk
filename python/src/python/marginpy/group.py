@@ -1,9 +1,6 @@
 from typing import TYPE_CHECKING
 
 from anchorpy import AccountsCoder, Program
-from solana.publickey import PublicKey
-from solana.transaction import Transaction, TransactionInstruction, TransactionSignature
-
 from marginpy.bank import Bank
 from marginpy.generated_client.accounts import MarginfiGroup as MarginfiGroupDecoded
 from marginpy.instructions import (
@@ -11,6 +8,8 @@ from marginpy.instructions import (
     make_update_interest_accumulator_ix,
 )
 from marginpy.utils import get_bank_authority, load_idl
+from solana.publickey import PublicKey
+from solana.transaction import Transaction, TransactionInstruction, TransactionSignature
 
 if TYPE_CHECKING:
     from marginpy.config import MarginfiConfig

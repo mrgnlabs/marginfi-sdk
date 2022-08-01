@@ -1,13 +1,12 @@
 from datetime import datetime
 
-from solana.publickey import PublicKey
-
 from marginpy.constants import COLLATERAL_SCALING_FACTOR
 from marginpy.generated_client.types import Bank as BankDecoded
 from marginpy.generated_client.types import LendingSideKind, MarginRequirementKind
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.generated_client.types.margin_requirement import Init, Maint
 from marginpy.utils import wrapped_fixed_to_float
+from solana.publickey import PublicKey
 
 
 class Bank:

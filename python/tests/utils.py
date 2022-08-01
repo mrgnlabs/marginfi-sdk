@@ -4,24 +4,6 @@ from typing import List, Tuple
 
 import spl.token.instructions as spl_token_ixs
 from anchorpy import Program, Provider, Wallet
-from solana.keypair import Keypair
-from solana.publickey import PublicKey
-from solana.rpc.async_api import AsyncClient
-from solana.rpc.commitment import Confirmed
-from solana.rpc.responses import AccountInfo
-from solana.system_program import CreateAccountParams, create_account
-from solana.transaction import (
-    AccountMeta,
-    Transaction,
-    TransactionInstruction,
-    TransactionSignature,
-)
-from spl.token.constants import ACCOUNT_LEN, MINT_LEN, TOKEN_PROGRAM_ID
-from spl.token.instructions import (
-    create_associated_token_account,
-    get_associated_token_address,
-)
-
 from marginpy import (
     Environment,
     MarginfiAccount,
@@ -48,6 +30,24 @@ from marginpy.utils import (
     json_to_account_info,
     load_idl,
 )
+from solana.keypair import Keypair
+from solana.publickey import PublicKey
+from solana.rpc.async_api import AsyncClient
+from solana.rpc.commitment import Confirmed
+from solana.rpc.responses import AccountInfo
+from solana.system_program import CreateAccountParams, create_account
+from solana.transaction import (
+    AccountMeta,
+    Transaction,
+    TransactionInstruction,
+    TransactionSignature,
+)
+from spl.token.constants import ACCOUNT_LEN, MINT_LEN, TOKEN_PROGRAM_ID
+from spl.token.instructions import (
+    create_associated_token_account,
+    get_associated_token_address,
+)
+
 from tests.config import DEVNET_URL
 
 

@@ -3,12 +3,12 @@ from pathlib import Path
 from time import sleep
 
 from anchorpy import Program, Provider, Wallet, localnet_fixture
-from pytest import mark
-from solana.rpc.async_api import AsyncClient
-
 from marginpy import Environment, MarginfiClient, MarginfiConfig
 from marginpy.types import AccountType, BankConfig, GroupConfig
 from marginpy.utils import load_idl
+from pytest import mark
+from solana.rpc.async_api import AsyncClient
+
 from tests.config import DEVNET_URL
 from tests.fixtures import REAL_ACCOUNT_PUBKEY_2, Basics, basics_fixture
 from tests.utils import (

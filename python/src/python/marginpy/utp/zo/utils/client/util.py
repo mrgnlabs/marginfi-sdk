@@ -3,13 +3,12 @@ from typing import Tuple
 
 import solana.system_program
 from anchorpy import Context, Program
+from marginpy.utp.zo.utils.client.types import PerpType
 from solana.keypair import Keypair
 from solana.publickey import PublicKey
 from solana.rpc.commitment import Finalized
 from solana.rpc.types import TxOpts
 from solana.sysvar import SYSVAR_RENT_PUBKEY
-
-from marginpy.utp.zo.utils.client.types import PerpType
 
 CONTROL_ACCOUNT_SIZE = 8 + 4482
 

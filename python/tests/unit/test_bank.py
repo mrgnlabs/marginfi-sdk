@@ -1,9 +1,9 @@
-from pytest import mark
-
 from marginpy import Bank
 from marginpy.generated_client.types import Bank as BankDecoded
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.generated_client.types.margin_requirement import Init, Maint
+from pytest import mark
+
 from tests.fixtures import I80F48_ZERO, SAMPLE_ACCOUNT_PUBKEY_1, SAMPLE_BANK
 
 

@@ -6,11 +6,6 @@ from typing import TYPE_CHECKING, List
 
 import spl.token.instructions as spl_token_ixs
 from anchorpy import Program
-from solana import system_program
-from solana.publickey import PublicKey
-from solana.transaction import AccountMeta, TransactionInstruction, TransactionSignature
-from spl.token.constants import ACCOUNT_LEN, TOKEN_PROGRAM_ID
-
 from marginpy.constants import (
     INSURANCE_VAULT_LIQUIDATION_FEE,
     LIQUIDATOR_LIQUIDATION_FEE,
@@ -19,6 +14,10 @@ from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
 from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpData, UtpIndex
 from marginpy.utils import get_utp_authority
 from marginpy.utp.observation import EMPTY_OBSERVATION, UtpObservation
+from solana import system_program
+from solana.publickey import PublicKey
+from solana.transaction import AccountMeta, TransactionInstruction, TransactionSignature
+from spl.token.constants import ACCOUNT_LEN, TOKEN_PROGRAM_ID
 
 if TYPE_CHECKING:
     from marginpy import MarginfiAccount, MarginfiClient, MarginfiConfig

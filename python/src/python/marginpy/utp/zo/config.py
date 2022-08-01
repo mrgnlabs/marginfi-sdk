@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from typing import Any, Dict, Literal
 
-from solana.publickey import PublicKey
-
 from marginpy.types import Environment, UtpConfig, UtpIndex
 from marginpy.utils import handle_override
+from solana.publickey import PublicKey
 
 # empty dictionnary default safe here because we do use `overrides` read-only
 # ref: https://stackoverflow.com/questions/26320899/ \

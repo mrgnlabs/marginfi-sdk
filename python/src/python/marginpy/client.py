@@ -7,13 +7,6 @@ from typing import TYPE_CHECKING, List, Tuple
 from anchorpy import AccountsCoder, Program, ProgramAccount, Provider, Wallet
 from anchorpy.provider import DEFAULT_OPTIONS
 from based58 import b58encode
-from solana.keypair import Keypair
-from solana.publickey import PublicKey
-from solana.rpc import types
-from solana.rpc.async_api import AsyncClient
-from solana.rpc.types import DataSliceOpts, MemcmpOpts
-from solana.transaction import Transaction, TransactionSignature
-
 from marginpy.account import MarginfiAccount
 from marginpy.group import MarginfiGroup
 from marginpy.instructions import (
@@ -22,6 +15,12 @@ from marginpy.instructions import (
 )
 from marginpy.types import AccountType
 from marginpy.utils import load_idl
+from solana.keypair import Keypair
+from solana.publickey import PublicKey
+from solana.rpc import types
+from solana.rpc.async_api import AsyncClient
+from solana.rpc.types import DataSliceOpts, MemcmpOpts
+from solana.transaction import Transaction, TransactionSignature
 
 if TYPE_CHECKING:
     from marginpy.config import MarginfiConfig

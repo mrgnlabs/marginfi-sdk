@@ -1,7 +1,7 @@
-from pytest import mark, raises
-
 from marginpy import Environment
 from marginpy.utp.zo.utils.client.zo import Zo
+from pytest import mark, raises
+
 from tests.config import DEVNET_URL
 from tests.fixtures import ZoBench, basics_fixture, zo_bench
 

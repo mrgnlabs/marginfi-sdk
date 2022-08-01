@@ -2,12 +2,11 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Optional
 
+import marginpy.generated_client.types as gen_types
+from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
 from solana.keypair import Keypair
 from solana.publickey import PublicKey
 from solana.transaction import TransactionInstruction
-
-import marginpy.generated_client.types as gen_types
-from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
 
 
 class Environment(Enum):

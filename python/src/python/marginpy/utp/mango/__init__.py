@@ -1,4 +1,3 @@
-# flake8: noqa
 from . import instructions
 from .account import UtpMangoAccount
 from .config import MangoConfig

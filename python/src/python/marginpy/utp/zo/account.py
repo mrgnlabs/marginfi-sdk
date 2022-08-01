@@ -2,16 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List, Tuple
 
-from solana.keypair import Keypair
-from solana.publickey import PublicKey
-from solana.system_program import CreateAccountParams, create_account
-from solana.transaction import (
-    AccountMeta,
-    Transaction,
-    TransactionInstruction,
-    TransactionSignature,
-)
-
 from marginpy.generated_client.types.order_type import (  # TODO handle ambiguous `order_type` naming issue
     from_decoded,
 )
@@ -49,6 +39,15 @@ from marginpy.utp.zo.utils.client.util import (
     compute_taker_fee,
     price_to_lots,
     size_to_lots,
+)
+from solana.keypair import Keypair
+from solana.publickey import PublicKey
+from solana.system_program import CreateAccountParams, create_account
+from solana.transaction import (
+    AccountMeta,
+    Transaction,
+    TransactionInstruction,
+    TransactionSignature,
 )
 
 if TYPE_CHECKING:

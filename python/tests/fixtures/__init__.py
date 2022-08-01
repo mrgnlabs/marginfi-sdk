@@ -3,17 +3,6 @@ from time import sleep
 from typing import Callable, Optional, cast
 
 from anchorpy import Program, Provider, Wallet
-from pytest import fixture
-from pytest_asyncio import fixture as async_fixture
-from solana.publickey import PublicKey
-from solana.rpc.async_api import AsyncClient
-from solana.rpc.commitment import Commitment, Processed
-from solana.rpc.types import TxOpts
-from spl.token.async_client import AsyncToken
-from spl.token.constants import TOKEN_PROGRAM_ID
-from spl.token.core import _TokenCore
-from spl.token.instructions import get_associated_token_address
-
 from marginpy import (
     Bank,
     Environment,
@@ -26,6 +15,17 @@ from marginpy.generated_client.types import Bank as BankDecoded
 from marginpy.generated_client.types.wrapped_i80f48 import WrappedI80F48
 from marginpy.types import BankConfig, GroupConfig
 from marginpy.utils import load_idl
+from pytest import fixture
+from pytest_asyncio import fixture as async_fixture
+from solana.publickey import PublicKey
+from solana.rpc.async_api import AsyncClient
+from solana.rpc.commitment import Commitment, Processed
+from solana.rpc.types import TxOpts
+from spl.token.async_client import AsyncToken
+from spl.token.constants import TOKEN_PROGRAM_ID
+from spl.token.core import _TokenCore
+from spl.token.instructions import get_associated_token_address
+
 from tests.config import LOCALNET_URL
 from tests.utils import (
     airdrop_collateral,

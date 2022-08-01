@@ -1,10 +1,10 @@
 import mango
-from pytest import mark, raises
-
 import marginpy.generated_client.types.mango_side as mango_side
 from marginpy import Environment
 from marginpy.generated_client.types.mango_order_type import PostOnlySlide
 from marginpy.types import UtpMangoPlacePerpOrderOptions
+from pytest import mark, raises
+
 from tests.config import DEVNET_URL
 from tests.fixtures import MangoBench, basics_fixture, mango_bench
 

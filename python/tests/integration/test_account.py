@@ -2,11 +2,11 @@ from os import path
 from pathlib import Path
 
 from anchorpy import Program, Provider, Wallet, localnet_fixture
+from marginpy import Environment, MarginfiAccount, MarginfiClient, MarginfiConfig
+from marginpy.utils import load_idl
 from pytest import mark
 from solana.rpc.async_api import AsyncClient
 
-from marginpy import Environment, MarginfiAccount, MarginfiClient, MarginfiConfig
-from marginpy.utils import load_idl
 from tests.config import DEVNET_URL
 from tests.fixtures import (
     REAL_ACCOUNT_PUBKEY_2,

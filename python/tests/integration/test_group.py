@@ -2,13 +2,13 @@ from os import path
 from pathlib import Path
 
 from anchorpy import Program, Provider, Wallet, localnet_fixture
+from marginpy import Environment, MarginfiConfig, MarginfiGroup
+from marginpy.types import BankConfig, GroupConfig
+from marginpy.utils import b64str_to_bytes, load_idl
 from pytest import mark
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 
-from marginpy import Environment, MarginfiConfig, MarginfiGroup
-from marginpy.types import BankConfig, GroupConfig
-from marginpy.utils import b64str_to_bytes, load_idl
 from tests.config import DEVNET_URL
 from tests.fixtures import (
     Basics,

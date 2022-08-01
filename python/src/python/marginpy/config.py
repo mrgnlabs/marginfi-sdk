@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 from typing import Any, Dict
 
-from solana.publickey import PublicKey
-
 from marginpy.types import Environment
 from marginpy.utils import handle_override
 from marginpy.utp.mango import MangoConfig
 from marginpy.utp.zo import ZoConfig
+from solana.publickey import PublicKey
 
 # empty dictionnary default safe here because we do use `overrides` read-only
 # ref: https://stackoverflow.com/questions/26320899/ \

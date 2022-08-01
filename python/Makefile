@@ -30,13 +30,12 @@ serve-cov:   ## Serve coverage HTML report
 ##@ Type-checking / Linting
 lint:  ## Run type and format checkers
 	make lint-code
-	# make lint-docs
 
 lint-code:
 	poetry run mypy src/python
 	poetry run black --check --preview --diff src/python tests
 	poetry run flake8 src/python tests
-	poetry run pylint --rcfile=.pylintrc src/python
+	poetry run pylint --rcfile=.pylintrc src/python/marginpy
 	poetry run isort --check-only src/python
 
 lint-docs:

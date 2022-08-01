@@ -3,15 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List, Tuple
 
 import mango
-from solana.keypair import Keypair
-from solana.publickey import PublicKey
-from solana.transaction import (
-    AccountMeta,
-    Transaction,
-    TransactionInstruction,
-    TransactionSignature,
-)
-
 import marginpy.generated_client.types as gen_types
 from marginpy.generated_client.types.mango_expiry_type import (
     Absolute,
@@ -45,6 +36,14 @@ from marginpy.utp.mango.instructions import (
     make_withdraw_ix,
 )
 from marginpy.utp.mango.types import USDC_TOKEN_DICT
+from solana.keypair import Keypair
+from solana.publickey import PublicKey
+from solana.transaction import (
+    AccountMeta,
+    Transaction,
+    TransactionInstruction,
+    TransactionSignature,
+)
 
 if TYPE_CHECKING:
     from marginpy import MarginfiAccount, MarginfiClient

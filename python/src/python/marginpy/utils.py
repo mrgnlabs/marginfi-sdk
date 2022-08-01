@@ -4,10 +4,6 @@ import os
 from typing import Any, Dict, Optional, Tuple
 
 from anchorpy import Idl
-from solana.publickey import PublicKey
-from solana.rpc.responses import AccountInfo
-from solana.transaction import TransactionInstruction
-
 from marginpy.constants import (
     COLLATERAL_DECIMALS,
     PDA_BANK_FEE_VAULT_SEED,
@@ -18,6 +14,9 @@ from marginpy.constants import (
 )
 from marginpy.generated_client.types.wrapped_i80f48 import WrappedI80F48
 from marginpy.types import BankVaultType
+from solana.publickey import PublicKey
+from solana.rpc.responses import AccountInfo
+from solana.transaction import TransactionInstruction
 
 
 def load_idl(idl_path: Optional[str] = None) -> Idl:

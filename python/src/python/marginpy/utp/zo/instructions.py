@@ -1,14 +1,13 @@
 from dataclasses import dataclass
 from typing import List
 
+import marginpy.generated_client.instructions as gen_ix
+from marginpy.generated_client.instructions.utp_zo_cancel_perp_order import HeaderNested
 from solana.publickey import PublicKey
 from solana.system_program import SYS_PROGRAM_ID
 from solana.sysvar import SYSVAR_RENT_PUBKEY
 from solana.transaction import AccountMeta, TransactionInstruction
 from spl.token.constants import TOKEN_PROGRAM_ID
-
-import marginpy.generated_client.instructions as gen_ix
-from marginpy.generated_client.instructions.utp_zo_cancel_perp_order import HeaderNested
 
 # --- Activate
 
