@@ -56,8 +56,8 @@ async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
     await marginfiAccount.group.fetch();
     try {
       await marginfiAccount.reload(true);
-      // await marginfiAccount.checkRebalance();
-      // await marginfiAccount.checkBankruptcy();
+      await marginfiAccount.checkRebalance();
+      await marginfiAccount.checkBankruptcy();
       await checkPartialLiq(marginfiAccount);
     } catch (e: any) {
       captureException(e, {
@@ -123,10 +123,7 @@ async function checkPartialLiq(mfiAccount: MarginfiAccount) {
 
     for (let i = 0; i < zoMargin.positions.length; i++) {
       const position = zoMargin.positions[i];
-      const zoMarket = await zoState.getMarketBySymbol(position.marketKey);
-      const price = position.isLong
-        ? (await zoMarket.loadAsks(connection)).getL2(1)[0][0]
-        : (await zoMarket.loadBids(connection)).getL2(1)[0][0];
+      const price = zoState.markets[position.marketKey].markPrice.number;
       const positionNotionalValue = position.coins.mul(price);
 
       positions.push({
@@ -171,7 +168,7 @@ async function checkPartialLiq(mfiAccount: MarginfiAccount) {
 
     debug("Placing a %s order for %s @ $%s for %s on Mango Markets", side, size, marketPrice, perpMarketConfig.name);
 
-    mfiAccount.mango.placePerpOrder(perpMarket, side, marketPrice, size, {
+    await mfiAccount.mango.placePerpOrder(perpMarket, side, marketPrice, size, {
       orderType: MangoPerpOrderType.Market,
       reduceOnly: true,
     });
@@ -185,11 +182,8 @@ async function checkPartialLiq(mfiAccount: MarginfiAccount) {
     await zoState.loadMarkets(true);
 
     const position = zoMargin.position(biggestPosition.market);
-    const zoMarket = await zoState.getMarketBySymbol(position.marketKey);
-    const long = position.isLong;
-    const price = long
-      ? (await zoMarket.loadAsks(connection)).getL2(1)[0][0]
-      : (await zoMarket.loadBids(connection)).getL2(1)[0][0];
+    const long = !position.isLong;
+    const price = zoState.markets[position.marketKey].markPrice.number;
 
     const size = BigNumber.min(new BigNumber(position.coins.number).abs(), maxLiqAmountUsd.div(price));
 
@@ -206,10 +200,10 @@ async function checkPartialLiq(mfiAccount: MarginfiAccount) {
       position.marketKey
     );
 
-    mfiAccount.zo.placePerpOrder({
+    await mfiAccount.zo.placePerpOrder({
       symbol: position.marketKey,
       isLong: long,
-      price: price,
+      price: long ? 1_000_000_000 : 1,
       orderType: ZoPerpOrderType.ReduceOnlyIoc,
       size: size.toNumber(),
     });

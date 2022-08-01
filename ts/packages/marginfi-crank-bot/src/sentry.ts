@@ -48,6 +48,8 @@ if (SENTRY_ACTIVE) {
         promise,
       },
     });
+
+    process.exit();
   });
 
   process.on("uncaughtException", (e: Error, origin: any) => {
@@ -59,6 +61,8 @@ if (SENTRY_ACTIVE) {
       },
     });
   });
+  
+  process.exit();
 }
 
 export function captureException(e: any, ctx?: Partial<ScopeContext>) {

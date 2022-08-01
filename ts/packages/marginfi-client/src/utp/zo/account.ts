@@ -306,6 +306,7 @@ export class UtpZoAccount extends UtpAccount {
     limit?: number;
     clientId?: BN;
   }>): Promise<InstructionsWrapper> {
+    const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:place-perp-order`);
     const [utpAuthority] = await this.authority();
 
     const zoProgram = await ZoClient.createProgram(this._program.provider, this.config.cluster);
@@ -339,6 +340,8 @@ export class UtpZoAccount extends UtpAccount {
       limit: limit ?? 10,
       clientId: clientId ?? new BN(0),
     };
+
+    debug(args);
 
     return {
       instructions: [

@@ -12,7 +12,7 @@ import {
   ZoPerpOrderType,
 } from "@mrgnlabs/marginfi-client";
 
-const connection = new Connection(process.env.RPC_ENDPOINT!, 'confirmed');
+const connection = new Connection(process.env.RPC_ENDPOINT!, "confirmed");
 const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 
 async function configureMarginReq(client: MarginfiClient, initMReq: number, maintMReq: number) {
@@ -39,8 +39,8 @@ async function configureMarginReq(client: MarginfiClient, initMReq: number, main
   });
 }
 
-const depositAmount = 30;
-const MARKET_SYMBOL = "SOL-PERP";
+const depositAmount = 200;
+const MARKET_SYMBOL = "BTC-PERP";
 
 (async function () {
   // Setup the client
@@ -61,20 +61,17 @@ const MARKET_SYMBOL = "SOL-PERP";
   await marginfiAccount.zo.createPerpOpenOrders(MARKET_SYMBOL);
 
   let quoteAmount = margin.freeCollateralValue.toNumber();
-  let market = await state.getMarketBySymbol(MARKET_SYMBOL);
-  let asks = await market.loadAsks(connection);
-  let highestAsk = [...asks.items(true)][0];
+  const price = state.markets[MARKET_SYMBOL].markPrice;
 
-  let price = highestAsk.price;
-  let positionSize = (quoteAmount / highestAsk.price) * 2;
+  let positionSize = (quoteAmount / price.number) * 4;
+  const long = false;
 
   await marginfiAccount.zo.placePerpOrder({
     symbol: MARKET_SYMBOL,
     orderType: ZoPerpOrderType.FillOrKill,
-    isLong: true,
-    price: price,
+    isLong: long,
+    price: long ? 1_000_000 : 1,
     size: positionSize,
-    clientId: new BN(888),
   });
 
   await margin.refresh(true, true);
