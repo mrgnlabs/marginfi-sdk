@@ -164,7 +164,7 @@ export interface BankData {
   insuranceVault: PublicKey;
   insuranceVaultAuthorityBump: number;
   feeVault: PublicKey;
-  feeVaultAutorityBump: number;
+  feeVaultAuthorityBump: number;
   initMarginRatio: WrappedI8048F;
   maintMarginRatio: WrappedI8048F;
 }

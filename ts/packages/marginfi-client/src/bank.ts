@@ -41,7 +41,7 @@ class Bank {
     this.insuranceVault = data.insuranceVault;
     this.insuranceVaultAuthorityBump = data.insuranceVaultAuthorityBump;
     this.feeVault = data.feeVault;
-    this.feeVaultAutorityBump = data.feeVaultAutorityBump;
+    this.feeVaultAuthorityBump = data.feeVaultAuthorityBump;
     this.initMarginRatio = wrappedI80F48toBigNumber(data.initMarginRatio, 0);
     this.maintMarginRatio = wrappedI80F48toBigNumber(data.maintMarginRatio, 0);
   }
