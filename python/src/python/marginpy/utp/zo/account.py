@@ -449,6 +449,8 @@ class UtpZoAccount(UtpAccount):
         market = zo.dex_markets[market_symbol]
         oo_pk, _ = self.get_oo_adress_for_market(zo.margin.control, market_info.address)
 
+        remaining_accounts = await self.get_observation_accounts()
+
         cancel_ix = make_cancel_perp_order_ix(
             CancelPerpOrderArgs(
                 order_id=order_id,
@@ -473,6 +475,7 @@ class UtpZoAccount(UtpAccount):
                 dex_program=self.config.dex_program,
             ),
             self._client.program_id,
+            remaining_accounts,
         )
 
         return InstructionsWrapper(

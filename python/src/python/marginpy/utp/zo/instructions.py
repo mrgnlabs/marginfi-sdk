@@ -251,6 +251,7 @@ def make_cancel_perp_order_ix(
     args: gen_ix.UtpZoCancelPerpOrderArgs,
     accounts: CancelPerpOrderAccounts,
     program_id: PublicKey,
+    remaining_accounts: List[AccountMeta],
 ) -> TransactionInstruction:
     return gen_ix.utp_zo_cancel_perp_order(
         args,
@@ -274,6 +275,7 @@ def make_cancel_perp_order_ix(
             dex_program=accounts.dex_program,
         ),
         program_id=program_id,
+        remaining_accounts=remaining_accounts,
     )
 
 
