@@ -14,7 +14,8 @@ from marginpy import (
 from marginpy.generated_client.types import Bank as BankDecoded
 from marginpy.generated_client.types.wrapped_i80f48 import WrappedI80F48
 from marginpy.types import BankConfig, GroupConfig
-from marginpy.utils.misc import load_idl
+from marginpy.utils.misc import get_or_create_ata, load_idl
+from marginpy.utils.instructions import airdrop_collateral
 from pytest import fixture
 from pytest_asyncio import fixture as async_fixture
 from solana.publickey import PublicKey
@@ -28,10 +29,8 @@ from spl.token.instructions import get_associated_token_address
 
 from tests.config import LOCALNET_URL
 from tests.utils import (
-    airdrop_collateral,
     configure_marginfi_group,
     create_marginfi_group,
-    get_ata_or_create,
 )
 
 REAL_ACCOUNT_PUBKEY_1 = PublicKey("5mwUQhDgyPyGNxkAeP8Bdu4caina2Z8gCcM4ekp2LD4R")
@@ -312,7 +311,7 @@ def mango_bench() -> Callable:
         # Fund the liquidity vault through an ephemeral marginfi account
         # (airdropping to vault directly does not appear on books)
         marginfi_account, _ = await client.create_marginfi_account()
-        funding_ata = await get_ata_or_create(
+        funding_ata = await get_or_create_ata(
             basics_fixture.rpc_client,
             basics_fixture.wallet.payer,
             basics_fixture.default_config.collateral_mint_pk,
@@ -374,7 +373,7 @@ def zo_bench() -> Callable:
         # Fund the liquidity vault through an ephemeral marginfi account
         # (airdropping to vault directly does not appear on books)
         marginfi_account, _ = await client.create_marginfi_account()
-        funding_ata = await get_ata_or_create(
+        funding_ata = await get_or_create_ata(
             basics_fixture.rpc_client,
             basics_fixture.wallet.payer,
             basics_fixture.default_config.collateral_mint_pk,

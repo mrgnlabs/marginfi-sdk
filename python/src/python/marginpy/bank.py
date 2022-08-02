@@ -73,20 +73,20 @@ class Bank:
         record: float,
         side: LendingSideKind,
     ):
-        if side == Borrow:
+        if side == Borrow():
             return record * self.borrow_accumulator
 
-        if side == Deposit:
+        if side == Deposit():
             return record * self.deposit_accumulator
 
         raise Exception(f"Unknown lending side: {side}")
 
     # @todo should we error on negative `record` values?
     def compute_record_amount(self, record: float, side: LendingSideKind):
-        if side == Borrow:
+        if side == Borrow():
             return record / self.borrow_accumulator
 
-        if side == Deposit:
+        if side == Deposit():
             return record / self.deposit_accumulator
 
         raise Exception(f"Unknown lending side: {side}")

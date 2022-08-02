@@ -75,19 +75,16 @@ class MarginfiClient:
         """
 
         logger = cls.get_logger()
+        logger.debug(
+            "Loading marginfi client\n\tprogram: %s\n\tenvironment: %s\n\tgroup: %s",
+            config.program_id,
+            config.environment,
+            config.group_pk,
+        )
 
         if opts is None:
             opts = config.tx_opts
 
-        logger.error("module")
-        logger.critical("module")
-
-        # logging.debug(
-        #     "Loading marginfi client\n\tprogram: %s\n\tenvironment: %s\n\tgroup: %s",
-        #     config.program_id,
-        #     config.environment,
-        #     config.group_pk,
-        # )
         provider = Provider(rpc_client, wallet, opts)
         program = Program(load_idl(), config.program_id, provider=provider)
         group = await MarginfiGroup.fetch(config, program)
