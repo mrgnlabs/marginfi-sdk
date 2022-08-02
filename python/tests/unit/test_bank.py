@@ -1,7 +1,6 @@
 from marginpy import Bank
 from marginpy.generated_client.types import Bank as BankDecoded
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
-from marginpy.generated_client.types.margin_requirement import Init, Maint
 from marginpy.types import MarginRequirementType
 from pytest import mark
 

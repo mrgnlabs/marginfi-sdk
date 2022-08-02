@@ -14,8 +14,8 @@ from marginpy import (
 from marginpy.generated_client.types import Bank as BankDecoded
 from marginpy.generated_client.types.wrapped_i80f48 import WrappedI80F48
 from marginpy.types import BankConfig, GroupConfig
-from marginpy.utils.misc import get_or_create_ata, load_idl
 from marginpy.utils.instructions import airdrop_collateral
+from marginpy.utils.misc import get_or_create_ata, load_idl
 from pytest import fixture
 from pytest_asyncio import fixture as async_fixture
 from solana.publickey import PublicKey
@@ -28,10 +28,7 @@ from spl.token.core import _TokenCore
 from spl.token.instructions import get_associated_token_address
 
 from tests.config import LOCALNET_URL
-from tests.utils import (
-    configure_marginfi_group,
-    create_marginfi_group,
-)
+from tests.utils import configure_marginfi_group, create_marginfi_group
 
 REAL_ACCOUNT_PUBKEY_1 = PublicKey("5mwUQhDgyPyGNxkAeP8Bdu4caina2Z8gCcM4ekp2LD4R")
 REAL_ACCOUNT_PUBKEY_2 = PublicKey("C2HNxh6u1Pifs2qAHQfK9REemQxWcePiEL2Ftwqn4kAr")
