@@ -2,11 +2,9 @@
 from __future__ import annotations
 
 from builtins import enumerate
-import logging
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING, List, Tuple, Union
 
 from anchorpy import AccountsCoder, Program, ProgramAccount, Provider, Wallet
-from anchorpy.provider import DEFAULT_OPTIONS
 from based58 import b58encode
 from marginpy.account import MarginfiAccount
 from marginpy.group import MarginfiGroup
@@ -14,8 +12,9 @@ from marginpy.instructions import (
     InitMarginfiAccountAccounts,
     make_init_marginfi_account_ix,
 )
+from marginpy.logger import get_logger
 from marginpy.types import AccountType
-from marginpy.utils import load_idl
+from marginpy.utils.misc import load_idl
 from solana.keypair import Keypair
 from solana.publickey import PublicKey
 from solana.rpc import types
@@ -53,12 +52,13 @@ class MarginfiClient:
 
     # --- Factories
 
-    @staticmethod
+    @classmethod
     async def fetch(
+        cls,
         config: "MarginfiConfig",
         wallet: Wallet,
         rpc_client: AsyncClient,
-        opts: types.TxOpts = DEFAULT_OPTIONS,
+        opts: types.TxOpts = None,
     ) -> MarginfiClient:
         """MarginfiClient factory
 
@@ -74,12 +74,20 @@ class MarginfiClient:
             MarginfiClient: client instance
         """
 
-        logging.debug(
-            "Loading marginfi client\n\tprogram: %s\n\tenvironment: %s\n\tgroup: %s",
-            config.program_id,
-            config.environment,
-            config.group_pk,
-        )
+        logger = cls.get_logger()
+
+        if opts is None:
+            opts = config.tx_opts
+
+        logger.error("module")
+        logger.critical("module")
+
+        # logging.debug(
+        #     "Loading marginfi client\n\tprogram: %s\n\tenvironment: %s\n\tgroup: %s",
+        #     config.program_id,
+        #     config.environment,
+        #     config.group_pk,
+        # )
         provider = Provider(rpc_client, wallet, opts)
         program = Program(load_idl(), config.program_id, provider=provider)
         group = await MarginfiGroup.fetch(config, program)
@@ -99,13 +107,23 @@ class MarginfiClient:
 
     @property
     def program(self) -> Program:
-        """Anchor program getter
+        """marginfi Anchor program getter
 
         Returns:
             Program: marginfi Anchor program
         """
 
         return self._program
+
+    @property
+    def provider(self) -> Provider:
+        """Anchor provider getter
+
+        Returns:
+            Program: Anchor provider
+        """
+
+        return self._program.provider
 
     @property
     def group(self) -> MarginfiGroup:
@@ -148,9 +166,11 @@ class MarginfiClient:
             Tuple[MarginfiAccount, TransactionSignature]: newly created marginfi account
         """
 
+        logger = self.get_logger()
+
         account_keypair = Keypair()
         account_pk = account_keypair.public_key
-        print(f"Creating Marginfi account {account_pk}")
+        logger.info("Creating Marginfi account %s", account_pk)
 
         create_marginfi_account_account_ix = await self._program.account[
             AccountType.MARGINFI_ACCOUNT.value
@@ -264,7 +284,9 @@ class MarginfiClient:
             )
         return all_accounts
 
-    async def get_marginfi_account(self, address: PublicKey) -> MarginfiAccount:
+    async def get_marginfi_account(
+        self, address: Union[str, PublicKey]
+    ) -> MarginfiAccount:
         """Retrieve specified marginfi account
 
         Args:
@@ -274,7 +296,7 @@ class MarginfiClient:
             MarginfiAccount: marginfi account
         """
 
-        return await MarginfiAccount.fetch(address, self)
+        return await MarginfiAccount.fetch(PublicKey(address), self)
 
     async def get_all_program_account_addresses(
         self, account_type: AccountType
@@ -317,3 +339,7 @@ class MarginfiClient:
         """Cleanup connections"""
 
         await self._program.close()
+
+    @staticmethod
+    def get_logger():
+        return get_logger(f"{__name__}.MarginfiClient")

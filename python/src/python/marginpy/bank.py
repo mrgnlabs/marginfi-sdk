@@ -2,10 +2,10 @@ from datetime import datetime
 
 from marginpy.constants import COLLATERAL_SCALING_FACTOR
 from marginpy.generated_client.types import Bank as BankDecoded
-from marginpy.generated_client.types import LendingSideKind, MarginRequirementKind
+from marginpy.generated_client.types import LendingSideKind
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
-from marginpy.generated_client.types.margin_requirement import Init, Maint
-from marginpy.utils import wrapped_fixed_to_float
+from marginpy.types import MarginRequirementType
+from marginpy.utils.data_conversion import wrapped_fixed_to_float
 from solana.publickey import PublicKey
 
 
@@ -92,11 +92,11 @@ class Bank:
         raise Exception(f"Unknown lending side: {side}")
 
     # @todo checks here that it should be 0 <= x <= 1 ?
-    def margin_ratio(self, mreq_type: MarginRequirementKind):
-        if mreq_type == Init:
+    def margin_ratio(self, mreq_type: MarginRequirementType):
+        if mreq_type is MarginRequirementType.Init:
             return self.init_margin_ratio
 
-        if mreq_type == Maint:
+        if mreq_type is MarginRequirementType.Maint:
             return self.maint_margin_ratio
 
         raise Exception(f"Unknown margin requirement type: {mreq_type}")

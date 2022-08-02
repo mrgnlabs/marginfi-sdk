@@ -1,6 +1,8 @@
 import json
 import os
 from typing import List, Tuple
+from marginpy.utils.data_conversion import json_to_account_info
+from marginpy.utils.pda import get_bank_authority
 
 import spl.token.instructions as spl_token_ixs
 from anchorpy import Program, Provider, Wallet
@@ -14,7 +16,6 @@ from marginpy import (
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
 from marginpy.generated_client.accounts import MarginfiGroup as MarginfiGroupData
 
-# --- Marginfi group
 from marginpy.instructions import (
     ConfigureMarginfiGroupAccounts,
     ConfigureMarginfiGroupArgs,
@@ -24,12 +25,7 @@ from marginpy.instructions import (
     make_init_marginfi_group_ix,
 )
 from marginpy.types import BankVaultType, GroupConfig
-from marginpy.utils import (
-    b64str_to_bytes,
-    get_bank_authority,
-    json_to_account_info,
-    load_idl,
-)
+from marginpy.utils.misc import load_idl
 from solana.keypair import Keypair
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
@@ -37,17 +33,11 @@ from solana.rpc.commitment import Confirmed
 from solana.rpc.responses import AccountInfo
 from solana.system_program import CreateAccountParams, create_account
 from solana.transaction import (
-    AccountMeta,
     Transaction,
     TransactionInstruction,
     TransactionSignature,
 )
 from spl.token.constants import ACCOUNT_LEN, MINT_LEN, TOKEN_PROGRAM_ID
-from spl.token.instructions import (
-    create_associated_token_account,
-    get_associated_token_address,
-)
-
 from tests.config import DEVNET_URL
 
 
@@ -82,50 +72,6 @@ async def create_collateral_mint(
     tx = Transaction().add(create_mint_account_ix, init_mint_ix)
     sig = await program.provider.send(tx, signers=[mint_keypair])
     return mint_pubkey, sig
-
-
-async def get_ata_or_create(
-    rpc_client: AsyncClient, payer_keypair: Keypair, mint_pk: PublicKey
-) -> PublicKey:
-    ata = get_associated_token_address(payer_keypair.public_key, mint_pk)
-
-    resp = await rpc_client.get_account_info(ata)
-    ata_account_info = resp["result"]["value"]
-    if ata_account_info is None:
-        create_ata_ix = create_associated_token_account(
-            payer_keypair.public_key, payer_keypair.public_key, mint_pk
-        )
-        tx = Transaction().add(create_ata_ix)
-        resp = await rpc_client.send_transaction(tx, payer_keypair)
-        await rpc_client.confirm_transaction(resp["result"])
-
-    return ata
-
-
-# @todo fix
-FAUCET_PROGRAM_ID = PublicKey("4bXpkKSV8swHSnwqtzuboGPaPDeEgAn4Vt8GfarV5rZt")
-
-
-async def airdrop_collateral(
-    provider: Provider,
-    amount: int,
-    mint_pk: PublicKey,
-    token_account: PublicKey,
-    faucet: PublicKey,
-) -> TransactionSignature:
-    faucet_pda, _ = PublicKey.find_program_address([b"faucet"], FAUCET_PROGRAM_ID)
-    keys = [
-        AccountMeta(pubkey=faucet_pda, is_signer=False, is_writable=False),
-        AccountMeta(pubkey=mint_pk, is_signer=False, is_writable=True),
-        AccountMeta(pubkey=token_account, is_signer=False, is_writable=True),
-        AccountMeta(pubkey=TOKEN_PROGRAM_ID, is_signer=False, is_writable=False),
-        AccountMeta(pubkey=faucet, is_signer=False, is_writable=False),
-    ]
-    data = b"\x01" + amount.to_bytes(8, "little")
-    airdrop_ix = TransactionInstruction(keys, FAUCET_PROGRAM_ID, data)
-    tx = Transaction().add(airdrop_ix)
-    sig = await provider.send(tx)
-    return sig
 
 
 async def make_create_vault_account_ixs(

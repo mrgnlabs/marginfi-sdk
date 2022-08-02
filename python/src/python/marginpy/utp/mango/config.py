@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Literal
 
 from marginpy.types import Environment, UtpConfig, UtpIndex
-from marginpy.utils import handle_override
+from marginpy.utils.misc import handle_override
 from solana.publickey import PublicKey
 
 # empty dictionnary default safe here because we do use `overrides` read-only

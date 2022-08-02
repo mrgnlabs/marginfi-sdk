@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from typing import Any, Dict
-
 from marginpy.types import Environment
-from marginpy.utils import handle_override
+from marginpy.utils.misc import handle_override
 from marginpy.utp.mango import MangoConfig
 from marginpy.utp.zo import ZoConfig
 from solana.publickey import PublicKey
+from solana.rpc.types import TxOpts
+from anchorpy.provider import DEFAULT_OPTIONS
 
 # empty dictionnary default safe here because we do use `overrides` read-only
 # ref: https://stackoverflow.com/questions/26320899/ \
@@ -58,7 +59,7 @@ class MarginfiDedicatedConfig:
             self.program_id = handle_override(
                 overrides=overrides,
                 override_key="program_id",
-                default=PublicKey("Ghv4WbkASX6mVjeGiRfqRMLuh4CzgLtsPSLz8YaKHqxc"),
+                default=PublicKey("AiAL3aGuXErgGrkbmiJvnYhKSgQG41KpadLzm2k4CEJC"),
             )
             self.group_pk = handle_override(
                 overrides=overrides,
@@ -76,6 +77,7 @@ class MarginfiDedicatedConfig:
 
 @dataclass
 class MarginfiConfig(MarginfiDedicatedConfig):
+    tx_opts: TxOpts
     mango: MangoConfig
     zo: ZoConfig
 
@@ -84,6 +86,10 @@ class MarginfiConfig(MarginfiDedicatedConfig):
 
         if overrides is None:
             overrides = {}
+
+        self.tx_opts = (
+            overrides["tx_opts"] if "tx_opts" in overrides.keys() else DEFAULT_OPTIONS
+        )
 
         self.mango = MangoConfig(
             environment, overrides["mango"] if "mango" in overrides.keys() else None

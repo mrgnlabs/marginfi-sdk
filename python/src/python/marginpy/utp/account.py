@@ -12,7 +12,7 @@ from marginpy.constants import (
 )
 from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
 from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpData, UtpIndex
-from marginpy.utils import get_utp_authority
+from marginpy.utils.pda import get_utp_authority
 from marginpy.utp.observation import EMPTY_OBSERVATION, UtpObservation
 from solana import system_program
 from solana.publickey import PublicKey
@@ -94,9 +94,7 @@ class UtpAccount(ABC):
     @property
     def cached_observation(self) -> UtpObservation:
         # TODO
-        fetch_age = (
-            datetime.now() - self._cached_observation.timestamp
-        ).total_seconds()
+        fetch_age = datetime.now().timestamp() - self._cached_observation.timestamp
         if fetch_age > 5:
             print(
                 f"[WARNNG] Last {UTP_NAME[self.index]} observation was fetched"

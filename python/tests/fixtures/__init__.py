@@ -14,7 +14,7 @@ from marginpy import (
 from marginpy.generated_client.types import Bank as BankDecoded
 from marginpy.generated_client.types.wrapped_i80f48 import WrappedI80F48
 from marginpy.types import BankConfig, GroupConfig
-from marginpy.utils import load_idl
+from marginpy.utils.misc import load_idl
 from pytest import fixture
 from pytest_asyncio import fixture as async_fixture
 from solana.publickey import PublicKey

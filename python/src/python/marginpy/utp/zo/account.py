@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datetime import datetime
 
 from typing import TYPE_CHECKING, List, Tuple
 
@@ -8,9 +9,17 @@ from marginpy.generated_client.types.order_type import (  # TODO handle ambiguou
 from marginpy.generated_client.types.utp_zo_place_perp_order_ix_args import (
     UtpZoPlacePerpOrderIxArgs,
 )
+from marginpy.marginpy import utp_observation
 from marginpy.types import InstructionsWrapper
-from marginpy.utils import get_bank_authority, make_request_units_ix, ui_to_native
+from marginpy.utils.pda import get_bank_authority
+from marginpy.utils.instructions import make_request_units_ix
+from marginpy.utils.data_conversion import (
+    b64str_to_bytes,
+    json_to_account_info,
+    ui_to_native,
+)
 from marginpy.utp.account import UtpAccount
+from marginpy.utp.observation import UtpObservation
 from marginpy.utp.zo.instructions import (
     ActivateAccounts,
     ActivateArgs,
@@ -49,6 +58,7 @@ from solana.transaction import (
     TransactionInstruction,
     TransactionSignature,
 )
+from solana.rpc.types import RPCResponse
 
 if TYPE_CHECKING:
     from marginpy import MarginfiAccount, MarginfiClient
@@ -193,7 +203,7 @@ class UtpZoAccount(UtpAccount):
 
         zo = await self.get_zo_client(self.address)
 
-        remaining_accounts = await self.get_observation_accounts()
+        remaining_accounts = await self._marginfi_account.get_observation_accounts()
 
         return (
             [
@@ -253,7 +263,7 @@ class UtpZoAccount(UtpAccount):
 
         zo = await self.get_zo_client(self.address)
 
-        remaining_accounts = await self.get_observation_accounts()
+        remaining_accounts = await self._marginfi_account.get_observation_accounts()
 
         return make_withdraw_ix(
             args=WithdrawArgs(amount=ui_to_native(amount)),
@@ -361,7 +371,7 @@ class UtpZoAccount(UtpAccount):
             price * fee_multiplier * max_base_quantity * market_info.quote_lot_size
         )
 
-        remaining_accounts = await self.get_observation_accounts()
+        remaining_accounts = await self._marginfi_account.get_observation_accounts()
 
         place_order_ix = make_place_perp_order_ix(
             PlacePerpOrderArgs(
@@ -449,7 +459,7 @@ class UtpZoAccount(UtpAccount):
         market = zo.dex_markets[market_symbol]
         oo_pk, _ = self.get_oo_adress_for_market(zo.margin.control, market_info.address)
 
-        remaining_accounts = await self.get_observation_accounts()
+        remaining_accounts = await self._marginfi_account.get_observation_accounts()
 
         cancel_ix = make_cancel_perp_order_ix(
             CancelPerpOrderArgs(
@@ -595,8 +605,54 @@ class UtpZoAccount(UtpAccount):
             tx=tx, signers=settle_ix_wrapped.signers
         )
 
-    async def observe(self):
-        pass
+    async def observe(self) -> UtpObservation:
+
+        """
+        Refresh and retrieve the health cache for the Mango account, directly from the mango account.
+
+        :returns: Health cache for the Mango UTP
+        """
+
+        zo = await self.get_zo_client(self.address)
+
+        pubkeys = [
+            zo.state.cache,
+            zo.margin.control,
+            self.address,
+            zo.config.zo_state_id,
+        ]
+        print(pubkeys)
+        response: RPCResponse = (
+            await self._program.provider.connection.get_multiple_accounts(pubkeys)
+        )
+        if "error" in response.keys():
+            raise Exception(f"Error while fetching {pubkeys}: {response['error']}")
+        [zo_cache_json, zo_control_json, zo_margin_json, zo_state_json] = response[
+            "result"
+        ]["value"]
+        if zo_cache_json is None:
+            raise Exception(f"01 state {zo.state.cache} not found")
+        if zo_control_json is None:
+            raise Exception(f"01 control {zo.margin.control} not found")
+        if zo_margin_json is None:
+            raise Exception(f"01 margin {self.address} not found")
+        if zo_state_json is None:
+            raise Exception(f"01 state {zo.config.zo_state_id} not found")
+
+        zo_cache_data = b64str_to_bytes(json_to_account_info(zo_cache_json).data[0])  # type: ignore
+        zo_control_data = b64str_to_bytes(json_to_account_info(zo_control_json).data[0])  # type: ignore
+        zo_margin_data = b64str_to_bytes(json_to_account_info(zo_margin_json).data[0])  # type: ignore
+        zo_state_data = b64str_to_bytes(json_to_account_info(zo_state_json).data[0])  # type: ignore
+
+        observation = utp_observation.zo.get_observation(
+            zo_cache_data=zo_cache_data,
+            zo_control_data=zo_control_data,
+            zo_margin_data=zo_margin_data,
+            zo_state_data=zo_state_data,
+        )
+
+        self._cached_observation = UtpObservation.from_raw(observation)
+        return self._cached_observation
 
     def get_zo_margin_address(
         self,
@@ -609,7 +665,7 @@ class UtpZoAccount(UtpAccount):
             self.config.program_id,
         )
 
-    async def get_zo_client(self, margin_pk: PublicKey = None):
+    async def get_zo_client(self, margin_pk: PublicKey = None) -> Zo:
         return await Zo.new(
             conn=self._program.provider.connection,
             cluster=self.config.cluster,

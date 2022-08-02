@@ -18,6 +18,8 @@ construct = "^2.10.67"
 mango-explorer = { git = "https://github.com/mrgnlabs/mango-explorer.git", rev = "7c79390f5a4ebbbebf3c59dabd07e0211777163f" }
 spl = "^0.0.1-alpha.0"
 maturin = "^0.13.0"
+python-dotenv = "^0.20.0"
+coloredlogs = "^15.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"

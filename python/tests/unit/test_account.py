@@ -1,7 +1,8 @@
 from anchorpy import Program, Provider, Wallet
 from marginpy import Environment, MarginfiAccount, MarginfiClient, MarginfiConfig
 from marginpy.types import UtpData, UtpIndex
-from marginpy.utils import b64str_to_bytes, load_idl
+from marginpy.utils.data_conversion import b64str_to_bytes
+from marginpy.utils.misc import load_idl
 from marginpy.utp.mango import UtpMangoAccount
 from pytest import approx, mark
 from solana.publickey import PublicKey

@@ -1,5 +1,5 @@
 from marginpy import utp_observation
-from marginpy.utils import b64str_to_bytes
+from marginpy.utils.data_conversion import b64str_to_bytes
 from pytest import mark, raises
 
 from tests.utils import load_sample_account_info

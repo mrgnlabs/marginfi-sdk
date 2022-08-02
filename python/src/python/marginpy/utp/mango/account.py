@@ -18,9 +18,9 @@ from marginpy.generated_client.types.utp_mango_place_perp_order_args import (
 )
 from marginpy.marginpy import utp_observation
 from marginpy.types import UtpMangoPlacePerpOrderOptions
-from marginpy.utils import (
+from marginpy.utils.pda import get_bank_authority
+from marginpy.utils.data_conversion import (
     b64str_to_bytes,
-    get_bank_authority,
     json_to_account_info,
     ui_to_native,
 )
@@ -185,7 +185,7 @@ class UtpMangoAccount(UtpAccount):
         node_bank_pk = node_bank.address
         vault_pk = node_bank.vault
 
-        remaining_accounts = await self.get_observation_accounts()
+        remaining_accounts = await self._marginfi_account.get_observation_accounts()
 
         create_proxy_token_account_ixs = await self.make_create_proxy_token_account_ixs(
             proxy_token_account_key.public_key,
@@ -261,7 +261,7 @@ class UtpMangoAccount(UtpAccount):
         node_bank_pk = node_bank.address
         vault_pk = node_bank.vault
 
-        remaining_accounts = await self.get_observation_accounts()
+        remaining_accounts = await self._marginfi_account.get_observation_accounts()
 
         return make_withdraw_ix(
             WithdrawArgs(amount=ui_to_native(amount)),
@@ -382,7 +382,7 @@ class UtpMangoAccount(UtpAccount):
         ) as context:
             mango_group = mango.Group.load(context)
 
-        remaining_accounts = await self.get_observation_accounts()
+        remaining_accounts = await self._marginfi_account.get_observation_accounts()
 
         return make_place_perp_order_ix(
             PlacePerpOrderArgs(
@@ -448,7 +448,7 @@ class UtpMangoAccount(UtpAccount):
         """
 
         mango_authority_pk, _ = await self.authority()
-        remaining_accounts = await self.get_observation_accounts()
+        remaining_accounts = await self._marginfi_account.get_observation_accounts()
 
         return make_cancel_perp_order_ix(
             CancelPerpOrderArgs(
@@ -545,6 +545,8 @@ class UtpMangoAccount(UtpAccount):
             mango_cache_data=mango_cache_data,
         )
 
+        self._cached_observation = UtpObservation.from_raw(observation)
+
         return UtpObservation(
             timestamp=datetime.fromtimestamp(observation.timestamp),
             equity=observation.equity,
@@ -552,8 +554,8 @@ class UtpMangoAccount(UtpAccount):
             is_empty=observation.is_empty,
             is_rebalance_deposit_needed=observation.is_rebalance_deposit_valid,
             liquidation_value=observation.liquidation_value,
-            max_rebalance_deposit_amount=observation.rebalance_deposit_cap,
-            init_margin_requirement=0,
+            max_rebalance_deposit_amount=observation.max_rebalance_deposit_amount,
+            init_margin_requirement=observation.init_margin_requirement,
         )
 
 

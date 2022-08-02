@@ -3,7 +3,7 @@ from pathlib import Path
 
 from anchorpy import Program, Provider, Wallet, localnet_fixture
 from marginpy import Environment, MarginfiAccount, MarginfiClient, MarginfiConfig
-from marginpy.utils import load_idl
+from marginpy.utils.misc import load_idl
 from pytest import mark
 from solana.rpc.async_api import AsyncClient
 

@@ -3,6 +3,19 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
+from marginpy.constants import COLLATERAL_SCALING_FACTOR
+
+
+class ObservationRaw:
+    timestamp: int
+    free_collateral: int
+    is_empty: bool
+    is_rebalance_deposit_valid: bool
+    max_rebalance_deposit_amount: int
+    init_margin_requirement: int
+    equity: int
+    liquidation_value: int
+
 
 @dataclass
 class UtpObservation:
@@ -19,6 +32,21 @@ class UtpObservation:
     is_rebalance_deposit_needed: bool
     max_rebalance_deposit_amount: float
     is_empty: bool
+
+    @staticmethod
+    def from_raw(raw: ObservationRaw) -> "UtpObservation":
+        return UtpObservation(
+            timestamp=raw.timestamp,
+            equity=raw.equity / COLLATERAL_SCALING_FACTOR,
+            free_collateral=raw.free_collateral / COLLATERAL_SCALING_FACTOR,
+            init_margin_requirement=raw.init_margin_requirement
+            / COLLATERAL_SCALING_FACTOR,
+            liquidation_value=raw.liquidation_value / COLLATERAL_SCALING_FACTOR,
+            is_rebalance_deposit_needed=raw.is_rebalance_deposit_valid,
+            max_rebalance_deposit_amount=raw.max_rebalance_deposit_amount
+            / COLLATERAL_SCALING_FACTOR,
+            is_empty=raw.is_empty,
+        )
 
     def __repr__(self):
         return (

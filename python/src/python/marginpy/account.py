@@ -1,7 +1,8 @@
 import logging
+from math import inf
 from typing import TYPE_CHECKING, List, Tuple
 
-from anchorpy import AccountsCoder
+from anchorpy import AccountsCoder, Program
 from marginpy.constants import COLLATERAL_SCALING_FACTOR
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
 from marginpy.generated_client.types.lending_side import Borrow, Deposit
@@ -19,17 +20,27 @@ from marginpy.instructions import (
     make_handle_bankruptcy_ix,
     make_withdraw_ix,
 )
-from marginpy.types import UtpData, UtpIndex
-from marginpy.utils import (
+from marginpy.logger import get_logger
+from marginpy.types import (
+    UTP_NAME,
+    AccountBalances,
     BankVaultType,
+    EquityType,
+    MarginRequirementType,
+    UtpData,
+    UtpIndex,
+)
+from marginpy.utils.data_conversion import (
     b64str_to_bytes,
-    get_bank_authority,
     json_to_account_info,
-    load_idl,
     ui_to_native,
     wrapped_fixed_to_float,
 )
+from marginpy.utils.misc import load_idl
+from marginpy.utils.pda import get_bank_authority
+from marginpy.utp.account import UtpAccount
 from marginpy.utp.mango import UtpMangoAccount
+from marginpy.utp.observation import UtpObservation
 from marginpy.utp.zo import UtpZoAccount
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
@@ -51,7 +62,7 @@ if TYPE_CHECKING:
 class MarginfiAccount:
     _pubkey: PublicKey
     _group: MarginfiGroup
-    # TODO: observation_cache
+    _observation_cache: dict[UtpIndex, UtpObservation]
     _client: "MarginfiClient"
 
     _authority: PublicKey
@@ -107,6 +118,8 @@ class MarginfiAccount:
         :returns: marginfi account instance
         """
 
+        logger = get_logger(__name__)
+
         account_data = await MarginfiAccount._fetch_account_data(
             marginfi_account_pk, client.config, client.program.provider.connection
         )
@@ -124,10 +137,7 @@ class MarginfiAccount:
             MarginfiAccount._pack_utp_data(account_data, UtpIndex.ZO),
         )
 
-        # @todo logging may need to be taken to the finish line
-        logging.debug(
-            "mfi:margin-account Loaded marginfi account %s", marginfi_account_pk
-        )
+        logger.info("Loaded marginfi account %s", marginfi_account_pk)
 
         return marginfi_account
 
@@ -198,65 +208,111 @@ class MarginfiAccount:
     # --- Getters / Setters
 
     @property
-    def pubkey(self):
-        """Marginfi account address"""
+    def pubkey(self) -> PublicKey:
+        """Get marginfi account address
+
+        Returns:
+            PublicKey: marginfi account address
+        """
 
         return self._pubkey
 
     @property
-    def group(self):
-        """Parent marginfi group"""
+    def group(self) -> "MarginfiGroup":
+        """Get parent marginfi group
+
+        Returns:
+            MarginfiGroup: Parent marginfi group
+        """
 
         return self._group
 
     @property
-    def client(self):
-        """Marginfi client"""
+    def client(self) -> "MarginfiClient":
+        """Get marginfi client
+
+        Returns:
+            MarginfiClient: marginfi client
+        """
 
         return self._client
 
     @property
-    def authority(self):
-        """Marginfi account authority address"""
+    def observation_cache(self) -> dict[UtpIndex, UtpObservation]:
+        """Get observation cache
+
+        Returns:
+            dict[UtpIndex, UtpObservation]: Observation cache
+        """
+
+        return self._observation_cache
+
+    @property
+    def authority(self) -> PublicKey:
+        """Get marginfi account authority address
+
+        Returns:
+            PublicKey: marginfi account authority address
+        """
 
         return self._authority
 
     @property
-    def all_utps(self):
-        """List of supported UTP proxy instances"""
+    def all_utps(self) -> List[UtpAccount]:
+        """Get list of supported UTP proxies"""
 
         return [self.mango, self.zo]
 
     @property
-    def active_utps(self):
-        """List of active UTP proxy instances"""
+    def active_utps(self) -> List[UtpAccount]:
+        """Get list of active UTP proxies
+
+        Returns:
+            List[UtpAccount]: _description_
+        """
 
         filtered = filter(lambda x: x.is_active, self.all_utps)
         return list(filtered)
 
     @property
-    def deposits(self):
-        """Current GMA deposits"""
+    def deposits(self) -> float:
+        """Get current GMA deposits
+
+        Returns:
+            float: current GMA deposits
+        """
 
         return self.group.bank.compute_native_amount(self._deposit_record, Deposit)
 
     @property
-    def borrows(self):
-        """Current GMA borrows"""
+    def borrows(self) -> float:
+        """Get current GMA borrows
+
+        Returns:
+            float: current GMA borrows
+        """
 
         return self.group.bank.compute_native_amount(self._borrow_record, Borrow)
 
     # --- Getters / Setters (internal)
 
     @property
-    def _program(self):
-        """[Internal] Anchor program"""
+    def _program(self) -> Program:
+        """[Internal] Get marginfi Anchor program
+
+        Returns:
+            Program: marginfi Anchor program
+        """
 
         return self.client.program
 
     @property
-    def _config(self):
-        """[Internal] Marginfi client config"""
+    def _config(self) -> "MarginfiConfig":
+        """[Internal] Get marginfi client config
+
+        Returns:
+            MarginfiConfig: marginfi client config
+        """
 
         return self.client.config
 
@@ -358,7 +414,7 @@ class MarginfiAccount:
         self._update_from_account_data(marginfi_account_data)
 
         if observe_utps:
-            pass  # self.observe_utps()
+            await self.observe_utps()
 
     def _update_from_account_data(self, data: MarginfiAccountData) -> None:
         """
@@ -540,28 +596,34 @@ class MarginfiAccount:
         tx = Transaction().add(bankruptcy_ix)
         return await self._program.provider.send(tx)
 
-    ###
-    # Refresh and retrieve the health cache for all active UTPs directly from the UTPs.
-    #
-    # @returns List of health caches for all active UTPs
-    ###
-    # async def observe_utps(self):
-    #     logging.debug(
-    #         f"Observing UTP accounts for marginfi account: {self.pubkey.to_base58()}"
-    #     )
+    async def observe_utps(self) -> dict[UtpIndex, UtpObservation]:
+        """Observe all active UTPs and cache the result
 
-    #     observations = []
-    #     for utp in self.active_utps:
-    #         #@todo double check this await
-    #         observations.append(
-    #             {
-    #                 "utp_index": utp.index,
-    #                 "observation": await utp.observe()
-    #             }
-    #         )
+        Returns:
+            dict[UtpIndex, UtpObservation]: observation cache
+        """
+
+        logger = self.get_logger()
+        logger.debug(f"Observing UTP accounts")
+
+        observation_cache = {utp.index: await utp.observe() for utp in self.active_utps}
+        self._observation_cache = observation_cache
+        return observation_cache
 
     async def load_group_and_account_ai(self) -> Tuple[AccountInfo, AccountInfo]:
-        logging.debug(
+        """Atomically load underlying marginfi group and account
+
+        Raises:
+            Exception: when RPC call errors out
+            Exception: when group not found
+            Exception: when account not found
+
+        Returns:
+            Tuple[AccountInfo, AccountInfo]: account infos for marginfi group and account
+        """
+
+        logger = self.get_logger()
+        logger.debug(
             "Loading marginfi account %s, and group %s",
             self.pubkey,
             self._config.group_pk,
@@ -572,13 +634,89 @@ class MarginfiAccount:
             await self._program.provider.connection.get_multiple_accounts(pubkeys)
         )
         if "error" in response.keys():
+            logger.critical("Error while fetching %s: %s", pubkeys, response["error"])
             raise Exception(f"Error while fetching {pubkeys}: {response['error']}")
         [marginfi_group_ai, marginfi_account_ai] = response["result"]["value"]
         if marginfi_group_ai is None:
+            logger.critical("Marginfi group %s not found", self._config.group_pk)
             raise Exception(f"Marginfi group {self._config.group_pk} not found")
         if marginfi_account_ai is None:
+            logger.critical("Marginfi account %s not found", self.pubkey)
             raise Exception(f"Marginfi account {self.pubkey} not found")
 
         return json_to_account_info(marginfi_group_ai), json_to_account_info(
             marginfi_account_ai
         )
+
+    def compute_balances(
+        self, equity_type: EquityType = EquityType.InitReqAdjusted
+    ) -> AccountBalances:
+        """Compute account balances
+
+        Args:
+            equity_type (EquityType, optional): equity type to account for. Defaults to EquityType.InitReqAdjusted.
+
+        Returns:
+            AccountBalances: account balances
+        """
+
+        assets = self.deposits
+        for utp in self.active_utps:
+            assets += (
+                utp.free_collateral
+                if equity_type == EquityType.InitReqAdjusted
+                else utp.equity
+            )
+        liabilities = self.borrows
+        equity = assets - liabilities
+
+        return AccountBalances(equity=equity, assets=assets, liabilities=liabilities)
+
+    def compute_margin_requirement(self, type: MarginRequirementType) -> float:
+        """Compute account margin requirement
+
+        Args:
+            type (MarginRequirementType): margin requirement type to compute
+
+        Returns:
+            float: margin requirement
+        """
+
+        return self.borrows * self.group.bank.margin_ratio(type)
+
+    def __repr__(self):
+        balances = self.compute_balances()
+        margin_ratio = (
+            balances.equity / balances.liabilities if balances.liabilities > 0 else inf
+        )
+
+        init_req = self.compute_margin_requirement(MarginRequirementType.Init)
+        maint_req = self.compute_margin_requirement(MarginRequirementType.Maint)
+        init_health = balances.equity / init_req if init_req > 0 else inf
+        maint_health = balances.equity / maint_req if maint_req > 0 else inf
+
+        buffer = f"""-----------------
+Marginfi account:
+  Address: {self.pubkey}
+  GA Balance: {self.deposits}
+  Equity: {balances.equity},
+  Assets: {balances.assets},
+  Liabilities: {balances.liabilities}
+  Margin ratio: {margin_ratio}
+  Requirement
+    init: {init_req}, health: {init_health}
+    maint: {maint_req}, health: {maint_health}"""
+
+        if len(self.active_utps) > 0:
+            buffer += "\n-----------------\nUTPs:"
+
+        for utp in self.active_utps:
+            buffer += f"""\n  {UTP_NAME[utp.index]}:
+    Address: {utp.address}
+    Equity: {utp.equity},
+    Free collateral: {utp.free_collateral}"""
+
+        return buffer
+
+    def get_logger(self):
+        return get_logger(f"{__name__}.MarginfiAccount.{self.pubkey}")
