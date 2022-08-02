@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from builtins import enumerate
+import logging
 from typing import TYPE_CHECKING, List, Tuple
 
 from anchorpy import AccountsCoder, Program, ProgramAccount, Provider, Wallet
@@ -27,6 +28,8 @@ if TYPE_CHECKING:
 
 
 class MarginfiClient:
+    """Entrypoint to interact with the marginfi contract."""
+
     _program: Program
     _config: "MarginfiConfig"
     _group: MarginfiGroup
@@ -37,6 +40,13 @@ class MarginfiClient:
         program: Program,
         group: MarginfiGroup,
     ):
+        """MarginfiClient constructor
+
+        Args:
+            config (MarginfiConfig): marginfi config
+            program (Program): marginfi Anchor program
+            group (MarginfiGroup): marginfi account group
+        """
         self._config = config
         self._program = program
         self._group = group
@@ -50,6 +60,26 @@ class MarginfiClient:
         rpc_client: AsyncClient,
         opts: types.TxOpts = DEFAULT_OPTIONS,
     ) -> MarginfiClient:
+        """MarginfiClient factory
+
+        Fetch account data according to the config and instantiate the corresponding MarginfiAccount.
+
+        Args:
+            config (MarginfiConfig): marginfi config
+            wallet (Wallet): User wallet (used to pay fees and sign transations)
+            rpc_client (AsyncClient): RPC client
+            opts (types.TxOpts, optional): Transaction/commitment options. Defaults to DEFAULT_OPTIONS.
+
+        Returns:
+            MarginfiClient: client instance
+        """
+
+        logging.debug(
+            "Loading marginfi client\n\tprogram: %s\n\tenvironment: %s\n\tgroup: %s",
+            config.program_id,
+            config.environment,
+            config.group_pk,
+        )
         provider = Provider(rpc_client, wallet, opts)
         program = Program(load_idl(), config.program_id, provider=provider)
         group = await MarginfiGroup.fetch(config, program)
@@ -57,31 +87,53 @@ class MarginfiClient:
 
     @staticmethod
     async def from_env():
+        """MarginfiClient environment factory
+
+        Fetch account data according to the ENV variables provided, and instantiate the corresponding MarginfiAccount.
+        """
+
+        # TODO
         pass
 
     # --- Getters and setters
 
     @property
     def program(self) -> Program:
-        """Anchor program"""
+        """Anchor program getter
+
+        Returns:
+            Program: marginfi Anchor program
+        """
 
         return self._program
 
     @property
     def group(self) -> MarginfiGroup:
-        """Marginfi account group address"""
+        """marginfi account group getter
+
+        Returns:
+            MarginfiGroup: marginfi account group
+        """
 
         return self._group
 
     @property
     def config(self) -> "MarginfiConfig":
-        """Client config"""
+        """Client config getter
+
+        Returns:
+            MarginfiConfig: client config
+        """
 
         return self._config
 
     @property
     def program_id(self) -> PublicKey:
-        """Marginfi program ID"""
+        """marginfi program ID getter
+
+        Returns:
+            PublicKey: client config
+        """
 
         return self._program.program_id
 
@@ -90,11 +142,12 @@ class MarginfiClient:
     async def create_marginfi_account(
         self,
     ) -> Tuple[MarginfiAccount, TransactionSignature]:
+        """Create a new marginfi account under the authority of the user.
+
+        Returns:
+            Tuple[MarginfiAccount, TransactionSignature]: newly created marginfi account
         """
-        * Create a new marginfi account under the authority of the user.
-        *
-        * @returns MarginfiAccount instance
-        """
+
         account_keypair = Keypair()
         account_pk = account_keypair.public_key
         print(f"Creating Marginfi account {account_pk}")
@@ -119,10 +172,10 @@ class MarginfiClient:
         return account, sig
 
     async def get_own_marginfi_accounts(self) -> List[MarginfiAccount]:
-        """
-        Retrieves all marginfi accounts under the authority of the user.
+        """Retrieve all marginfi accounts under the authority of the user.
 
-        :returns: marginfi account instances
+        Returns:
+            List[MarginfiAccount]: marginfi account instances
         """
 
         marginfi_group = await MarginfiGroup.fetch(self._config, self._program)
@@ -152,6 +205,15 @@ class MarginfiClient:
         return list(own_accounts)
 
     async def get_all_marginfi_account_addresses(self) -> List[PublicKey]:
+        """Retrieve the addresses of all marginfi accounts in the udnerlying group.
+
+        Raises:
+            Exception: when RPC call errors out
+
+        Returns:
+            List[PublicKey]: marginfi account addresses
+        """
+
         coder = AccountsCoder(load_idl())
         discriminator: bytes = coder.acc_name_to_discriminator[
             AccountType.MARGINFI_ACCOUNT.value
@@ -177,10 +239,10 @@ class MarginfiClient:
         return [a["pubkey"] for a in accounts if a is not None]
 
     async def get_all_marginfi_accounts(self) -> List[MarginfiAccount]:
-        """
-        Retrieves all marginfi accounts in the underlying group.
+        """Retrieve all marginfi accounts in the underlying group
 
-        :returns: marginfi account instances
+        Returns:
+            List[MarginfiAccount]: marginfi accounts
         """
 
         marginfi_group = await MarginfiGroup.fetch(self._config, self._program)
@@ -203,15 +265,30 @@ class MarginfiClient:
         return all_accounts
 
     async def get_marginfi_account(self, address: PublicKey) -> MarginfiAccount:
+        """Retrieve specified marginfi account
+
+        Args:
+            address (PublicKey): marginfi account address
+
+        Returns:
+            MarginfiAccount: marginfi account
+        """
+
         return await MarginfiAccount.fetch(address, self)
 
     async def get_all_program_account_addresses(
         self, account_type: AccountType
     ) -> List[PublicKey]:
-        """
-        Retrieves the addresses of all accounts owned by the marginfi program.
+        """Retrieve the addresses of all accounts of the spcified type, owned by the marginfi program
 
-        :returns: account addresses
+        Args:
+            account_type (AccountType): account type
+
+        Raises:
+            Exception: when RPC call errors out
+
+        Returns:
+            List[PublicKey]: account addresses
         """
 
         coder = AccountsCoder(load_idl())
@@ -237,4 +314,6 @@ class MarginfiClient:
         return [a["pubkey"] for a in accounts if a is not None]
 
     async def terminate(self) -> None:
+        """Cleanup connections"""
+
         await self._program.close()
