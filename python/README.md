@@ -74,7 +74,8 @@ $ poetry shell
 2. Run desired task:
    * all tests: `$ make test`
    * unit tests only: `$ make test-unit`
-   * coverage: `$ make test-cov`
-   * type check + lint: `$ make check`
+   * coverage: `$ make coverage`
+   * type check + lint: `$ make lint`
+   * format: `$ make format`
 
 Check the [Makefile](Makefile) for other actions available.
