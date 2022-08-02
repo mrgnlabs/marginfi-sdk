@@ -94,7 +94,9 @@ class UtpAccount(ABC):
     @property
     def cached_observation(self) -> UtpObservation:
         # TODO
-        fetch_age = datetime.now().timestamp() - self._cached_observation.timestamp
+        fetch_age = (
+            datetime.now() - self._cached_observation.timestamp
+        ).total_seconds()
         if fetch_age > 5:
             print(
                 f"[WARNNG] Last {UTP_NAME[self.index]} observation was fetched"

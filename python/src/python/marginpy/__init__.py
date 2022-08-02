@@ -6,10 +6,9 @@ from marginpy.bank import Bank
 from marginpy.client import MarginfiClient
 from marginpy.config import MarginfiConfig
 from marginpy.group import MarginfiGroup
+from marginpy.logger import get_logger
 from marginpy.marginpy import utp_observation
 from marginpy.types import Environment
-from marginpy.logger import get_logger
-
 
 __all__ = [
     "MarginfiAccount",

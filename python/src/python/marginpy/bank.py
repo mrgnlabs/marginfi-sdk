@@ -93,10 +93,10 @@ class Bank:
 
     # @todo checks here that it should be 0 <= x <= 1 ?
     def margin_ratio(self, mreq_type: MarginRequirementType):
-        if mreq_type is MarginRequirementType.Init:
+        if mreq_type is MarginRequirementType.INITIAL:
             return self.init_margin_ratio
 
-        if mreq_type is MarginRequirementType.Maint:
+        if mreq_type is MarginRequirementType.MAINTENANCE:
             return self.maint_margin_ratio
 
         raise Exception(f"Unknown margin requirement type: {mreq_type}")

@@ -7,8 +7,8 @@ from marginpy.instructions import (
     UpdateInterestAccumulatorAccounts,
     make_update_interest_accumulator_ix,
 )
-from marginpy.utils.pda import get_bank_authority
 from marginpy.utils.misc import load_idl
+from marginpy.utils.pda import get_bank_authority
 from solana.publickey import PublicKey
 from solana.transaction import Transaction, TransactionInstruction, TransactionSignature
 

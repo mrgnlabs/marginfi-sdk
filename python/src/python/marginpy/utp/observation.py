@@ -36,7 +36,7 @@ class UtpObservation:
     @staticmethod
     def from_raw(raw: ObservationRaw) -> "UtpObservation":
         return UtpObservation(
-            timestamp=raw.timestamp,
+            timestamp=datetime.fromtimestamp(raw.timestamp),
             equity=raw.equity / COLLATERAL_SCALING_FACTOR,
             free_collateral=raw.free_collateral / COLLATERAL_SCALING_FACTOR,
             init_margin_requirement=raw.init_margin_requirement

@@ -18,12 +18,12 @@ from marginpy.generated_client.types.utp_mango_place_perp_order_args import (
 )
 from marginpy.marginpy import utp_observation
 from marginpy.types import UtpMangoPlacePerpOrderOptions
-from marginpy.utils.pda import get_bank_authority
 from marginpy.utils.data_conversion import (
     b64str_to_bytes,
     json_to_account_info,
     ui_to_native,
 )
+from marginpy.utils.pda import get_bank_authority
 from marginpy.utp.account import UtpAccount
 from marginpy.utp.mango.instructions import (
     ActivateAccounts,

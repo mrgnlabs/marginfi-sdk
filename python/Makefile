@@ -32,21 +32,18 @@ lint:  ## Run type and format checkers
 	make lint-code
 
 lint-code:
-	poetry run mypy src/python
-	poetry run black --check --preview --diff src/python tests
-	poetry run flake8 src/python tests
-	poetry run pylint --rcfile=.pylintrc src/python/marginpy
-	poetry run isort --check-only src/python
+	poetry run mypy src/python examples
+	poetry run black --check --preview --diff src/python tests examples
+	poetry run flake8 src/python tests examples
+	poetry run pylint --rcfile=.pylintrc src/python/marginpy examples
+	poetry run isort --check-only src/python examples
 
 lint-docs:
-	poetry run pydocstyle src/python
-
-lint-tests:
-	poetry run pydocstyle tests
+	poetry run pydocstyle src/python tests
 
 format:
 	poetry run black --preview .
-	poetry run isort src/python tests
+	poetry run isort src/python examples tests
 
 ##@ Publishing
 publish:  ## Publish to pypi

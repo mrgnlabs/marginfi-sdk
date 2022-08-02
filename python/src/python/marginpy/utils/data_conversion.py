@@ -1,9 +1,7 @@
 import base64
 from typing import Any, Dict
 
-from marginpy.constants import (
-    COLLATERAL_DECIMALS,
-)
+from marginpy.constants import COLLATERAL_DECIMALS
 from marginpy.generated_client.types.wrapped_i80f48 import WrappedI80F48
 from solana.rpc.responses import AccountInfo
 

@@ -1,3 +1,4 @@
+from anchorpy import Provider
 from solana.publickey import PublicKey
 from solana.transaction import (
     AccountMeta,
@@ -6,7 +7,6 @@ from solana.transaction import (
     TransactionSignature,
 )
 from spl.token.constants import TOKEN_PROGRAM_ID
-from anchorpy import Provider
 
 
 def make_request_units_ix(

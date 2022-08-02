@@ -88,8 +88,8 @@ class InstructionsWrapper:
 
 
 class EquityType(Enum):
-    InitReqAdjusted = "InitReqAdjusted"
-    Total = "Total"
+    INIT_REQ_ADJUSTED = "INIT_REQ_ADJUSTED"
+    TOTAL = "TOTAL"
 
 
 @dataclass
@@ -100,5 +100,5 @@ class AccountBalances:
 
 
 class MarginRequirementType(Enum):
-    Init = "Init"
-    Maint = "Maint"
+    INITIAL = "INITIAL"
+    MAINTENANCE = "MAINTENANCE"

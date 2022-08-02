@@ -101,7 +101,6 @@ class MarginfiClient:
         """
 
         # TODO
-        pass
 
     # --- Getters and setters
 
@@ -295,8 +294,10 @@ class MarginfiClient:
         Returns:
             MarginfiAccount: marginfi account
         """
+        if isinstance(address, str):
+            return await MarginfiAccount.fetch(PublicKey(address), self)
 
-        return await MarginfiAccount.fetch(PublicKey(address), self)
+        return await MarginfiAccount.fetch(address, self)
 
     async def get_all_program_account_addresses(
         self, account_type: AccountType

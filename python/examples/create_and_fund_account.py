@@ -1,23 +1,22 @@
 import asyncio
 import logging
 import os
+
 from anchorpy import Wallet
-from marginpy import MarginfiClient
-from marginpy import MarginfiConfig
-from marginpy import Environment
+from dotenv import find_dotenv, load_dotenv
+from marginpy import Environment, MarginfiClient, MarginfiConfig
 from marginpy.utils.data_conversion import ui_to_native
 from marginpy.utils.instructions import airdrop_collateral
 from marginpy.utils.misc import get_or_create_ata
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
-from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(find_dotenv())
 
 rpc_endpoint = os.getenv("RPC_ENDPOINT")
 environment = os.getenv("ENV")
 
-deposit_amount = 10
+DEPOSIT_AMOUNT = 10
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,20 +36,20 @@ async def main():
         mint_pk=config.collateral_mint_pk,
     )
 
-    DEVNET_USDC_FAUCET = PublicKey("B87AhxX6BkBsj3hnyHzcerX2WxPoACC7ZyDr8E7H9geN")
+    devnet_usdc_faucet = PublicKey("B87AhxX6BkBsj3hnyHzcerX2WxPoACC7ZyDr8E7H9geN")
     await airdrop_collateral(
         client.provider,
-        ui_to_native(deposit_amount),
+        ui_to_native(DEPOSIT_AMOUNT),
         config.collateral_mint_pk,
         ata,
-        DEVNET_USDC_FAUCET,
+        devnet_usdc_faucet,
     )
 
-    await account.deposit(deposit_amount)
+    await account.deposit(DEPOSIT_AMOUNT)
     await account.mango.activate()
-    await account.mango.deposit(deposit_amount / 2)
+    await account.mango.deposit(DEPOSIT_AMOUNT / 2)
     await account.zo.activate()
-    await account.zo.deposit(deposit_amount / 2)
+    await account.zo.deposit(DEPOSIT_AMOUNT / 2)
 
     await account.reload(observe_utps=True)
     print(account)

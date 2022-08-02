@@ -1,8 +1,6 @@
 import json
 import os
 from typing import List, Tuple
-from marginpy.utils.data_conversion import json_to_account_info
-from marginpy.utils.pda import get_bank_authority
 
 import spl.token.instructions as spl_token_ixs
 from anchorpy import Program, Provider, Wallet
@@ -15,7 +13,6 @@ from marginpy import (
 )
 from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
 from marginpy.generated_client.accounts import MarginfiGroup as MarginfiGroupData
-
 from marginpy.instructions import (
     ConfigureMarginfiGroupAccounts,
     ConfigureMarginfiGroupArgs,
@@ -25,19 +22,18 @@ from marginpy.instructions import (
     make_init_marginfi_group_ix,
 )
 from marginpy.types import BankVaultType, GroupConfig
+from marginpy.utils.data_conversion import b64str_to_bytes, json_to_account_info
 from marginpy.utils.misc import load_idl
+from marginpy.utils.pda import get_bank_authority
 from solana.keypair import Keypair
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.commitment import Confirmed
 from solana.rpc.responses import AccountInfo
 from solana.system_program import CreateAccountParams, create_account
-from solana.transaction import (
-    Transaction,
-    TransactionInstruction,
-    TransactionSignature,
-)
+from solana.transaction import Transaction, TransactionInstruction, TransactionSignature
 from spl.token.constants import ACCOUNT_LEN, MINT_LEN, TOKEN_PROGRAM_ID
+
 from tests.config import DEVNET_URL
 
 

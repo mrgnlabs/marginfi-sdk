@@ -1,5 +1,4 @@
 from __future__ import annotations
-from datetime import datetime
 
 from typing import TYPE_CHECKING, List, Tuple
 
@@ -11,13 +10,13 @@ from marginpy.generated_client.types.utp_zo_place_perp_order_ix_args import (
 )
 from marginpy.marginpy import utp_observation
 from marginpy.types import InstructionsWrapper
-from marginpy.utils.pda import get_bank_authority
-from marginpy.utils.instructions import make_request_units_ix
 from marginpy.utils.data_conversion import (
     b64str_to_bytes,
     json_to_account_info,
     ui_to_native,
 )
+from marginpy.utils.instructions import make_request_units_ix
+from marginpy.utils.pda import get_bank_authority
 from marginpy.utp.account import UtpAccount
 from marginpy.utp.observation import UtpObservation
 from marginpy.utp.zo.instructions import (
@@ -51,6 +50,7 @@ from marginpy.utp.zo.utils.client.util import (
 )
 from solana.keypair import Keypair
 from solana.publickey import PublicKey
+from solana.rpc.types import RPCResponse
 from solana.system_program import CreateAccountParams, create_account
 from solana.transaction import (
     AccountMeta,
@@ -58,7 +58,6 @@ from solana.transaction import (
     TransactionInstruction,
     TransactionSignature,
 )
-from solana.rpc.types import RPCResponse
 
 if TYPE_CHECKING:
     from marginpy import MarginfiAccount, MarginfiClient
@@ -606,7 +605,6 @@ class UtpZoAccount(UtpAccount):
         )
 
     async def observe(self) -> UtpObservation:
-
         """
         Refresh and retrieve the health cache for the Mango account, directly from the mango account.
 

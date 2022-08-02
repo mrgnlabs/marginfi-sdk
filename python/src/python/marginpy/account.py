@@ -282,7 +282,7 @@ class MarginfiAccount:
             float: current GMA deposits
         """
 
-        return self.group.bank.compute_native_amount(self._deposit_record, Deposit)
+        return self.group.bank.compute_native_amount(self._deposit_record, Deposit())
 
     @property
     def borrows(self) -> float:
@@ -292,7 +292,7 @@ class MarginfiAccount:
             float: current GMA borrows
         """
 
-        return self.group.bank.compute_native_amount(self._borrow_record, Borrow)
+        return self.group.bank.compute_native_amount(self._borrow_record, Borrow())
 
     # --- Getters / Setters (internal)
 
@@ -604,7 +604,7 @@ class MarginfiAccount:
         """
 
         logger = self.get_logger()
-        logger.debug(f"Observing UTP accounts")
+        logger.debug("Observing UTP accounts")
 
         observation_cache = {utp.index: await utp.observe() for utp in self.active_utps}
         self._observation_cache = observation_cache
@@ -630,8 +630,8 @@ class MarginfiAccount:
         )
 
         pubkeys = [self._config.group_pk, self.pubkey]
-        response: RPCResponse = (
-            await self._program.provider.connection.get_multiple_accounts(pubkeys)
+        response: RPCResponse = await self._program.provider.connection.get_multiple_accounts(
+            pubkeys  # type: ignore
         )
         if "error" in response.keys():
             logger.critical("Error while fetching %s: %s", pubkeys, response["error"])
@@ -649,7 +649,7 @@ class MarginfiAccount:
         )
 
     def compute_balances(
-        self, equity_type: EquityType = EquityType.InitReqAdjusted
+        self, equity_type: EquityType = EquityType.INIT_REQ_ADJUSTED
     ) -> AccountBalances:
         """Compute account balances
 
@@ -664,7 +664,7 @@ class MarginfiAccount:
         for utp in self.active_utps:
             assets += (
                 utp.free_collateral
-                if equity_type == EquityType.InitReqAdjusted
+                if equity_type == EquityType.INIT_REQ_ADJUSTED
                 else utp.equity
             )
         liabilities = self.borrows
@@ -672,17 +672,17 @@ class MarginfiAccount:
 
         return AccountBalances(equity=equity, assets=assets, liabilities=liabilities)
 
-    def compute_margin_requirement(self, type: MarginRequirementType) -> float:
+    def compute_margin_requirement(self, mreq_type: MarginRequirementType) -> float:
         """Compute account margin requirement
 
         Args:
-            type (MarginRequirementType): margin requirement type to compute
+            mreq_type (MarginRequirementType): margin requirement type to compute
 
         Returns:
             float: margin requirement
         """
 
-        return self.borrows * self.group.bank.margin_ratio(type)
+        return self.borrows * self.group.bank.margin_ratio(mreq_type)
 
     def __repr__(self):
         balances = self.compute_balances()
@@ -690,8 +690,8 @@ class MarginfiAccount:
             balances.equity / balances.liabilities if balances.liabilities > 0 else inf
         )
 
-        init_req = self.compute_margin_requirement(MarginRequirementType.Init)
-        maint_req = self.compute_margin_requirement(MarginRequirementType.Maint)
+        init_req = self.compute_margin_requirement(MarginRequirementType.INITIAL)
+        maint_req = self.compute_margin_requirement(MarginRequirementType.MAINTENANCE)
         init_health = balances.equity / init_req if init_req > 0 else inf
         maint_health = balances.equity / maint_req if maint_req > 0 else inf
 
