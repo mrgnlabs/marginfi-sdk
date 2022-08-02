@@ -1,7 +1,7 @@
-marginpy.instruction module
+marginpy.utp.account module
 ===========================
 
-.. automodule:: marginpy.instruction
+.. automodule:: marginpy.utp.account
    :members:
    :undoc-members:
    :show-inheritance:

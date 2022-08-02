@@ -1,6 +1,15 @@
 marginpy package
 ================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   marginpy.utils
+   marginpy.utp
+
 Submodules
 ----------
 
@@ -12,11 +21,11 @@ Submodules
    marginpy.client
    marginpy.config
    marginpy.constants
-   marginpy.decimal
    marginpy.group
-   marginpy.instruction
+   marginpy.instructions
+   marginpy.logger
+   marginpy.marginpy
    marginpy.types
-   marginpy.utils
 
 Module contents
 ---------------

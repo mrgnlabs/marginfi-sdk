@@ -1,4 +1,3 @@
-import logging
 from math import inf
 from typing import TYPE_CHECKING, List, Tuple
 
@@ -60,6 +59,8 @@ if TYPE_CHECKING:
 
 
 class MarginfiAccount:
+    """Entrypoint to interact with the marginfi contract."""
+
     _pubkey: PublicKey
     _group: MarginfiGroup
     _observation_cache: dict[UtpIndex, UtpObservation]
@@ -80,18 +81,20 @@ class MarginfiAccount:
         group: MarginfiGroup,
         deposit_record: float,
         borrow_record: float,
-        mango_utp_data,
-        zo_utp_data,
+        mango_utp_data: UtpData,
+        zo_utp_data: UtpData,
     ) -> None:
-        """
-        [Internal] Constructor.
+        """[Internal] Constructor
 
-        :param marginfi_account_pk: address of the marginfi account
-        :param authority: marginfi account authority
-        :param client: marginfi client
-        :param group: parent marginfi group
-        :param deposit_record: marginfi account deposit record
-        :param borrow_record: marginfi account borrow record
+        Args:
+            marginfi_account_pk (PublicKey): address of the marginfi account
+            authority (PublicKey): marginfi account authority
+            client (MarginfiClient): marginfi client
+            group (MarginfiGroup): parent marginfi group
+            deposit_record (float): marginfi account deposit record
+            borrow_record (float): marginfi account borrow record
+            mango_utp_data (UtpData): Mango-specific data
+            zo_utp_data (UtpData): 01-specific data
         """
 
         self._pubkey = marginfi_account_pk
@@ -105,26 +108,31 @@ class MarginfiAccount:
         self._deposit_record = deposit_record
         self._borrow_record = borrow_record
 
-    # --- Factories
+        # --- Factories
 
-    @staticmethod
-    async def fetch(marginfi_account_pk: PublicKey, client: "MarginfiClient"):
-        """
-        MarginfiAccount network factory.
+    @classmethod
+    async def fetch(
+        cls, marginfi_account_pk: PublicKey, client: "MarginfiClient"
+    ) -> "MarginfiAccount":
+        """MarginfiAccount network factory.
         Fetch account data according to the config and instantiate the corresponding MarginfiAccount.
 
-        :param marginfi_account_pk: address of the target account
-        :param client: marginfi client
-        :returns: marginfi account instance
+        Args:
+            marginfi_account_pk (PublicKey): address of the target account
+            client (MarginfiClient): marginfi client
+
+        Returns:
+            MarginfiAccount: marginfi account
         """
 
-        logger = get_logger(__name__)
+        logger = get_logger(f"{__name__}.MarginfiAccount")
+        logger.debug("Loading marginfi account %s", marginfi_account_pk)
 
         account_data = await MarginfiAccount._fetch_account_data(
             marginfi_account_pk, client.config, client.program.provider.connection
         )
 
-        marginfi_account = MarginfiAccount(
+        account = MarginfiAccount(
             marginfi_account_pk,
             account_data.authority,
             client,
@@ -137,9 +145,9 @@ class MarginfiAccount:
             MarginfiAccount._pack_utp_data(account_data, UtpIndex.ZO),
         )
 
-        logger.info("Loaded marginfi account %s", marginfi_account_pk)
+        logger.info("marginfi account loaded:\n%s", account)
 
-        return marginfi_account
+        return account
 
     @staticmethod
     def from_account_data(
@@ -147,18 +155,23 @@ class MarginfiAccount:
         client: "MarginfiClient",
         account_data: MarginfiAccountData,
         marginfi_group: MarginfiGroup,
-    ):
-        """
-        MarginfiAccount local factory (decoded)
+    ) -> "MarginfiAccount":
+        """MarginfiAccount local factory (decoded)
 
         Instantiate a MarginfiAccount according to the provided decoded data.
         Check sanity against provided config.
 
-        :param marginfi_account_pk: Address of the target account
-        :param client: marginfi client
-        :param account_data: decoded marginfi account data
-        :param marginfi_group: marginfi group instance
-        :returns: marginfi account instance
+        Args:
+            marginfi_account_pk (PublicKey): address of the target account
+            client (MarginfiClient): marginfi client
+            account_data (MarginfiAccountData): decoded marginfi account data
+            marginfi_group (MarginfiGroup): marginfi group instance
+
+        Raises:
+            Exception: mismatch between the group that expected and the one decoded from the account data
+
+        Returns:
+            MarginfiAccount: marginfi account
         """
 
         if not account_data.marginfi_group == client.config.group_pk:
@@ -167,7 +180,7 @@ class MarginfiAccount:
                 f" Expected: {client.config.group_pk}"
             )
 
-        return MarginfiAccount(
+        account = MarginfiAccount(
             marginfi_account_pk,
             account_data.authority,
             client,
@@ -180,30 +193,36 @@ class MarginfiAccount:
             MarginfiAccount._pack_utp_data(account_data, UtpIndex.ZO),
         )
 
+        return account
+
     @staticmethod
     def from_account_data_raw(
         marginfi_account_pk: PublicKey,
         client: "MarginfiClient",
         data: bytes,
         marginfi_group: MarginfiGroup,
-    ):
-        """
-        MarginfiAccount local factory (encoded)
+    ) -> "MarginfiAccount":
+        """MarginfiAccount local factory (encoded)
 
         Instantiate a MarginfiGroup according to the provided encoded data.
         Check sanity against provided config.
 
-        :param marginfi_account_pk: address of the target account
-        :param client: marginfi client
-        :param data: decoded marginfi account data
-        :param marginfi_group: marginfi group instance
-        :returns: marginfi account instance
+        Args:
+            marginfi_account_pk (PublicKey): address of the target account
+            client (MarginfiClient): marginfi client
+            data (bytes): decoded marginfi account data
+            marginfi_group (MarginfiGroup): marginfi group instance
+
+        Returns:
+            MarginfiAccount: marginfi account
         """
 
         marginfi_account_data = MarginfiAccount.decode(data)
-        return MarginfiAccount.from_account_data(
+        account = MarginfiAccount.from_account_data(
             marginfi_account_pk, client, marginfi_account_data, marginfi_group
         )
+
+        return account
 
     # --- Getters / Setters
 
@@ -323,18 +342,30 @@ class MarginfiAccount:
         marginfi_account_pk: PublicKey,
         config: "MarginfiConfig",
         rpc_client: AsyncClient,
-    ):
-        """
-        [Internal] MarginfiAccount local factory (encoded)
+    ) -> "MarginfiAccountData":
+        """[Internal] MarginfiAccount local factory (encoded)
 
         Fetch marginfi account data.
         Check sanity against provided config.
 
-        :param marginfi_account_pk: address of the target account
-        :param config: client config
-        :param rpc_client: RPC client
-        :returns: marginfi account instance
+        Args:
+            marginfi_account_pk (PublicKey): address of the target account
+            config (MarginfiConfig): client config
+            rpc_client (AsyncClient): RPC client
+
+        Raises:
+            Exception: account not found
+            Exception: mismatch between the group that expected and the one decoded from the account data
+
+        Returns:
+            MarginfiAccountData: marginfi account
         """
+
+        logger = get_logger(f"{__name__}.MarginfiAccount")
+        logger.debug(
+            "Fetching account data for marginfi account %s",
+            marginfi_account_pk,
+        )
 
         data = await MarginfiAccountData.fetch(
             rpc_client,
@@ -350,16 +381,20 @@ class MarginfiAccount:
                 f" {config.group_pk}"
             )
 
+        logger.debug("Fetched: %s", data)
+
         return data
 
     @staticmethod
     def _pack_utp_data(data: MarginfiAccountData, utp_index: UtpIndex) -> UtpData:
-        """
-        [Internal] Pack data from the on-chain, vector format into a coherent unit.
+        """[Internal] Pack data from the on-chain, vector format into a coherent unit.
 
-        :param data: marginfi account data
-        :param utp_index: index of the target UTP
-        :returns: packed UTP data
+        Args:
+            data (MarginfiAccountData): marginfi account data
+            utp_index (UtpIndex): index of the target UTP
+
+        Returns:
+            UtpData: packed UTP data
         """
         return UtpData(
             account_config=data.utp_account_config[utp_index],
@@ -368,35 +403,43 @@ class MarginfiAccount:
 
     @staticmethod
     def decode(encoded: bytes) -> MarginfiAccountData:
-        """
-        Decode marginfi account data according to the Anchor IDL.
+        """Decode marginfi account data according to the Anchor IDL.
 
-        :param encoded: raw data buffer
-        :returns: decoded marginfi account data struct
+        Args:
+            encoded (bytes): raw data buffer
+
+        Returns:
+            MarginfiAccountData: decoded marginfi account data struct
         """
 
         return MarginfiAccountData.decode(encoded)
 
     @staticmethod
     async def encode(decoded: MarginfiAccountData) -> bytes:
-        """
-        Encode marginfi account data according to the Anchor IDL.
+        """Encode marginfi account data according to the Anchor IDL.
 
-        :param decoded: decoded marginfi account data struct
-        :returns: raw data buffer
+        Args:
+            decoded (MarginfiAccountData): decoded marginfi account data struct
+
+        Returns:
+            bytes: raw data buffer
         """
 
         coder = AccountsCoder(load_idl())
         return coder.build(decoded)
 
     async def reload(self, observe_utps=False) -> None:
-        """
-        Update instance data by fetching and storing the latest on-chain state.
+        """Update instance data by fetching and storing the latest on-chain state.
 
-        :param observe_utps: [optional] flag to request UTP observation as well
+        Args:
+            observe_utps (bool, optional): flag to request UTP observation as well. Defaults to False.
+
+        Raises:
+            Exception: mismatch between the group that expected and the one decoded from the account data
         """
 
-        logging.debug("PublicKey: %s. Reloading account data", self.pubkey)
+        logger = self.get_logger()
+        logger.debug("Reloading account data for %s", self.pubkey)
 
         marginfi_group_ai, marginfi_account_ai = await self.load_group_and_account_ai()
         marginfi_account_data = MarginfiAccount.decode(b64str_to_bytes(marginfi_account_ai.data[0]))  # type: ignore
@@ -417,10 +460,10 @@ class MarginfiAccount:
             await self.observe_utps()
 
     def _update_from_account_data(self, data: MarginfiAccountData) -> None:
-        """
-        Update instance data from provided data struct.
+        """Update instance data from provided data struct.
 
-        :param data: marginfi account data struct
+        Args:
+            data (MarginfiAccountData): marginfi account data struct
         """
 
         self._authority = data.authority
@@ -435,20 +478,30 @@ class MarginfiAccount:
         self.zo.update(self._pack_utp_data(data, UtpIndex.ZO))
 
     async def get_observation_accounts(self) -> List[AccountMeta]:
+        """Get all account metas required for the observation of active UTPs
+
+        Returns:
+            List[AccountMeta]: observation accounts
+        """
+
+        logger = self.get_logger()
+
         accounts = []
         for utp in self.active_utps:
             accounts.extend(await utp.get_observation_accounts())
-        print(f"Loading {len(accounts)} observation accounts")
+        logger.debug("Loading %s observation accounts", len(accounts))
         return accounts
 
     # --- Deposit to GMA
 
     async def make_deposit_ix(self, amount: float) -> TransactionInstruction:
-        """
-        Create transaction instruction to deposit collateral into the marginfi account.
+        """Create transaction instruction to deposit collateral into the marginfi account.
 
-        :param amount: amount to deposit (UI unit)
-        :returns: transaction instruction
+        Args:
+            amount (float): amount to deposit (UI unit)
+
+        Returns:
+            TransactionInstruction: transaction instruction
         """
 
         user_ata = get_associated_token_address(
@@ -469,25 +522,34 @@ class MarginfiAccount:
         )
 
     async def deposit(self, amount: float) -> TransactionSignature:
-        """
-        Deposit collateral into the marginfi account.
+        """Deposit collateral into the marginfi account.
 
-        :param amount: amount to deposit (UI unit)
-        :returns: transaction signature
+        Args:
+            amount (float): amount to deposit (UI unit)
+
+        Returns:
+            TransactionSignature: transaction signature
         """
+
+        logger = self.get_logger()
+        logger.debug("Depositing %s into marginfi account", amount)
 
         deposit_ix = await self.make_deposit_ix(amount)
         tx = Transaction().add(deposit_ix)
-        return await self._program.provider.send(tx)
+        sig = await self._program.provider.send(tx)
+        logger.debug("Deposit successful: %s", sig)
+        return sig
 
     # --- Withdraw from GMA
 
     async def make_withdraw_ix(self, amount: float) -> TransactionInstruction:
-        """
-        Create transaction instruction to withdraw collateral from the marginfi account.
+        """Create transaction instruction to withdraw collateral from the marginfi account.
 
-        :param amount: amount to withdraw (mint native unit)
-        :returns: `MarginWithdrawCollateral` transaction instruction
+        Args:
+            amount (float): amount to withdraw (mint native unit)
+
+        Returns:
+            TransactionInstruction: transaction instruction
         """
 
         user_ata = get_associated_token_address(
@@ -513,27 +575,36 @@ class MarginfiAccount:
         )
 
     async def withdraw(self, amount: float) -> TransactionSignature:
-        """
-        Withdraw collateral from the marginfi account.
+        """Withdraw collateral from the marginfi account.
 
-        :param amount: amount to withdraw (mint native unit)
-        :returns: transaction signature
+        Args:
+            amount (float): amount to withdraw (mint native unit)
+
+        Returns:
+            TransactionSignature: transaction signature
         """
+
+        logger = self.get_logger()
+        logger.debug("Withdrawing %s into marginfi account", amount)
 
         withdraw_ix = await self.make_withdraw_ix(amount)
         tx = Transaction().add(withdraw_ix)
-        return await self._program.provider.send(tx)
+        sig = await self._program.provider.send(tx)
+        logger.debug("Withdrawal successful: %s", sig)
+        return sig
 
     # --- Deactivate UTP
 
     async def make_deactivate_utp_ix(
         self, utp_index: UtpIndex
     ) -> TransactionInstruction:
-        """
-        [Internal] Create transaction instruction to deactivate the target UTP.
+        """[Internal] Create transaction instruction to deactivate the target UTP.
 
-        :param utp_index: target UTP index
-        :returns: transaction instruction
+        Args:
+            utp_index (UtpIndex): target UTP index
+
+        Returns:
+            TransactionInstruction: transaction instruction
         """
 
         remaining_accounts = await self.get_observation_accounts()
@@ -548,22 +619,29 @@ class MarginfiAccount:
         )
 
     async def deactivate_utp(self, utp_index: UtpIndex) -> TransactionSignature:
-        """
-        [Internal] Deactivate the target UTP.
+        """[Internal] Deactivate the target UTP.
 
-        :param utp_index target UTP index
-        :returns: transaction signature
+        Args:
+            utp_index (UtpIndex): target UTP index
+
+        Returns:
+            TransactionSignature: transaction signature
         """
+
+        logger = self.get_logger()
+        logger.debug("Deactivating UTP %s into marginfi account", utp_index)
 
         deactivate_ix = await self.make_deactivate_utp_ix(utp_index)
         tx = Transaction().add(deactivate_ix)
-        return await self._program.provider.send(tx)
+        sig = await self._program.provider.send(tx)
+        logger.debug("Deactivation successful: %s", sig)
+        return sig
 
-    async def make_handle_bankruptcy_ix(self):
-        """
-        Create transaction instruction to handle a bankrupt account.
+    async def make_handle_bankruptcy_ix(self) -> TransactionInstruction:
+        """Create transaction instruction to handle a bankrupt account.
 
-        :returns: `HandleBankruptcy` transaction instruction
+        Returns:
+            TransactionInstruction: transaction instruction
         """
 
         insurance_vault_authority_pk, _ = get_bank_authority(
@@ -585,19 +663,24 @@ class MarginfiAccount:
             remaining_accounts,
         )
 
-    async def handle_bankruptcy(self):
-        """
-        Handle a bankrupt account.
+    async def handle_bankruptcy(self) -> TransactionSignature:
+        """Handle a bankrupt account.
 
-        :returns: transaction signature
+        Returns:
+            TransactionInstruction: transaction signature
         """
+
+        logger = self.get_logger()
+        logger.debug("Handling bankruptcy")
 
         bankruptcy_ix = await self.make_handle_bankruptcy_ix()
         tx = Transaction().add(bankruptcy_ix)
-        return await self._program.provider.send(tx)
+        sig = await self._program.provider.send(tx)
+        logger.debug("Handling successful: %s", sig)
+        return sig
 
     async def observe_utps(self) -> dict[UtpIndex, UtpObservation]:
-        """Observe all active UTPs and cache the result
+        """Observe all active UTPs and cache the result.
 
         Returns:
             dict[UtpIndex, UtpObservation]: observation cache
@@ -614,9 +697,9 @@ class MarginfiAccount:
         """Atomically load underlying marginfi group and account
 
         Raises:
-            Exception: when RPC call errors out
-            Exception: when group not found
-            Exception: when account not found
+            Exception: RPC call errors out
+            Exception: group not found
+            Exception: account not found
 
         Returns:
             Tuple[AccountInfo, AccountInfo]: account infos for marginfi group and account

@@ -91,24 +91,24 @@ class TestMarginfiClient:
     # /!\ more test setup required to allow for more stringent tests /!\
 
     @mark.asyncio
-    async def test_get_own_marginfi_accounts(self):
+    async def test_load_own_marginfi_accounts(self):
         client = load_client()
-        await client.get_own_marginfi_accounts()
+        await client.load_own_marginfi_accounts()
 
     @mark.asyncio
-    async def test_get_all_marginfi_account_addresses(self):
+    async def test_load_all_marginfi_account_addresses(self):
         client = load_client()
-        await client.get_all_marginfi_account_addresses()
+        await client.load_all_marginfi_account_addresses()
 
     @mark.asyncio
-    async def test_get_all_marginfi_accounts(self):
+    async def test_load_all_marginfi_accounts(self):
         client = load_client()
-        await client.get_all_marginfi_accounts()
+        await client.load_all_marginfi_accounts()
 
     @mark.asyncio
-    async def test_get_marginfi_account(self):
+    async def test_load_marginfi_account(self):
         client = load_client()
-        account = await client.get_marginfi_account(REAL_ACCOUNT_PUBKEY_2)
+        account = await client.load_marginfi_account(REAL_ACCOUNT_PUBKEY_2)
 
         config = MarginfiConfig(Environment.DEVNET)
         assert account.group.pubkey == config.group_pk
@@ -116,9 +116,9 @@ class TestMarginfiClient:
         assert account.client == client
 
     @mark.asyncio
-    async def test_get_all_program_account_addresses(self):
+    async def test_load_all_program_account_addresses(self):
         client = load_client()
-        await client.get_all_program_account_addresses(AccountType.MARGINFI_GROUP)
+        await client.load_all_program_account_addresses(AccountType.MARGINFI_GROUP)
 
     @mark.asyncio
     async def test_create_marginfi_account(self):
@@ -126,5 +126,5 @@ class TestMarginfiClient:
         config = MarginfiConfig(Environment.DEVNET)
 
         account_address, _ = await client.create_marginfi_account()
-        account = await client.get_marginfi_account(account_address.pubkey)
+        account = await client.load_marginfi_account(account_address.pubkey)
         assert account.group.pubkey == config.group_pk

@@ -28,7 +28,7 @@ def load_idl(idl_path: Optional[str] = None) -> Idl:
 def handle_override(
     override_key: str,
     default: Any,
-    overrides: Dict[str, Any] = {},
+    overrides: Dict[Any, Any] = {},
 ):  # pylint: disable=dangerous-default-value
     if overrides is None:
         return default
