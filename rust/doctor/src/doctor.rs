@@ -1,4 +1,3 @@
-use anchor_client::anchor_lang::accounts::sysvar;
 use anchor_client::anchor_lang::system_program;
 use anchor_client::anchor_lang::InstructionData;
 use anchor_client::anchor_lang::ToAccountMetas;
@@ -11,19 +10,13 @@ use mango_protocol::state::{
     MAX_PAIRS, QUOTE_INDEX,
 };
 use marginfi::constants::MANGO_GROUP;
-use marginfi::constants::ZO_PROGRAM;
-use marginfi::instructions::zo;
+
 use marginfi::{
     constants::{
         MANGO_PROGRAM, MANGO_UTP_INDEX, PDA_BANK_VAULT_SEED, PDA_UTP_AUTH_SEED, ZO_UTP_INDEX,
     },
     prelude::{MarginfiAccount, MarginfiGroup},
-    state::{
-        mango_state::{
-            get_max_rebalance_deposit_amount, is_rebalance_deposit_valid, MANGO_GROUP_ADDRESS_INDEX,
-        },
-        marginfi_group,
-    },
+    state::mango_state::is_rebalance_deposit_valid,
 };
 use serum_dex::state::OpenOrders;
 use solana_client::{
@@ -34,22 +27,16 @@ use solana_sdk::instruction::AccountMeta;
 use solana_sdk::program_error::ProgramError;
 use solana_sdk::pubkey;
 use solana_sdk::signature::read_keypair_file;
-use solana_sdk::sysvar::{rent, SysvarId};
+use solana_sdk::sysvar::SysvarId;
 use solana_sdk::transaction::Transaction;
 use solana_sdk::{
-    account::Account,
-    account_info::AccountInfo,
-    instruction::Instruction,
-    program_pack::Pack,
-    pubkey::Pubkey,
-    signature::Keypair,
-    signer::{signers::Signers, Signer},
-    system_instruction::create_account,
+    account_info::AccountInfo, instruction::Instruction, program_pack::Pack, pubkey::Pubkey,
+    signature::Keypair, signer::Signer, system_instruction::create_account,
 };
 use std::ops::Div;
 use std::str::FromStr;
 use std::thread::sleep;
-use std::{borrow::Borrow, cell::Ref, io::Error, rc::Rc, time::Duration};
+use std::{cell::Ref, rc::Rc, time::Duration};
 use zo_abi::ZO_STATE_ID;
 
 fn main() {
@@ -86,9 +73,9 @@ impl DoctorConfig {
     }
 
     pub fn keypair(&self) -> Keypair {
-        if let Some(wallet_path) = std::env::var("WALLET").ok() {
+        if let Ok(wallet_path) = std::env::var("WALLET") {
             read_keypair_file(wallet_path).unwrap()
-        } else if let Some(wallet_key) = std::env::var("WALLET_KEY").ok() {
+        } else if let Ok(wallet_key) = std::env::var("WALLET_KEY") {
             Keypair::from_base58_string(wallet_key.as_str())
         } else {
             panic!("WALLET or WALLET_KEY must be set");
@@ -151,14 +138,14 @@ impl GroupCache {
         let rpc = program.rpc();
 
         let mango_group_account = rpc.get_account(&address_book.mango_group).unwrap();
-        let mango_group_raw = &mut (address_book.mango_group, mango_group_account.clone());
+        let mango_group_raw = &mut (address_book.mango_group, mango_group_account);
         let mango_group_ai = AccountInfo::from(mango_group_raw);
         let mango_group =
             MangoGroup::load_checked(&mango_group_ai, &address_book.mango_group).unwrap();
 
         let mango_cache_account = rpc.get_account(&mango_group.mango_cache).unwrap();
 
-        let mango_cache_raw = &mut (mango_group.mango_cache, mango_cache_account.clone());
+        let mango_cache_raw = &mut (mango_group.mango_cache, mango_cache_account);
         let mango_cache_ai = AccountInfo::from(mango_cache_raw);
         let mango_cache =
             MangoCache::load_checked(&mango_cache_ai, &address_book.mango_program, &mango_group)
@@ -541,7 +528,7 @@ impl<'a> MarginAccountHandler<'a> {
                         .unwrap();
 
                     let rebalance_needed =
-                        is_rebalance_deposit_valid(&mut health_cache, &mango_group).unwrap();
+                        is_rebalance_deposit_valid(&mut health_cache, mango_group).unwrap();
 
                     if !rebalance_needed {
                         return;
@@ -550,10 +537,10 @@ impl<'a> MarginAccountHandler<'a> {
                     let deposit_amount =
                         marginfi::state::mango_state::get_max_rebalance_deposit_amount(
                             &mut health_cache,
-                            &mango_group,
+                            mango_group,
                         )
                         .unwrap()
-                        .div(I80F48::from_num(2 as u8))
+                        .div(I80F48::from_num(2_u8))
                         .to_num();
 
                     let (mango_authority, _) = self.get_utp_authority(MANGO_UTP_INDEX);
@@ -573,7 +560,7 @@ impl<'a> MarginAccountHandler<'a> {
                         margin_collateral_vault: marginfi_group.bank.vault,
                         bank_authority: self.group_cache.bank_authority,
                         temp_collateral_account: temp_token_account.pubkey(),
-                        mango_authority: mango_authority,
+                        mango_authority,
                         mango_account: *mango_account_pk,
                         mango_program: self.address_book.mango_program,
                         mango_group: *mango_group_pk,
@@ -610,27 +597,24 @@ impl<'a> MarginAccountHandler<'a> {
                 }
                 ZO_UTP_INDEX => {
                     let (zo_state_pk, zo_state) = &self.group_cache.zo_state;
-                    let (zo_cache_pk, zo_cache) = &self.group_cache.zo_cache;
+                    let (_zo_cache_pk, zo_cache) = &self.group_cache.zo_cache;
                     let (zo_margin_pk, zo_margin) = &self
                         .margin_account_cache
                         .utp_zo_cache
                         .as_ref()
                         .unwrap()
                         .zo_margin;
-                    let (zo_control_pk, zo_control) = &self
+                    let (_zo_control_pk, zo_control) = &self
                         .margin_account_cache
                         .utp_zo_cache
                         .as_ref()
                         .unwrap()
                         .zo_control;
 
-                    let (marginfi_group_pk, marginfi_group) = self.group_cache.marginfi_group;
+                    let (_marginfi_group_pk, marginfi_group) = self.group_cache.marginfi_group;
 
                     let rebalance_required = marginfi::state::zo_state::is_rebalance_deposit_valid(
-                        &zo_margin,
-                        &zo_control,
-                        zo_state,
-                        zo_cache,
+                        zo_margin, zo_control, zo_state, zo_cache,
                     )
                     .unwrap();
 
@@ -640,13 +624,10 @@ impl<'a> MarginAccountHandler<'a> {
 
                     let deposit_amount =
                         marginfi::state::zo_state::get_max_rebalance_deposit_amount(
-                            &zo_margin,
-                            &zo_control,
-                            &zo_state,
-                            &zo_cache,
+                            zo_margin, zo_control, zo_state, zo_cache,
                         )
                         .unwrap()
-                        .div(I80F48::from_num(2 as u8));
+                        .div(I80F48::from_num(2_u8));
 
                     let (zo_authority, _) = self.get_utp_authority(ZO_UTP_INDEX);
                     let ([create_token_account_ix, init_token_account_ix], temp_token_account) =
