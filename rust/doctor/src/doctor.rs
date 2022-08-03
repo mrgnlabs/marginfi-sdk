@@ -10,7 +10,6 @@ use mango_protocol::state::{
     MAX_PAIRS, QUOTE_INDEX,
 };
 use marginfi::constants::MANGO_GROUP;
-
 use marginfi::{
     constants::{
         MANGO_PROGRAM, MANGO_UTP_INDEX, PDA_BANK_VAULT_SEED, PDA_UTP_AUTH_SEED, ZO_UTP_INDEX,
