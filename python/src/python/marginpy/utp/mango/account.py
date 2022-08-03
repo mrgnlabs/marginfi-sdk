@@ -161,7 +161,7 @@ class UtpMangoAccount(UtpAccount):
 
         with mango.ContextBuilder.build(
             cluster_name=self.config.cluster,
-            group_name="devnet.2",  # TODO update for mainnet
+            group_name=self.config.group_name,
         ) as context:
             mango_group = mango.Group.load(context)
             token_bank = mango_group.token_bank_by_instrument(
@@ -226,7 +226,7 @@ class UtpMangoAccount(UtpAccount):
         mango_authority_pk, _ = await self.authority()
 
         with mango.ContextBuilder.build(
-            cluster_name=self.config.cluster, group_name="devnet.2"
+            cluster_name=self.config.cluster, group_name=self.config.group_name
         ) as context:
             mango_group = mango.Group.load(context)
             token_bank = mango_group.token_bank_by_instrument(
@@ -321,7 +321,7 @@ class UtpMangoAccount(UtpAccount):
         mango_authority_pk, _ = await self.authority()
 
         with mango.ContextBuilder.build(
-            cluster_name=self.config.cluster, group_name="devnet.2"
+            cluster_name=self.config.cluster, group_name=self.config.group_name
         ) as context:
             mango_group = mango.Group.load(context)
 
@@ -449,7 +449,7 @@ class UtpMangoAccount(UtpAccount):
         """
 
         with mango.ContextBuilder.build(
-            cluster_name=self.config.cluster, group_name="devnet.2"
+            cluster_name=self.config.cluster, group_name=self.config.group_name
         ) as context:
             mango_group = mango.Group.load(context)
         return [

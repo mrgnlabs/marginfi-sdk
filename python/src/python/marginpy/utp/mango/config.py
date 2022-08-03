@@ -19,6 +19,7 @@ class MangoConfig(UtpConfig):
 
     cluster: Literal["devnet", "mainnet", "localnet"]
     group_pk: PublicKey
+    group_name: str
 
     def __init__(
         self,
@@ -52,12 +53,22 @@ class MangoConfig(UtpConfig):
                 override_key="group_pk",
                 default=PublicKey("98pjRuQjK3qA6gXts96PqZT4Ze5QmnCmt3QYjhbUSPue"),
             )
+            self.group_name = handle_override(
+                overrides=overrides,
+                override_key="group_name",
+                default="mainnet.1",
+            )
         elif environment in (Environment.DEVNET, Environment.LOCALNET):
             self.cluster = "devnet"
             self.group_pk = handle_override(
                 overrides=overrides,
                 override_key="group_pk",
                 default=PublicKey("Ec2enZyoC4nGpEfu2sUNAa2nUGJHWxoUWYSEJ2hNTWTA"),
+            )
+            self.group_name = handle_override(
+                overrides=overrides,
+                override_key="group_name",
+                default="devnet.2",
             )
         else:
             raise Exception(f"Unknown environment for Mango UTP config {environment}")
