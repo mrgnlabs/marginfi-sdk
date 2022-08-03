@@ -12,9 +12,15 @@ solana-client = "1.9.29"
 solana-sdk = "1.9.29"
 solana-program = "1.9.29"
 fixed = "1.11.0"
-marginfi = { path = "../../../programs/marginfi" }
-mango-protocol = { git = "https://github.com/mrgnlabs/mango-v3.git", rev="3589b9d35beb6a01921bc32112b694e00dfb7ccc", package= "mango", features = ["no-entrypoint", "client"] }
-serum_dex = { git = "https://github.com/blockworks-foundation/serum-dex.git", rev = "7f55a5ef5f7937b74381a3124021a261cd7d7283", default-features=false, features = ["no-entrypoint", "program"] }
+marginfi = { path = "../../../programs/marginfi", features = ["client"] }
+mango-protocol = { git = "https://github.com/mrgnlabs/mango-v3.git", rev = "3589b9d35beb6a01921bc32112b694e00dfb7ccc", package = "mango", features = [
+    "no-entrypoint",
+    "client",
+] }
+serum_dex = { git = "https://github.com/blockworks-foundation/serum-dex.git", rev = "7f55a5ef5f7937b74381a3124021a261cd7d7283", default-features = false, features = [
+    "no-entrypoint",
+    "program",
+] }
 zo-abi = { git = "https://github.com/01protocol/zo-abi.git", rev = "3ff8def2c747899c9d534f5de36988b6f0a0d46c", features = [
     "cpi",
 ] }

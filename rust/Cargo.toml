@@ -1,5 +1,5 @@
 [workspace]
 members = [
     "doctor",
-    "marginfi-rebalancer"
+    # "marginfi-rebalancer"
 ]

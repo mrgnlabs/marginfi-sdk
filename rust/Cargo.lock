@@ -132,7 +132,7 @@ checksum = "d104aa17418cb329ed7418b227e083d5f326a27f26ce98f5d92e33da62a5f459"
 dependencies = [
  "anchor-syn",
  "anyhow",
- "heck 0.3.3",
+ "heck",
  "proc-macro2 1.0.40",
  "quote 1.0.20",
  "syn 1.0.98",
@@ -238,7 +238,7 @@ checksum = "03549dc2eae0b20beba6333b14520e511822a6321cdb1760f841064a69347316"
 dependencies = [
  "anyhow",
  "bs58 0.3.1",
- "heck 0.3.3",
+ "heck",
  "proc-macro2 1.0.40",
  "proc-macro2-diagnostics",
  "quote 1.0.20",
@@ -567,49 +567,10 @@ dependencies = [
  "ansi_term",
  "atty",
  "bitflags",
- "strsim 0.8.0",
- "textwrap 0.11.0",
+ "strsim",
+ "textwrap",
  "unicode-width",
  "vec_map",
-]
-
-[[package]]
-name = "clap"
-version = "3.2.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3dbbb6653e7c55cc8595ad3e1f7be8f32aba4eb7ff7f0fd1163d4f3d137c0a9"
-dependencies = [
- "atty",
- "bitflags",
- "clap_derive",
- "clap_lex",
- "indexmap",
- "once_cell",
- "strsim 0.10.0",
- "termcolor",
- "textwrap 0.15.0",
-]
-
-[[package]]
-name = "clap_derive"
-version = "3.2.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ba52acd3b0a5c33aeada5cdaa3267cdc7c594a98731d4268cdc1532f4264cb4"
-dependencies = [
- "heck 0.4.0",
- "proc-macro-error",
- "proc-macro2 1.0.40",
- "quote 1.0.20",
- "syn 1.0.98",
-]
-
-[[package]]
-name = "clap_lex"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2850f2f5a82cbf437dd5af4d49848fbdfc27c157c3d010345776f952765261c5"
-dependencies = [
- "os_str_bytes",
 ]
 
 [[package]]
@@ -837,15 +798,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dirs"
-version = "4.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca3aa72a6f96ea37bbc5aa912f6788242832f75369bdfdadcb0e38423f100059"
-dependencies = [
- "dirs-sys",
-]
-
-[[package]]
 name = "dirs-next"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -853,17 +805,6 @@ checksum = "b98cf8ebf19c3d1b223e151f99a4f9f0690dca41414773390fc824184ac833e1"
 dependencies = [
  "cfg-if",
  "dirs-sys-next",
-]
-
-[[package]]
-name = "dirs-sys"
-version = "0.3.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b1d1d91c932ef41c0f2663aa8b0ca0342d444d842c06914aa0a7e352d0bada6"
-dependencies = [
- "libc",
- "redox_users",
- "winapi",
 ]
 
 [[package]]
@@ -907,7 +848,7 @@ dependencies = [
  "anchor-client",
  "bytemuck",
  "fixed",
- "mango 3.5.1",
+ "mango",
  "marginfi",
  "serum_dex",
  "solana-client",
@@ -916,12 +857,6 @@ dependencies = [
  "spl-token",
  "zo-abi",
 ]
-
-[[package]]
-name = "dotenv"
-version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
 
 [[package]]
 name = "ed25519"
@@ -1363,12 +1298,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "heck"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2540771e65fc8cb83cd6e8a237f70c319bd5c29f78ed1084ba5d50eeac86f7f9"
-
-[[package]]
 name = "hermit-abi"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1726,35 +1655,6 @@ dependencies = [
 
 [[package]]
 name = "mango"
-version = "3.4.7"
-source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=feac29b69834051671752bc316d9ee4fbb61ae9b#feac29b69834051671752bc316d9ee4fbb61ae9b"
-dependencies = [
- "anchor-lang",
- "arrayref",
- "bincode",
- "bs58 0.4.0",
- "bytemuck",
- "enumflags2",
- "fixed",
- "fixed-macro",
- "mango-common 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=feac29b69834051671752bc316d9ee4fbb61ae9b)",
- "mango-logs 0.1.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=feac29b69834051671752bc316d9ee4fbb61ae9b)",
- "mango-macro 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=feac29b69834051671752bc316d9ee4fbb61ae9b)",
- "num_enum",
- "pyth-client",
- "safe-transmute",
- "serde",
- "serum_dex",
- "solana-program",
- "spl-token",
- "static_assertions",
- "switchboard-program",
- "switchboard-utils",
- "thiserror",
-]
-
-[[package]]
-name = "mango"
 version = "3.5.1"
 source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc#3589b9d35beb6a01921bc32112b694e00dfb7ccc"
 dependencies = [
@@ -1766,9 +1666,9 @@ dependencies = [
  "enumflags2",
  "fixed",
  "fixed-macro",
- "mango-common 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc)",
- "mango-logs 0.1.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc)",
- "mango-macro 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc)",
+ "mango-common",
+ "mango-logs",
+ "mango-macro",
  "num_enum",
  "pyth-client",
  "safe-transmute",
@@ -1792,27 +1692,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "mango-common"
-version = "3.0.0"
-source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=feac29b69834051671752bc316d9ee4fbb61ae9b#feac29b69834051671752bc316d9ee4fbb61ae9b"
-dependencies = [
- "bytemuck",
- "solana-program",
-]
-
-[[package]]
 name = "mango-logs"
 version = "0.1.0"
 source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc#3589b9d35beb6a01921bc32112b694e00dfb7ccc"
-dependencies = [
- "anchor-lang",
- "base64 0.13.0",
-]
-
-[[package]]
-name = "mango-logs"
-version = "0.1.0"
-source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=feac29b69834051671752bc316d9ee4fbb61ae9b#feac29b69834051671752bc316d9ee4fbb61ae9b"
 dependencies = [
  "anchor-lang",
  "base64 0.13.0",
@@ -1824,20 +1706,7 @@ version = "3.0.0"
 source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc#3589b9d35beb6a01921bc32112b694e00dfb7ccc"
 dependencies = [
  "bytemuck",
- "mango-common 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc)",
- "quote 1.0.20",
- "safe-transmute",
- "solana-program",
- "syn 1.0.98",
-]
-
-[[package]]
-name = "mango-macro"
-version = "3.0.0"
-source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=feac29b69834051671752bc316d9ee4fbb61ae9b#feac29b69834051671752bc316d9ee4fbb61ae9b"
-dependencies = [
- "bytemuck",
- "mango-common 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=feac29b69834051671752bc316d9ee4fbb61ae9b)",
+ "mango-common",
  "quote 1.0.20",
  "safe-transmute",
  "solana-program",
@@ -1854,7 +1723,7 @@ dependencies = [
  "bytemuck",
  "fixed",
  "fixed-macro",
- "mango 3.5.1",
+ "mango",
  "rust_decimal",
  "rust_decimal_macros",
  "serum_dex",
@@ -1863,30 +1732,6 @@ dependencies = [
  "uint",
  "zo-abi",
  "zo-margin-utils",
-]
-
-[[package]]
-name = "marginfi-rebalancer"
-version = "0.1.0"
-dependencies = [
- "anchor-client",
- "anyhow",
- "bytemuck",
- "clap 3.2.16",
- "dirs",
- "dotenv",
- "env_logger",
- "log",
- "mango 3.4.7",
- "marginfi",
- "serde",
- "serde_json",
- "shellexpand",
- "solana-client",
- "solana-program",
- "solana-sdk",
- "url",
- "zo-abi",
 ]
 
 [[package]]
@@ -2065,12 +1910,6 @@ name = "opaque-debug"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5"
-
-[[package]]
-name = "os_str_bytes"
-version = "6.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "648001efe5d5c0102d8cea768e348da85d90af8ba91f0bea908f157951493cd4"
 
 [[package]]
 name = "ouroboros"
@@ -2781,15 +2620,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "shellexpand"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83bdb7831b2d85ddf4a7b148aa19d0587eddbe8671a436b7bd1182eaad0f2829"
-dependencies = [
- "dirs-next",
-]
-
-[[package]]
 name = "signal-hook-registry"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2912,7 +2742,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c127c7eadd27ba24ad924355cf5db1ea5224e685caee950f02afa36036b6e01"
 dependencies = [
  "chrono",
- "clap 2.34.0",
+ "clap",
  "rpassword",
  "solana-perf",
  "solana-remote-wallet",
@@ -2946,7 +2776,7 @@ dependencies = [
  "base64 0.13.0",
  "bincode",
  "bs58 0.4.0",
- "clap 2.34.0",
+ "clap",
  "indicatif",
  "jsonrpc-core",
  "log",
@@ -3003,7 +2833,7 @@ checksum = "dfe5f0c2364a97ff75ef95654077fc908a0d623a064b11b5728871e57adf1814"
 dependencies = [
  "bincode",
  "byteorder",
- "clap 2.34.0",
+ "clap",
  "log",
  "serde",
  "serde_derive",
@@ -3092,7 +2922,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8aa4fe2bc5449cecf84128d109166164a186a23744bacf574e324baa47c58a03"
 dependencies = [
  "bincode",
- "clap 2.34.0",
+ "clap",
  "log",
  "nix",
  "rand 0.7.3",
@@ -3497,12 +3327,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 
 [[package]]
-name = "strsim"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
-
-[[package]]
 name = "subtle"
 version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3645,12 +3469,6 @@ checksum = "d326610f408c7a4eb6f51c37c330e496b08506c9457c9d34287ecc38809fb060"
 dependencies = [
  "unicode-width",
 ]
-
-[[package]]
-name = "textwrap"
-version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1141d4d61095b28419e22cb0bbf02755f5e54e0526f97f1e3d1d160e60885fb"
 
 [[package]]
 name = "thiserror"
