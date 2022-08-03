@@ -2,6 +2,9 @@ from dataclasses import dataclass
 from typing import List
 
 import marginpy.generated_client.instructions as gen_ix
+from marginpy.generated_client.types.utp_mango_place_perp_order_args import (
+    UtpMangoPlacePerpOrderArgs,
+)
 from solana.publickey import PublicKey
 from solana.system_program import SYS_PROGRAM_ID
 from solana.transaction import AccountMeta, TransactionInstruction
@@ -157,23 +160,22 @@ def make_withdraw_ix(
 # --- Place order
 
 
-class PlacePerpOrderArgs(gen_ix.UtpMangoUsePlacePerpOrderArgs):
+class PlacePerpOrderArgs(UtpMangoPlacePerpOrderArgs):
     pass
 
 
-# @todo mango program can be passed through config
 class PlacePerpOrderAccounts(gen_ix.UtpMangoUsePlacePerpOrderAccounts):
     pass
 
 
 def make_place_perp_order_ix(
-    args: gen_ix.UtpMangoUsePlacePerpOrderArgs,
+    args: PlacePerpOrderArgs,
     accounts: gen_ix.UtpMangoUsePlacePerpOrderAccounts,
     program_id: PublicKey,
     remaining_accounts: List[AccountMeta],
 ) -> TransactionInstruction:
     return gen_ix.utp_mango_use_place_perp_order(
-        args,
+        gen_ix.UtpMangoUsePlacePerpOrderArgs(args=args),
         accounts,
         program_id,
         remaining_accounts,

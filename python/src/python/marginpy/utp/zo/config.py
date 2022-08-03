@@ -14,8 +14,7 @@ from solana.publickey import PublicKey
 @dataclass
 class ZoConfig(UtpConfig):
     """
-    [Internal]
-    Define Zo-specific config per profile
+    [internal] Zo-specific config.
     """
 
     cluster: Literal["devnet", "mainnet"]

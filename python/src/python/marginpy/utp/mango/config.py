@@ -14,8 +14,7 @@ from solana.publickey import PublicKey
 @dataclass
 class MangoConfig(UtpConfig):
     """
-    [Internal]
-    Define Mango-specific config per profile
+    [internal] Mango-specific config
     """
 
     cluster: Literal["devnet", "mainnet", "localnet"]

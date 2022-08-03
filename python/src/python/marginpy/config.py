@@ -17,12 +17,27 @@ from solana.rpc.types import TxOpts
 
 @dataclass
 class MarginfiDedicatedConfig:
+    """
+    marginfi-specific config.
+    """
+
     environment: Environment
     program_id: PublicKey
     group_pk: PublicKey
     collateral_mint_pk: PublicKey
 
     def __init__(self, environment: Environment, overrides: Dict[str, Any] = {}):
+        """
+        Constructor.
+
+        Args:
+            environment (Environment): target environment
+            overrides (Dict[str, Any], optional): override for any config field. Defaults to {}.
+
+        Raises:
+            Exception: unknown environment
+        """
+
         self.environment = environment
         if environment == Environment.MAINNET:
             self.program_id = handle_override(
@@ -78,11 +93,23 @@ class MarginfiDedicatedConfig:
 
 @dataclass
 class MarginfiConfig(MarginfiDedicatedConfig):
+    """
+    marginfi config.
+    """
+
     tx_opts: TxOpts
     mango: MangoConfig
     zo: ZoConfig
 
     def __init__(self, environment: Environment, overrides: Dict[str, Any] = {}):
+        """
+        Constructor.
+
+        Args:
+            environment (Environment): target environment
+            overrides (Dict[str, Any], optional): override for any config field. Defaults to {}.
+        """
+
         super().__init__(environment, overrides)
 
         if overrides is None:

@@ -62,7 +62,7 @@ class UtpObservation:
 
 
 EMPTY_OBSERVATION = UtpObservation(
-    timestamp=datetime.min,  # @todo confirm this works
+    timestamp=datetime.min,
     equity=0,
     free_collateral=0,
     init_margin_requirement=0,

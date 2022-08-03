@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Tuple
 
 import spl.token.instructions as spl_token_ixs
 from anchorpy import Program
@@ -11,12 +11,21 @@ from marginpy.constants import (
     LIQUIDATOR_LIQUIDATION_FEE,
 )
 from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
-from marginpy.types import UTP_NAME, LiquidationPrices, UtpConfig, UtpData, UtpIndex
+from marginpy.logger import get_logger
+from marginpy.types import (
+    UTP_NAME,
+    InstructionsWrapper,
+    LiquidationPrices,
+    UtpConfig,
+    UtpData,
+    UtpIndex,
+)
 from marginpy.utils.pda import get_utp_authority
 from marginpy.utp.observation import EMPTY_OBSERVATION, UtpObservation
 from solana import system_program
+from solana.keypair import Keypair
 from solana.publickey import PublicKey
-from solana.transaction import AccountMeta, TransactionInstruction, TransactionSignature
+from solana.transaction import AccountMeta, TransactionSignature
 from spl.token.constants import ACCOUNT_LEN, TOKEN_PROGRAM_ID
 
 if TYPE_CHECKING:
@@ -24,6 +33,10 @@ if TYPE_CHECKING:
 
 
 class UtpAccount(ABC):
+    """
+    [internal] Abstract class for common behaviour in UTP proxies.
+    """
+
     _client: MarginfiClient
     _marginfi_account: MarginfiAccount
     is_active: bool
@@ -63,19 +76,19 @@ class UtpAccount(ABC):
         pass
 
     @abstractmethod
-    async def deposit(self, amount) -> TransactionSignature:
+    async def deposit(self, ui_amount: float) -> TransactionSignature:
         pass
 
     @abstractmethod
-    async def withdraw(self, amount) -> TransactionSignature:
+    async def withdraw(self, ui_amount: float) -> TransactionSignature:
         pass
+
+    # --- Getters / Setters
 
     @property
     @abstractmethod
     def config(self) -> UtpConfig:
         pass
-
-    # --- Getters / Setters
 
     @property
     def index(self) -> UtpIndex:
@@ -83,24 +96,23 @@ class UtpAccount(ABC):
 
     @property
     def _config(self) -> MarginfiConfig:
-        """[Internal]"""
         return self._client.config
 
     @property
     def _program(self) -> Program:
-        """[Internal]"""
         return self._client.program
 
     @property
     def cached_observation(self) -> UtpObservation:
-        # TODO
         fetch_age = (
             datetime.now() - self._cached_observation.timestamp
         ).total_seconds()
         if fetch_age > 5:
-            print(
-                f"[WARNNG] Last {UTP_NAME[self.index]} observation was fetched"
-                f" {fetch_age} seconds ago"
+            logger = get_logger(f"{__name__}.UtpAccount.{UTP_NAME[self.index]}")
+            logger.warning(
+                "Last %s observation was fetched %s seconds ago",
+                UTP_NAME[self.index],
+                fetch_age,
             )
         return self._cached_observation
 
@@ -136,8 +148,13 @@ class UtpAccount(ABC):
     def address(self) -> PublicKey:
         return self._utp_config.address
 
-    async def authority(self, seed: PublicKey = None):
-        """UTP authority (PDA)"""
+    async def authority(self, seed: PublicKey = None) -> Tuple[PublicKey, int]:
+        """
+        Gets UTP authority (PDA).
+
+        Args:
+            seed (PublicKey, optional): seed required only at UTP activation. Defaults to None.
+        """
 
         return get_utp_authority(
             self.config.program_id,
@@ -148,7 +165,9 @@ class UtpAccount(ABC):
     # --- Others
 
     def compute_liquidation_prices(self) -> LiquidationPrices:
-        """Calculates liquidation parameters given an account value."""
+        """
+        Calculates liquidation parameters given an account value.
+        """
 
         liquidator_fee = self.liquidation_value * LIQUIDATOR_LIQUIDATION_FEE
         insurance_vault_fee = self.liquidation_value * INSURANCE_VAULT_LIQUIDATION_FEE
@@ -162,27 +181,25 @@ class UtpAccount(ABC):
             insurance_vault_fee=insurance_vault_fee,
         )
 
-    def update(self, data: UtpData) -> None:
+    def _update(self, data: UtpData) -> None:
         """
-        [Internal] Update instance data from provided data struct.
+        [internal] Update instance data from provided data struct.
         """
 
         self.is_active = data.is_active
         self._utp_config = data.account_config
 
-    def verify_active(self):
-        """[Internal]"""
-
+    def throw_if_not_active(self):
         if not self.is_active:
             raise Exception("Utp isn't active")
 
     async def make_create_proxy_token_account_ixs(
-        self, proxy_token_account_key_pk, mango_authority_pk
-    ) -> List[TransactionInstruction]:
+        self, proxy_token_account_key: Keypair, utp_authority_pk: PublicKey
+    ) -> InstructionsWrapper:
         create_token_account_ix = system_program.create_account(
             system_program.CreateAccountParams(
                 from_pubkey=self._program.provider.wallet.public_key,
-                new_account_pubkey=proxy_token_account_key_pk,
+                new_account_pubkey=proxy_token_account_key.public_key,
                 lamports=int(
                     (
                         await self._program.provider.connection.get_minimum_balance_for_rent_exemption(
@@ -198,8 +215,10 @@ class UtpAccount(ABC):
             spl_token_ixs.InitializeAccountParams(
                 program_id=TOKEN_PROGRAM_ID,
                 mint=self._marginfi_account.group.bank.mint,
-                account=proxy_token_account_key_pk,
-                owner=mango_authority_pk,
+                account=proxy_token_account_key.public_key,
+                owner=utp_authority_pk,
             )
         )
-        return [create_token_account_ix, init_token_account_ix]
+        return InstructionsWrapper(
+            instructions=[create_token_account_ix, init_token_account_ix], signers=[]
+        )

@@ -3,8 +3,6 @@ from typing import TYPE_CHECKING, List, Tuple
 
 from anchorpy import AccountsCoder, Program
 from marginpy.constants import COLLATERAL_SCALING_FACTOR
-from marginpy.generated_client.accounts import MarginfiAccount as MarginfiAccountData
-from marginpy.generated_client.types.lending_side import Borrow, Deposit
 from marginpy.group import MarginfiGroup
 from marginpy.instructions import (
     DeactivateUtpAccounts,
@@ -25,7 +23,10 @@ from marginpy.types import (
     AccountBalances,
     BankVaultType,
     EquityType,
-    MarginRequirementType,
+    InstructionsWrapper,
+    LendingSide,
+    MarginfiAccountData,
+    MarginRequirement,
     UtpData,
     UtpIndex,
 )
@@ -48,7 +49,6 @@ from solana.rpc.types import RPCResponse
 from solana.transaction import (
     AccountMeta,
     Transaction,
-    TransactionInstruction,
     TransactionSignature,
 )
 from spl.token.instructions import get_associated_token_address
@@ -59,7 +59,9 @@ if TYPE_CHECKING:
 
 
 class MarginfiAccount:
-    """Entrypoint to interact with the marginfi contract."""
+    """
+    Entrypoint to interact with the marginfi contract.
+    """
 
     _pubkey: PublicKey
     _group: MarginfiGroup
@@ -84,19 +86,6 @@ class MarginfiAccount:
         mango_utp_data: UtpData,
         zo_utp_data: UtpData,
     ) -> None:
-        """[Internal] Constructor
-
-        Args:
-            marginfi_account_pk (PublicKey): address of the marginfi account
-            authority (PublicKey): marginfi account authority
-            client (MarginfiClient): marginfi client
-            group (MarginfiGroup): parent marginfi group
-            deposit_record (float): marginfi account deposit record
-            borrow_record (float): marginfi account borrow record
-            mango_utp_data (UtpData): Mango-specific data
-            zo_utp_data (UtpData): 01-specific data
-        """
-
         self._pubkey = marginfi_account_pk
         self._client = client
         self._authority = authority
@@ -114,15 +103,10 @@ class MarginfiAccount:
     async def fetch(
         cls, marginfi_account_pk: PublicKey, client: "MarginfiClient"
     ) -> "MarginfiAccount":
-        """MarginfiAccount network factory.
-        Fetch account data according to the config and instantiate the corresponding MarginfiAccount.
+        """
+        MarginfiAccount network factory.
 
-        Args:
-            marginfi_account_pk (PublicKey): address of the target account
-            client (MarginfiClient): marginfi client
-
-        Returns:
-            MarginfiAccount: marginfi account
+        Fetches account data according to the config and instantiate the corresponding MarginfiAccount.
         """
 
         logger = get_logger(f"{__name__}.MarginfiAccount")
@@ -156,22 +140,11 @@ class MarginfiAccount:
         account_data: MarginfiAccountData,
         marginfi_group: MarginfiGroup,
     ) -> "MarginfiAccount":
-        """MarginfiAccount local factory (decoded)
+        """
+        MarginfiAccount local factory (decoded).
 
-        Instantiate a MarginfiAccount according to the provided decoded data.
+        Instantiates a MarginfiAccount according to the provided decoded data.
         Check sanity against provided config.
-
-        Args:
-            marginfi_account_pk (PublicKey): address of the target account
-            client (MarginfiClient): marginfi client
-            account_data (MarginfiAccountData): decoded marginfi account data
-            marginfi_group (MarginfiGroup): marginfi group instance
-
-        Raises:
-            Exception: mismatch between the group that expected and the one decoded from the account data
-
-        Returns:
-            MarginfiAccount: marginfi account
         """
 
         if not account_data.marginfi_group == client.config.group_pk:
@@ -202,19 +175,11 @@ class MarginfiAccount:
         data: bytes,
         marginfi_group: MarginfiGroup,
     ) -> "MarginfiAccount":
-        """MarginfiAccount local factory (encoded)
+        """
+        MarginfiAccount local factory (encoded).
 
-        Instantiate a MarginfiGroup according to the provided encoded data.
+        Instantiates a MarginfiGroup according to the provided encoded data.
         Check sanity against provided config.
-
-        Args:
-            marginfi_account_pk (PublicKey): address of the target account
-            client (MarginfiClient): marginfi client
-            data (bytes): decoded marginfi account data
-            marginfi_group (MarginfiGroup): marginfi group instance
-
-        Returns:
-            MarginfiAccount: marginfi account
         """
 
         marginfi_account_data = MarginfiAccount.decode(data)
@@ -228,111 +193,53 @@ class MarginfiAccount:
 
     @property
     def pubkey(self) -> PublicKey:
-        """Get marginfi account address
-
-        Returns:
-            PublicKey: marginfi account address
-        """
-
         return self._pubkey
 
     @property
     def group(self) -> "MarginfiGroup":
-        """Get parent marginfi group
-
-        Returns:
-            MarginfiGroup: Parent marginfi group
-        """
-
         return self._group
 
     @property
     def client(self) -> "MarginfiClient":
-        """Get marginfi client
-
-        Returns:
-            MarginfiClient: marginfi client
-        """
-
         return self._client
 
     @property
     def observation_cache(self) -> dict[UtpIndex, UtpObservation]:
-        """Get observation cache
-
-        Returns:
-            dict[UtpIndex, UtpObservation]: Observation cache
-        """
-
         return self._observation_cache
 
     @property
     def authority(self) -> PublicKey:
-        """Get marginfi account authority address
-
-        Returns:
-            PublicKey: marginfi account authority address
-        """
-
         return self._authority
 
     @property
     def all_utps(self) -> List[UtpAccount]:
-        """Get list of supported UTP proxies"""
-
         return [self.mango, self.zo]
 
     @property
     def active_utps(self) -> List[UtpAccount]:
-        """Get list of active UTP proxies
-
-        Returns:
-            List[UtpAccount]: _description_
-        """
-
         filtered = filter(lambda x: x.is_active, self.all_utps)
         return list(filtered)
 
     @property
     def deposits(self) -> float:
-        """Get current GMA deposits
-
-        Returns:
-            float: current GMA deposits
-        """
-
-        return self.group.bank.compute_native_amount(self._deposit_record, Deposit())
+        return self.group.bank.compute_native_amount(
+            self._deposit_record, LendingSide.DEPOSIT
+        )
 
     @property
     def borrows(self) -> float:
-        """Get current GMA borrows
-
-        Returns:
-            float: current GMA borrows
-        """
-
-        return self.group.bank.compute_native_amount(self._borrow_record, Borrow())
+        return self.group.bank.compute_native_amount(
+            self._borrow_record, LendingSide.BORROW
+        )
 
     # --- Getters / Setters (internal)
 
     @property
     def _program(self) -> Program:
-        """[Internal] Get marginfi Anchor program
-
-        Returns:
-            Program: marginfi Anchor program
-        """
-
         return self.client.program
 
     @property
     def _config(self) -> "MarginfiConfig":
-        """[Internal] Get marginfi client config
-
-        Returns:
-            MarginfiConfig: marginfi client config
-        """
-
         return self.client.config
 
     # --- Others
@@ -343,22 +250,15 @@ class MarginfiAccount:
         config: "MarginfiConfig",
         rpc_client: AsyncClient,
     ) -> "MarginfiAccountData":
-        """[Internal] MarginfiAccount local factory (encoded)
+        """
+        [internal] MarginfiAccount local factory (encoded).
 
-        Fetch marginfi account data.
-        Check sanity against provided config.
-
-        Args:
-            marginfi_account_pk (PublicKey): address of the target account
-            config (MarginfiConfig): client config
-            rpc_client (AsyncClient): RPC client
+        Fetches marginfi account data.
+        Checks sanity against provided config.
 
         Raises:
             Exception: account not found
-            Exception: mismatch between the group that expected and the one decoded from the account data
-
-        Returns:
-            MarginfiAccountData: marginfi account
+            Exception: mismatch between the expected group address and the one decoded from the account data
         """
 
         logger = get_logger(f"{__name__}.MarginfiAccount")
@@ -383,18 +283,16 @@ class MarginfiAccount:
 
         logger.debug("Fetched: %s", data)
 
-        return data
+        return data  # type: ignore
 
     @staticmethod
     def _pack_utp_data(data: MarginfiAccountData, utp_index: UtpIndex) -> UtpData:
-        """[Internal] Pack data from the on-chain, vector format into a coherent unit.
+        """
+        [internal] Packs data from the on-chain, vector format into a coherent unit.
 
         Args:
             data (MarginfiAccountData): marginfi account data
             utp_index (UtpIndex): index of the target UTP
-
-        Returns:
-            UtpData: packed UTP data
         """
         return UtpData(
             account_config=data.utp_account_config[utp_index],
@@ -403,39 +301,30 @@ class MarginfiAccount:
 
     @staticmethod
     def decode(encoded: bytes) -> MarginfiAccountData:
-        """Decode marginfi account data according to the Anchor IDL.
-
-        Args:
-            encoded (bytes): raw data buffer
-
-        Returns:
-            MarginfiAccountData: decoded marginfi account data struct
+        """
+        Decodes marginfi account data according to the Anchor IDL.
         """
 
-        return MarginfiAccountData.decode(encoded)
+        return MarginfiAccountData.decode(encoded)  # type: ignore
 
     @staticmethod
     async def encode(decoded: MarginfiAccountData) -> bytes:
-        """Encode marginfi account data according to the Anchor IDL.
-
-        Args:
-            decoded (MarginfiAccountData): decoded marginfi account data struct
-
-        Returns:
-            bytes: raw data buffer
+        """
+        Encodes marginfi account data according to the Anchor IDL.
         """
 
         coder = AccountsCoder(load_idl())
         return coder.build(decoded)
 
     async def reload(self, observe_utps=False) -> None:
-        """Update instance data by fetching and storing the latest on-chain state.
+        """
+        Updates instance data by fetching and storing the latest on-chain state.
 
         Args:
             observe_utps (bool, optional): flag to request UTP observation as well. Defaults to False.
 
         Raises:
-            Exception: mismatch between the group that expected and the one decoded from the account data
+            Exception: mismatch between the expected group address and the one decoded from the account data
         """
 
         logger = self.get_logger()
@@ -460,12 +349,6 @@ class MarginfiAccount:
             await self.observe_utps()
 
     def _update_from_account_data(self, data: MarginfiAccountData) -> None:
-        """Update instance data from provided data struct.
-
-        Args:
-            data (MarginfiAccountData): marginfi account data struct
-        """
-
         self._authority = data.authority
         self._deposit_record = (
             wrapped_fixed_to_float(data.deposit_record) / COLLATERAL_SCALING_FACTOR
@@ -474,42 +357,24 @@ class MarginfiAccount:
             wrapped_fixed_to_float(data.borrow_record) / COLLATERAL_SCALING_FACTOR
         )
 
-        self.mango.update(self._pack_utp_data(data, UtpIndex.MANGO))
-        self.zo.update(self._pack_utp_data(data, UtpIndex.ZO))
-
-    async def get_observation_accounts(self) -> List[AccountMeta]:
-        """Get all account metas required for the observation of active UTPs
-
-        Returns:
-            List[AccountMeta]: observation accounts
-        """
-
-        logger = self.get_logger()
-
-        accounts = []
-        for utp in self.active_utps:
-            accounts.extend(await utp.get_observation_accounts())
-        logger.debug("Loading %s observation accounts", len(accounts))
-        return accounts
+        self.mango._update(  # pylint: disable=protected-access
+            self._pack_utp_data(  # pylint: disable=protected-access
+                data, UtpIndex.MANGO
+            )
+        )
+        self.zo._update(  # pylint: disable=protected-access
+            self._pack_utp_data(data, UtpIndex.ZO)  # pylint: disable=protected-access
+        )
 
     # --- Deposit to GMA
 
-    async def make_deposit_ix(self, amount: float) -> TransactionInstruction:
-        """Create transaction instruction to deposit collateral into the marginfi account.
-
-        Args:
-            amount (float): amount to deposit (UI unit)
-
-        Returns:
-            TransactionInstruction: transaction instruction
-        """
-
+    async def make_deposit_ix(self, ui_amount: float) -> InstructionsWrapper:
         user_ata = get_associated_token_address(
             self._program.provider.wallet.public_key, self.group.bank.mint
         )
         remaining_accounts = await self.get_observation_accounts()
-        return make_deposit_ix(
-            DepositArgs(amount=ui_to_native(amount)),
+        ix = make_deposit_ix(
+            DepositArgs(amount=ui_to_native(ui_amount)),
             DepositAccounts(
                 marginfi_group=self.group.pubkey,
                 marginfi_account=self.pubkey,
@@ -520,38 +385,21 @@ class MarginfiAccount:
             self.client.program_id,
             remaining_accounts,
         )
+        return InstructionsWrapper(instructions=[ix], signers=[])
 
-    async def deposit(self, amount: float) -> TransactionSignature:
-        """Deposit collateral into the marginfi account.
-
-        Args:
-            amount (float): amount to deposit (UI unit)
-
-        Returns:
-            TransactionSignature: transaction signature
-        """
-
+    async def deposit(self, ui_amount: float) -> TransactionSignature:
         logger = self.get_logger()
-        logger.debug("Depositing %s into marginfi account", amount)
+        logger.debug("Depositing %s into marginfi account", ui_amount)
 
-        deposit_ix = await self.make_deposit_ix(amount)
-        tx = Transaction().add(deposit_ix)
+        ix = await self.make_deposit_ix(ui_amount)
+        tx = Transaction().add(*ix.instructions)
         sig = await self._program.provider.send(tx)
         logger.debug("Deposit successful: %s", sig)
         return sig
 
     # --- Withdraw from GMA
 
-    async def make_withdraw_ix(self, amount: float) -> TransactionInstruction:
-        """Create transaction instruction to withdraw collateral from the marginfi account.
-
-        Args:
-            amount (float): amount to withdraw (mint native unit)
-
-        Returns:
-            TransactionInstruction: transaction instruction
-        """
-
+    async def make_withdraw_ix(self, ui_amount: float) -> InstructionsWrapper:
         user_ata = get_associated_token_address(
             self._program.provider.wallet.public_key, self.group.bank.mint
         )
@@ -560,8 +408,8 @@ class MarginfiAccount:
         )
         remaining_accounts = await self.get_observation_accounts()
 
-        return make_withdraw_ix(
-            WithdrawArgs(amount=ui_to_native(amount)),
+        ix = make_withdraw_ix(
+            WithdrawArgs(amount=ui_to_native(ui_amount)),
             WithdrawAccounts(
                 marginfi_group=self.group.pubkey,
                 marginfi_account=self.pubkey,
@@ -573,77 +421,46 @@ class MarginfiAccount:
             self.client.program_id,
             remaining_accounts,
         )
+        return InstructionsWrapper(instructions=[ix], signers=[])
 
-    async def withdraw(self, amount: float) -> TransactionSignature:
-        """Withdraw collateral from the marginfi account.
-
-        Args:
-            amount (float): amount to withdraw (mint native unit)
-
-        Returns:
-            TransactionSignature: transaction signature
-        """
-
+    async def withdraw(self, ui_amount: float) -> TransactionSignature:
         logger = self.get_logger()
-        logger.debug("Withdrawing %s into marginfi account", amount)
+        logger.debug("Withdrawing %s into marginfi account", ui_amount)
 
-        withdraw_ix = await self.make_withdraw_ix(amount)
-        tx = Transaction().add(withdraw_ix)
+        ix = await self.make_withdraw_ix(ui_amount)
+        tx = Transaction().add(*ix.instructions)
         sig = await self._program.provider.send(tx)
         logger.debug("Withdrawal successful: %s", sig)
         return sig
 
     # --- Deactivate UTP
 
-    async def make_deactivate_utp_ix(
-        self, utp_index: UtpIndex
-    ) -> TransactionInstruction:
-        """[Internal] Create transaction instruction to deactivate the target UTP.
-
-        Args:
-            utp_index (UtpIndex): target UTP index
-
-        Returns:
-            TransactionInstruction: transaction instruction
-        """
-
-        remaining_accounts = await self.get_observation_accounts()
-        return make_deactivate_utp_ix(
+    async def _make_deactivate_utp_ix(self, utp_index: UtpIndex) -> InstructionsWrapper:
+        ix = make_deactivate_utp_ix(
             DeactivateUtpArgs(utp_index=utp_index.value),
             DeactivateUtpAccounts(
                 marginfi_account=self.pubkey,
                 authority=self._program.provider.wallet.public_key,
             ),
             self.client.program_id,
-            remaining_accounts,
+            remaining_accounts=await self.get_observation_accounts(),
+        )
+        return InstructionsWrapper(
+            instructions=[ix],
+            signers=[],
         )
 
-    async def deactivate_utp(self, utp_index: UtpIndex) -> TransactionSignature:
-        """[Internal] Deactivate the target UTP.
-
-        Args:
-            utp_index (UtpIndex): target UTP index
-
-        Returns:
-            TransactionSignature: transaction signature
-        """
-
+    async def _deactivate_utp(self, utp_index: UtpIndex) -> TransactionSignature:
         logger = self.get_logger()
         logger.debug("Deactivating UTP %s into marginfi account", utp_index)
 
-        deactivate_ix = await self.make_deactivate_utp_ix(utp_index)
-        tx = Transaction().add(deactivate_ix)
+        ix = await self._make_deactivate_utp_ix(utp_index)
+        tx = Transaction().add(*ix.instructions)
         sig = await self._program.provider.send(tx)
         logger.debug("Deactivation successful: %s", sig)
         return sig
 
-    async def make_handle_bankruptcy_ix(self) -> TransactionInstruction:
-        """Create transaction instruction to handle a bankrupt account.
-
-        Returns:
-            TransactionInstruction: transaction instruction
-        """
-
+    async def make_handle_bankruptcy_ix(self) -> InstructionsWrapper:
         insurance_vault_authority_pk, _ = get_bank_authority(
             self._config.group_pk,
             self._program.program_id,
@@ -651,7 +468,7 @@ class MarginfiAccount:
         )
         remaining_accounts = await self.get_observation_accounts()
 
-        return make_handle_bankruptcy_ix(
+        ix = make_handle_bankruptcy_ix(
             HandleBankruptcyAccounts(
                 marginfi_account=self.pubkey,
                 marginfi_group=self.group.pubkey,
@@ -662,28 +479,37 @@ class MarginfiAccount:
             self.client.program_id,
             remaining_accounts,
         )
+        return InstructionsWrapper(
+            instructions=[ix],
+            signers=[],
+        )
 
     async def handle_bankruptcy(self) -> TransactionSignature:
-        """Handle a bankrupt account.
-
-        Returns:
-            TransactionInstruction: transaction signature
-        """
-
         logger = self.get_logger()
         logger.debug("Handling bankruptcy")
 
-        bankruptcy_ix = await self.make_handle_bankruptcy_ix()
-        tx = Transaction().add(bankruptcy_ix)
+        ix = await self.make_handle_bankruptcy_ix()
+        tx = Transaction().add(*ix.instructions)
         sig = await self._program.provider.send(tx)
         logger.debug("Handling successful: %s", sig)
         return sig
 
-    async def observe_utps(self) -> dict[UtpIndex, UtpObservation]:
-        """Observe all active UTPs and cache the result.
+    async def get_observation_accounts(self) -> List[AccountMeta]:
+        """
+        Gets all account metas required for the observation of active UTPs.
+        """
 
-        Returns:
-            dict[UtpIndex, UtpObservation]: observation cache
+        logger = self.get_logger()
+
+        accounts = []
+        for utp in self.active_utps:
+            accounts.extend(await utp.get_observation_accounts())
+        logger.debug("Loading %s observation accounts", len(accounts))
+        return accounts
+
+    async def observe_utps(self) -> dict[UtpIndex, UtpObservation]:
+        """
+        Observes all active UTPs and cache the result.
         """
 
         logger = self.get_logger()
@@ -694,7 +520,8 @@ class MarginfiAccount:
         return observation_cache
 
     async def load_group_and_account_ai(self) -> Tuple[AccountInfo, AccountInfo]:
-        """Atomically load underlying marginfi group and account
+        """
+        Atomically loads underlying marginfi group and account.
 
         Raises:
             Exception: RPC call errors out
@@ -702,7 +529,7 @@ class MarginfiAccount:
             Exception: account not found
 
         Returns:
-            Tuple[AccountInfo, AccountInfo]: account infos for marginfi group and account
+            Tuple[AccountInfo, AccountInfo]: ordered account infos for marginfi group and account
         """
 
         logger = self.get_logger()
@@ -717,14 +544,11 @@ class MarginfiAccount:
             pubkeys  # type: ignore
         )
         if "error" in response.keys():
-            logger.critical("Error while fetching %s: %s", pubkeys, response["error"])
             raise Exception(f"Error while fetching {pubkeys}: {response['error']}")
         [marginfi_group_ai, marginfi_account_ai] = response["result"]["value"]
         if marginfi_group_ai is None:
-            logger.critical("Marginfi group %s not found", self._config.group_pk)
             raise Exception(f"Marginfi group {self._config.group_pk} not found")
         if marginfi_account_ai is None:
-            logger.critical("Marginfi account %s not found", self.pubkey)
             raise Exception(f"Marginfi account {self.pubkey} not found")
 
         return json_to_account_info(marginfi_group_ai), json_to_account_info(
@@ -734,15 +558,6 @@ class MarginfiAccount:
     def compute_balances(
         self, equity_type: EquityType = EquityType.INIT_REQ_ADJUSTED
     ) -> AccountBalances:
-        """Compute account balances
-
-        Args:
-            equity_type (EquityType, optional): equity type to account for. Defaults to EquityType.InitReqAdjusted.
-
-        Returns:
-            AccountBalances: account balances
-        """
-
         assets = self.deposits
         for utp in self.active_utps:
             assets += (
@@ -755,17 +570,8 @@ class MarginfiAccount:
 
         return AccountBalances(equity=equity, assets=assets, liabilities=liabilities)
 
-    def compute_margin_requirement(self, mreq_type: MarginRequirementType) -> float:
-        """Compute account margin requirement
-
-        Args:
-            mreq_type (MarginRequirementType): margin requirement type to compute
-
-        Returns:
-            float: margin requirement
-        """
-
-        return self.borrows * self.group.bank.margin_ratio(mreq_type)
+    def compute_margin_requirement(self, mreq_type: MarginRequirement) -> float:
+        return self.borrows * self.group.bank.compute_margin_ratio(mreq_type)
 
     def __repr__(self):
         balances = self.compute_balances()
@@ -773,8 +579,8 @@ class MarginfiAccount:
             balances.equity / balances.liabilities if balances.liabilities > 0 else inf
         )
 
-        init_req = self.compute_margin_requirement(MarginRequirementType.INITIAL)
-        maint_req = self.compute_margin_requirement(MarginRequirementType.MAINTENANCE)
+        init_req = self.compute_margin_requirement(MarginRequirement.INITIAL)
+        maint_req = self.compute_margin_requirement(MarginRequirement.MAINTENANCE)
         init_health = balances.equity / init_req if init_req > 0 else inf
         maint_health = balances.equity / maint_req if maint_req > 0 else inf
 

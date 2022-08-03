@@ -61,8 +61,7 @@ class TestMarginfiAccountDevnet:
         _, group = load_marginfi_group("marginfi_group_2")
         client = MarginfiClient(config, program, group)
         marginfi_account_pk = REAL_ACCOUNT_PUBKEY_2
-        account = await MarginfiAccount.fetch(marginfi_account_pk, client)
-        print(account.authority)
+        await MarginfiAccount.fetch(marginfi_account_pk, client)
 
     async def test_reload(self):
         _, account = load_marginfi_account("marginfi_account_2")

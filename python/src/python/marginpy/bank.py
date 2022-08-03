@@ -1,15 +1,18 @@
 from datetime import datetime
 
 from marginpy.constants import COLLATERAL_SCALING_FACTOR
-from marginpy.generated_client.types import Bank as BankDecoded
-from marginpy.generated_client.types import LendingSideKind
-from marginpy.generated_client.types.lending_side import Borrow, Deposit
-from marginpy.types import MarginRequirementType
+from marginpy.types import BankData, LendingSide, MarginRequirement
 from marginpy.utils.data_conversion import wrapped_fixed_to_float
 from solana.publickey import PublicKey
 
 
 class Bank:
+    """
+    Bank struct mirroring on-chain data.
+
+    Contains the state of the marginfi group.
+    """
+
     scaling_factor_c: float
     fixed_fee: float
     interest_fee: float
@@ -30,7 +33,7 @@ class Bank:
     account_deposit_limit: float
     lp_deposit_limit: float
 
-    def __init__(self, data: BankDecoded) -> None:
+    def __init__(self, data: BankData) -> None:
         self.scaling_factor_c = wrapped_fixed_to_float(data.scaling_factor_c)
         self.fixed_fee = wrapped_fixed_to_float(data.fixed_fee)
         self.interest_fee = wrapped_fixed_to_float(data.interest_fee)
@@ -67,36 +70,47 @@ class Bank:
             wrapped_fixed_to_float(data.lp_deposit_limit) / COLLATERAL_SCALING_FACTOR
         )
 
-    # @todo should we error on negative `record` values?
     def compute_native_amount(
         self,
-        record: float,
-        side: LendingSideKind,
-    ):
-        if side == Borrow():
-            return record * self.borrow_accumulator
+        record_amount: float,
+        side: LendingSide,
+    ) -> float:
+        """
+        Converts the provided record amount to its native amount respective to current accumulator.
 
-        if side == Deposit():
-            return record * self.deposit_accumulator
+        Raises:
+            Exception: unknown side
+        """
 
-        raise Exception(f"Unknown lending side: {side}")
+        if side == LendingSide.BORROW:
+            return record_amount * self.borrow_accumulator
 
-    # @todo should we error on negative `record` values?
-    def compute_record_amount(self, record: float, side: LendingSideKind):
-        if side == Borrow():
-            return record / self.borrow_accumulator
-
-        if side == Deposit():
-            return record / self.deposit_accumulator
+        if side == LendingSide.DEPOSIT:
+            return record_amount * self.deposit_accumulator
 
         raise Exception(f"Unknown lending side: {side}")
 
-    # @todo checks here that it should be 0 <= x <= 1 ?
-    def margin_ratio(self, mreq_type: MarginRequirementType):
-        if mreq_type is MarginRequirementType.INITIAL:
+    def compute_record_amount(self, native_amount: float, side: LendingSide) -> float:
+        """
+        Converts the provided native amount to its record amount respective to current accumulator.
+
+        Raises:
+            Exception: unknown side
+        """
+
+        if side == LendingSide.BORROW:
+            return native_amount / self.borrow_accumulator
+
+        if side == LendingSide.DEPOSIT:
+            return native_amount / self.deposit_accumulator
+
+        raise Exception(f"Unknown lending side: {side}")
+
+    def compute_margin_ratio(self, mreq_type: MarginRequirement) -> float:
+        if mreq_type is MarginRequirement.INITIAL:
             return self.init_margin_ratio
 
-        if mreq_type is MarginRequirementType.MAINTENANCE:
+        if mreq_type is MarginRequirement.MAINTENANCE:
             return self.maint_margin_ratio
 
         raise Exception(f"Unknown margin requirement type: {mreq_type}")

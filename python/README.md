@@ -61,7 +61,7 @@ or:
 1. Make the necessary modifications in `pyproject.toml`
 2. Run poetry update:
 ```shell
-$ poetry lock
+$ poetry update
 ```
 
 ### Running tests

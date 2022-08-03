@@ -29,7 +29,6 @@ class InitMarginfiGroupAccounts:
 def make_init_marginfi_group_ix(
     args: gen_ix.InitMarginfiGroupArgs,
     accounts: InitMarginfiGroupAccounts,
-    # @todo can program_id be abstracted via config?
     program_id: PublicKey,
     remaining_accounts: Optional[List[AccountMeta]] = None,
 ) -> TransactionInstruction:

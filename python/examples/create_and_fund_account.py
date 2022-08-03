@@ -41,7 +41,6 @@ async def main():
     await account.zo.deposit(DEPOSIT_AMOUNT / 2)
 
     await account.reload(observe_utps=True)
-    print(account)
 
 
 if __name__ == "__main__":

@@ -102,7 +102,6 @@ class TestMarginfiGroupLocalnet:
         assert group.bank.total_borrows_record == 0
         assert group.bank.total_deposits_record == 1_000
 
-    # @todo this test needs to be more robust
     async def test_update_interest_accumulator(self, _localnet, user: User) -> None:
         marginfi_account = user.account
         await marginfi_account.deposit(1)

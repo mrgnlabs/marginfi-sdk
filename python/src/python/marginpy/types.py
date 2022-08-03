@@ -3,6 +3,8 @@ from enum import Enum
 from typing import Dict, List, Optional
 
 import marginpy.generated_client.types as gen_types
+from marginpy.generated_client.accounts import MarginfiAccount, MarginfiGroup
+from marginpy.generated_client.types import Bank
 from marginpy.generated_client.types.utp_account_config import UTPAccountConfig
 from solana.keypair import Keypair
 from solana.publickey import PublicKey
@@ -45,7 +47,6 @@ class GroupConfig(gen_types.GroupConfig):
     pass
 
 
-# @todo confirm
 @dataclass
 class BankConfig(gen_types.BankConfig):
     pass
@@ -99,6 +100,26 @@ class AccountBalances:
     liabilities: float
 
 
-class MarginRequirementType(Enum):
+class MarginRequirement(Enum):
     INITIAL = "INITIAL"
     MAINTENANCE = "MAINTENANCE"
+
+
+class LendingSide(Enum):
+    BORROW = "BORROW"
+    DEPOSIT = "DEPOSIT"
+
+
+@dataclass
+class BankData(Bank):
+    pass
+
+
+@dataclass
+class MarginfiAccountData(MarginfiAccount):
+    pass
+
+
+@dataclass
+class MarginfiGroupData(MarginfiGroup):
+    pass
