@@ -5,11 +5,11 @@ use anchor_client::{Client, Cluster, Program};
 use bytemuck::from_bytes;
 use bytemuck::Pod;
 use fixed::types::I80F48;
+use log::{debug, info};
 use mango_protocol::state::{
     HealthCache, MangoAccount, MangoCache, MangoGroup, NodeBank, RootBank, UserActiveAssets,
     MAX_PAIRS, QUOTE_INDEX,
 };
-use marginfi::constants::MANGO_GROUP;
 use marginfi::{
     constants::{
         MANGO_PROGRAM, MANGO_UTP_INDEX, PDA_BANK_VAULT_SEED, PDA_UTP_AUTH_SEED, ZO_UTP_INDEX,
@@ -32,15 +32,12 @@ use solana_sdk::{
     account_info::AccountInfo, instruction::Instruction, program_pack::Pack, pubkey::Pubkey,
     signature::Keypair, signer::Signer, system_instruction::create_account,
 };
+
 use std::ops::Div;
 use std::str::FromStr;
 use std::thread::sleep;
 use std::{cell::Ref, rc::Rc, time::Duration};
-use zo_abi::ZO_STATE_ID;
 
-fn main() {
-    println!("Hello, world!");
-}
 pub struct DoctorConfig {
     pub marginfi_program: Pubkey,
     pub marginfi_group: Pubkey,
@@ -51,12 +48,22 @@ pub struct DoctorConfig {
 
 impl DoctorConfig {
     pub fn from_env() -> DoctorConfig {
-        let marginfi_program =
-            Pubkey::from_str(&std::env::var("MARGINFI_PROGRAM").unwrap()).unwrap();
-        let marginfi_group = Pubkey::from_str(&std::env::var("MARGINFI_GROUP").unwrap()).unwrap();
-        let cluster_string = std::env::var("ENV").unwrap();
-        let timeout = std::env::var("TIMEOUT").unwrap().parse::<u64>().unwrap();
-        let rpc_endpoint = std::env::var("RPC_ENDPOINT").unwrap();
+        let marginfi_program = Pubkey::from_str(
+            &std::env::var("MARGINFI_PROGRAM").expect("Missing MARGINFI_PROGRAM env var"),
+        )
+        .unwrap();
+        let marginfi_group = Pubkey::from_str(
+            &std::env::var("MARGINFI_GROUP").expect("Missing MARGINFI_GROUP env var"),
+        )
+        .unwrap();
+        let cluster_string = std::env::var("ENV").expect("Missing ENV env var");
+        let timeout = std::env::var("TIMEOUT")
+            .expect("Missing TIMEOUT env var")
+            .parse::<u64>()
+            .unwrap();
+        let rpc_endpoint = std::env::var("RPC_ENDPOINT").expect("Missing RPC_ENDPOINT env var");
+
+        info!("Starting Doctor\n\tProgram: {:?}\n\tGroup: {:?}\n\tEnv: {:?}\n\tRpcEndpoint: {:?}\n\tTimeout: {:?}s", marginfi_program, marginfi_group, cluster_string, rpc_endpoint, timeout);
 
         DoctorConfig {
             marginfi_program,
@@ -127,6 +134,7 @@ struct GroupCache {
 
 impl GroupCache {
     pub fn new(program: &Program, config: &DoctorConfig, address_book: &AddressBook) -> Self {
+        debug!("Loading group cache");
         let marginfi_group: MarginfiGroup = program.account(config.marginfi_group).unwrap();
 
         let (bank_authority, _) = Pubkey::find_program_address(
@@ -140,7 +148,7 @@ impl GroupCache {
         let mango_group_raw = &mut (address_book.mango_group, mango_group_account);
         let mango_group_ai = AccountInfo::from(mango_group_raw);
         let mango_group =
-            MangoGroup::load_checked(&mango_group_ai, &address_book.mango_group).unwrap();
+            MangoGroup::load_checked(&mango_group_ai, &address_book.mango_program).unwrap();
 
         let mango_cache_account = rpc.get_account(&mango_group.mango_cache).unwrap();
 
@@ -162,8 +170,7 @@ impl GroupCache {
         let node_bank_ai = AccountInfo::from(node_bank_raw);
         let node_bank = NodeBank::load_checked(&node_bank_ai, &address_book.mango_program).unwrap();
 
-        let zo_state_pk = ZO_STATE_ID;
-
+        let zo_state_pk = address_book.zo_state;
         let zo_state_account = rpc.get_account(&zo_state_pk).unwrap();
 
         let zo_state_raw = &mut (zo_state_pk, zo_state_account);
@@ -189,10 +196,10 @@ impl GroupCache {
         let vault_pk = zo_state.vaults[collateral_index];
 
         Self {
-            marginfi_group: (address_book.mango_group, marginfi_group),
+            marginfi_group: (config.marginfi_group, marginfi_group),
             bank_authority,
 
-            mango_group: (MANGO_GROUP, *mango_group),
+            mango_group: (address_book.mango_group, *mango_group),
             mango_cache: (mango_group.mango_cache, *mango_cache),
             mango_root_bank_pk: root_bank_pk,
             mango_node_bank_pk: node_bank_pk,
@@ -263,7 +270,7 @@ impl Doctor {
             .reload(&self.program, &self.config, &self.address_book);
 
         let accounts = self.fetch_all_marginfi_accounts();
-
+        debug!("Found {} accounts", accounts.len());
         accounts.iter().for_each(|(address, marginfi_account)| {
             let account_handler = MarginAccountHandler::new(
                 &self.program,
@@ -301,22 +308,22 @@ fn create_temp_token_account(
     mint: Pubkey,
     payer: Pubkey,
 ) -> ([Instruction; 2], Keypair) {
-    let temp_token_account = Keypair::new();
-    let lamps = rpc
+    let temp_token_account_kp = Keypair::new();
+    let lamports = rpc
         .get_minimum_balance_for_rent_exemption(spl_token::state::Account::LEN)
         .unwrap();
 
     let create_token_account_ix = create_account(
         &payer,
-        &temp_token_account.pubkey(),
-        lamps,
+        &temp_token_account_kp.pubkey(),
+        lamports,
         spl_token::state::Account::LEN as u64,
-        &authority,
+        &spl_token::ID,
     );
 
-    let init_token_account_ix = spl_token::instruction::initialize_account2(
+    let init_token_account_ix = spl_token::instruction::initialize_account(
         &spl_token::ID,
-        &temp_token_account.pubkey(),
+        &temp_token_account_kp.pubkey(),
         &mint,
         &authority,
     )
@@ -324,7 +331,7 @@ fn create_temp_token_account(
 
     (
         [create_token_account_ix, init_token_account_ix],
-        temp_token_account,
+        temp_token_account_kp,
     )
 }
 
@@ -353,7 +360,7 @@ impl MarginAccountCache {
         if marginfi_account.active_utps[ZO_UTP_INDEX] {
             cache.utp_zo_cache = Some(UtpZoCache::new(
                 program.rpc(),
-                marginfi_account.utp_account_config[MANGO_UTP_INDEX].address,
+                marginfi_account.utp_account_config[ZO_UTP_INDEX].address,
             ));
         }
 
@@ -416,6 +423,20 @@ struct MarginAccountHandler<'a> {
     address_book: &'a AddressBook,
 }
 
+fn setup_sentry() {
+    #![cfg(feature = "sentry-reporting")]
+    debug!("Configuring sentry");
+
+    let sentry_dsn = std::env::var("SENTRY_DSN").expect("SENTRY_DSN must be set");
+    let _sentry_guard = sentry::init((
+        sentry_dsn,
+        sentry::ClientOptions {
+            release: sentry::release_name!(),
+            ..Default::default()
+        },
+    ));
+}
+
 impl<'a> MarginAccountHandler<'a> {
     pub fn new(
         program: &'a Program,
@@ -425,6 +446,9 @@ impl<'a> MarginAccountHandler<'a> {
         doctor_config: &'a DoctorConfig,
         address_book: &'a AddressBook,
     ) -> Self {
+        #[cfg(feature = "sentry-reporting")]
+        setup_sentry();
+
         MarginAccountHandler {
             marginfi_account_pk,
             marginfi_account,
@@ -542,6 +566,11 @@ impl<'a> MarginAccountHandler<'a> {
                         .div(I80F48::from_num(2_u8))
                         .to_num();
 
+                    info!(
+                        "Depositing {} into Mango Markets {}",
+                        deposit_amount, self.marginfi_account_pk
+                    );
+
                     let (mango_authority, _) = self.get_utp_authority(MANGO_UTP_INDEX);
 
                     let ([create_token_account_ix, init_token_account_ix], temp_token_account) =
@@ -574,7 +603,7 @@ impl<'a> MarginAccountHandler<'a> {
                     account_metas.append(&mut self.get_observation_accounts());
 
                     let deposit_ix = Instruction {
-                        program_id: marginfi::id(),
+                        program_id: self.doctor_config.marginfi_program,
                         accounts: account_metas,
                         data: marginfi::instruction::UtpMangoDeposit {
                             amount: deposit_amount,
@@ -589,10 +618,13 @@ impl<'a> MarginAccountHandler<'a> {
                         self.program.rpc().get_latest_blockhash().unwrap(),
                     );
 
-                    self.program
+                    let sig = self
+                        .program
                         .rpc()
                         .send_and_confirm_transaction(&tx)
                         .unwrap();
+
+                    debug!("Transaction: {:?}", sig);
                 }
                 ZO_UTP_INDEX => {
                     let (zo_state_pk, zo_state) = &self.group_cache.zo_state;
@@ -628,6 +660,11 @@ impl<'a> MarginAccountHandler<'a> {
                         .unwrap()
                         .div(I80F48::from_num(2_u8));
 
+                    info!(
+                        "Depositing {} into 01 Protocol {}",
+                        deposit_amount, self.marginfi_account_pk
+                    );
+
                     let (zo_authority, _) = self.get_utp_authority(ZO_UTP_INDEX);
                     let ([create_token_account_ix, init_token_account_ix], temp_token_account) =
                         create_temp_token_account(
@@ -660,7 +697,7 @@ impl<'a> MarginAccountHandler<'a> {
                     account_metas.append(&mut self.get_observation_accounts());
 
                     let utp_zo_deposit_ix = Instruction {
-                        program_id: marginfi::id(),
+                        program_id: self.doctor_config.marginfi_program,
                         accounts: account_metas,
                         data: marginfi::instruction::UtpZoDeposit {
                             amount: deposit_amount.to_num(),
@@ -679,10 +716,13 @@ impl<'a> MarginAccountHandler<'a> {
                         self.program.rpc().get_latest_blockhash().unwrap(),
                     );
 
-                    self.program
+                    let sig = self
+                        .program
                         .rpc()
                         .send_and_confirm_transaction(&tx)
                         .unwrap();
+
+                    debug!("Transaction: {:?}", sig);
                 }
                 _ => panic!("Unknown UTP index"),
             });
