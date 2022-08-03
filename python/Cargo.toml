@@ -7,7 +7,7 @@ include = ["/src", "/pyproject.toml"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "marginpy"
-path = "src/rust/lib.rs"
+path = "src/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
@@ -22,4 +22,4 @@ fixed = { version = "^1.11.0", features = ["serde"] }
 zo-abi = { git = "https://github.com/01protocol/zo-abi.git", rev = "3ff8def2c747899c9d534f5de36988b6f0a0d46c", features = [ "cpi" ] }
 
 [package.metadata.maturin]
-python-source = "src/python"
+python-source = "python"
