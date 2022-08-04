@@ -259,6 +259,9 @@ impl Doctor {
         let program = client.program(config.marginfi_program);
         let group_cache = GroupCache::new(&program, &config, &address_book);
 
+        #[cfg(feature = "sentry-reporting")]
+        setup_sentry();
+
         Self {
             config,
             program,
@@ -456,9 +459,6 @@ impl<'a> MarginAccountHandler<'a> {
         doctor_config: &'a DoctorConfig,
         address_book: &'a AddressBook,
     ) -> Self {
-        #[cfg(feature = "sentry-reporting")]
-        setup_sentry();
-
         MarginAccountHandler {
             marginfi_account_pk,
             marginfi_account,
