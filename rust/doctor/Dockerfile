@@ -1,4 +1,4 @@
-FROM rust:1.61
+FROM rust:1.61-slim
 
 RUN apt-get update -y 
 RUN apt-get upgrade -y 
