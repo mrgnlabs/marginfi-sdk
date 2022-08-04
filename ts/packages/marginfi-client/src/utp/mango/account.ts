@@ -345,7 +345,7 @@ export class UtpMangoAccount extends UtpAccount {
           {
             marginfiAccountPk: this._marginfiAccount.publicKey,
             marginfiGroupPk: this._marginfiAccount.group.publicKey,
-            authorityPk: this._program.provider.wallet.publicKey,
+            signerPk: this._program.provider.wallet.publicKey,
             mangoAuthorityPk,
             mangoProgramId: this._config.mango.programId,
             mangoGroupPk: mangoGroup.publicKey,
@@ -404,7 +404,7 @@ export class UtpMangoAccount extends UtpAccount {
           {
             marginfiAccountPk: this._marginfiAccount.publicKey,
             marginfiGroupPk: this._marginfiAccount.group.publicKey,
-            authorityPk: this._program.provider.wallet.publicKey,
+            signerPk: this._program.provider.wallet.publicKey,
             mangoAuthorityPk,
             mangoProgramId: this._config.mango.programId,
             mangoGroupPk: this._config.mango.groupConfig.publicKey,
