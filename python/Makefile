@@ -54,7 +54,7 @@ format:
 test-publish:  ## Publish to testpypi
 	make clean
 	poetry run maturin build
-	poetry run maturin publish -r testpypi
+	poetry run maturin publish --no-sdist -r testpypi
 
 ##@ Documentation
 generate-doc:   ## Serve doc locally
