@@ -1,6 +1,6 @@
 use crate::utp_observation::ObservationRaw;
 use bytemuck::from_bytes;
-use marginfi::state::zo_state;
+use marginfi_common::zo;
 use pyo3::prelude::*;
 use std::time::{SystemTime, UNIX_EPOCH};
 use zo_abi::{Cache, Control, Margin, State};
@@ -22,26 +22,25 @@ fn get_observation(
     let zo_state: &State = from_bytes(&zo_state_data[8..]);
     let zo_cache: &Cache = from_bytes(&zo_cache_data[8..]);
 
-    let free_collateral: i128 =
-        zo_state::get_free_collateral(zo_margin, zo_control, zo_state, zo_cache)
-            .unwrap()
-            .to_num();
-    let is_empty: bool = zo_state::is_empty(zo_margin, zo_control, zo_state, zo_cache).unwrap();
+    let free_collateral: i128 = zo::get_free_collateral(zo_margin, zo_control, zo_state, zo_cache)
+        .unwrap()
+        .to_num();
+    let is_empty: bool = zo::is_empty(zo_margin, zo_control, zo_state, zo_cache).unwrap();
     let is_rebalance_deposit_valid: bool =
-        zo_state::is_rebalance_deposit_valid(zo_margin, zo_control, zo_state, zo_cache).unwrap();
+        zo::is_rebalance_deposit_valid(zo_margin, zo_control, zo_state, zo_cache).unwrap();
     let max_rebalance_deposit_amount: i128 =
-        zo_state::get_max_rebalance_deposit_amount(zo_margin, zo_control, zo_state, zo_cache)
+        zo::get_max_rebalance_deposit_amount(zo_margin, zo_control, zo_state, zo_cache)
             .unwrap()
             .to_num();
     let init_margin_requirement: i128 =
-        zo_state::get_init_margin_requirement(zo_margin, zo_control, zo_state, zo_cache)
+        zo::get_init_margin_requirement(zo_margin, zo_control, zo_state, zo_cache)
             .unwrap()
             .to_num();
-    let equity: i128 = zo_state::get_equity(zo_margin, zo_control, zo_state, zo_cache)
+    let equity: i128 = zo::get_equity(zo_margin, zo_control, zo_state, zo_cache)
         .unwrap()
         .to_num();
     let liquidation_value: i128 =
-        zo_state::get_liquidation_value(zo_margin, zo_control, zo_state, zo_cache)
+        zo::get_liquidation_value(zo_margin, zo_control, zo_state, zo_cache)
             .unwrap()
             .to_num();
 

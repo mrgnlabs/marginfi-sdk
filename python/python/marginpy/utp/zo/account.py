@@ -218,14 +218,14 @@ class UtpZoAccount(UtpAccount):
 
     async def deposit(self, ui_amount: float) -> TransactionSignature:
         logger = self.get_logger()
-        logger.warning("Depositing %s USDC to 01 UTP", ui_amount)
+        logger.debug("Depositing %s USDC to 01 UTP", ui_amount)
 
         self.throw_if_not_active()
 
         ix = await self.make_deposit_ix(ui_amount)
         tx = Transaction().add(*ix.instructions)
         sig = await self._client.program.provider.send(tx=tx, signers=ix.signers)
-        logger.warning("Deposit successful: %s", sig)
+        logger.debug("Deposit successful: %s", sig)
         return sig
 
     async def make_withdraw_ix(self, ui_amount: float) -> InstructionsWrapper:
@@ -258,12 +258,12 @@ class UtpZoAccount(UtpAccount):
 
     async def withdraw(self, ui_amount: float) -> TransactionSignature:
         logger = self.get_logger()
-        logger.warning("Withdrawing %s USDC from 01 UTP", ui_amount)
+        logger.debug("Withdrawing %s USDC from 01 UTP", ui_amount)
 
         ix = await self.make_withdraw_ix(ui_amount)
         tx = Transaction().add(*ix.instructions)
         sig = await self._client.program.provider.send(tx)
-        logger.warning("Withdrawal successful: %s", sig)
+        logger.debug("Withdrawal successful: %s", sig)
         return sig
 
     async def make_place_perp_order_ix(  # pylint: disable=too-many-arguments, too-many-locals

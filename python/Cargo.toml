@@ -1,6 +1,6 @@
 [package]
 name = "marginpy"
-version = "0.1.0"
+version = "0.1.2"
 edition = "2021"
 include = ["/src", "/pyproject.toml"]
 
@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "^0.16.5", features = ["extension-module", "abi3-py310"] }
-marginfi = { path = "../../programs/marginfi", features = ["client"] }
+marginfi-common = { path = "../rust/marginfi-common" }
 bytemuck = "^1.7.2"
 mango-protocol = { git = "https://github.com/mrgnlabs/mango-v3.git", rev="3589b9d35beb6a01921bc32112b694e00dfb7ccc", package= "mango", features = ["no-entrypoint", "client"] }
 mango-common = { git = "https://github.com/blockworks-foundation/mango-v3", gitref = "f4294688fb00ff18b2bf0b730d79ce005f7d124e" }

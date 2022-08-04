@@ -111,7 +111,6 @@ class MarginfiGroup:
         Fetches marginfi group account data according to the config.
         Checks sanity against provided config.
         """
-
         data = await MarginfiGroupData.fetch(
             program.provider.connection,
             config.group_pk,

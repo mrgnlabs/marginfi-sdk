@@ -2,7 +2,7 @@ use crate::utp_observation::ObservationRaw;
 use mango_protocol::state::{
     HealthCache, MangoAccount, MangoCache, MangoGroup, UserActiveAssets, MAX_PAIRS,
 };
-use marginfi::state::mango_state;
+use marginfi_common::mango;
 use pyo3::prelude::*;
 use serum_dex::state::OpenOrders;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -34,25 +34,25 @@ fn get_observation(
         )
         .unwrap();
 
-    let free_collateral: i128 = mango_state::get_free_collateral(&mut health_cache, mango_group)
+    let free_collateral: i128 = mango::get_free_collateral(&mut health_cache, mango_group)
         .unwrap()
         .to_num();
-    let is_empty: bool = mango_state::is_empty(&mut health_cache, mango_group).unwrap();
+    let is_empty: bool = mango::is_empty(&mut health_cache, mango_group).unwrap();
     let is_rebalance_deposit_valid: bool =
-        mango_state::is_rebalance_deposit_valid(&mut health_cache, mango_group).unwrap();
+        mango::is_rebalance_deposit_valid(&mut health_cache, mango_group).unwrap();
     let max_rebalance_deposit_amount: i128 =
-        mango_state::get_max_rebalance_deposit_amount(&mut health_cache, mango_group)
+        mango::get_max_rebalance_deposit_amount(&mut health_cache, mango_group)
             .unwrap()
             .to_num();
     let init_margin_requirement: i128 =
-        mango_state::get_init_margin_requirement(&mut health_cache, mango_group)
+        mango::get_init_margin_requirement(&mut health_cache, mango_group)
             .unwrap()
             .to_num();
-    let equity: i128 = mango_state::get_equity(&mut health_cache, mango_group)
+    let equity: i128 = mango::get_equity(&mut health_cache, mango_group)
         .unwrap()
         .to_num();
     let liquidation_value: i128 =
-        mango_state::get_liquidation_value(&mut health_cache, mango_group)
+        mango::get_liquidation_value(&mut health_cache, mango_group)
             .unwrap()
             .to_num();
 

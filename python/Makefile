@@ -45,16 +45,20 @@ format:
 	poetry run black --preview .
 	poetry run isort python examples tests
 
+build:  ## Publish to testpypi
+	make clean
+	poetry run maturin build --sdist
+
 # ##@ Publishing
-# publish:  ## Publish to pypi
+# build-and-publish:  ## Publish to pypi
 # 	make clean
 # 	poetry build
 # 	poetry publish
 
-test-publish:  ## Publish to testpypi
+build-and-test-publish:  ## Publish to testpypi
 	make clean
 	poetry run maturin build
-	poetry run maturin publish --no-sdist -r testpypi
+	poetry run maturin publish -r testpypi
 
 ##@ Documentation
 generate-doc:   ## Serve doc locally

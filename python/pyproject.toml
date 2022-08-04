@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "marginpy"
-version = "0.1.0"
+version = "0.1.2"
 description = ""
 authors = ["MRGN Labs", "man0s <95379755+losman0s@users.noreply.github.com>"]
 classifiers = [

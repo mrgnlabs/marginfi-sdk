@@ -43,14 +43,13 @@ class TestMarginfiGroupLocalnet:
     async def test_create_group(self, _localnet, basics_fixture: Basics) -> None:
         wallet = basics_fixture.wallet
         program = basics_fixture.program
+        config = basics_fixture.default_config
 
         mint_pk, _ = await create_collateral_mint(wallet, program)
         group_pk, _ = await create_marginfi_group(mint_pk, wallet, program)
 
-        config = MarginfiConfig(
-            Environment.LOCALNET,
-            overrides={"group_pk": group_pk, "collateral_mint_pk": mint_pk},
-        )
+        config.group_pk = group_pk
+        config.collateral_mint_pk = mint_pk
 
         group = await MarginfiGroup.fetch(config, program)
 

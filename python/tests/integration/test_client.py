@@ -58,13 +58,12 @@ class TestMarginfiClientLocalnet:
         await configure_marginfi_group(
             group_pk, new_group_config, basics.wallet, basics.program
         )
-        config = MarginfiConfig(
-            Environment.LOCALNET,
-            overrides={"group_pk": group_pk, "collateral_mint_pk": mint_pk},
-        )
+
+        basics.default_config.group_pk = group_pk
+        basics.default_config.collateral_mint_pk = mint_pk
 
         client = await MarginfiClient.fetch(
-            config, basics.wallet, basics.rpc_client, basics.tx_opts
+            basics.default_config, basics.wallet, basics.rpc_client, basics.tx_opts
         )
 
         marginfi_account, _ = await client.create_marginfi_account()

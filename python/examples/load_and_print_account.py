@@ -7,7 +7,7 @@ from marginpy import MarginfiClient
 from marginpy.logger import setup_logging
 
 load_dotenv(find_dotenv())
-setup_logging(logging.DEBUG)
+setup_logging(logging.INFO)
 
 rpc_endpoint = os.getenv("RPC_ENDPOINT")
 environment = os.getenv("ENV")
@@ -21,7 +21,7 @@ logging.basicConfig(
 
 async def main():
     client = await MarginfiClient.from_env()
-    account = await client.get_marginfi_account(
+    account = await client.load_marginfi_account(
         "EBcgEtCHTMCv4TfLHv7NxuAz4rzksBrqVYWGyGn9R7Gb"
     )
     await account.observe_utps()
