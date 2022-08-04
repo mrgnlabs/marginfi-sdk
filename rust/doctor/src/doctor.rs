@@ -12,7 +12,7 @@ use mango_protocol::state::{
 };
 use marginfi::{
     constants::{
-        MANGO_PROGRAM, MANGO_UTP_INDEX, PDA_BANK_VAULT_SEED, PDA_UTP_AUTH_SEED, ZO_UTP_INDEX,
+        MANGO_UTP_INDEX, PDA_BANK_VAULT_SEED, PDA_UTP_AUTH_SEED, ZO_UTP_INDEX,
     },
     prelude::{MarginfiAccount, MarginfiGroup},
     state::mango_state::is_rebalance_deposit_valid,
@@ -359,6 +359,7 @@ impl MarginAccountCache {
         program: &Program,
         marginfi_account: &MarginfiAccount,
         group_cache: &GroupCache,
+        address_book: &AddressBook,
     ) -> MarginAccountCache {
         let mut cache = MarginAccountCache::default();
 
@@ -367,6 +368,7 @@ impl MarginAccountCache {
                 program.rpc(),
                 marginfi_account.utp_account_config[MANGO_UTP_INDEX].address,
                 group_cache.mango_group.0,
+                address_book.mango_program,
             ));
         }
 
@@ -386,12 +388,17 @@ struct UtpMangoCache {
 }
 
 impl UtpMangoCache {
-    pub fn new(rpc: RpcClient, mango_account_pk: Pubkey, mango_group_pk: Pubkey) -> UtpMangoCache {
+    pub fn new(
+        rpc: RpcClient,
+        mango_account_pk: Pubkey,
+        mango_group_pk: Pubkey,
+        mango_program: Pubkey,
+    ) -> UtpMangoCache {
         let mango_account = rpc.get_account(&mango_account_pk).unwrap();
         let mango_account_raw = &mut (mango_account_pk, mango_account);
         let mango_account_ai = AccountInfo::from(mango_account_raw);
         let mango_account =
-            MangoAccount::load_checked(&mango_account_ai, &MANGO_PROGRAM, &mango_group_pk).unwrap();
+            MangoAccount::load_checked(&mango_account_ai, &mango_program, &mango_group_pk).unwrap();
 
         UtpMangoCache {
             mango_account: (mango_account_pk, *mango_account),
@@ -464,7 +471,12 @@ impl<'a> MarginAccountHandler<'a> {
             marginfi_account,
             program,
             group_cache,
-            margin_account_cache: MarginAccountCache::new(program, marginfi_account, group_cache),
+            margin_account_cache: MarginAccountCache::new(
+                program,
+                marginfi_account,
+                group_cache,
+                address_book,
+            ),
             doctor_config,
             address_book,
         }
