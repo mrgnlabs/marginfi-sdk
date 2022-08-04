@@ -82,11 +82,21 @@ impl DoctorConfig {
         if let Ok(wallet_path) = std::env::var("WALLET") {
             read_keypair_file(wallet_path).unwrap()
         } else if let Ok(wallet_key) = std::env::var("WALLET_KEY") {
-            Keypair::from_base58_string(wallet_key.as_str())
+            load_keypair_from_array_string(wallet_key.as_str())
         } else {
             panic!("WALLET or WALLET_KEY must be set");
         }
     }
+}
+
+fn load_keypair_from_array_string(array_string: &str) -> Keypair {
+    let trimmed_string = array_string.replace(&['[', ']'][..], "");
+    let array = trimmed_string
+        .split(',')
+        .map(|s| s.parse::<u8>().unwrap())
+        .collect::<Vec<u8>>();
+
+    Keypair::from_bytes(&array).unwrap()
 }
 
 struct AddressBook {
@@ -726,5 +736,18 @@ impl<'a> MarginAccountHandler<'a> {
                 }
                 _ => panic!("Unknown UTP index"),
             });
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn success_load_keypair_from_array_string() {
+        let keypair = load_keypair_from_array_string("[181,29,31,182,80,117,145,58,115,132,159,87,174,13,6,8,197,4,42,68,254,227,96,76,118,251,186,160,121,224,208,232,109,249,190,23,41,7,221,81,205,212,201,15,144,145,229,229,238,88,207,253,103,82,242,233,161,18,16,238,186,70,56,56]");
+        assert_eq!(
+            keypair.pubkey(),
+            Pubkey::from_str("8QJK8fvfasXJ68yE8kBpWHrsv514o7Wn3ZbQBJ3qZKmy").unwrap(),
+        );
     }
 }
