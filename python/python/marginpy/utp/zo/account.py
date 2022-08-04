@@ -3,9 +3,6 @@ from __future__ import annotations
 from logging import Logger
 from typing import TYPE_CHECKING, List, Tuple
 
-from marginpy.generated_client.types.order_type import (  # TODO handle ambiguous `order_type` naming issue
-    from_decoded,
-)
 from marginpy.logger import get_logger
 from marginpy.marginpy import utp_observation
 from marginpy.types import InstructionsWrapper
@@ -41,7 +38,7 @@ from marginpy.utp.zo.instructions import (
 )
 from marginpy.utp.zo.utils import CONTROL_ACCOUNT_SIZE
 from marginpy.utp.zo.utils.client import Zo
-from marginpy.utp.zo.utils.client.types import OrderType
+from marginpy.utp.zo.utils.client.types import ZoOrderType
 from marginpy.utp.zo.utils.client.util import (
     compute_taker_fee,
     price_to_lots,
@@ -269,13 +266,15 @@ class UtpZoAccount(UtpAccount):
     async def make_place_perp_order_ix(  # pylint: disable=too-many-arguments, too-many-locals
         self,
         market_symbol: str,
-        order_type: OrderType,
+        order_type: ZoOrderType,
         is_long: bool,
         price: float,
         size: float,
         limit: int = 10,
         client_id: int = 0,
     ) -> InstructionsWrapper:
+        logger = self.get_logger()
+
         request_cu_ix = make_request_units_ix(units=400_000, additional_fee=0)
 
         zo_authority_pk, _ = await self.authority()
@@ -292,7 +291,6 @@ class UtpZoAccount(UtpAccount):
             base_lot_size=market_info.base_lot_size,
             quote_lot_size=market_info.quote_lot_size,
         )
-        _order_type = from_decoded({order_type: {}})
         taker_fee = compute_taker_fee(market_info.perp_type)
         fee_multiplier = 1 + taker_fee if is_long else 1 - taker_fee
         max_base_quantity = size_to_lots(
@@ -304,16 +302,19 @@ class UtpZoAccount(UtpAccount):
 
         remaining_accounts = await self._marginfi_account.get_observation_accounts()
 
+        args = PlacePerpOrderArgs(
+            is_long=is_long,
+            order_type=order_type.to_program_type(),
+            limit=limit,
+            limit_price=price,
+            client_id=client_id,
+            max_base_quantity=max_base_quantity,
+            max_quote_quantity=max_quote_quantity,
+        )
+        logger.debug(args)
+
         place_order_ix = make_place_perp_order_ix(
-            PlacePerpOrderArgs(
-                is_long=is_long,
-                order_type=_order_type,
-                limit=limit,
-                limit_price=price,
-                client_id=client_id,
-                max_base_quantity=max_base_quantity,
-                max_quote_quantity=max_quote_quantity,
-            ),
+            args,
             PlacePerpOrderAccounts(
                 marginfi_account=self._marginfi_account.pubkey,
                 marginfi_group=self._config.group_pk,
@@ -345,7 +346,7 @@ class UtpZoAccount(UtpAccount):
     async def place_perp_order(  # pylint: disable=too-many-arguments
         self,
         market_symbol: str,
-        order_type: OrderType,
+        order_type: ZoOrderType,
         is_long: bool,
         price: float,
         size: float,

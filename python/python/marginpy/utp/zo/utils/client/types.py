@@ -1,8 +1,18 @@
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 from typing import Any, Literal
 
 from anchorpy import Program
+from marginpy.generated_client.types.order_type import (
+    FillOrKill,
+    ImmediateOrCancel,
+    Limit,
+    OrderTypeKind,
+    PostOnly,
+    ReduceOnlyIoc,
+    ReduceOnlyLimit,
+)
 from solana.publickey import PublicKey
 
 Side = Literal["bid", "ask"]
@@ -14,6 +24,32 @@ OrderType = Literal[
     "ReduceOnlyLimit",
     "FillOrKill",
 ]
+
+
+class ZoOrderType(Enum):
+    LIMIT = "LIMIT"
+    IMMEDIATE_OR_CANCEL = "IMMEDIATE_OR_CANCEL"
+    POST_ONLY = "POST_ONLY"
+    REDUCE_ONLY_IOC = "REDUCE_ONLY_IOC"
+    REDUCE_ONLY_LIMIT = "REDUCE_ONLY_LIMIT"
+    FILL_OR_KILL = "FILL_OR_KILL"
+
+    def to_program_type(self) -> OrderTypeKind:
+        if self is self.LIMIT:
+            return Limit()
+        if self is self.IMMEDIATE_OR_CANCEL:
+            return ImmediateOrCancel()
+        if self is self.POST_ONLY:
+            return PostOnly()
+        if self is self.REDUCE_ONLY_IOC:
+            return ReduceOnlyIoc()
+        if self is self.REDUCE_ONLY_LIMIT:
+            return ReduceOnlyLimit()
+        if self is self.FILL_OR_KILL:
+            return FillOrKill()
+        raise Exception(f"Unknown 01 order type {self.value}")
+
+
 PerpType = Literal["future", "calloption", "putoption", "square"]
 
 

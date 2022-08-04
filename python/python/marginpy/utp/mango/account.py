@@ -4,18 +4,9 @@ from datetime import datetime
 from typing import TYPE_CHECKING, List, Tuple
 
 import mango
-import marginpy.generated_client.types as gen_types
-from marginpy.generated_client.types.mango_expiry_type import (
-    Absolute,
-    MangoExpiryTypeKind,
-)
-from marginpy.generated_client.types.mango_order_type import (
-    ImmediateOrCancel,
-    MangoOrderTypeKind,
-)
 from marginpy.logger import get_logger
 from marginpy.marginpy import utp_observation
-from marginpy.types import InstructionsWrapper, UtpMangoPlacePerpOrderOptions
+from marginpy.types import InstructionsWrapper
 from marginpy.utils.data_conversion import (
     b64str_to_bytes,
     json_to_account_info,
@@ -41,7 +32,12 @@ from marginpy.utp.mango.instructions import (
     make_place_perp_order_ix,
     make_withdraw_ix,
 )
-from marginpy.utp.mango.types import USDC_TOKEN_DICT
+from marginpy.utp.mango.types import (
+    USDC_TOKEN_DICT,
+    MangoExpiryType,
+    MangoOrderType,
+    UtpMangoPlacePerpOrderOptions,
+)
 from marginpy.utp.observation import UtpObservation
 from solana.keypair import Keypair
 from solana.publickey import PublicKey
@@ -51,6 +47,7 @@ from solana.transaction import AccountMeta, Transaction, TransactionSignature
 if TYPE_CHECKING:
     from marginpy import MarginfiAccount, MarginfiClient
     from marginpy.types import UtpData
+    from marginpy.utp.mango.types import MangoSide
 
 
 class UtpMangoAccount(UtpAccount):
@@ -277,25 +274,29 @@ class UtpMangoAccount(UtpAccount):
     async def make_place_perp_order_ix(  # pylint: disable=too-many-locals
         self,
         perp_market: mango.PerpMarket,
-        side: gen_types.MangoSideKind,
+        side: MangoSide,
         price: float,
         quantity: float,
         options: UtpMangoPlacePerpOrderOptions = UtpMangoPlacePerpOrderOptions(),
     ) -> InstructionsWrapper:
+        logger = self.get_logger()
+
         limit = options.limit if options.limit is not None else 20
-        max_quote_quantity = options.max_quote_quantity or float(mango.I64_MAX)
+        max_quote_quantity = options.max_quote_quantity
         client_order_id = (
             options.client_order_id if options.client_order_id is not None else 0
         )
         expiry_timestamp = options.expiry_timestamp if options.limit is not None else 0
         reduce_only = options.reduce_only if options.reduce_only is not None else False
-        order_type: MangoOrderTypeKind = (
+        order_type: MangoOrderType = (
             options.order_type
             if options.order_type is not None
-            else ImmediateOrCancel()
+            else MangoOrderType.IMMEDIATE_OR_CANCEL
         )
-        expiry_type: MangoExpiryTypeKind = (
-            options.expiry_type if options.expiry_type is not None else Absolute()
+        expiry_type: MangoExpiryType = (
+            options.expiry_type
+            if options.expiry_type is not None
+            else MangoExpiryType.ABSOLUTE
         )
 
         base_decimals = float(perp_market.base.decimals)
@@ -313,10 +314,13 @@ class UtpMangoAccount(UtpAccount):
 
         native_max_quote_quantity = (
             (
-                max_quote_quantity * quote_factor / 10000000000000000
-            )  # TODO Figure out out_of_range problem here
-            / float(perp_market.lot_size_converter.quote_lot_size)
-        ) or float(mango.I64_MAX)
+                max_quote_quantity
+                * quote_factor
+                / float(perp_market.lot_size_converter.quote_lot_size)
+            )
+            if max_quote_quantity is not None
+            else int(mango.I64_MAX.to_integral_value())
+        )
 
         mango_authority_pk, _ = await self.authority()
 
@@ -327,19 +331,22 @@ class UtpMangoAccount(UtpAccount):
 
         remaining_accounts = await self._marginfi_account.get_observation_accounts()
 
+        args = PlacePerpOrderArgs(
+            side=side.to_program_type(),
+            price=int(native_price),
+            max_base_quantity=int(native_quantity),
+            max_quote_quantity=int(native_max_quote_quantity),
+            client_order_id=client_order_id,
+            order_type=order_type.to_program_type(),
+            reduce_only=reduce_only,
+            expiry_timestamp=expiry_timestamp,
+            limit=limit,
+            expiry_type=expiry_type.to_program_type(),
+        )
+        logger.debug(args)
+
         ix = make_place_perp_order_ix(
-            PlacePerpOrderArgs(
-                side=side,
-                price=int(native_price),
-                max_base_quantity=int(native_quantity),
-                max_quote_quantity=int(native_max_quote_quantity),
-                client_order_id=client_order_id,
-                order_type=order_type,
-                reduce_only=reduce_only,
-                expiry_timestamp=expiry_timestamp,
-                limit=limit,
-                expiry_type=expiry_type,
-            ),
+            args,
             PlacePerpOrderAccounts(
                 marginfi_account=self._marginfi_account.pubkey,
                 marginfi_group=self._marginfi_account.group.pubkey,
@@ -362,7 +369,7 @@ class UtpMangoAccount(UtpAccount):
     async def place_perp_order(
         self,
         perp_market: mango.PerpMarket,
-        side: gen_types.MangoSideKind,
+        side: MangoSide,
         price: float,
         quantity: float,
         options: UtpMangoPlacePerpOrderOptions = UtpMangoPlacePerpOrderOptions(),

@@ -1,8 +1,10 @@
 import mango
-import marginpy.generated_client.types.mango_side as mango_side
 from marginpy import Environment
-from marginpy.generated_client.types.mango_order_type import PostOnlySlide
-from marginpy.types import UtpMangoPlacePerpOrderOptions
+from marginpy.utp.mango.types import (
+    MangoOrderType,
+    MangoSide,
+    UtpMangoPlacePerpOrderOptions,
+)
 from pytest import mark, raises
 
 from tests.config import DEVNET_URL
@@ -34,7 +36,7 @@ class TestMangoAccount:
         await marginfi_account.mango.deposit(1)
         await marginfi_account.mango.withdraw(1)
 
-    async def test_place_perp_order(
+    async def test_mango_place_perp_order(
         self,
         mango_bench: MangoBench,
     ) -> None:
@@ -49,12 +51,13 @@ class TestMangoAccount:
 
         await marginfi_account.mango.place_perp_order(
             perp_market=market,
-            side=mango_side.Bid,
-            price=50,
-            quantity=1,
+            side=MangoSide.BID,
+            price=40,
+            quantity=0.1,
+            options=UtpMangoPlacePerpOrderOptions(max_quote_quantity=None),
         )
 
-    async def test_cancel_perp_order(
+    async def test_mango_cancel_perp_order(
         self,
         mango_bench: MangoBench,
     ) -> None:
@@ -70,10 +73,12 @@ class TestMangoAccount:
         # Place order success
         await marginfi_account.mango.place_perp_order(
             perp_market=market,
-            side=mango_side.Bid,
+            side=MangoSide.BID,
             price=50,
             quantity=1,
-            options=UtpMangoPlacePerpOrderOptions(order_type=PostOnlySlide()),
+            options=UtpMangoPlacePerpOrderOptions(
+                order_type=MangoOrderType.POST_ONLY_SLIDE
+            ),
         )
 
         # Fetch current user orders

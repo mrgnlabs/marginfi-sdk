@@ -1,4 +1,5 @@
 from marginpy import Environment
+from marginpy.utp.zo.utils.client.types import ZoOrderType
 from marginpy.utp.zo.utils.client.zo import Zo
 from pytest import mark, raises
 
@@ -59,7 +60,7 @@ class TestZoAccount:
         await marginfi_account.zo.create_perp_open_orders("SOL-PERP")
         await marginfi_account.zo.place_perp_order(
             market_symbol="SOL-PERP",
-            order_type="PostOnly",
+            order_type=ZoOrderType.POST_ONLY,
             is_long=True,
             price=38,
             size=0.1,

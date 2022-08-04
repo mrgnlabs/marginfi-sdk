@@ -24,7 +24,7 @@ def ui_to_native(amount: float, decimals: int = COLLATERAL_DECIMALS) -> int:
     return int(amount * 10**decimals)
 
 
-# TODO: be a bit more professional about this
+# TODO: revisit when number libs have been explored
 def wrapped_fixed_to_float(raw: WrappedI80F48) -> float:
     fixed_point_in_bits = 8 * 6
     divisor = 2**fixed_point_in_bits

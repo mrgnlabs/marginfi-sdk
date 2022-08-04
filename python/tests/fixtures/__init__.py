@@ -1,6 +1,6 @@
-from dataclasses import dataclass
 import json
 import os
+from dataclasses import dataclass
 from time import sleep
 from typing import Callable, Optional, cast
 
@@ -20,8 +20,8 @@ from marginpy.utils.instructions import airdrop_collateral
 from marginpy.utils.misc import get_or_create_ata, load_idl
 from pytest import fixture
 from pytest_asyncio import fixture as async_fixture
-from solana.publickey import PublicKey
 from solana.keypair import Keypair
+from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.commitment import Commitment, Processed
 from solana.rpc.types import TxOpts
@@ -100,10 +100,16 @@ def basics_fixture(
 
         if environment is Environment.LOCALNET:
             # Fetching current localnet program ID
-            kp_path = os.path.realpath(os.path.join(__file__, "../../../../../target/deploy/marginfi-keypair.json"))
-            with open(kp_path, 'r') as kp_file:
+            kp_path = os.path.realpath(
+                os.path.join(
+                    __file__, "../../../../../target/deploy/marginfi-keypair.json"
+                )
+            )
+            with open(kp_path, "r") as kp_file:
                 program_id = Keypair.from_secret_key(json.load(kp_file)).public_key
-            default_config = MarginfiConfig(environment, overrides={"program_id": program_id})
+            default_config = MarginfiConfig(
+                environment, overrides={"program_id": program_id}
+            )
         else:
             default_config = MarginfiConfig(environment)
 

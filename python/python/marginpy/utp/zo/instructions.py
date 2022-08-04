@@ -164,7 +164,16 @@ def make_withdraw_ix(
 
 
 class PlacePerpOrderArgs(UtpZoPlacePerpOrderIxArgs):
-    pass
+    def __str__(self):
+        return f"""
+is_long: {self.is_long},
+order_type: {self.order_type},
+limit: {self.limit},
+limit_price: {self.limit_price},
+client_id: {self.client_id},
+max_base_quantity: {self.max_base_quantity},
+max_quote_quantity: {self.max_quote_quantity},
+        """
 
 
 @dataclass

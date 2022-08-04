@@ -161,7 +161,19 @@ def make_withdraw_ix(
 
 
 class PlacePerpOrderArgs(UtpMangoPlacePerpOrderArgs):
-    pass
+    def __str__(self):
+        return f"""
+side: {self.side},
+price: {int(self.price)},
+max_base_quantity: {int(self.max_base_quantity)},
+max_quote_quantity: {int(self.max_quote_quantity)},
+client_order_id: {self.client_order_id},
+order_type: {self.order_type},
+reduce_only: {self.reduce_only},
+expiry_timestamp: {self.expiry_timestamp},
+limit: {self.limit},
+expiry_type: {self.expiry_type},
+        """
 
 
 class PlacePerpOrderAccounts(gen_ix.UtpMangoUsePlacePerpOrderAccounts):

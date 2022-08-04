@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import marginpy.generated_client.types as gen_types
 from marginpy.generated_client.accounts import MarginfiAccount, MarginfiGroup
@@ -69,17 +69,6 @@ class UtpData:
 class UtpConfig:
     utp_index: UtpIndex
     program_id: PublicKey
-
-
-@dataclass
-class UtpMangoPlacePerpOrderOptions:
-    max_quote_quantity: Optional[float] = None
-    limit: Optional[int] = None
-    order_type: Optional[gen_types.MangoOrderTypeKind] = None
-    client_order_id: Optional[int] = None
-    reduce_only: Optional[bool] = None
-    expiry_timestamp: Optional[int] = None
-    expiry_type: Optional[gen_types.MangoExpiryTypeKind] = None
 
 
 @dataclass

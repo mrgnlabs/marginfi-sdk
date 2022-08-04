@@ -46,11 +46,7 @@ from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.responses import AccountInfo
 from solana.rpc.types import RPCResponse
-from solana.transaction import (
-    AccountMeta,
-    Transaction,
-    TransactionSignature,
-)
+from solana.transaction import AccountMeta, Transaction, TransactionSignature
 from spl.token.instructions import get_associated_token_address
 
 if TYPE_CHECKING:
