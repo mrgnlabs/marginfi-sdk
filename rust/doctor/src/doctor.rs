@@ -11,9 +11,7 @@ use mango_protocol::state::{
     MAX_PAIRS, QUOTE_INDEX,
 };
 use marginfi::{
-    constants::{
-        MANGO_UTP_INDEX, PDA_BANK_VAULT_SEED, PDA_UTP_AUTH_SEED, ZO_UTP_INDEX,
-    },
+    constants::{MANGO_UTP_INDEX, PDA_BANK_VAULT_SEED, PDA_UTP_AUTH_SEED, ZO_UTP_INDEX},
     prelude::{MarginfiAccount, MarginfiGroup},
     state::mango_state::is_rebalance_deposit_valid,
 };
@@ -37,6 +35,19 @@ use std::ops::Div;
 use std::str::FromStr;
 use std::thread::sleep;
 use std::{cell::Ref, rc::Rc, time::Duration};
+
+macro_rules! setup_sentry_if_enabled {
+    () => {
+        #[cfg(feature = "sentry-reporting")]
+        let _sentry_guard = sentry::init((
+            std::env::var("SENTRY_DSN").expect("SENTRY_DSN must be set"),
+            sentry::ClientOptions {
+                release: sentry::release_name!(),
+                ..Default::default()
+            },
+        ));
+    };
+}
 
 pub struct DoctorConfig {
     pub marginfi_program: Pubkey,
@@ -63,7 +74,14 @@ impl DoctorConfig {
             .unwrap();
         let rpc_endpoint = std::env::var("RPC_ENDPOINT").expect("Missing RPC_ENDPOINT env var");
 
-        info!("Starting Doctor\n\tProgram: {:?}\n\tGroup: {:?}\n\tEnv: {:?}\n\tRpcEndpoint: {:?}\n\tTimeout: {:?}s", marginfi_program, marginfi_group, cluster_string, rpc_endpoint, timeout);
+        info!("Starting Doctor\n\tProgram: {:?}\n\tGroup: {:?}\n\tEnv: {:?}\n\tRpcEndpoint: {:?}\n\tTimeout: {:?}s,\n\tSentry Reporting: {}",
+            marginfi_program,
+            marginfi_group,
+            cluster_string,
+            rpc_endpoint,
+            timeout,
+            cfg!(feature = "sentry-reporting")
+        );
 
         DoctorConfig {
             marginfi_program,
@@ -144,6 +162,8 @@ struct GroupCache {
 
 impl GroupCache {
     pub fn new(program: &Program, config: &DoctorConfig, address_book: &AddressBook) -> Self {
+        setup_sentry_if_enabled!();
+
         debug!("Loading group cache");
         let marginfi_group: MarginfiGroup = program.account(config.marginfi_group).unwrap();
 
@@ -252,15 +272,21 @@ pub struct Doctor {
     address_book: AddressBook,
 }
 
+#[cfg(feature = "sentry-reporting")]
+fn ping_sentry() {
+    setup_sentry_if_enabled!();
+    sentry::capture_message("ping", sentry::Level::Info);
+}
+
 impl Doctor {
     pub fn new(config: DoctorConfig) -> Doctor {
+        #[cfg(feature = "sentry-reporting")]
+        ping_sentry();
+
         let address_book = AddressBook::new(config.cluster());
         let client = Client::new(config.cluster(), Rc::new(config.keypair()));
         let program = client.program(config.marginfi_program);
         let group_cache = GroupCache::new(&program, &config, &address_book);
-
-        #[cfg(feature = "sentry-reporting")]
-        setup_sentry();
 
         Self {
             config,
@@ -299,6 +325,7 @@ impl Doctor {
     }
 
     fn fetch_all_marginfi_accounts(&self) -> Vec<(Pubkey, MarginfiAccount)> {
+        setup_sentry_if_enabled!();
         let account_type_filter = RpcFilterType::Memcmp(Memcmp {
             offset: 8 + 32,
             bytes: MemcmpEncodedBytes::Base58(self.config.marginfi_group.to_string()),
@@ -321,6 +348,7 @@ fn create_temp_token_account(
     mint: Pubkey,
     payer: Pubkey,
 ) -> ([Instruction; 2], Keypair) {
+    setup_sentry_if_enabled!();
     let temp_token_account_kp = Keypair::new();
     let lamports = rpc
         .get_minimum_balance_for_rent_exemption(spl_token::state::Account::LEN)
@@ -394,6 +422,8 @@ impl UtpMangoCache {
         mango_group_pk: Pubkey,
         mango_program: Pubkey,
     ) -> UtpMangoCache {
+        setup_sentry_if_enabled!();
+
         let mango_account = rpc.get_account(&mango_account_pk).unwrap();
         let mango_account_raw = &mut (mango_account_pk, mango_account);
         let mango_account_ai = AccountInfo::from(mango_account_raw);
@@ -413,6 +443,8 @@ struct UtpZoCache {
 
 impl UtpZoCache {
     pub fn new(rpc: RpcClient, zo_margin_pk: Pubkey) -> UtpZoCache {
+        setup_sentry_if_enabled!();
+
         let zo_margin_account = rpc.get_account(&zo_margin_pk).unwrap();
 
         let zo_margin_raw = &mut (zo_margin_pk, zo_margin_account);
@@ -443,20 +475,6 @@ struct MarginAccountHandler<'a> {
     address_book: &'a AddressBook,
 }
 
-fn setup_sentry() {
-    #![cfg(feature = "sentry-reporting")]
-    debug!("Configuring sentry");
-
-    let sentry_dsn = std::env::var("SENTRY_DSN").expect("SENTRY_DSN must be set");
-    let _sentry_guard = sentry::init((
-        sentry_dsn,
-        sentry::ClientOptions {
-            release: sentry::release_name!(),
-            ..Default::default()
-        },
-    ));
-}
-
 impl<'a> MarginAccountHandler<'a> {
     pub fn new(
         program: &'a Program,
@@ -483,6 +501,8 @@ impl<'a> MarginAccountHandler<'a> {
     }
 
     fn get_observation_accounts(&self) -> Vec<AccountMeta> {
+        setup_sentry_if_enabled!();
+        
         self.marginfi_account
             .active_utps
             .iter()
@@ -490,6 +510,8 @@ impl<'a> MarginAccountHandler<'a> {
             .filter(|(_, active)| **active)
             .map(|(i, _)| i)
             .fold(vec![], |accumulator, index| {
+                setup_sentry_if_enabled!();
+
                 let utp_config = self.marginfi_account.utp_account_config[index];
                 let mut utp_observe_accounts = match index {
                     MANGO_UTP_INDEX => vec![
@@ -521,6 +543,8 @@ impl<'a> MarginAccountHandler<'a> {
     }
 
     fn get_utp_authority(&self, utp_index: usize) -> (Pubkey, u8) {
+        setup_sentry_if_enabled!();
+
         let utp_program_address = match utp_index {
             MANGO_UTP_INDEX => self.address_book.mango_program,
             ZO_UTP_INDEX => self.address_book.zo_program,
@@ -541,6 +565,8 @@ impl<'a> MarginAccountHandler<'a> {
     }
 
     pub fn rebalance_if_needed(&self) {
+        setup_sentry_if_enabled!();
+
         self.marginfi_account
             .active_utps
             .iter()
@@ -548,6 +574,8 @@ impl<'a> MarginAccountHandler<'a> {
             .filter(|(_, a)| **a)
             .for_each(|(index, _)| match index {
                 MANGO_UTP_INDEX => {
+                    setup_sentry_if_enabled!();
+
                     let (marginfi_group_pk, marginfi_group) = self.group_cache.marginfi_group;
                     let (mango_group_pk, mango_group) = &self.group_cache.mango_group;
                     let (_, mango_cache) = &self.group_cache.mango_cache;
@@ -649,6 +677,8 @@ impl<'a> MarginAccountHandler<'a> {
                     debug!("Transaction: {:?}", sig);
                 }
                 ZO_UTP_INDEX => {
+                    setup_sentry_if_enabled!();
+
                     let (zo_state_pk, zo_state) = &self.group_cache.zo_state;
                     let (_zo_cache_pk, zo_cache) = &self.group_cache.zo_cache;
                     let (zo_margin_pk, zo_margin) = &self
