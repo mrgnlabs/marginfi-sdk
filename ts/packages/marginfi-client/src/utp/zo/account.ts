@@ -8,9 +8,8 @@ import {
 } from "@solana/web3.js";
 import MarginfiAccount from "../../account";
 import MarginfiClient from "../../client";
-import { InstructionsWrapper, UiAmount, UtpData } from "../../types";
+import { BankVaultType, InstructionsWrapper, UiAmount, UtpData } from "../../types";
 import {
-  BankVaultType,
   createTempTransferAccounts as createTempTransferAccountIxs,
   getBankAuthority,
   processTransaction,
