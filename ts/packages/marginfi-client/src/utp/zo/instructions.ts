@@ -100,6 +100,7 @@ async function makeWithdrawIx(
     zoCache: PublicKey;
     zoControl: PublicKey;
     zoVault: PublicKey;
+    zoHeimdall: PublicKey;
   },
   args: {
     amount: BN;
@@ -121,6 +122,7 @@ async function makeWithdrawIx(
       zoCache: accounts.zoCache,
       zoControl: accounts.zoControl,
       zoVault: accounts.zoVault,
+      heimdall: accounts.zoHeimdall,
       tokenProgram: TOKEN_PROGRAM_ID,
     })
     .remainingAccounts(remainingAccounts)

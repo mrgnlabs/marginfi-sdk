@@ -222,6 +222,7 @@ export class UtpZoAccount extends UtpAccount {
         zoCache: zoState.cache.pubkey,
         zoControl: zoMargin.control.pubkey,
         zoVault: zoVaultPk,
+        zoHeimdall: this.config.heimdall,
       },
       { amount: uiToNative(amount) },
       remainingAccounts
