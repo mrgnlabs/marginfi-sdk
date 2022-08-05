@@ -130,6 +130,7 @@ class WithdrawAccounts:
     zo_cache: PublicKey
     zo_control: PublicKey
     zo_vault: PublicKey
+    zo_heimdall: PublicKey
 
 
 def make_withdraw_ix(
@@ -153,6 +154,7 @@ def make_withdraw_ix(
             zo_cache=accounts.zo_cache,
             zo_control=accounts.zo_control,
             zo_vault=accounts.zo_vault,
+            heimdall=accounts.zo_heimdall,
             token_program=TOKEN_PROGRAM_ID,
         ),
         program_id=program_id,

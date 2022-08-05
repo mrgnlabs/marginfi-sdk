@@ -29,6 +29,7 @@ class UtpZoWithdrawAccounts(typing.TypedDict):
     zo_cache: PublicKey
     zo_control: PublicKey
     zo_vault: PublicKey
+    heimdall: PublicKey
     token_program: PublicKey
 
 
@@ -63,6 +64,7 @@ def utp_zo_withdraw(
         AccountMeta(pubkey=accounts["zo_cache"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["zo_control"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["zo_vault"], is_signer=False, is_writable=True),
+        AccountMeta(pubkey=accounts["heimdall"], is_signer=False, is_writable=True),
         AccountMeta(
             pubkey=accounts["token_program"], is_signer=False, is_writable=False
         ),

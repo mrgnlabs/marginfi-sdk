@@ -3,47 +3,56 @@ import typing
 from anchorpy.error import ProgramError
 
 
-class EmptyLendingPool(ProgramError):
+class Unauthorized(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6000, "Lending pool empty")
+        super().__init__(6000, "Signer not authorized to perform this action")
 
     code = 6000
+    name = "Unauthorized"
+    msg = "Signer not authorized to perform this action"
+
+
+class EmptyLendingPool(ProgramError):
+    def __init__(self) -> None:
+        super().__init__(6001, "Lending pool empty")
+
+    code = 6001
     name = "EmptyLendingPool"
     msg = "Lending pool empty"
 
 
 class IllegalUtilizationRatio(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6001, "Illegal utilization ratio")
+        super().__init__(6002, "Illegal utilization ratio")
 
-    code = 6001
+    code = 6002
     name = "IllegalUtilizationRatio"
     msg = "Illegal utilization ratio"
 
 
 class MathError(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6002, "very bad mafs")
+        super().__init__(6003, "very bad mafs")
 
-    code = 6002
+    code = 6003
     name = "MathError"
     msg = "very bad mafs"
 
 
 class InvalidTimestamp(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6003, "Invalid timestamp")
+        super().__init__(6004, "Invalid timestamp")
 
-    code = 6003
+    code = 6004
     name = "InvalidTimestamp"
     msg = "Invalid timestamp"
 
 
 class MarginRequirementsNotMet(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6004, "Initialization margin requirements not met")
+        super().__init__(6005, "Initialization margin requirements not met")
 
-    code = 6004
+    code = 6005
     name = "MarginRequirementsNotMet"
     msg = "Initialization margin requirements not met"
 
@@ -51,186 +60,187 @@ class MarginRequirementsNotMet(ProgramError):
 class OnlyReduceAllowed(ProgramError):
     def __init__(self) -> None:
         super().__init__(
-            6005, "Only reducing trades are allowed when under init margin requirements"
+            6006, "Only reducing trades are allowed when under init margin requirements"
         )
 
-    code = 6005
+    code = 6006
     name = "OnlyReduceAllowed"
     msg = "Only reducing trades are allowed when under init margin requirements"
 
 
 class UtpInactive(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6006, "Inactive UTP")
+        super().__init__(6007, "Inactive UTP")
 
-    code = 6006
+    code = 6007
     name = "UtpInactive"
     msg = "Inactive UTP"
 
 
 class UtpAlreadyActive(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6007, "Utp is already active")
+        super().__init__(6008, "Utp is already active")
 
-    code = 6007
+    code = 6008
     name = "UtpAlreadyActive"
     msg = "Utp is already active"
 
 
 class InvalidAccountData(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6008, "Invalid Account Data")
+        super().__init__(6009, "Invalid Account Data")
 
-    code = 6008
+    code = 6009
     name = "InvalidAccountData"
     msg = "Invalid Account Data"
 
 
 class LiquidatorHasActiveUtps(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6009, "Liquidator has active utps")
+        super().__init__(6010, "Liquidator has active utps")
 
-    code = 6009
+    code = 6010
     name = "LiquidatorHasActiveUtps"
     msg = "Liquidator has active utps"
 
 
 class AccountHasActiveUtps(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6010, "Account has active utps")
+        super().__init__(6011, "Account has active utps")
 
-    code = 6010
+    code = 6011
     name = "AccountHasActiveUtps"
     msg = "Account has active utps"
 
 
 class AccountNotLiquidatable(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6011, "Marginfi account not liquidatable")
+        super().__init__(6012, "Marginfi account not liquidatable")
 
-    code = 6011
+    code = 6012
     name = "AccountNotLiquidatable"
     msg = "Marginfi account not liquidatable"
 
 
 class AccountNotBankrupt(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6012, "Marginfi account not bankrupt")
+        super().__init__(6013, "Marginfi account not bankrupt")
 
-    code = 6012
+    code = 6013
     name = "AccountNotBankrupt"
     msg = "Marginfi account not bankrupt"
 
 
 class IllegalUtpDeactivation(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6013, "Utp account cannot be deactivated")
+        super().__init__(6014, "Utp account cannot be deactivated")
 
-    code = 6013
+    code = 6014
     name = "IllegalUtpDeactivation"
     msg = "Utp account cannot be deactivated"
 
 
 class IllegalRebalance(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6014, "Rebalance not legal")
+        super().__init__(6015, "Rebalance not legal")
 
-    code = 6014
+    code = 6015
     name = "IllegalRebalance"
     msg = "Rebalance not legal"
 
 
 class BorrowNotAllowed(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6015, "Borrow not allowed")
+        super().__init__(6016, "Borrow not allowed")
 
-    code = 6015
+    code = 6016
     name = "BorrowNotAllowed"
     msg = "Borrow not allowed"
 
 
 class IllegalConfig(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6016, "Config value not legal")
+        super().__init__(6017, "Config value not legal")
 
-    code = 6016
+    code = 6017
     name = "IllegalConfig"
     msg = "Config value not legal"
 
 
 class OperationsPaused(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6017, "Operations paused")
+        super().__init__(6018, "Operations paused")
 
-    code = 6017
+    code = 6018
     name = "OperationsPaused"
     msg = "Operations paused"
 
 
 class InsufficientVaultBalance(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6018, "Insufficient balance")
+        super().__init__(6019, "Insufficient balance")
 
-    code = 6018
+    code = 6019
     name = "InsufficientVaultBalance"
     msg = "Insufficient balance"
 
 
 class Forbidden(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6019, "This operation is forbidden")
+        super().__init__(6020, "This operation is forbidden")
 
-    code = 6019
+    code = 6020
     name = "Forbidden"
     msg = "This operation is forbidden"
 
 
 class InvalidUTPAccount(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6020, "Invalid account key")
+        super().__init__(6021, "Invalid account key")
 
-    code = 6020
+    code = 6021
     name = "InvalidUTPAccount"
     msg = "Invalid account key"
 
 
 class AccountDepositLimit(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6021, "Deposit exceeds account cap")
+        super().__init__(6022, "Deposit exceeds account cap")
 
-    code = 6021
+    code = 6022
     name = "AccountDepositLimit"
     msg = "Deposit exceeds account cap"
 
 
 class GroupDepositLimit(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6022, "Deposit exceeds group cap")
+        super().__init__(6023, "Deposit exceeds group cap")
 
-    code = 6022
+    code = 6023
     name = "GroupDepositLimit"
     msg = "Deposit exceeds group cap"
 
 
 class InvalidObserveAccounts(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6023, "Missing accounts for UTP observation")
+        super().__init__(6024, "Missing accounts for UTP observation")
 
-    code = 6023
+    code = 6024
     name = "InvalidObserveAccounts"
     msg = "Missing accounts for UTP observation"
 
 
 class MangoError(ProgramError):
     def __init__(self) -> None:
-        super().__init__(6024, "Mango error")
+        super().__init__(6025, "Mango error")
 
-    code = 6024
+    code = 6025
     name = "MangoError"
     msg = "Mango error"
 
 
 CustomError = typing.Union[
+    Unauthorized,
     EmptyLendingPool,
     IllegalUtilizationRatio,
     MathError,
@@ -258,31 +268,32 @@ CustomError = typing.Union[
     MangoError,
 ]
 CUSTOM_ERROR_MAP: dict[int, CustomError] = {
-    6000: EmptyLendingPool(),
-    6001: IllegalUtilizationRatio(),
-    6002: MathError(),
-    6003: InvalidTimestamp(),
-    6004: MarginRequirementsNotMet(),
-    6005: OnlyReduceAllowed(),
-    6006: UtpInactive(),
-    6007: UtpAlreadyActive(),
-    6008: InvalidAccountData(),
-    6009: LiquidatorHasActiveUtps(),
-    6010: AccountHasActiveUtps(),
-    6011: AccountNotLiquidatable(),
-    6012: AccountNotBankrupt(),
-    6013: IllegalUtpDeactivation(),
-    6014: IllegalRebalance(),
-    6015: BorrowNotAllowed(),
-    6016: IllegalConfig(),
-    6017: OperationsPaused(),
-    6018: InsufficientVaultBalance(),
-    6019: Forbidden(),
-    6020: InvalidUTPAccount(),
-    6021: AccountDepositLimit(),
-    6022: GroupDepositLimit(),
-    6023: InvalidObserveAccounts(),
-    6024: MangoError(),
+    6000: Unauthorized(),
+    6001: EmptyLendingPool(),
+    6002: IllegalUtilizationRatio(),
+    6003: MathError(),
+    6004: InvalidTimestamp(),
+    6005: MarginRequirementsNotMet(),
+    6006: OnlyReduceAllowed(),
+    6007: UtpInactive(),
+    6008: UtpAlreadyActive(),
+    6009: InvalidAccountData(),
+    6010: LiquidatorHasActiveUtps(),
+    6011: AccountHasActiveUtps(),
+    6012: AccountNotLiquidatable(),
+    6013: AccountNotBankrupt(),
+    6014: IllegalUtpDeactivation(),
+    6015: IllegalRebalance(),
+    6016: BorrowNotAllowed(),
+    6017: IllegalConfig(),
+    6018: OperationsPaused(),
+    6019: InsufficientVaultBalance(),
+    6020: Forbidden(),
+    6021: InvalidUTPAccount(),
+    6022: AccountDepositLimit(),
+    6023: GroupDepositLimit(),
+    6024: InvalidObserveAccounts(),
+    6025: MangoError(),
 }
 
 

@@ -20,7 +20,7 @@ layout = borsh.CStruct("order_id" / borsh.I128, "invalid_id_ok" / borsh.Bool)
 class UtpMangoUseCancelPerpOrderAccounts(typing.TypedDict):
     marginfi_account: PublicKey
     marginfi_group: PublicKey
-    authority: PublicKey
+    signer: PublicKey
     mango_authority: PublicKey
     mango_account: PublicKey
     mango_program: PublicKey
@@ -43,7 +43,7 @@ def utp_mango_use_cancel_perp_order(
         AccountMeta(
             pubkey=accounts["marginfi_group"], is_signer=False, is_writable=False
         ),
-        AccountMeta(pubkey=accounts["authority"], is_signer=True, is_writable=True),
+        AccountMeta(pubkey=accounts["signer"], is_signer=True, is_writable=True),
         AccountMeta(
             pubkey=accounts["mango_authority"], is_signer=False, is_writable=False
         ),

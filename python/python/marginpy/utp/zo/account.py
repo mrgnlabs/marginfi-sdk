@@ -245,6 +245,7 @@ class UtpZoAccount(UtpAccount):
                 zo_program=self.config.program_id,
                 zo_state=zo.config.zo_state_id,
                 zo_state_signer=zo.state_signer,
+                zo_heimdall=self.config.heimdall,
                 zo_vault=zo.collaterals[self._marginfi_account.group.bank.mint].vault,
             ),
             program_id=self._client.program_id,

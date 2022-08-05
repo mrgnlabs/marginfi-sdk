@@ -350,7 +350,7 @@ class UtpMangoAccount(UtpAccount):
             PlacePerpOrderAccounts(
                 marginfi_account=self._marginfi_account.pubkey,
                 marginfi_group=self._marginfi_account.group.pubkey,
-                authority=self._program.provider.wallet.public_key,
+                signer=self._program.provider.wallet.public_key,
                 mango_authority=mango_authority_pk,
                 mango_account=self.address,
                 mango_program=self._config.mango.program_id,
@@ -401,7 +401,7 @@ class UtpMangoAccount(UtpAccount):
             CancelPerpOrderAccounts(
                 marginfi_account=self._marginfi_account.pubkey,
                 marginfi_group=self._marginfi_account.group.pubkey,
-                authority=self._program.provider.wallet.public_key,
+                signer=self._program.provider.wallet.public_key,
                 mango_authority=mango_authority_pk,
                 mango_account=self.address,
                 mango_program=self._config.mango.program_id,

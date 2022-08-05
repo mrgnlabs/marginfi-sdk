@@ -11,6 +11,10 @@ class InitJSON(typing.TypedDict):
     kind: typing.Literal["Init"]
 
 
+class PartialLiquidationJSON(typing.TypedDict):
+    kind: typing.Literal["PartialLiquidation"]
+
+
 class MaintJSON(typing.TypedDict):
     kind: typing.Literal["Maint"]
 
@@ -34,8 +38,26 @@ class Init:
 
 
 @dataclass
-class Maint:
+class PartialLiquidation:
     discriminator: typing.ClassVar = 1
+    kind: typing.ClassVar = "PartialLiquidation"
+
+    @classmethod
+    def to_json(cls) -> PartialLiquidationJSON:
+        return PartialLiquidationJSON(
+            kind="PartialLiquidation",
+        )
+
+    @classmethod
+    def to_encodable(cls) -> dict:
+        return {
+            "PartialLiquidation": {},
+        }
+
+
+@dataclass
+class Maint:
+    discriminator: typing.ClassVar = 2
     kind: typing.ClassVar = "Maint"
 
     @classmethod
@@ -51,8 +73,8 @@ class Maint:
         }
 
 
-MarginRequirementKind = typing.Union[Init, Maint]
-MarginRequirementJSON = typing.Union[InitJSON, MaintJSON]
+MarginRequirementKind = typing.Union[Init, PartialLiquidation, Maint]
+MarginRequirementJSON = typing.Union[InitJSON, PartialLiquidationJSON, MaintJSON]
 
 
 def from_decoded(obj: dict) -> MarginRequirementKind:
@@ -60,6 +82,8 @@ def from_decoded(obj: dict) -> MarginRequirementKind:
         raise ValueError("Invalid enum object")
     if "Init" in obj:
         return Init()
+    if "PartialLiquidation" in obj:
+        return PartialLiquidation()
     if "Maint" in obj:
         return Maint()
     raise ValueError("Invalid enum object")
@@ -68,10 +92,16 @@ def from_decoded(obj: dict) -> MarginRequirementKind:
 def from_json(obj: MarginRequirementJSON) -> MarginRequirementKind:
     if obj["kind"] == "Init":
         return Init()
+    if obj["kind"] == "PartialLiquidation":
+        return PartialLiquidation()
     if obj["kind"] == "Maint":
         return Maint()
     kind = obj["kind"]
     raise ValueError(f"Unrecognized enum kind: {kind}")
 
 
-layout = EnumForCodegen("Init" / borsh.CStruct(), "Maint" / borsh.CStruct())
+layout = EnumForCodegen(
+    "Init" / borsh.CStruct(),
+    "PartialLiquidation" / borsh.CStruct(),
+    "Maint" / borsh.CStruct(),
+)
