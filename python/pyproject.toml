@@ -1,25 +1,48 @@
-[tool.poetry]
+[project]
 name = "marginpy"
 version = "0.1.2"
-description = ""
-authors = ["MRGN Labs", "man0s <95379755+losman0s@users.noreply.github.com>"]
+description = "marginfi Python SDK"
+readme = "README.md"
+requires-python = ">=3.10, <3.11"
+license = { file = "LICENSE" }
+keywords = ["marginfi", "sdk"]
+authors = [
+  { name = "MRGN Labs" },
+  { name = "man0s", email = "95379755+losman0s@users.noreply.github.com" },
+]
+repository = "https://github.com/mrgnlabs/marginfi-sdk/python"
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
+maintainers = [
+    { name = "man0s", email = "95379755+losman0s@users.noreply.github.com" },
+]
+dependencies = [
+    "borsh-construct",
+    "anchorpy>=0.9.4",
+    "solana>=0.25.0",
+    "buffer>=0.2.1",
+    "construct>=2.10.67",
+    "tmp-patch-mango-explorer>=3.4.9",
+    "maturin>=0.13.0",
+    "python-dotenv>=0.20.0",
+    "coloredlogs>=15.0.1",
+]
+
+[project.urls]
+homepage = "https://github.com/mrgnlabs/marginfi-sdk/python"
+repository = "https://github.com/mrgnlabs/marginfi-sdk/python"
+
+[tool.poetry]
+name = "marginpy"
+version = "0.1.2"
+description = "marginfi Python SDK"
+authors = ["MRGN Labs", "man0s <95379755+losman0s@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.10 <3.11"
-anchorpy = "^0.9.4"
-solana = "^0.25.0"
-buffer = "^0.2.1"
-construct = "^2.10.67"
-mango-explorer = { git = "https://github.com/mrgnlabs/mango-explorer.git", rev = "7c79390f5a4ebbbebf3c59dabd07e0211777163f" }
-spl = "^0.0.1-alpha.0"
-maturin = "^0.13.0"
-python-dotenv = "^0.20.0"
-coloredlogs = "^15.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"

@@ -631,7 +631,7 @@ test = ["attrs", "coverage", "codecov", "pytest", "scons", "dataclasses", "tzdat
 
 [[package]]
 name = "jsonschema"
-version = "4.8.0"
+version = "4.9.1"
 description = "An implementation of JSON Schema validation for Python"
 category = "main"
 optional = false
@@ -1604,7 +1604,7 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10 <3.11"
-content-hash = "bd0ee674e771f0e6b1254fb86bb22ec7ba6fc92848459e4cd6c720dd6c529e1c"
+content-hash = "f45a8b0775f50e204aeabf2aed7cbb40fa027ae0a36ff15c7db588d745d9a0e8"
 
 [metadata.files]
 alabaster = [
@@ -1980,8 +1980,8 @@ jsons = [
     {file = "jsons-1.6.3.tar.gz", hash = "sha256:cd5815c7c6790ae11c70ad9978e0aa850d0d08a643a5105cc604eac8b29a30d7"},
 ]
 jsonschema = [
-    {file = "jsonschema-4.8.0-py3-none-any.whl", hash = "sha256:58bb77251318cef5e1179e33dd6e7a008a3c6c638487ab4d943c2f370cc31a1a"},
-    {file = "jsonschema-4.8.0.tar.gz", hash = "sha256:c1d410e379b210ba903bee6adf3fce6d5204cea4c2b622d63f914d2dbfef0993"},
+    {file = "jsonschema-4.9.1-py3-none-any.whl", hash = "sha256:8ebad55894c002585271af2d327d99339ef566fb085d9129b69e2623867c4106"},
+    {file = "jsonschema-4.9.1.tar.gz", hash = "sha256:408c4c8ed0dede3b268f7a441784f74206380b04f93eb2d537c7befb3df3099f"},
 ]
 lazy-object-proxy = [
     {file = "lazy-object-proxy-1.7.1.tar.gz", hash = "sha256:d609c75b986def706743cdebe5e47553f4a5a1da9c5ff66d76013ef396b5a8a4"},

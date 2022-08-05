@@ -42,7 +42,6 @@ class MangoSide(Enum):
     ASK = "ASK"
 
     def to_program_type(self) -> MangoSideKind:
-        print(self, self.BID)
         if self is self.BID:
             return Bid()
         if self is self.ASK:
