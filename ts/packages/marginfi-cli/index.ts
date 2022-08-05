@@ -1,6 +1,9 @@
 require("dotenv").config();
 
+import { BankVaultType, getBankAuthority, MarginfiClient } from "@mrgnlabs/marginfi-client";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
+import BN from "bn.js";
 import { Command, OptionValues } from "commander";
 import { writeFileSync } from "fs";
 import { createAccount } from "./src/account/create";
@@ -119,6 +122,30 @@ attachDefaultOptions(utilProgram.command("dump-account"))
     const ai = await client.program.provider.connection.getAccountInfo(new PublicKey(address));
 
     writeFileSync(out, ai!.data);
+  });
+
+attachDefaultOptions(groupProgram.command("withdraw-fees"))
+  .arguments("<address> <amount>")
+  .action(async (address: string, amount: number) => {
+    const mfiClient = await MarginfiClient.fromEnv();
+    const [bankFeeVaultAuthority, _] = await getBankAuthority(
+      mfiClient.group.publicKey,
+      mfiClient.programId,
+      BankVaultType.FeeVault
+    );
+    const sig = await mfiClient.program.methods
+      .bankFeeVaultWithdraw(new BN(amount))
+      .accounts({
+        marginfiGroup: mfiClient.group.publicKey,
+        admin: mfiClient.program.provider.wallet.publicKey,
+        bankFeeVault: mfiClient.group.bank.feeVault,
+        bankFeeVaultAuthority,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        recipientTokenAccount: new PublicKey(address),
+      })
+      .rpc();
+
+    console.log("Sig %s", sig);
   });
 
 cliProgram.parse();
