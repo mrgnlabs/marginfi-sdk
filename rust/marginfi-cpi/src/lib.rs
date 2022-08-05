@@ -1,5 +1,5 @@
 #[cfg(feature = "mainnet-beta")]
-anchor_lang::declare_id!("mrgnfD8pJKsw4AxCDquyUBjgABNEaZ79iTLgtov2Yff");
+anchor_lang::declare_id!("MRGNWSHaWmz3CPFcYt9Fyh8VDcvLJyy2SCURnMco2bC");
 #[cfg(not(feature = "mainnet-beta"))]
 anchor_lang::declare_id!("mf2tjVmwcxgNfscvVNdN9t2LZ8YwPkNQabeTzyYw2Hn");
 
