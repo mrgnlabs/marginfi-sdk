@@ -14,8 +14,6 @@ from ..program_id import PROGRAM_ID
 
 
 class StateJSON(typing.TypedDict):
-    total_collateral: int
-    free_collateral: int
     margin_requirement_init: int
     margin_requirement_maint: int
     equity: int
@@ -25,14 +23,10 @@ class StateJSON(typing.TypedDict):
 class State:
     discriminator: typing.ClassVar = b"\xd8\x92k^hK\xb6\xb1"
     layout: typing.ClassVar = borsh.CStruct(
-        "total_collateral" / borsh.U128,
-        "free_collateral" / borsh.U128,
         "margin_requirement_init" / borsh.U128,
         "margin_requirement_maint" / borsh.U128,
         "equity" / borsh.U128,
     )
-    total_collateral: int
-    free_collateral: int
     margin_requirement_init: int
     margin_requirement_maint: int
     equity: int
@@ -81,8 +75,6 @@ class State:
             )
         dec = State.layout.parse(data[ACCOUNT_DISCRIMINATOR_SIZE:])
         return cls(
-            total_collateral=dec.total_collateral,
-            free_collateral=dec.free_collateral,
             margin_requirement_init=dec.margin_requirement_init,
             margin_requirement_maint=dec.margin_requirement_maint,
             equity=dec.equity,
@@ -90,8 +82,6 @@ class State:
 
     def to_json(self) -> StateJSON:
         return {
-            "total_collateral": self.total_collateral,
-            "free_collateral": self.free_collateral,
             "margin_requirement_init": self.margin_requirement_init,
             "margin_requirement_maint": self.margin_requirement_maint,
             "equity": self.equity,
@@ -100,8 +90,6 @@ class State:
     @classmethod
     def from_json(cls, obj: StateJSON) -> "State":
         return cls(
-            total_collateral=obj["total_collateral"],
-            free_collateral=obj["free_collateral"],
             margin_requirement_init=obj["margin_requirement_init"],
             margin_requirement_maint=obj["margin_requirement_maint"],
             equity=obj["equity"],

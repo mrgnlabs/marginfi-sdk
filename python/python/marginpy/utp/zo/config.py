@@ -20,6 +20,7 @@ class ZoConfig(UtpConfig):
     cluster: Literal["devnet", "mainnet"]
     state_pk: PublicKey
     dex_program: PublicKey
+    heimdall: PublicKey
 
     def __init__(
         self,
@@ -59,6 +60,11 @@ class ZoConfig(UtpConfig):
                 override_key="dex_program",
                 default=PublicKey("ZDx8a8jBqGmJyxi1whFxxCo5vG6Q9t4hTzW2GSixMKK"),
             )
+            self.heimdall = handle_override(
+                overrides=overrides,
+                override_key="heimdall",
+                default=PublicKey("Cyvjas5Hg6nb6RNsuCi8sK3kcjbWzTgdJcHxmSYS8mkY"),
+            )
         elif environment in (Environment.DEVNET, Environment.LOCALNET):
             self.cluster = "devnet"
             self.state_pk = handle_override(
@@ -70,6 +76,11 @@ class ZoConfig(UtpConfig):
                 overrides=overrides,
                 override_key="dex_program",
                 default=PublicKey("ZDxUi178LkcuwdxcEqsSo2E7KATH99LAAXN5LcSVMBC"),
+            )
+            self.heimdall = handle_override(
+                overrides=overrides,
+                override_key="heimdall",
+                default=PublicKey("Aoi3SGj4zLiMQSHrJ4yEDFwMQnGjVQCeKSYD6ygi6WLr"),
             )
         else:
             raise Exception(f"Unknown environment for Zo UTP config {environment}")

@@ -22,7 +22,7 @@ layout = borsh.CStruct(
 class UtpMangoUsePlacePerpOrderAccounts(typing.TypedDict):
     marginfi_account: PublicKey
     marginfi_group: PublicKey
-    authority: PublicKey
+    signer: PublicKey
     mango_authority: PublicKey
     mango_account: PublicKey
     mango_program: PublicKey
@@ -47,7 +47,7 @@ def utp_mango_use_place_perp_order(
         AccountMeta(
             pubkey=accounts["marginfi_group"], is_signer=False, is_writable=False
         ),
-        AccountMeta(pubkey=accounts["authority"], is_signer=True, is_writable=True),
+        AccountMeta(pubkey=accounts["signer"], is_signer=True, is_writable=True),
         AccountMeta(
             pubkey=accounts["mango_authority"], is_signer=False, is_writable=False
         ),
