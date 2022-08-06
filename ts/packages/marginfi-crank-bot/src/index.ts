@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-import { captureException, Sentry } from "./sentry";
+import { captureException } from "./sentry";
 
 import { MarginfiAccount, MarginfiAccountData, MarginfiClient } from "@mrgnlabs/marginfi-client";
 import { PublicKey } from "@solana/web3.js";
@@ -43,24 +43,16 @@ async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
   debug("Loaded %d marginfi accounts", marginfiAccounts.length);
 
   for (let marginfiAccount of marginfiAccounts) {
-    const transaction = Sentry.startTransaction({
-      op: "crank",
-      name: `Crank account ${marginfiAccount.publicKey.toBase58()}`,
-    });
-    const scope = new Sentry.Scope();
-    scope.setTag("Marginfi Account", marginfiAccount.publicKey.toBase58());
     try {
-      const scope = new Sentry.Scope();
-      scope.setTag("Marginfi Account", marginfiAccount.publicKey.toBase58());
-
       await marginfiAccount.checkRebalance();
       await marginfiAccount.checkBankruptcy();
-    } catch (e) {
-      captureException(e);
+    } catch (e: any) {
+      captureException(e, {
+        user: { id: marginfiAccount.publicKey.toBase58() },
+        extra: { errorCode: e?.logs?.at(-1)?.split(" ")?.at(-1) },
+      });
       debug("Bot crashed");
       debug(e);
-    } finally {
-      transaction.finish();
     }
   }
 }

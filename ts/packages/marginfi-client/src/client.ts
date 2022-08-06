@@ -84,7 +84,7 @@ class MarginfiClient {
     debug("Loading the marginfi client from env vars");
     debug("Env: %s\nProgram: %s\nGroup: %s\nSigner: %s", env, programId, groupPk, wallet.publicKey);
 
-    const config = await getConfig(env, connection, {
+    const config = await getConfig(env, {
       groupPk,
       programId,
     });
