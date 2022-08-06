@@ -47,17 +47,15 @@ format:
 
 build:  ## Build
 	make clean
-	poetry run maturin build
+	poetry run maturin build --sdist
 
 # ##@ Publishing
 build-and-publish:  ## Publish to pypi
 	make clean
-	poetry run maturin build
 	poetry run maturin publish
 
 build-and-test-publish:  ## Publish to testpypi
 	make clean
-	poetry run maturin build
 	poetry run maturin publish -r testpypi
 
 ##@ Documentation

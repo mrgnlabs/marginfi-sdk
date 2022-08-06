@@ -67,6 +67,9 @@ isort = "^5.10.1"
 profile = "black"
 known_first_party = "poetry"
 
+[tool.maturin]
+sdist-include = ["LICENSE"]
+
 [build-system]
 requires = ["maturin>=0.13,<0.14"]
 build-backend = "maturin"

@@ -91,6 +91,7 @@ class AccountBalances:
 
 class MarginRequirement(Enum):
     INITIAL = "INITIAL"
+    PARTIAL_LIQUIDATION = "PARTIAL_LIQUIDATION"
     MAINTENANCE = "MAINTENANCE"
 
 
