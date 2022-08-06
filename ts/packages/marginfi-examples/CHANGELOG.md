@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.8-alpha.2](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-examples@0.3.8-alpha.1...@mrgnlabs/marginfi-examples@0.3.8-alpha.2) (2022-07-28)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-examples
+
+
+
+
+
+## [0.3.8-alpha.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-examples@0.3.8-alpha.0...@mrgnlabs/marginfi-examples@0.3.8-alpha.1) (2022-07-27)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-examples
+
+
+
+
+
+## [0.3.8-alpha.0](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-examples@0.3.7...@mrgnlabs/marginfi-examples@0.3.8-alpha.0) (2022-07-26)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-examples
+
+
+
+
+
+## [0.3.7](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-examples@0.3.6...@mrgnlabs/marginfi-examples@0.3.7) (2022-07-14)
+
+
+### Bug Fixes
+
+* better exception tagging ([#38](https://github.com/mrgnlabs/marginfi-sdk/issues/38)) ([38d7389](https://github.com/mrgnlabs/marginfi-sdk/commit/38d7389e60689d99b3a281b5a2a02ddd15344421))
+
+
+
+
+
 ## [0.3.6](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-examples@0.3.5...@mrgnlabs/marginfi-examples@0.3.6) (2022-07-11)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-examples

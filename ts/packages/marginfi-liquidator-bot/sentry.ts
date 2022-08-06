@@ -1,4 +1,5 @@
-const Sentry = require("@sentry/node");
+import * as Sentry from "@sentry/node";
+import { ScopeContext } from "@sentry/types";
 // or use es6 import statements
 // import * as Sentry from '@sentry/node';
 
@@ -13,7 +14,10 @@ if (SENTRY_ACTIVE) {
   console.log("Starting Sentry");
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
-
+    integrations: [
+      // enable HTTP calls tracing
+      new Sentry.Integrations.Http({ tracing: true }),
+    ],
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
     // We recommend adjusting this value in production
@@ -36,13 +40,29 @@ if (SENTRY_ACTIVE) {
     }
   }, 99);
 
-  process.on("unhandledRejection", (e) => {
-    Sentry.captureException(e);
+  process.on("unhandledRejection", (e: Error, promise: any) => {
+    Sentry.captureException(e, {
+      tags: {
+        name: e.name,
+        message: e.message,
+        promise,
+      },
+    });
+  });
+
+  process.on("uncaughtException", (e: Error, origin: any) => {
+    Sentry.captureException(e, {
+      tags: {
+        name: e.name,
+        message: e.message,
+        origin,
+      },
+    });
   });
 }
 
-export function captureException(e: any) {
+export function captureException(e: any, ctx?: Partial<ScopeContext>) {
   if (SENTRY_ACTIVE) {
-    Sentry.captureException(e);
+    Sentry.captureException(e, ctx);
   }
 }

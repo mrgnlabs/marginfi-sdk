@@ -1,0 +1,19 @@
+[features]
+seeds = false
+skip-lint = false
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[programs.localnet]
+example_cpi = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+
+[programs.devnet]
+example_cpi = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+
+[registry]
+url = "https://api.apr.dev"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

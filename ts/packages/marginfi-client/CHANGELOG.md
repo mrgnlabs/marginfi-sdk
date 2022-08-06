@@ -3,6 +3,49 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-alpha.2](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.0-alpha.1...@mrgnlabs/marginfi-client@0.7.0-alpha.2) (2022-07-28)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-client
+
+
+
+
+
+# [0.7.0-alpha.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.0-alpha.0...@mrgnlabs/marginfi-client@0.7.0-alpha.1) (2022-07-27)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-client
+
+
+
+
+
+# [0.7.0-alpha.0](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.6.2...@mrgnlabs/marginfi-client@0.7.0-alpha.0) (2022-07-26)
+
+
+### Bug Fixes
+
+* use correct sdk version ([#47](https://github.com/mrgnlabs/marginfi-sdk/issues/47)) ([1bfb5b4](https://github.com/mrgnlabs/marginfi-sdk/commit/1bfb5b4e1727ca4db6cad55d35538a2a8da67701))
+
+
+### Features
+
+* calc balances from accum records ([#46](https://github.com/mrgnlabs/marginfi-sdk/issues/46)) ([d05889b](https://github.com/mrgnlabs/marginfi-sdk/commit/d05889bdfc72f78cee5187fa7b14f5dc5de6ead7))
+
+
+
+
+
+## [0.6.2](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.6.1...@mrgnlabs/marginfi-client@0.6.2) (2022-07-14)
+
+
+### Bug Fixes
+
+* better exception tagging ([#38](https://github.com/mrgnlabs/marginfi-sdk/issues/38)) ([38d7389](https://github.com/mrgnlabs/marginfi-sdk/commit/38d7389e60689d99b3a281b5a2a02ddd15344421))
+
+
+
+
+
 ## [0.6.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.6.0...@mrgnlabs/marginfi-client@0.6.1) (2022-07-11)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-client

@@ -1,3 +1,6 @@
-# marginfi SDK
+# marginfi SDKs
 
-* [Typescript SDK](ts/)
+* [Typescript](ts/)
+* [Rust](rust/marginfi-cpi)
+* [Go](https://github.com/gagliardetto/marginfi-go) (h/t @gagliardetto)
+* [Python](python/)

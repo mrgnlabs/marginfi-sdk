@@ -8,4 +8,4 @@
 
 marginfi is a decentralized portfolio margining protocol for trading on Solana. The protocol gives traders a unified account to access margin, compose a portfolio, and improve capital efficiency across underlying trading protocols.
 
-[_Docs_](docs/README.md)
+[_Docs_](https://mrgnlabs.github.io/marginfi-sdk/)
