@@ -122,6 +122,7 @@ struct AddressBook {
     pub mango_group: Pubkey,
     pub zo_program: Pubkey,
     pub zo_state: Pubkey,
+    pub zo_heimdall: Pubkey,
 }
 
 impl AddressBook {
@@ -132,12 +133,14 @@ impl AddressBook {
                 mango_group: pubkey!("98pjRuQjK3qA6gXts96PqZT4Ze5QmnCmt3QYjhbUSPue"),
                 zo_program: pubkey!("Zo1ggzTUKMY5bYnDvT5mtVeZxzf2FaLTbKkmvGUhUQk"),
                 zo_state: pubkey!("71yykwxq1zQqy99PgRsgZJXi2HHK2UDx9G4va7pH6qRv"),
+                zo_heimdall: pubkey!("Cyvjas5Hg6nb6RNsuCi8sK3kcjbWzTgdJcHxmSYS8mkY"),
             },
             Cluster::Devnet => AddressBook {
                 mango_program: pubkey!("4skJ85cdxQAFVKbcGgfun8iZPL7BadVYXG3kGEGkufqA"),
                 mango_group: pubkey!("Ec2enZyoC4nGpEfu2sUNAa2nUGJHWxoUWYSEJ2hNTWTA"),
                 zo_program: pubkey!("Zo1ThtSHMh9tZGECwBDL81WJRL6s3QTHf733Tyko7KQ"),
                 zo_state: pubkey!("KwcWW7WvgSXLJcyjKZJBHLbfriErggzYHpjS9qjVD5F"),
+                zo_heimdall: pubkey!("Aoi3SGj4zLiMQSHrJ4yEDFwMQnGjVQCeKSYD6ygi6WLr"),
             },
             _ => panic!("Cluster {} not supported", cluster),
         }
@@ -320,7 +323,7 @@ impl Doctor {
                 &self.address_book,
             );
 
-            account_handler.rebalance_if_needed();
+            account_handler.rebalance_deposit_if_needed();
         });
     }
 
@@ -502,7 +505,7 @@ impl<'a> MarginAccountHandler<'a> {
 
     fn get_observation_accounts(&self) -> Vec<AccountMeta> {
         setup_sentry_if_enabled!();
-        
+
         self.marginfi_account
             .active_utps
             .iter()
@@ -564,7 +567,123 @@ impl<'a> MarginAccountHandler<'a> {
         )
     }
 
-    pub fn rebalance_if_needed(&self) {
+    pub fn rebalance_withdraw_if_needed(&self) {
+        setup_sentry_if_enabled!();
+    }
+
+    fn withdraw_mango(&self, amount: u64) {
+        setup_sentry_if_enabled!();
+
+        let (marginfi_group_pk, marginfi_group) = self.group_cache.marginfi_group;
+        let (mango_group_pk, mango_group) = &self.group_cache.mango_group;
+        let (mango_cache_pk, mango_cache) = &self.group_cache.mango_cache;
+        let (mango_account_pk, mango_account) = &self
+            .margin_account_cache
+            .utp_mango_cache
+            .as_ref()
+            .unwrap()
+            .mango_account;
+
+        let (mango_authority, _) = self.get_utp_authority(MANGO_UTP_INDEX);
+
+        let ix = Instruction {
+            program_id: self.doctor_config.marginfi_program,
+            accounts: marginfi::accounts::UtpMangoWithdraw {
+                marginfi_account: *self.marginfi_account_pk,
+                marginfi_group: marginfi_group_pk,
+                signer: self.program.payer(),
+                margin_collateral_vault: marginfi_group.bank.vault,
+                mango_authority,
+                mango_account: *mango_account_pk,
+                mango_program: self.address_book.mango_program,
+                mango_group: *mango_group_pk,
+                mango_cache: *mango_cache_pk,
+                mango_root_bank: self.group_cache.mango_root_bank_pk,
+                mango_node_bank: self.group_cache.mango_node_bank_pk,
+                mango_vault: self.group_cache.mango_vault_pk,
+                mango_vault_authority: mango_group.signer_key,
+                token_program: spl_token::id(),
+            }
+            .to_account_metas(Some(true)),
+            data: marginfi::instruction::UtpMangoWithdraw { amount }.data(),
+        };
+
+        let tx = Transaction::new_signed_with_payer(
+            &[ix],
+            Some(&self.program.payer()),
+            &[&self.doctor_config.keypair()],
+            self.program.rpc().get_latest_blockhash().unwrap(),
+        );
+
+        let sig = self
+            .program
+            .rpc()
+            .send_and_confirm_transaction(&tx)
+            .unwrap();
+
+        debug!("Transaction: {:?}", sig);
+    }
+
+    fn withdraw_zo(&self, amount: u64) {
+        setup_sentry_if_enabled!();
+
+        let (marginfi_group_pk, marginfi_group) = self.group_cache.marginfi_group;
+        let (zo_state_pk, _) = &self.group_cache.zo_state;
+        let (zo_cache_pk, _) = &self.group_cache.zo_cache;
+        let (zo_margin_pk, _) = &self
+            .margin_account_cache
+            .utp_zo_cache
+            .as_ref()
+            .unwrap()
+            .zo_margin;
+        let (zo_control_pk, _) = &self
+            .margin_account_cache
+            .utp_zo_cache
+            .as_ref()
+            .unwrap()
+            .zo_control;
+
+        let (zo_authority, _) = self.get_utp_authority(MANGO_UTP_INDEX);
+
+        let ix = Instruction {
+            program_id: self.doctor_config.marginfi_program,
+            accounts: marginfi::accounts::UtpZoWithdraw {
+                marginfi_account: *self.marginfi_account_pk,
+                marginfi_group: marginfi_group_pk,
+                signer: self.program.payer(),
+                margin_collateral_vault: marginfi_group.bank.vault,
+                token_program: spl_token::id(),
+                utp_authority: zo_authority,
+                zo_margin: *zo_margin_pk,
+                zo_program: self.address_book.zo_program,
+                zo_state: *zo_state_pk,
+                zo_state_signer: self.group_cache.zo_state_signer_pda,
+                zo_cache: *zo_cache_pk,
+                zo_control: *zo_control_pk,
+                zo_vault: self.group_cache.zo_vault_pk,
+                heimdall: self.address_book.zo_heimdall,
+            }
+            .to_account_metas(Some(true)),
+            data: marginfi::instruction::UtpZoWithdraw { amount }.data(),
+        };
+
+        let tx = Transaction::new_signed_with_payer(
+            &[ix],
+            Some(&self.program.payer()),
+            &[&self.doctor_config.keypair()],
+            self.program.rpc().get_latest_blockhash().unwrap(),
+        );
+
+        let sig = self
+            .program
+            .rpc()
+            .send_and_confirm_transaction(&tx)
+            .unwrap();
+
+        debug!("Transaction: {:?}", sig);
+    }
+
+    pub fn rebalance_deposit_if_needed(&self) {
         setup_sentry_if_enabled!();
 
         self.marginfi_account
