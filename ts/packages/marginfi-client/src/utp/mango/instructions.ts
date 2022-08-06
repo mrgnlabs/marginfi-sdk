@@ -125,7 +125,7 @@ async function makePlacePerpOrderIx(
   accounts: {
     marginfiAccountPk: PublicKey;
     marginfiGroupPk: PublicKey;
-    authorityPk: PublicKey;
+    signerPk: PublicKey;
     mangoAuthorityPk: PublicKey;
     mangoProgramId: PublicKey;
     mangoGroupPk: PublicKey;
@@ -157,7 +157,7 @@ async function makePlacePerpOrderIx(
     .accounts({
       marginfiAccount: accounts.marginfiAccountPk,
       marginfiGroup: accounts.marginfiGroupPk,
-      authority: accounts.authorityPk,
+      signer: accounts.signerPk,
       mangoAuthority: accounts.mangoAuthorityPk,
       mangoProgram: accounts.mangoProgramId,
       mangoGroup: accounts.mangoGroupPk,
@@ -177,7 +177,7 @@ async function makeCancelPerpOrderIx(
   accounts: {
     marginfiAccountPk: PublicKey;
     marginfiGroupPk: PublicKey;
-    authorityPk: PublicKey;
+    signerPk: PublicKey;
     mangoAuthorityPk: PublicKey;
     mangoProgramId: PublicKey;
     mangoGroupPk: PublicKey;
@@ -197,7 +197,7 @@ async function makeCancelPerpOrderIx(
     .accounts({
       marginfiAccount: accounts.marginfiAccountPk,
       marginfiGroup: accounts.marginfiGroupPk,
-      authority: accounts.authorityPk,
+      signer: accounts.signerPk,
       mangoAuthority: accounts.mangoAuthorityPk,
       mangoProgram: accounts.mangoProgramId,
       mangoGroup: accounts.mangoGroupPk,
