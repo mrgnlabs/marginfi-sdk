@@ -22,11 +22,15 @@ marginpy is the python library for interacting with [marginfi](marginfi.com), th
 pip install marginpy
 ```
 
+> :warning: **If you are using M1**: marginpy is not currently available natively on M1, and only availble through Rosetta which impacts performance. The easiest way to work with the `marginpy` library is to make sure you are working out of an x86_64 terminal/editor, including the installation step.
+
 ### General Usage
 
 ```py
 import marginpy
 ```
+
+Check out the [examples](examples) for more details.
 
 ## 👷‍♀️ Development
 
@@ -36,6 +40,7 @@ import marginpy
 
 1. Install [poetry](https://python-poetry.org/docs/#installation): `$ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -`
 1. Install [nox-poetry](https://github.com/cjolowicz/nox-poetry): `$ pip install nox-poetry`
+1. Initialize Python 3.10 virtual environment: `$ poetry env use 3.10`
 1. Install project dependencies: `$ poetry install`
 1. Activate virtual environment: `$ poetry shell`
 1. Build the rust crate and install it locally: `$ maturin develop`
@@ -45,14 +50,13 @@ import marginpy
 As of writing, only a small subset of tests can be run by the user, due to initially private dependencies. They can be run like so:
 
 1. Activate virtual environment:
+
 ```shell
 $ poetry shell
 ```
 
 2. Run desired task:
-   * unit tests only: `$ make test-unit`
-   * type check + lint: `$ make lint`
-
-
+   - unit tests only: `$ make test-unit`
+   - type check + lint: `$ make lint`
 
 Feel free to check the [Makefile](Makefile) for other available actions.

@@ -23,7 +23,7 @@ __all__ = [
     "constants",
     "types",
     "utp_observation",
-    "setup_logging"
+    "setup_logging",
 ]
 
 __version__ = "0.1.0"
