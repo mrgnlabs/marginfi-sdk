@@ -43,7 +43,7 @@ class MarginfiDedicatedConfig:
             self.program_id = handle_override(
                 overrides=overrides,
                 override_key="program_id",
-                default=PublicKey("mrgnfD8pJKsw4AxCDquyUBjgABNEaZ79iTLgtov2Yff"),
+                default=PublicKey("MRGNWSHaWmz3CPFcYt9Fyh8VDcvLJyy2SCURnMco2bC"),
             )
             self.group_pk = handle_override(
                 overrides=overrides,

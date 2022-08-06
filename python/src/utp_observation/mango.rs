@@ -51,10 +51,9 @@ fn get_observation(
     let equity: i128 = mango::get_equity(&mut health_cache, mango_group)
         .unwrap()
         .to_num();
-    let liquidation_value: i128 =
-        mango::get_liquidation_value(&mut health_cache, mango_group)
-            .unwrap()
-            .to_num();
+    let liquidation_value: i128 = mango::get_liquidation_value(&mut health_cache, mango_group)
+        .unwrap()
+        .to_num();
 
     Ok(ObservationRaw {
         timestamp,

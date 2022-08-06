@@ -26,7 +26,6 @@ dependencies = [
     "buffer>=0.2.1",
     "construct>=2.10.67",
     "tmp-patch-mango-explorer>=3.4.9",
-    "maturin>=0.13.0",
     "python-dotenv>=0.20.0",
     "coloredlogs>=15.0.1",
 ]
@@ -47,6 +46,7 @@ python = ">=3.10 <3.11"
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
 pytest-asyncio = "^0.17.2"
+maturin = "^0.13.1"
 pytest-cov = "^3.0.0"
 testfixtures = "^7.0.0"
 autoflake = "^1.4"
@@ -66,6 +66,9 @@ isort = "^5.10.1"
 [tool.isort]
 profile = "black"
 known_first_party = "poetry"
+
+[tool.maturin]
+sdist-include = ["LICENSE"]
 
 [build-system]
 requires = ["maturin>=0.13,<0.14"]

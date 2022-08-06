@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from marginpy.constants import COLLATERAL_SCALING_FACTOR
+from marginpy.constants import COLLATERAL_SCALING_FACTOR, PARTIAL_LIQUIDATION_FACTOR
 from marginpy.types import BankData, LendingSide, MarginRequirement
 from marginpy.utils.data_conversion import wrapped_fixed_to_float
 from solana.publickey import PublicKey
@@ -112,5 +112,8 @@ class Bank:
 
         if mreq_type is MarginRequirement.MAINTENANCE:
             return self.maint_margin_ratio
+
+        if mreq_type is MarginRequirement.PARTIAL_LIQUIDATION:
+            return self.maint_margin_ratio + PARTIAL_LIQUIDATION_FACTOR * (self.init_margin_ratio - self.maint_margin_ratio)
 
         raise Exception(f"Unknown margin requirement type: {mreq_type}")
