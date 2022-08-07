@@ -9,17 +9,11 @@ anchor_gen::generate_cpi_interface!(
         MarginfiGroup,
         MarginfiAccount,
         UTPAccountConfig,
-        MDecimal,
+        WrappedI80F48,
         UTPConfig,
         Bank,
     ),
-    packed(
-        MarginfiGroup,
-        MarginfiAccount,
-        UTPAccountConfig,
-        Bank,
-        MDecimal
-    )
+    packed(MarginfiGroup, MarginfiAccount, UTPAccountConfig, Bank)
 );
 
 impl Default for state::MarginfiGroup {
