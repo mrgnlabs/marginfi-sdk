@@ -15,16 +15,6 @@ env:
   NODE_VERSION: 17.0.1
 
 jobs:
-  test-rust:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./rust
-    steps:
-      - uses: actions/checkout@v2
-      - run: cargo test --all-features
-      - run: cargo fmt --check
-      - run: cargo clippy --all-features
   build:
     runs-on: ubuntu-latest
     defaults:
