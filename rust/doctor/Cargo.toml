@@ -16,7 +16,7 @@ solana-sdk = "1.9.29"
 solana-program = "1.9.29"
 fixed = "1.11.0"
 marginfi = { path = "../../../programs/marginfi", features = ["client"] }
-mango-protocol = { git = "https://github.com/mrgnlabs/mango-v3.git", rev = "3589b9d35beb6a01921bc32112b694e00dfb7ccc", package = "mango", features = [
+mango-protocol = { git = "https://github.com/mrgnlabs/mango-v3.git", tag = "v3.5.1-fork.1", package = "mango", features = [
     "no-entrypoint",
     "client",
 ] }
