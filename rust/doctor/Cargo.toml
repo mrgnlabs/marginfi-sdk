@@ -9,7 +9,7 @@ edition = "2021"
 sentry-reporting = ["sentry"]
 
 [dependencies]
-anchor-client = "0.24.2"
+anchor-client = "0.25.0"
 bytemuck = "1.9.1"
 solana-client = "1.9.29"
 solana-sdk = "1.9.29"
@@ -24,7 +24,7 @@ serum_dex = { git = "https://github.com/blockworks-foundation/serum-dex.git", re
     "no-entrypoint",
     "program",
 ] }
-zo-abi = { git = "https://github.com/01protocol/zo-abi.git", rev = "3ff8def2c747899c9d534f5de36988b6f0a0d46c", features = [
+zo-abi = { git = "https://github.com/01protocol/zo-abi.git", rev = "97e2caeeb117fa0ab625effcf80b6125d9470415", features = [
     "cpi",
 ] }
 spl-token = "*"

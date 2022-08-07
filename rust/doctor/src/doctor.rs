@@ -502,7 +502,7 @@ impl<'a> MarginAccountHandler<'a> {
 
     fn get_observation_accounts(&self) -> Vec<AccountMeta> {
         setup_sentry_if_enabled!();
-        
+
         self.marginfi_account
             .active_utps
             .iter()
@@ -621,6 +621,16 @@ impl<'a> MarginAccountHandler<'a> {
                         deposit_amount, self.marginfi_account_pk
                     );
 
+                    #[cfg(feature = "sentry-reporting")]
+                    sentry::capture_event(sentry::protocol::Event {
+                        user: Some(sentry::User {
+                            id: Some(self.marginfi_account_pk.to_string()),
+                            ..Default::default()
+                        }),
+                        message: Some(format!("Depositing {} into Mango Markets", deposit_amount)),
+                        ..Default::default()
+                    });
+
                     let (mango_authority, _) = self.get_utp_authority(MANGO_UTP_INDEX);
 
                     let ([create_token_account_ix, init_token_account_ix], temp_token_account) =
@@ -668,13 +678,17 @@ impl<'a> MarginAccountHandler<'a> {
                         self.program.rpc().get_latest_blockhash().unwrap(),
                     );
 
-                    let sig = self
-                        .program
-                        .rpc()
-                        .send_and_confirm_transaction(&tx)
-                        .unwrap();
+                    let res = self.program.rpc().send_and_confirm_transaction(&tx);
 
-                    debug!("Transaction: {:?}", sig);
+                    match res {
+                        Ok(sig) => {
+                            debug!("Transaction Sig: {:?}", sig);
+                        }
+                        Err(err) => {
+                            #[cfg(feature = "sentry-reporting")]
+                            sentry::capture_error(&err);
+                        }
+                    }
                 }
                 ZO_UTP_INDEX => {
                     setup_sentry_if_enabled!();
@@ -716,6 +730,16 @@ impl<'a> MarginAccountHandler<'a> {
                         "Depositing {} into 01 Protocol {}",
                         deposit_amount, self.marginfi_account_pk
                     );
+
+                    #[cfg(feature = "sentry-reporting")]
+                    sentry::capture_event(sentry::protocol::Event {
+                        user: Some(sentry::User {
+                            id: Some(self.marginfi_account_pk.to_string()),
+                            ..Default::default()
+                        }),
+                        message: Some(format!("Depositing {} into 01 Protocol", deposit_amount)),
+                        ..Default::default()
+                    });
 
                     let (zo_authority, _) = self.get_utp_authority(ZO_UTP_INDEX);
                     let ([create_token_account_ix, init_token_account_ix], temp_token_account) =
@@ -768,13 +792,17 @@ impl<'a> MarginAccountHandler<'a> {
                         self.program.rpc().get_latest_blockhash().unwrap(),
                     );
 
-                    let sig = self
-                        .program
-                        .rpc()
-                        .send_and_confirm_transaction(&tx)
-                        .unwrap();
+                    let res = self.program.rpc().send_and_confirm_transaction(&tx);
 
-                    debug!("Transaction: {:?}", sig);
+                    match res {
+                        Ok(sig) => {
+                            debug!("Transaction Sig: {:?}", sig);
+                        }
+                        Err(err) => {
+                            #[cfg(feature = "sentry-reporting")]
+                            sentry::capture_error(&err);
+                        }
+                    }
                 }
                 _ => panic!("Unknown UTP index"),
             });
