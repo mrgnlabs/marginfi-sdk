@@ -11,5 +11,4 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
    - the `programs.devnet` entry in `Anchor.toml`, and
    - `declare_id` in `lib.rs`
 1. Deploy the program to devnet: `$ anchor deploy` (automatically pointed towards mainnet through the `provider` entry in `Anchor.toml`)
-1. Install NPM dependencies: `$ yarn`
 1. Run the test suite: `$ anchor test --skip-deploy`
