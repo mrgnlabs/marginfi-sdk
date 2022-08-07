@@ -684,9 +684,9 @@ impl<'a> MarginAccountHandler<'a> {
                         Ok(sig) => {
                             debug!("Transaction Sig: {:?}", sig);
                         }
-                        Err(err) => {
+                        Err(_err) => {
                             #[cfg(feature = "sentry-reporting")]
-                            sentry::capture_error(&err);
+                            sentry::capture_error(&_err);
                         }
                     }
                 }
@@ -798,9 +798,9 @@ impl<'a> MarginAccountHandler<'a> {
                         Ok(sig) => {
                             debug!("Transaction Sig: {:?}", sig);
                         }
-                        Err(err) => {
+                        Err(_err) => {
                             #[cfg(feature = "sentry-reporting")]
-                            sentry::capture_error(&err);
+                            sentry::capture_error(&_err);
                         }
                     }
                 }

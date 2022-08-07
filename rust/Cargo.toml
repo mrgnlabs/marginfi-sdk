@@ -1,5 +1,7 @@
 [workspace]
 members = [
     "doctor",
-    # "marginfi-rebalancer"
+    "marginfi-common",
+    "marginfi-cpi",
+    "zo-utils",
 ]

@@ -116,7 +116,7 @@ version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "70f6ee9518f50ff4d434471ccf569186022bdd5ef65a21d14da3ea5231af944f"
 dependencies = [
- "anchor-syn",
+ "anchor-syn 0.25.0",
  "anyhow",
  "proc-macro2 1.0.40",
  "quote 1.0.20",
@@ -130,7 +130,7 @@ version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32c92bcf5388b52676d990f85bbfd838a8f5672393135063a50dc79b2b837c79"
 dependencies = [
- "anchor-syn",
+ "anchor-syn 0.25.0",
  "anyhow",
  "bs58 0.4.0",
  "proc-macro2 1.0.40",
@@ -145,7 +145,7 @@ version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0844974ac35e8ced62056b0d63777ebcdc5807438b8b189c881e2b647450b70a"
 dependencies = [
- "anchor-syn",
+ "anchor-syn 0.25.0",
  "proc-macro2 1.0.40",
  "syn 1.0.98",
 ]
@@ -156,7 +156,7 @@ version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0f7467345e67a6f1d4b862b9763a4160ad89d18c247b8c902807768f7b6e23df"
 dependencies = [
- "anchor-syn",
+ "anchor-syn 0.25.0",
  "proc-macro2 1.0.40",
  "quote 1.0.20",
  "syn 1.0.98",
@@ -168,7 +168,7 @@ version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8774e4c1ac71f71a5aea7e4932fb69c30e3b8155c4fa59fd69401195434528a9"
 dependencies = [
- "anchor-syn",
+ "anchor-syn 0.25.0",
  "anyhow",
  "proc-macro2 1.0.40",
  "quote 1.0.20",
@@ -181,7 +181,7 @@ version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "90eeb6e1c80f9f94fcef93a52813f6472186200e275e83cb3fac92b801de92f7"
 dependencies = [
- "anchor-syn",
+ "anchor-syn 0.25.0",
  "anyhow",
  "heck 0.3.3",
  "proc-macro2 1.0.40",
@@ -195,7 +195,7 @@ version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac515a7a5a4fea7fc768b1cec40ddb948e148ea657637c75f94f283212326cb9"
 dependencies = [
- "anchor-syn",
+ "anchor-syn 0.25.0",
  "anyhow",
  "proc-macro2 1.0.40",
  "quote 1.0.20",
@@ -208,7 +208,7 @@ version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43dc667b62ff71450f19dcfcc37b0c408fd4ddd89e8650368c2b0984b110603f"
 dependencies = [
- "anchor-syn",
+ "anchor-syn 0.25.0",
  "anyhow",
  "proc-macro2 1.0.40",
  "quote 1.0.20",
@@ -238,10 +238,56 @@ version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7354d583a06701d24800a8ec4c2b0491f62581a331af349205e23421e0b56643"
 dependencies = [
- "anchor-syn",
+ "anchor-syn 0.25.0",
  "anyhow",
  "proc-macro2 1.0.40",
  "quote 1.0.20",
+ "syn 1.0.98",
+]
+
+[[package]]
+name = "anchor-gen"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "82c66ee428b58005d2f2e3a8f3f795a83ee77e0ae92634f2f10d38e8223be413"
+dependencies = [
+ "anchor-generate-cpi-crate",
+ "anchor-generate-cpi-interface",
+]
+
+[[package]]
+name = "anchor-generate-cpi-crate"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df80faf78057bc25344432f9ba0187a08591b2c5b17c8094a2604df7ef7a77c0"
+dependencies = [
+ "anchor-idl",
+ "syn 1.0.98",
+]
+
+[[package]]
+name = "anchor-generate-cpi-interface"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d8f3399fd9a9198fa161ff6b0e7f789fdfffc66f74f2d0bfcbc4c0cb5de74e4"
+dependencies = [
+ "anchor-idl",
+ "darling",
+ "syn 1.0.98",
+]
+
+[[package]]
+name = "anchor-idl"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "80d40b28558607ed4db368939b8abfe5c45ebad13bdce5236b1222955b1e88be"
+dependencies = [
+ "anchor-syn 0.24.2",
+ "darling",
+ "heck 0.4.0",
+ "proc-macro2 1.0.40",
+ "quote 1.0.20",
+ "serde_json",
  "syn 1.0.98",
 ]
 
@@ -283,6 +329,25 @@ dependencies = [
 
 [[package]]
 name = "anchor-syn"
+version = "0.24.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "03549dc2eae0b20beba6333b14520e511822a6321cdb1760f841064a69347316"
+dependencies = [
+ "anyhow",
+ "bs58 0.3.1",
+ "heck 0.3.3",
+ "proc-macro2 1.0.40",
+ "proc-macro2-diagnostics",
+ "quote 1.0.20",
+ "serde",
+ "serde_json",
+ "sha2 0.9.9",
+ "syn 1.0.98",
+ "thiserror",
+]
+
+[[package]]
+name = "anchor-syn"
 version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "55aa1e680d9471342122ed5b6bc13bf5da473b0f7e4677d41a6954e5cc8ad155"
@@ -311,9 +376,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.58"
+version = "1.0.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb07d2053ccdbe10e2af2995a2f116c1330396493dc1269f6a91d0ae82e19704"
+checksum = "c794e162a5eff65c72ef524dfe393eb923c354e350bb78b9c7383df13f3bc142"
 
 [[package]]
 name = "arrayref"
@@ -740,7 +805,7 @@ dependencies = [
  "ansi_term",
  "atty",
  "bitflags",
- "strsim",
+ "strsim 0.8.0",
  "textwrap",
  "unicode-width",
  "vec_map",
@@ -922,6 +987,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "darling"
+version = "0.14.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4529658bdda7fd6769b8614be250cdcfc3aeb0ee72fe66f9e41e5e5eb73eac02"
+dependencies = [
+ "darling_core",
+ "darling_macro",
+]
+
+[[package]]
+name = "darling_core"
+version = "0.14.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "649c91bc01e8b1eac09fb91e8dbc7d517684ca6be8ebc75bb9cafc894f9fdb6f"
+dependencies = [
+ "fnv",
+ "ident_case",
+ "proc-macro2 1.0.40",
+ "quote 1.0.20",
+ "strsim 0.10.0",
+ "syn 1.0.98",
+]
+
+[[package]]
+name = "darling_macro"
+version = "0.14.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ddfc69c5bfcbd2fc09a0f38451d2daf0e372e367986a83906d1b0dbc88134fb5"
+dependencies = [
+ "darling_core",
+ "quote 1.0.20",
+ "syn 1.0.98",
+]
+
+[[package]]
 name = "dashmap"
 version = "4.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1081,7 +1181,7 @@ dependencies = [
  "env_logger",
  "fixed",
  "log",
- "mango 3.5.1 (git+https://github.com/mrgnlabs/mango-v3.git?tag=v3.5.1-fork.1)",
+ "mango",
  "marginfi",
  "sentry",
  "serum_dex",
@@ -1726,6 +1826,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "ident_case"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
+
+[[package]]
 name = "idna"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2004,38 +2110,9 @@ dependencies = [
  "enumflags2",
  "fixed",
  "fixed-macro",
- "mango-common 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?tag=v3.5.1-fork.1)",
- "mango-logs 0.1.0 (git+https://github.com/mrgnlabs/mango-v3.git?tag=v3.5.1-fork.1)",
- "mango-macro 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?tag=v3.5.1-fork.1)",
- "num_enum",
- "pyth-client",
- "safe-transmute",
- "serde",
- "serum_dex",
- "solana-program",
- "spl-token",
- "static_assertions",
- "switchboard-program",
- "switchboard-utils",
- "thiserror",
-]
-
-[[package]]
-name = "mango"
-version = "3.5.1"
-source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc#3589b9d35beb6a01921bc32112b694e00dfb7ccc"
-dependencies = [
- "anchor-lang",
- "arrayref",
- "bincode",
- "bs58 0.4.0",
- "bytemuck",
- "enumflags2",
- "fixed",
- "fixed-macro",
- "mango-common 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc)",
- "mango-logs 0.1.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc)",
- "mango-macro 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc)",
+ "mango-common",
+ "mango-logs",
+ "mango-macro",
  "num_enum",
  "pyth-client",
  "safe-transmute",
@@ -2059,27 +2136,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "mango-common"
-version = "3.0.0"
-source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc#3589b9d35beb6a01921bc32112b694e00dfb7ccc"
-dependencies = [
- "bytemuck",
- "solana-program",
-]
-
-[[package]]
 name = "mango-logs"
 version = "0.1.0"
 source = "git+https://github.com/mrgnlabs/mango-v3.git?tag=v3.5.1-fork.1#f0b5462c3267ea4967fbe93ccd28b47fc1d9753a"
-dependencies = [
- "anchor-lang",
- "base64 0.13.0",
-]
-
-[[package]]
-name = "mango-logs"
-version = "0.1.0"
-source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc#3589b9d35beb6a01921bc32112b694e00dfb7ccc"
 dependencies = [
  "anchor-lang",
  "base64 0.13.0",
@@ -2091,20 +2150,7 @@ version = "3.0.0"
 source = "git+https://github.com/mrgnlabs/mango-v3.git?tag=v3.5.1-fork.1#f0b5462c3267ea4967fbe93ccd28b47fc1d9753a"
 dependencies = [
  "bytemuck",
- "mango-common 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?tag=v3.5.1-fork.1)",
- "quote 1.0.20",
- "safe-transmute",
- "solana-program",
- "syn 1.0.98",
-]
-
-[[package]]
-name = "mango-macro"
-version = "3.0.0"
-source = "git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc#3589b9d35beb6a01921bc32112b694e00dfb7ccc"
-dependencies = [
- "bytemuck",
- "mango-common 3.0.0 (git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc)",
+ "mango-common",
  "quote 1.0.20",
  "safe-transmute",
  "solana-program",
@@ -2121,7 +2167,7 @@ dependencies = [
  "bytemuck",
  "fixed",
  "fixed-macro",
- "mango 3.5.1 (git+https://github.com/mrgnlabs/mango-v3.git?rev=3589b9d35beb6a01921bc32112b694e00dfb7ccc)",
+ "mango",
  "rust_decimal",
  "rust_decimal_macros",
  "serum_dex",
@@ -2130,6 +2176,28 @@ dependencies = [
  "uint",
  "zo-abi",
  "zo-margin-utils",
+]
+
+[[package]]
+name = "marginfi-common"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "fixed",
+ "fixed-macro",
+ "mango",
+ "serum_dex",
+ "thiserror",
+ "zo-abi",
+ "zo-utils",
+]
+
+[[package]]
+name = "marginfi-cpi"
+version = "0.1.3"
+dependencies = [
+ "anchor-gen",
+ "anchor-lang",
 ]
 
 [[package]]
@@ -4390,6 +4458,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 
 [[package]]
+name = "strsim"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
+
+[[package]]
 name = "strum"
 version = "0.24.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4557,18 +4631,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.31"
+version = "1.0.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd829fe32373d27f76265620b5309d0340cb8550f523c1dda251d6298069069a"
+checksum = "f5f6586b7f764adc0231f4c79be7b920e766bb2f3e51b3661cdb263828f19994"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.31"
+version = "1.0.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0396bc89e626244658bef819e22d0cc459e795a5ebe878e6ec336d1674a8d79a"
+checksum = "12bafc5b54507e0149cdf1b145a5d80ab80a90bcd9275df43d4fff68460f6c21"
 dependencies = [
  "proc-macro2 1.0.40",
  "quote 1.0.20",
@@ -5269,6 +5343,19 @@ dependencies = [
 
 [[package]]
 name = "zo-margin-utils"
+version = "0.1.0"
+dependencies = [
+ "az",
+ "bytemuck",
+ "fixed",
+ "fixed-macro",
+ "num-traits",
+ "solana-program",
+ "zo-abi",
+]
+
+[[package]]
+name = "zo-utils"
 version = "0.1.0"
 dependencies = [
  "az",
