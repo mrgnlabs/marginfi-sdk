@@ -27,7 +27,7 @@ const wallet = new Wallet(loadKeypair(process.env.WALLET!));
 const depositAmountUi = 2;
 
 (async function () {
-  const config = await getConfig(Environment.MAINNET, connection);
+  const config = await getConfig(Environment.MAINNET);
 
   // Setup the client
   const client = await MarginfiClient.fetch(config, wallet, connection);

@@ -1,0 +1,16 @@
+[package]
+name = "marginfi-common"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mango-protocol = { git = "https://github.com/mrgnlabs/mango-v3.git", tag="v3.5.1-fork.1", package= "mango", features = ["no-entrypoint", "client"] }
+serum_dex = { git = "https://github.com/blockworks-foundation/serum-dex.git", rev = "7f55a5ef5f7937b74381a3124021a261cd7d7283", default-features=false, features = ["no-entrypoint", "program"] }
+zo-abi = { git = "https://github.com/01protocol/zo-abi.git", rev = "3ff8def2c747899c9d534f5de36988b6f0a0d46c", features = [
+    "cpi",
+] }
+zo-utils = { path = "../zo-utils" }
+fixed = "1.11.0"
+fixed-macro = "1.1.1"
+anyhow = "1.0.59"
+thiserror = "1.0.32"

@@ -48,7 +48,7 @@ async function configureMarginReq(client: MarginfiClient, initMReq: number, main
 const depositAmount = 100;
 
 (async function () {
-  const config = await getConfig(Environment.DEVNET, connection);
+  const config = await getConfig(Environment.DEVNET);
 
   // Setup the client
   const client = await MarginfiClient.fetch(config, wallet, connection);
@@ -66,7 +66,7 @@ const depositAmount = 100;
   const mangoGroup = await marginfiAccount.mango.getMangoGroup();
   const mangoAccount = await marginfiAccount.mango.getMangoAccount();
 
-  const perpMarketConfig = getMarketByBaseSymbolAndKind(marginfiAccount.mango.config.groupConfig, "BTC", "perp");
+  const perpMarketConfig = getMarketByBaseSymbolAndKind(marginfiAccount.mango.config.groupConfig, "SOL", "perp");
 
   const mangoBtcMarket = await mangoGroup.loadPerpMarket(
     connection,

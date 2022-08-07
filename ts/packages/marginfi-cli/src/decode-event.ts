@@ -1,6 +1,7 @@
-import { Decimal } from "@mrgnlabs/marginfi-client";
 import { OptionValues } from "commander";
 import { getClientFromOptions } from "./common";
+
+import { wrappedI80F48toBigNumber } from "@mrgnlabs/marginfi-client/dist/utils/helpers";
 
 export async function decodeEvent(encodedEvent: string, options: OptionValues) {
   const mfiClient = await getClientFromOptions(options);
@@ -34,11 +35,11 @@ export async function decodeEvent(encodedEvent: string, options: OptionValues) {
         // @ts-ignore
         event.data.deltaCompoundingPeriods.toNumber(),
         // @ts-ignore
-        Decimal.fromMDecimal(event.data.feesCollected),
+        wrappedI80F48toBigNumber(event.data.feesCollected),
         // @ts-ignore
-        Decimal.fromMDecimal(event.data.utilizationRate),
+        wrappedI80F48toBigNumber(event.data.utilizationRate),
         // @ts-ignore
-        Decimal.fromMDecimal(event.data.interestRate)
+        wrappedI80F48toBigNumber(event.data.interestRate)
       );
       break;
     case "UptObservationFreeCollateral":
@@ -47,7 +48,7 @@ export async function decodeEvent(encodedEvent: string, options: OptionValues) {
         // @ts-ignore
         event.data.utpIndex,
         // @ts-ignore
-        Decimal.fromMDecimal(event.data.value)
+        wrappedI80F48toBigNumberl(event.data.value)
       );
       break;
     case "UptObservationNeedsRebalance":
@@ -56,9 +57,9 @@ export async function decodeEvent(encodedEvent: string, options: OptionValues) {
         // @ts-ignore
         event.data.utpIndex,
         // @ts-ignore
-        Decimal.fromMDecimal(event.data.collateralOrEquity),
+        wrappedI80F48toBigNumber(event.data.collateralOrEquity),
         // @ts-ignore
-        Decimal.fromMDecimal(event.data.marginRequirement)
+        wrappedI80F48toBigNumber(event.data.marginRequirement)
       );
       break;
   }

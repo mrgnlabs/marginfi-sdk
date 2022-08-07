@@ -13,12 +13,12 @@ export type UiAmount = BigNumber | number | I80F48 | string;
 
 export enum UtpIndex {
   Mango = 0,
-  ZO = 1,
+  Zo = 1,
 }
 
 export const UTP_NAME = {
   [UtpIndex.Mango]: "Mango",
-  [UtpIndex.ZO]: "01",
+  [UtpIndex.Zo]: "01",
 };
 
 /**
@@ -27,6 +27,15 @@ export const UTP_NAME = {
 export enum Environment {
   DEVNET = "devnet",
   MAINNET = "mainnet",
+}
+
+/**
+ * Marginfi bank vault type
+ */
+export enum BankVaultType {
+  LiquidityVault,
+  InsuranceVault,
+  FeeVault,
 }
 
 export interface MarginfiDedicatedConfig {
@@ -133,36 +142,32 @@ export interface MarginfiGroupData {
 export interface MarginfiAccountData {
   authority: PublicKey;
   marginfiGroup: PublicKey;
-  depositRecord: DecimalData;
-  borrowRecord: DecimalData;
+  depositRecord: WrappedI8048F;
+  borrowRecord: WrappedI8048F;
   activeUtps: boolean[];
   utpAccountConfig: UTPAccountConfig[];
   reservedSpace: BN[];
 }
 
 export interface BankData {
-  scalingFactorC: DecimalData;
-  fixedFee: DecimalData;
-  interestFee: DecimalData;
-  depositAccumulator: DecimalData;
-  borrowAccumulator: DecimalData;
+  scalingFactorC: WrappedI8048F;
+  fixedFee: WrappedI8048F;
+  interestFee: WrappedI8048F;
+  depositAccumulator: WrappedI8048F;
+  borrowAccumulator: WrappedI8048F;
   lastUpdate: BN;
-  nativeDepositBalance: DecimalData;
-  nativeBorrowBalance: DecimalData;
+  totalDepositsRecord: WrappedI8048F;
+  totalBorrowsRecord: WrappedI8048F;
   mint: PublicKey;
   vault: PublicKey;
-  bankAutorityBump: number;
+  bankAuthorityBump: number;
   insuranceVault: PublicKey;
-  insuranceVaultAutorityBump: number;
+  insuranceVaultAuthorityBump: number;
   feeVault: PublicKey;
-  feeVaultAutorityBump: number;
-  initMarginRatio: DecimalData;
-  maintMarginRatio: DecimalData;
+  feeVaultAuthorityBump: number;
+  initMarginRatio: WrappedI8048F;
+  maintMarginRatio: WrappedI8048F;
 }
-
-export interface DecimalData {
-  flags: number;
-  hi: number;
-  lo: number;
-  mid: number;
+export interface WrappedI8048F {
+  bits: BN;
 }
