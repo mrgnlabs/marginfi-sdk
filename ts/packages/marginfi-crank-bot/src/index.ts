@@ -53,7 +53,6 @@ async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
   debug("Loaded %d marginfi accounts", marginfiAccounts.length);
 
   for (let marginfiAccount of marginfiAccounts) {
-    await marginfiAccount.group.fetch();
     try {
       await marginfiAccount.reload(true);
 
