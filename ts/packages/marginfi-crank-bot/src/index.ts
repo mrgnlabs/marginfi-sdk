@@ -203,7 +203,7 @@ async function checkPartialLiq(mfiAccount: MarginfiAccount) {
     await mfiAccount.zo.placePerpOrder({
       symbol: position.marketKey,
       isLong: long,
-      price: long ? 1_000_000_000 : 1,
+      price: long ? 1_000_000_000 : 0.000001,
       orderType: ZoPerpOrderType.ReduceOnlyIoc,
       size: size.toNumber(),
     });
