@@ -56,9 +56,11 @@ async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
     await marginfiAccount.group.fetch();
     try {
       await marginfiAccount.reload(true);
+
       await marginfiAccount.checkRebalance();
+      await checkPartialLiqCloseOpenOrders(marginfiAccount);
+      await checkPartialLiqClosePositions(marginfiAccount);
       await marginfiAccount.checkBankruptcy();
-      await checkPartialLiq(marginfiAccount);
     } catch (e: any) {
       captureException(e, {
         user: { id: marginfiAccount.publicKey.toBase58() },
@@ -70,7 +72,7 @@ async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {
   }
 }
 
-async function checkPartialLiq(mfiAccount: MarginfiAccount) {
+async function checkPartialLiqClosePositions(mfiAccount: MarginfiAccount) {
   if (mfiAccount.meetsMarginRequirement(MarginRequirementType.PartialLiquidation)) {
     return;
   }
@@ -207,5 +209,60 @@ async function checkPartialLiq(mfiAccount: MarginfiAccount) {
       orderType: ZoPerpOrderType.ReduceOnlyIoc,
       size: size.toNumber(),
     });
+  }
+}
+
+async function checkPartialLiqCloseOpenOrders(marginfiAccount: MarginfiAccount) {
+  if (marginfiAccount.meetsMarginRequirement(MarginRequirementType.PartialLiquidation)) {
+    return;
+  }
+
+  const debug = require("debug")("crank-bot:partial-liquidation");
+
+  if (marginfiAccount.mango.isActive) {
+    const mangoUtp = marginfiAccount.mango;
+    const mangoGroup = await mangoUtp.getMangoGroup();
+    const mangoAccount = await mangoUtp.getMangoAccount(mangoGroup);
+
+    const connection = marginfiAccount.client.program.provider.connection;
+
+    const perpMarkets = await Promise.all(
+      mangoUtp.config.groupConfig.perpMarkets.map((perpMarket) => {
+        return mangoGroup.loadPerpMarket(
+          connection,
+          perpMarket.marketIndex,
+          perpMarket.baseDecimals,
+          perpMarket.quoteDecimals
+        );
+      })
+    );
+
+    for (let i = 0; i < perpMarkets.length; i++) {
+      const perpMarket = perpMarkets[i];
+      const index = mangoGroup.getPerpMarketIndex(perpMarket.publicKey);
+      const perpAccount = mangoAccount.perpAccounts[index];
+      if (perpMarket && perpAccount) {
+        const openOrders = await perpMarket.loadOrdersForAccount(connection, mangoAccount);
+
+        for (const oo of openOrders) {
+          debug("Canceling Perp Order %s", oo.orderId);
+          await mangoUtp.cancelPerpOrder(perpMarket, oo.orderId, false);
+        }
+      }
+    }
+  }
+
+  if (marginfiAccount.zo.isActive) {
+    const zoState = await marginfiAccount.zo.getZoState();
+    const zoMargin = await marginfiAccount.zo.getZoMargin(zoState);
+
+    await zoMargin.loadOrders();
+    for (let order of zoMargin.orders) {
+      await marginfiAccount.zo.cancelPerpOrder({
+        symbol: order.symbol,
+        orderId: order.orderId,
+        isLong: order.long,
+      });
+    }
   }
 }
