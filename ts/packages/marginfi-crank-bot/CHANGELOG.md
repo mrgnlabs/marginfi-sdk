@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.13](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-crank-bot@0.1.12-alpha.3...@mrgnlabs/marginfi-crank-bot@0.1.13) (2022-08-08)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-crank-bot
+
+
+
+
+
 ## [0.1.12](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-crank-bot@0.1.12-alpha.3...@mrgnlabs/marginfi-crank-bot@0.1.12) (2022-08-08)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-crank-bot
