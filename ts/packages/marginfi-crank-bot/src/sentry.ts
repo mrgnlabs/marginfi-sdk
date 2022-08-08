@@ -41,6 +41,7 @@ if (SENTRY_ACTIVE) {
   }, 99);
 
   process.on("unhandledRejection", (e: Error, promise: any) => {
+    console.log("Unhandled rejection", e);
     Sentry.captureException(e, {
       tags: {
         name: e.name,
@@ -53,6 +54,7 @@ if (SENTRY_ACTIVE) {
   });
 
   process.on("uncaughtException", (e: Error, origin: any) => {
+    console.log("uncaughtException", e, origin);
     Sentry.captureException(e, {
       tags: {
         name: e.name,
@@ -60,9 +62,9 @@ if (SENTRY_ACTIVE) {
         origin,
       },
     });
-  });
 
-  process.exit();
+    process.exit();
+  });
 }
 
 export function captureException(e: any, ctx?: Partial<ScopeContext>) {
