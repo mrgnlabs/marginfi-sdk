@@ -628,6 +628,7 @@ impl<'a> MarginAccountHandler<'a> {
                             ..Default::default()
                         }),
                         message: Some(format!("Depositing {} into Mango Markets", deposit_amount)),
+                        level: sentry::protocol::Level::Info,
                         ..Default::default()
                     });
 
@@ -738,6 +739,7 @@ impl<'a> MarginAccountHandler<'a> {
                             ..Default::default()
                         }),
                         message: Some(format!("Depositing {} into 01 Protocol", deposit_amount)),
+                        level: sentry::protocol::Level::Info,
                         ..Default::default()
                     });
 
