@@ -664,7 +664,7 @@ export type Marginfi = {
           isSigner: false;
         },
         {
-          name: "authority";
+          name: "signer";
           isMut: true;
           isSigner: true;
         },
@@ -737,7 +737,7 @@ export type Marginfi = {
           isSigner: false;
         },
         {
-          name: "authority";
+          name: "signer";
           isMut: true;
           isSigner: true;
         },
@@ -1008,6 +1008,11 @@ export type Marginfi = {
         },
         {
           name: "zoVault";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "heimdall";
           isMut: true;
           isSigner: false;
         },
@@ -1481,14 +1486,6 @@ export type Marginfi = {
         kind: "struct";
         fields: [
           {
-            name: "totalCollateral";
-            type: "u128";
-          },
-          {
-            name: "freeCollateral";
-            type: "u128";
-          },
-          {
             name: "marginRequirementInit";
             type: "u128";
           },
@@ -1949,6 +1946,9 @@ export type Marginfi = {
             name: "Init";
           },
           {
+            name: "PartialLiquidation";
+          },
+          {
             name: "Maint";
           }
         ];
@@ -2134,131 +2134,144 @@ export type Marginfi = {
           index: false;
         }
       ];
+    },
+    {
+      name: "RiskEnginePermissionlessAction";
+      fields: [];
+    },
+    {
+      name: "RiskEngineReduceOnly";
+      fields: [];
     }
   ];
   errors: [
     {
       code: 6000;
+      name: "Unauthorized";
+      msg: "Signer not authorized to perform this action";
+    },
+    {
+      code: 6001;
       name: "EmptyLendingPool";
       msg: "Lending pool empty";
     },
     {
-      code: 6001;
+      code: 6002;
       name: "IllegalUtilizationRatio";
       msg: "Illegal utilization ratio";
     },
     {
-      code: 6002;
+      code: 6003;
       name: "MathError";
       msg: "very bad mafs";
     },
     {
-      code: 6003;
+      code: 6004;
       name: "InvalidTimestamp";
       msg: "Invalid timestamp";
     },
     {
-      code: 6004;
+      code: 6005;
       name: "MarginRequirementsNotMet";
       msg: "Initialization margin requirements not met";
     },
     {
-      code: 6005;
+      code: 6006;
       name: "OnlyReduceAllowed";
       msg: "Only reducing trades are allowed when under init margin requirements";
     },
     {
-      code: 6006;
+      code: 6007;
       name: "UtpInactive";
       msg: "Inactive UTP";
     },
     {
-      code: 6007;
+      code: 6008;
       name: "UtpAlreadyActive";
       msg: "Utp is already active";
     },
     {
-      code: 6008;
+      code: 6009;
       name: "InvalidAccountData";
       msg: "Invalid Account Data";
     },
     {
-      code: 6009;
+      code: 6010;
       name: "LiquidatorHasActiveUtps";
       msg: "Liquidator has active utps";
     },
     {
-      code: 6010;
+      code: 6011;
       name: "AccountHasActiveUtps";
       msg: "Account has active utps";
     },
     {
-      code: 6011;
+      code: 6012;
       name: "AccountNotLiquidatable";
       msg: "Marginfi account not liquidatable";
     },
     {
-      code: 6012;
+      code: 6013;
       name: "AccountNotBankrupt";
       msg: "Marginfi account not bankrupt";
     },
     {
-      code: 6013;
+      code: 6014;
       name: "IllegalUtpDeactivation";
       msg: "Utp account cannot be deactivated";
     },
     {
-      code: 6014;
+      code: 6015;
       name: "IllegalRebalance";
       msg: "Rebalance not legal";
     },
     {
-      code: 6015;
+      code: 6016;
       name: "BorrowNotAllowed";
       msg: "Borrow not allowed";
     },
     {
-      code: 6016;
+      code: 6017;
       name: "IllegalConfig";
       msg: "Config value not legal";
     },
     {
-      code: 6017;
+      code: 6018;
       name: "OperationsPaused";
       msg: "Operations paused";
     },
     {
-      code: 6018;
+      code: 6019;
       name: "InsufficientVaultBalance";
       msg: "Insufficient balance";
     },
     {
-      code: 6019;
+      code: 6020;
       name: "Forbidden";
       msg: "This operation is forbidden";
     },
     {
-      code: 6020;
+      code: 6021;
       name: "InvalidUTPAccount";
       msg: "Invalid account key";
     },
     {
-      code: 6021;
+      code: 6022;
       name: "AccountDepositLimit";
       msg: "Deposit exceeds account cap";
     },
     {
-      code: 6022;
+      code: 6023;
       name: "GroupDepositLimit";
       msg: "Deposit exceeds group cap";
     },
     {
-      code: 6023;
+      code: 6024;
       name: "InvalidObserveAccounts";
       msg: "Missing accounts for UTP observation";
     },
     {
-      code: 6024;
+      code: 6025;
       name: "MangoError";
       msg: "Mango error";
     }
@@ -2931,7 +2944,7 @@ export const IDL: Marginfi = {
           isSigner: false,
         },
         {
-          name: "authority",
+          name: "signer",
           isMut: true,
           isSigner: true,
         },
@@ -3004,7 +3017,7 @@ export const IDL: Marginfi = {
           isSigner: false,
         },
         {
-          name: "authority",
+          name: "signer",
           isMut: true,
           isSigner: true,
         },
@@ -3275,6 +3288,11 @@ export const IDL: Marginfi = {
         },
         {
           name: "zoVault",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "heimdall",
           isMut: true,
           isSigner: false,
         },
@@ -3748,14 +3766,6 @@ export const IDL: Marginfi = {
         kind: "struct",
         fields: [
           {
-            name: "totalCollateral",
-            type: "u128",
-          },
-          {
-            name: "freeCollateral",
-            type: "u128",
-          },
-          {
             name: "marginRequirementInit",
             type: "u128",
           },
@@ -4216,6 +4226,9 @@ export const IDL: Marginfi = {
             name: "Init",
           },
           {
+            name: "PartialLiquidation",
+          },
+          {
             name: "Maint",
           },
         ],
@@ -4402,130 +4415,143 @@ export const IDL: Marginfi = {
         },
       ],
     },
+    {
+      name: "RiskEnginePermissionlessAction",
+      fields: [],
+    },
+    {
+      name: "RiskEngineReduceOnly",
+      fields: [],
+    },
   ],
   errors: [
     {
       code: 6000,
+      name: "Unauthorized",
+      msg: "Signer not authorized to perform this action",
+    },
+    {
+      code: 6001,
       name: "EmptyLendingPool",
       msg: "Lending pool empty",
     },
     {
-      code: 6001,
+      code: 6002,
       name: "IllegalUtilizationRatio",
       msg: "Illegal utilization ratio",
     },
     {
-      code: 6002,
+      code: 6003,
       name: "MathError",
       msg: "very bad mafs",
     },
     {
-      code: 6003,
+      code: 6004,
       name: "InvalidTimestamp",
       msg: "Invalid timestamp",
     },
     {
-      code: 6004,
+      code: 6005,
       name: "MarginRequirementsNotMet",
       msg: "Initialization margin requirements not met",
     },
     {
-      code: 6005,
+      code: 6006,
       name: "OnlyReduceAllowed",
       msg: "Only reducing trades are allowed when under init margin requirements",
     },
     {
-      code: 6006,
+      code: 6007,
       name: "UtpInactive",
       msg: "Inactive UTP",
     },
     {
-      code: 6007,
+      code: 6008,
       name: "UtpAlreadyActive",
       msg: "Utp is already active",
     },
     {
-      code: 6008,
+      code: 6009,
       name: "InvalidAccountData",
       msg: "Invalid Account Data",
     },
     {
-      code: 6009,
+      code: 6010,
       name: "LiquidatorHasActiveUtps",
       msg: "Liquidator has active utps",
     },
     {
-      code: 6010,
+      code: 6011,
       name: "AccountHasActiveUtps",
       msg: "Account has active utps",
     },
     {
-      code: 6011,
+      code: 6012,
       name: "AccountNotLiquidatable",
       msg: "Marginfi account not liquidatable",
     },
     {
-      code: 6012,
+      code: 6013,
       name: "AccountNotBankrupt",
       msg: "Marginfi account not bankrupt",
     },
     {
-      code: 6013,
+      code: 6014,
       name: "IllegalUtpDeactivation",
       msg: "Utp account cannot be deactivated",
     },
     {
-      code: 6014,
+      code: 6015,
       name: "IllegalRebalance",
       msg: "Rebalance not legal",
     },
     {
-      code: 6015,
+      code: 6016,
       name: "BorrowNotAllowed",
       msg: "Borrow not allowed",
     },
     {
-      code: 6016,
+      code: 6017,
       name: "IllegalConfig",
       msg: "Config value not legal",
     },
     {
-      code: 6017,
+      code: 6018,
       name: "OperationsPaused",
       msg: "Operations paused",
     },
     {
-      code: 6018,
+      code: 6019,
       name: "InsufficientVaultBalance",
       msg: "Insufficient balance",
     },
     {
-      code: 6019,
+      code: 6020,
       name: "Forbidden",
       msg: "This operation is forbidden",
     },
     {
-      code: 6020,
+      code: 6021,
       name: "InvalidUTPAccount",
       msg: "Invalid account key",
     },
     {
-      code: 6021,
+      code: 6022,
       name: "AccountDepositLimit",
       msg: "Deposit exceeds account cap",
     },
     {
-      code: 6022,
+      code: 6023,
       name: "GroupDepositLimit",
       msg: "Deposit exceeds group cap",
     },
     {
-      code: 6023,
+      code: 6024,
       name: "InvalidObserveAccounts",
       msg: "Missing accounts for UTP observation",
     },
     {
-      code: 6024,
+      code: 6025,
       name: "MangoError",
       msg: "Mango error",
     },

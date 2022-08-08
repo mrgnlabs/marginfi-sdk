@@ -1,0 +1,33 @@
+[package]
+name = "doctor"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+sentry-reporting = ["sentry"]
+
+[dependencies]
+anchor-client = "0.25.0"
+bytemuck = "1.9.1"
+solana-client = "1.9.29"
+solana-sdk = "1.9.29"
+solana-program = "1.9.29"
+fixed = "1.11.0"
+marginfi = { path = "../../../programs/marginfi", features = ["client"] }
+mango-protocol = { git = "https://github.com/mrgnlabs/mango-v3.git", tag = "v3.5.1-fork.1", package = "mango", features = [
+    "no-entrypoint",
+    "client",
+] }
+serum_dex = { git = "https://github.com/blockworks-foundation/serum-dex.git", rev = "7f55a5ef5f7937b74381a3124021a261cd7d7283", default-features = false, features = [
+    "no-entrypoint",
+    "program",
+] }
+zo-abi = { git = "https://github.com/01protocol/zo-abi.git", rev = "97e2caeeb117fa0ab625effcf80b6125d9470415", features = [
+    "cpi",
+] }
+spl-token = "*"
+env_logger = "0.9"
+log = "0.4"
+sentry = { version = "0.27.0", optional = true }

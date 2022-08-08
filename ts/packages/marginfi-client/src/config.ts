@@ -1,4 +1,4 @@
-import { Connection, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { Environment, MarginfiConfig, MarginfiDedicatedConfig } from "./types";
 import { getMangoConfig } from "./utp/mango/config";
 import { getZoConfig } from "./utp/zo";
@@ -16,8 +16,8 @@ function getMarginfiConfig(
     case Environment.MAINNET:
       return {
         environment,
-        programId: overrides?.programId || new PublicKey("mrgnfD8pJKsw4AxCDquyUBjgABNEaZ79iTLgtov2Yff"),
-        groupPk: overrides?.groupPk || new PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba"),
+        programId: overrides?.programId || new PublicKey("MRGNWSHaWmz3CPFcYt9Fyh8VDcvLJyy2SCURnMco2bC"),
+        groupPk: overrides?.groupPk || new PublicKey("2FdddfNp6knT5tDjKjFREKUjsFKvAppc61bCyuCrTnj2"),
         collateralMintPk: overrides?.collateralMintPk || new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
       };
     case Environment.DEVNET:
@@ -37,7 +37,6 @@ function getMarginfiConfig(
  */
 export async function getConfig(
   environment: Environment,
-  _connection: Connection,
   overrides?: Partial<Omit<MarginfiConfig, "environment">>
 ): Promise<MarginfiConfig> {
   return {

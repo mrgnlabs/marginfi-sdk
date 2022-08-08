@@ -1,6 +1,6 @@
 {
   "name": "@mrgnlabs/marginfi-interest-rate-accumulator-bot",
-  "version": "0.0.15-alpha.2",
+  "version": "0.0.16",
   "description": "marginfi interest rate accumulator bot",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
@@ -14,7 +14,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@mrgnlabs/marginfi-client": "^0.7.0-alpha.2",
+    "@mrgnlabs/marginfi-client": "^0.7.1",
     "@project-serum/anchor": "^0.23.0",
     "@sentry/node": "^7.5.0",
     "@sentry/tracing": "^7.5.0",

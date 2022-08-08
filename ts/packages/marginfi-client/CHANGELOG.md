@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.0...@mrgnlabs/marginfi-client@0.7.1) (2022-08-08)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-client
+
+
+
+
+
+# [0.7.0](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.0-alpha.3...@mrgnlabs/marginfi-client@0.7.0) (2022-08-08)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-client
+
+
+
+
+
+# [0.7.0-alpha.3](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.0-alpha.2...@mrgnlabs/marginfi-client@0.7.0-alpha.3) (2022-08-08)
+
+
+### Bug Fixes
+
+* pass observe accounts when cancelling 01 orders ([#64](https://github.com/mrgnlabs/marginfi-sdk/issues/64)) ([0c599a9](https://github.com/mrgnlabs/marginfi-sdk/commit/0c599a9232302eeb962d41e8b6744d050f0f7c15))
+
+
+### Features
+
+* fix zo abi ([#56](https://github.com/mrgnlabs/marginfi-sdk/issues/56)) ([64fe432](https://github.com/mrgnlabs/marginfi-sdk/commit/64fe4320d321b93d7518660ed2b8c7cdfb5010bd))
+
+
+
+
+
 # [0.7.0-alpha.2](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.0-alpha.1...@mrgnlabs/marginfi-client@0.7.0-alpha.2) (2022-07-28)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-client

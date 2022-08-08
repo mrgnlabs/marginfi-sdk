@@ -9,6 +9,7 @@ import instructions from "./instructions";
 import {
   AccountBalances,
   AccountType,
+  BankVaultType,
   EquityType,
   InstructionsWrapper,
   LendingSide,
@@ -21,7 +22,7 @@ import {
   UtpIndex,
   UTP_NAME,
 } from "./types";
-import { BankVaultType, getBankAuthority, processTransaction, uiToNative } from "./utils";
+import { getBankAuthority, processTransaction, uiToNative } from "./utils";
 import { wrappedI80F48toBigNumber } from "./utils/helpers";
 import UtpAccount from "./utp/account";
 import { UtpMangoAccount } from "./utp/mango";
@@ -573,6 +574,15 @@ class MarginfiAccount {
       let rebalanceAmountDecimal = this.computeMaxRebalanceDepositAmount(utp);
       let cappedRebalanceAmount = rebalanceAmountDecimal.times(0.95);
       debug("Trying to rebalance deposit UTP:%s amount %s (RBDA)", utp.index, cappedRebalanceAmount);
+
+      if (cappedRebalanceAmount.lte(1)) {
+        debug("Rebalance amount below dust ");
+        continue;
+      }
+
+      if (cappedRebalanceAmount.isNaN()) {
+        throw new Error("Rebalance amount is NaN");
+      }
 
       try {
         let sig = await this.utpFromIndex(utp.index).deposit(cappedRebalanceAmount);

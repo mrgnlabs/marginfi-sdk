@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-cli@0.5.0...@mrgnlabs/marginfi-cli@0.5.1) (2022-08-08)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-cli
+
+
+
+
+
+# [0.5.0](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-cli@0.5.0-alpha.0...@mrgnlabs/marginfi-cli@0.5.0) (2022-08-08)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-cli
+
+
+
+
+
+# [0.5.0-alpha.0](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-cli@0.4.3-alpha.2...@mrgnlabs/marginfi-cli@0.5.0-alpha.0) (2022-08-08)
+
+
+### Features
+
+* withdraw fees cli ([32fc7ce](https://github.com/mrgnlabs/marginfi-sdk/commit/32fc7cebcd6cfaafe95437743ac1b1aa3e0a13b7))
+
+
+
+
+
 ## [0.4.3-alpha.2](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-cli@0.4.3-alpha.1...@mrgnlabs/marginfi-cli@0.4.3-alpha.2) (2022-07-28)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-cli

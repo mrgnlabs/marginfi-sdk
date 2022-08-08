@@ -100,6 +100,7 @@ async function makeWithdrawIx(
     zoCache: PublicKey;
     zoControl: PublicKey;
     zoVault: PublicKey;
+    heimdall: PublicKey;
   },
   args: {
     amount: BN;
@@ -121,6 +122,7 @@ async function makeWithdrawIx(
       zoCache: accounts.zoCache,
       zoControl: accounts.zoControl,
       zoVault: accounts.zoVault,
+      heimdall: accounts.heimdall,
       tokenProgram: TOKEN_PROGRAM_ID,
     })
     .remainingAccounts(remainingAccounts)
@@ -244,7 +246,8 @@ async function makeCancelPerpOrderIx(
     isLong?: boolean;
     orderId?: BN;
     clientId?: BN;
-  }
+  },
+  remainingAccounts: AccountMeta[]
 ): Promise<TransactionInstruction> {
   return mfProgram.methods
     .utpZoCancelPerpOrder(args.orderId ?? null, args.isLong ?? null, args.clientId ?? null)
@@ -267,6 +270,7 @@ async function makeCancelPerpOrderIx(
       eventQ: accounts.eventQ,
       dexProgram: accounts.dexProgram,
     })
+    .remainingAccounts(remainingAccounts)
     .instruction();
 }
 

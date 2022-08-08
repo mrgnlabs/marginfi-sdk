@@ -1,0 +1,15 @@
+[package]
+name = "zo-utils"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+fixed = "1"
+zo-abi = { git = "https://github.com/01protocol/zo-abi.git", rev = "97e2caeeb117fa0ab625effcf80b6125d9470415", features = [
+    "cpi",
+] }
+az = "1"
+num-traits = "0.2"
+solana-program = "1.10"
+fixed-macro = "1.1"
+bytemuck = "1.10.0"

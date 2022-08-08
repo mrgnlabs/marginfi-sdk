@@ -1,5 +1,5 @@
 #[cfg(feature = "mainnet-beta")]
-anchor_lang::declare_id!("mrgnfD8pJKsw4AxCDquyUBjgABNEaZ79iTLgtov2Yff");
+anchor_lang::declare_id!("MRGNWSHaWmz3CPFcYt9Fyh8VDcvLJyy2SCURnMco2bC");
 #[cfg(not(feature = "mainnet-beta"))]
 anchor_lang::declare_id!("mf2tjVmwcxgNfscvVNdN9t2LZ8YwPkNQabeTzyYw2Hn");
 
@@ -9,17 +9,11 @@ anchor_gen::generate_cpi_interface!(
         MarginfiGroup,
         MarginfiAccount,
         UTPAccountConfig,
-        MDecimal,
+        WrappedI80F48,
         UTPConfig,
         Bank,
     ),
-    packed(
-        MarginfiGroup,
-        MarginfiAccount,
-        UTPAccountConfig,
-        Bank,
-        MDecimal
-    )
+    packed(MarginfiGroup, MarginfiAccount, UTPAccountConfig, Bank)
 );
 
 impl Default for state::MarginfiGroup {

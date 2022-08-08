@@ -8,9 +8,8 @@ import {
 } from "@solana/web3.js";
 import MarginfiAccount from "../../account";
 import MarginfiClient from "../../client";
-import { InstructionsWrapper, UiAmount, UtpData } from "../../types";
+import { BankVaultType, InstructionsWrapper, UiAmount, UtpData } from "../../types";
 import {
-  BankVaultType,
   createTempTransferAccounts as createTempTransferAccountIxs,
   getBankAuthority,
   processTransaction,
@@ -222,6 +221,7 @@ export class UtpZoAccount extends UtpAccount {
         zoCache: zoState.cache.pubkey,
         zoControl: zoMargin.control.pubkey,
         zoVault: zoVaultPk,
+        heimdall: this.config.heimdall,
       },
       { amount: uiToNative(amount) },
       remainingAccounts
@@ -413,6 +413,7 @@ export class UtpZoAccount extends UtpAccount {
     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
     const [openOrdersPk] = await zoMargin.getOpenOrdersKeyBySymbol(args.symbol, this.config.cluster);
     const market = await zoState.getMarketBySymbol(args.symbol);
+    const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     return {
       instructions: [
@@ -439,7 +440,8 @@ export class UtpZoAccount extends UtpAccount {
             clientId: args.clientId,
             isLong: args.isLong,
             orderId: args.orderId,
-          }
+          },
+          remainingAccounts
         ),
       ],
       keys: [],
