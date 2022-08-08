@@ -246,7 +246,8 @@ async function makeCancelPerpOrderIx(
     isLong?: boolean;
     orderId?: BN;
     clientId?: BN;
-  }
+  },
+  remainingAccounts: AccountMeta[],
 ): Promise<TransactionInstruction> {
   return mfProgram.methods
     .utpZoCancelPerpOrder(args.orderId ?? null, args.isLong ?? null, args.clientId ?? null)
@@ -269,6 +270,7 @@ async function makeCancelPerpOrderIx(
       eventQ: accounts.eventQ,
       dexProgram: accounts.dexProgram,
     })
+    .remainingAccounts(remainingAccounts)
     .instruction();
 }
 

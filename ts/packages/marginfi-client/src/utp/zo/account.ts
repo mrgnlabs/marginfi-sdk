@@ -410,6 +410,7 @@ export class UtpZoAccount extends UtpAccount {
     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
     const [openOrdersPk] = await zoMargin.getOpenOrdersKeyBySymbol(args.symbol, this.config.cluster);
     const market = await zoState.getMarketBySymbol(args.symbol);
+    const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     return {
       instructions: [
@@ -436,7 +437,8 @@ export class UtpZoAccount extends UtpAccount {
             clientId: args.clientId,
             isLong: args.isLong,
             orderId: args.orderId,
-          }
+          },
+          remainingAccounts
         ),
       ],
       keys: [],
