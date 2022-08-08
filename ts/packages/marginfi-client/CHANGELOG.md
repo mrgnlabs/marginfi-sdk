@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.3](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.6.2...@mrgnlabs/marginfi-client@0.6.3) (2022-08-08)
+
+
+### Bug Fixes
+
+* zo-abi update ([128e771](https://github.com/mrgnlabs/marginfi-sdk/commit/128e771b920c4c7557f85560dedd0de8ce3dd74e))
+
+
+
+
+
 ## [0.6.2](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.6.1...@mrgnlabs/marginfi-client@0.6.2) (2022-07-14)
 
 
