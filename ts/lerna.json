@@ -8,7 +8,7 @@
   "command": {
     "publish": {
       "message": "chore(release): publish",
-      "allowBranch": "main",
+      "allowBranch": ["main", "legacy-mainnet-sdk"],
       "ignoreChanges": [
         "*.md"
       ]
