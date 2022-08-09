@@ -29,7 +29,7 @@ If you are using an M1, you need to install `marginpy` through a Rosetta-enabled
 1. Install brew into `/usr/local/`
 
 ```shell
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 2. Open a terminal instance with Rosetta enabled
