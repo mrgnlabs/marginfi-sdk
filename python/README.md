@@ -22,7 +22,41 @@ marginpy is the python library for interacting with [marginfi](marginfi.com), th
 pip install marginpy
 ```
 
-> :warning: **If you are using M1**: marginpy is not currently available natively on M1, and only availble through Rosetta which impacts performance. The easiest way to work with the `marginpy` library is to make sure you are working out of an x86_64 terminal/editor, including the installation step.
+### Installing on an M1
+
+If you are using an M1, you need to install `marginpy` through a Rosetta-enabled x86_64 version of python. If starting from scratch:
+
+1. Install brew into `/usr/local/`
+
+```shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+2. Open a terminal instance with Rosetta enabled
+
+3. Install python3.10 or greater with brew from `/usr/local/`:
+
+```shell
+$ /usr/local/bin/brew install python@3.10
+```
+
+4. Create a new virtualenv using newly installed python:
+
+```shell
+/usr/local/opt/python@3.10/bin/python3 -m venv .env
+```
+
+5. Activate new env
+
+```shell
+source .env/bin/activate
+```
+
+6. Install `marginpy` with pip from env:
+
+```shell
+pip install marginpy
+```
 
 ### General Usage
 
