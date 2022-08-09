@@ -12,5 +12,5 @@ RUN make build_all -j 7
 RUN make altinstall
 RUN ln -s /usr/local/bin/python3.10 /usr/local/bin/python
 RUN ln -s /usr/local/bin/python3.10 /usr/local/bin/python3
-RUN apt-get install python3-pip -y
 
+RUN python3 -m pip install marginpy
