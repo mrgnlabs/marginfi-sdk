@@ -37,7 +37,7 @@ If you are using an M1, you need to install `marginpy` through a Rosetta-enabled
 3. Install python3.10 or greater with brew from `/usr/local/`:
 
 ```shell
-$ /usr/local/bin/brew install python3.10
+$ /usr/local/bin/brew install python@3.10
 ```
 
 4. Create a new virtualenv using newly installed python:
