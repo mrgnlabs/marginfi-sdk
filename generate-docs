@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -e
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+# -----------------------------
+# Typescript
+# -----------------------------
+
+cd ${SCRIPT_DIR}/ts/
+yarn
+yarn bootstrap
+yarn buidl
+lerna run generate-docs
+
+# -----------------------------
+# Python
+# -----------------------------
+
+cd ${SCRIPT_DIR}/python/marginpy
+poetry env use 3.10
+poetry install
+poetry run pip install -e .
+poetry run make generate-docs

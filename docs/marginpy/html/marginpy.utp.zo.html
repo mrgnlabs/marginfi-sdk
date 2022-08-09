@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>marginpy.utp.zo package &mdash; marginpy 0.1.0-alpha.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="marginpy.utp.zo.utils package" href="marginpy.utp.zo.utils.html" />
+    <link rel="prev" title="marginpy.utp.mango.types module" href="marginpy.utp.mango.types.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> marginpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">marginpy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="marginpy.html">marginpy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="marginpy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="marginpy.generated_client.html">marginpy.generated_client package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.utils.html">marginpy.utils package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="marginpy.utp.html">marginpy.utp package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="marginpy.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">marginpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">marginpy</a> &raquo;</li>
+          <li><a href="marginpy.html">marginpy package</a> &raquo;</li>
+          <li><a href="marginpy.utp.html">marginpy.utp package</a> &raquo;</li>
+      <li>marginpy.utp.zo package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/marginpy.utp.zo.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-marginpy.utp.zo">
+<span id="marginpy-utp-zo-package"></span><h1>marginpy.utp.zo package<a class="headerlink" href="#module-marginpy.utp.zo" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UtpZoAccount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.html#marginpy.MarginfiClient" title="marginpy.MarginfiClient"><span class="pre">MarginfiClient</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">marginfi_account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.html#marginpy.MarginfiAccount" title="marginpy.MarginfiAccount"><span class="pre">MarginfiAccount</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">account_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.types.html#marginpy.types.UtpData" title="marginpy.types.UtpData"><span class="pre">UtpData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="marginpy.utp.account.html#marginpy.utp.account.UtpAccount" title="marginpy.utp.account.UtpAccount"><code class="xref py py-class docutils literal notranslate"><span class="pre">UtpAccount</span></code></a></p>
+<p>[internal] 01 proxy, encapsulating 01-specific interactions.</p>
+<p>!! Do not instantiate on its own !!</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.config">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.config" title="Permalink to this definition"></a></dt>
+<dd><p>Gets 01-specific config.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.make_activate_ix">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_activate_ix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.types.html#marginpy.types.InstructionsWrapper" title="marginpy.types.InstructionsWrapper"><span class="pre">InstructionsWrapper</span></a></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.make_activate_ix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.activate">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">activate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TransactionSignature</span></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.activate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.make_deactivate_ix">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_deactivate_ix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.types.html#marginpy.types.InstructionsWrapper" title="marginpy.types.InstructionsWrapper"><span class="pre">InstructionsWrapper</span></a></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.make_deactivate_ix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.deactivate">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deactivate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TransactionSignature</span></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.deactivate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.make_deposit_ix">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_deposit_ix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ui_amount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.types.html#marginpy.types.InstructionsWrapper" title="marginpy.types.InstructionsWrapper"><span class="pre">InstructionsWrapper</span></a></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.make_deposit_ix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.deposit">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deposit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ui_amount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TransactionSignature</span></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.deposit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.make_withdraw_ix">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_withdraw_ix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ui_amount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.types.html#marginpy.types.InstructionsWrapper" title="marginpy.types.InstructionsWrapper"><span class="pre">InstructionsWrapper</span></a></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.make_withdraw_ix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.withdraw">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">withdraw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ui_amount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TransactionSignature</span></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.withdraw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.make_place_perp_order_ix">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_place_perp_order_ix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">market_symbol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.utp.zo.utils.client.types.html#marginpy.utp.zo.utils.client.types.ZoOrderType" title="marginpy.utp.zo.utils.client.types.ZoOrderType"><span class="pre">ZoOrderType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_long</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.types.html#marginpy.types.InstructionsWrapper" title="marginpy.types.InstructionsWrapper"><span class="pre">InstructionsWrapper</span></a></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.make_place_perp_order_ix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.place_perp_order">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">place_perp_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">market_symbol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.utp.zo.utils.client.types.html#marginpy.utp.zo.utils.client.types.ZoOrderType" title="marginpy.utp.zo.utils.client.types.ZoOrderType"><span class="pre">ZoOrderType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_long</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TransactionSignature</span></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.place_perp_order" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.make_cancel_perp_order_ix">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_cancel_perp_order_ix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">market_symbol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_long</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.types.html#marginpy.types.InstructionsWrapper" title="marginpy.types.InstructionsWrapper"><span class="pre">InstructionsWrapper</span></a></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.make_cancel_perp_order_ix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.cancel_perp_order">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cancel_perp_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">market_symbol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_long</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TransactionSignature</span></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.cancel_perp_order" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.make_create_perp_open_orders_ix">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_create_perp_open_orders_ix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">market_symbol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.types.html#marginpy.types.InstructionsWrapper" title="marginpy.types.InstructionsWrapper"><span class="pre">InstructionsWrapper</span></a></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.make_create_perp_open_orders_ix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.create_perp_open_orders">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_perp_open_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">market_symbol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TransactionSignature</span></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.create_perp_open_orders" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.make_settle_funds_ix">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_settle_funds_ix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">market_symbol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.types.html#marginpy.types.InstructionsWrapper" title="marginpy.types.InstructionsWrapper"><span class="pre">InstructionsWrapper</span></a></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.make_settle_funds_ix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.settle_funds">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">settle_funds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">market_symbol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TransactionSignature</span></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.settle_funds" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.get_observation_accounts">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_observation_accounts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">AccountMeta</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.get_observation_accounts" title="Permalink to this definition"></a></dt>
+<dd><p>Creates list of account metas required to observe a Zo account.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.observe">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.utp.observation.html#marginpy.utp.observation.UtpObservation" title="marginpy.utp.observation.UtpObservation"><span class="pre">UtpObservation</span></a></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.observe" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves the 01 observation directly from the 01 accounts and refreshes the cache.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.get_zo_margin_address">
+<span class="sig-name descname"><span class="pre">get_zo_margin_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">authority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PublicKey</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">PublicKey</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.get_zo_margin_address" title="Permalink to this definition"></a></dt>
+<dd><p>[internal] Computes the 01 account PDA tied to the specified user.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.get_zo_client">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_zo_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">margin_pk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">PublicKey</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.utp.zo.utils.client.zo.html#marginpy.utp.zo.utils.client.zo.Zo" title="marginpy.utp.zo.utils.client.zo.Zo"><span class="pre">Zo</span></a></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.get_zo_client" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.get_oo_adress_for_market">
+<span class="sig-name descname"><span class="pre">get_oo_adress_for_market</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zo_control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PublicKey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">market_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PublicKey</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">PublicKey</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.get_oo_adress_for_market" title="Permalink to this definition"></a></dt>
+<dd><p>[internal] Compute the 01 account PDA tied to the specified user.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.zo.UtpZoAccount.get_logger">
+<span class="sig-name descname"><span class="pre">get_logger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Logger</span></span></span><a class="headerlink" href="#marginpy.utp.zo.UtpZoAccount.get_logger" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.utp.zo.ZoConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ZoConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">environment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.types.html#marginpy.types.Environment" title="marginpy.types.Environment"><span class="pre">Environment</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">overrides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.utp.zo.ZoConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="marginpy.types.html#marginpy.types.UtpConfig" title="marginpy.types.UtpConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">UtpConfig</span></code></a></p>
+<p>[internal] Zo-specific config.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.zo.ZoConfig.cluster">
+<span class="sig-name descname"><span class="pre">cluster</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'devnet'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'mainnet'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#marginpy.utp.zo.ZoConfig.cluster" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.zo.ZoConfig.state_pk">
+<span class="sig-name descname"><span class="pre">state_pk</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">PublicKey</span></em><a class="headerlink" href="#marginpy.utp.zo.ZoConfig.state_pk" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.zo.ZoConfig.dex_program">
+<span class="sig-name descname"><span class="pre">dex_program</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">PublicKey</span></em><a class="headerlink" href="#marginpy.utp.zo.ZoConfig.dex_program" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.zo.ZoConfig.heimdall">
+<span class="sig-name descname"><span class="pre">heimdall</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">PublicKey</span></em><a class="headerlink" href="#marginpy.utp.zo.ZoConfig.heimdall" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="marginpy.utp.zo.utils.html">marginpy.utp.zo.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="marginpy.utp.zo.utils.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="marginpy.utp.zo.utils.client.html">marginpy.utp.zo.utils.client package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.utp.zo.utils.client.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="marginpy.utp.zo.account.html">marginpy.utp.zo.account module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="marginpy.utp.zo.config.html">marginpy.utp.zo.config module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="marginpy.utp.zo.instructions.html">marginpy.utp.zo.instructions module</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="marginpy.utp.mango.types.html" class="btn btn-neutral float-left" title="marginpy.utp.mango.types module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="marginpy.utp.zo.utils.html" class="btn btn-neutral float-right" title="marginpy.utp.zo.utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, MRGN Labs.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
