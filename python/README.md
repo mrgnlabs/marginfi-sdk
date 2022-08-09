@@ -22,6 +22,12 @@ marginpy is the python library for interacting with [marginfi](marginfi.com), th
 pip install marginpy
 ```
 
+### Running `marginpy` in a Github Codespace
+
+`marginpy` is installed out-of-the-box in the [.devcontainer/Dockerfile](Python SDK Codespace).
+
+Enable Github Codespaces for your Github user or organization account and spin up a machine for a no-hassle way to get started!
+
 ### Installing on an M1
 
 If you are using an M1, you need to install `marginpy` through a Rosetta-enabled x86_64 version of python. If starting from scratch:
