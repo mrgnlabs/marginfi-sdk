@@ -44,7 +44,7 @@ class ZoConfig(UtpConfig):
                 default=PublicKey("Zo1ThtSHMh9tZGECwBDL81WJRL6s3QTHf733Tyko7KQ"),
             )
         else:
-            raise Exception(f"Unknown environment for Mango UTP config {environment}")
+            raise Exception(f"Unknown environment for 01 UTP config {environment}")
 
         super().__init__(utp_index, program_id)
 
@@ -83,4 +83,4 @@ class ZoConfig(UtpConfig):
                 default=PublicKey("Aoi3SGj4zLiMQSHrJ4yEDFwMQnGjVQCeKSYD6ygi6WLr"),
             )
         else:
-            raise Exception(f"Unknown environment for Zo UTP config {environment}")
+            raise Exception(f"Unknown environment for 01 UTP config {environment}")

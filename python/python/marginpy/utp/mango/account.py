@@ -452,7 +452,7 @@ class UtpMangoAccount(UtpAccount):
 
     async def get_observation_accounts(self) -> List[AccountMeta]:
         """
-        Creates list of account metas required to observe a Zo account.
+        Creates list of account metas required to observe a Mango account.
         """
 
         with mango.ContextBuilder.build(
