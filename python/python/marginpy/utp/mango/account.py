@@ -122,7 +122,7 @@ class UtpMangoAccount(UtpAccount):
 
     async def activate(self) -> TransactionSignature:
         logger = self.get_logger()
-        logger.debug("Activating 01 UTP")
+        logger.debug("Activating Mango UTP")
 
         ix = await self.make_activate_ix()
         transation = Transaction().add(*ix.instructions)
@@ -208,7 +208,7 @@ class UtpMangoAccount(UtpAccount):
 
     async def deposit(self, ui_amount: float) -> TransactionSignature:
         logger = self.get_logger()
-        logger.debug("Depositing %s USDC to 01 UTP", ui_amount)
+        logger.debug("Depositing %s USDC to Mango UTP", ui_amount)
 
         self.throw_if_not_active()
 
@@ -452,7 +452,7 @@ class UtpMangoAccount(UtpAccount):
 
     async def get_observation_accounts(self) -> List[AccountMeta]:
         """
-        Creates list of account metas required to observe a Zo account.
+        Creates list of account metas required to observe a Mango account.
         """
 
         with mango.ContextBuilder.build(
@@ -479,7 +479,7 @@ class UtpMangoAccount(UtpAccount):
 
     async def observe(self) -> UtpObservation:
         """
-        Retrieves the Mango observation directly from the 01 accounts and refreshes the cache.
+        Retrieves the Mango observation directly from the Mango accounts and refreshes the cache.
         """
 
         pubkeys = [m.pubkey for m in await self.get_observation_accounts()]
