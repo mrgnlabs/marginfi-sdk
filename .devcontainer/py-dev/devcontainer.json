@@ -15,5 +15,5 @@
 		}
 	},
 
-	"postCreateCommand": "cd python && poetry env use 3.10 && poetry install && poetry shell"
+	"postAttachCommand": "cd python && poetry env use 3.10 && poetry install && poetry shell"
 }
