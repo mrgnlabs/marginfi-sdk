@@ -15,5 +15,5 @@
 		}
 	},
 
-	"postAttachCommand": "cd python && poetry env use 3.10 && poetry install && poetry shell"
+	"postAttachCommand": "echo \"cd python && poetry env use 3.10 && poetry install && poetry shell\" | bash"
 }
