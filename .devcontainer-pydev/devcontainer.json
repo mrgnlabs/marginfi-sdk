@@ -2,7 +2,7 @@
 	"name": "MRGN Labs (SDK - Python)",
 
 	"build": {
-		"dockerfile": "Dockerfile-pydev"
+		"dockerfile": "Dockerfile"
 	},
 
 	// Configure tool-specific properties.
