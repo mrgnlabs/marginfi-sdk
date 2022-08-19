@@ -16,9 +16,3 @@ RUN ln -s /usr/local/bin/python3.10 /usr/local/bin/python3
 # Poetry (python package development tool)
 ENV PYTHONPATH=${PYTHONPATH}:${PWD} 
 RUN python3 -m pip install poetry nox-poetry
-# RUN python3 -m poetry env use 3.10
-# RUN poetry install
-# RUN poetry shell
-
-# # Maturin (rust)
-# RUN maturin develop
