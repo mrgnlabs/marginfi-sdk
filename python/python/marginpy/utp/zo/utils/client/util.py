@@ -29,7 +29,7 @@ def div_to_float(a: int, b: int) -> float:
     return float(q) + (r // gcd) / (b // gcd)
 
 
-def big_to_small_amount(n: int | float, /, *, decimals: int) -> int:
+def big_to_small_amount(n: int or float, /, *, decimals: int) -> int:
     shift = 10 ** abs(decimals)
     if decimals >= 0:
         integral = int(n) * shift
@@ -39,12 +39,12 @@ def big_to_small_amount(n: int | float, /, *, decimals: int) -> int:
         return int(n) // shift
 
 
-def small_to_big_amount(n: int | float, /, *, decimals: int):
+def small_to_big_amount(n: int or float, /, *, decimals: int):
     return n / 10**decimals
 
 
 def price_to_lots(
-    n: int | float,
+    n: int or float,
     /,
     *,
     base_decimals: int,
