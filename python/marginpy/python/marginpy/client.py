@@ -103,7 +103,7 @@ class MarginfiClient:
         """
         MarginfiClient environment factory.
 
-        Fetches account data according to the ENV variables provided, and instantiate the corresponding MarginfiAccount.
+        Fetches account data according to the ENV variables provided (falling back to default config when possible), and instantiate the corresponding MarginfiAccount.
 
         Args:
             overrides (Dict[str, Any], optional): override to environment variables. Defaults to {}.
@@ -125,10 +125,18 @@ class MarginfiClient:
             overrides,
         )
         program_id = handle_override(
-            "program_id", PublicKey(os.getenv("MARGINFI_PROGRAM") or ""), overrides
+            "program_id",
+            PublicKey(os.getenv("MARGINFI_PROGRAM"))
+            if os.getenv("MARGINFI_PROGRAM") is not None
+            else config.program_id,
+            overrides,
         )
         group_pk = handle_override(
-            "group_pk", PublicKey(os.getenv("MARGINFI_GROUP") or ""), overrides
+            "group_pk",
+            PublicKey(os.getenv("MARGINFI_GROUP"))
+            if os.getenv("MARGINFI_GROUP") is not None
+            else config.group_pk,
+            overrides,
         )
 
         if "WALLET_KEY" in os.environ:
@@ -318,18 +326,19 @@ class MarginfiClient:
         return all_accounts
 
     async def load_marginfi_account(
-        self, address: Union[str, PublicKey]
+        self, address: Union[str, PublicKey], observe_utps: bool = True
     ) -> MarginfiAccount:
         """
         Retrieves specified marginfi account.
         """
-
         logger = self._get_logger()
         logger.debug("Loading marginfi account %s", address)
 
         pubkey = PublicKey(address) if isinstance(address, str) else address
         account = await MarginfiAccount.fetch(pubkey, self)
-        logger.info("marginfi account loaded:\n%s", account)
+        logger.debug("marginfi account loaded:\n%s", account)
+        if observe_utps:
+            await account.observe_utps()
         return account
 
     async def load_all_program_account_addresses(
