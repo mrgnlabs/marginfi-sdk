@@ -48,7 +48,7 @@ class MarginfiDedicatedConfig:
             self.group_pk = handle_override(
                 overrides=overrides,
                 override_key="group_pk",
-                default=PublicKey("Fp3Ytjx9XVT4Sbv78ddkBC2HtT6nomVjtAjMTZwcDcba"),
+                default=PublicKey("2FdddfNp6knT5tDjKjFREKUjsFKvAppc61bCyuCrTnj2"),
             )
             self.collateral_mint_pk = handle_override(
                 overrides=overrides,

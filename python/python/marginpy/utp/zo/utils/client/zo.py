@@ -21,7 +21,7 @@ T = TypeVar("T")
 
 
 class ZoIndexer(Generic[T]):
-    def __init__(self, d: dict[str, T], m: Callable[[str | int | PublicKey], str]):
+    def __init__(self, d: dict[str, T], m: Callable[[str or int or PublicKey], str]):
         self.d = d
         self.m = m
 
@@ -34,7 +34,7 @@ class ZoIndexer(Generic[T]):
     def __len__(self):
         return len(self.d)
 
-    def __getitem__(self, i: str | int | PublicKey) -> T:
+    def __getitem__(self, i: str or int or PublicKey) -> T:
         return self.d[self.m(i)]
 
 
@@ -51,8 +51,8 @@ class Zo:
     dex_markets: dict[str, Market]
     _orders: dict[str, list[Order]]
 
-    _markets_map: dict[str | int, str]
-    _collaterals_map: dict[str | int, str]
+    _markets_map: dict[str or int, str]
+    _collaterals_map: dict[str or int, str]
 
     state: Any
     state_signer: PublicKey
@@ -81,9 +81,9 @@ class Zo:
     async def new(
         conn: AsyncClient,
         cluster: Literal["devnet", "mainnet"],
-        payer: Keypair | None = None,
-        url: str | None = None,
-        margin_pk: PublicKey | None = None,
+        payer: Keypair or None = None,
+        url: str or None = None,
+        margin_pk: PublicKey or None = None,
         tx_opts: TxOpts = TxOpts(
             max_retries=None,
             preflight_commitment=Processed,
@@ -210,7 +210,7 @@ class Zo:
         await self.__reload_dex_markets(commitment=commitment)
         await self.__reload_orders(commitment=commitment)
 
-    def collaterals_map(self, k: str | int | PublicKey) -> str:
+    def collaterals_map(self, k: str or int or PublicKey) -> str:
         if isinstance(k, PublicKey):
             for i, c in enumerate(self.state.collaterals):
                 if c.mint == k:
@@ -219,7 +219,7 @@ class Zo:
         else:
             return self._collaterals_map[k]
 
-    def markets_map(self, k: str | int | PublicKey) -> str:
+    def markets_map(self, k: str or int or PublicKey) -> str:
         if isinstance(k, PublicKey):
             for i, m in enumerate(self.state.perp_markets):
                 if m.dex_market == k:
@@ -228,7 +228,7 @@ class Zo:
         else:
             return self._markets_map[k]
 
-    def _get_open_orders_info(self, key: int | str, /):
+    def _get_open_orders_info(self, key: int or str, /):
         if isinstance(key, str):
             for k, v in self._markets_map.items():
                 if v == key and isinstance(k, int):
@@ -387,7 +387,7 @@ class Zo:
         self._position = positions
         pass
 
-    async def __reload_dex_markets(self, *, commitment: None | Commitment = None):
+    async def __reload_dex_markets(self, *, commitment: None or Commitment = None):
         ks = [
             m.dex_market
             for m in self.state.perp_markets
@@ -402,7 +402,7 @@ class Zo:
             for i in range(len(self._markets))
         }
 
-    async def __reload_orders(self, *, commitment: None | Commitment = None):
+    async def __reload_orders(self, *, commitment: None or Commitment = None):
         ks: List[Union[PublicKey, str]] = []
         for i in range(len(self._markets)):
             mkt = self.dex_markets[self._markets_map[i]]
@@ -433,7 +433,7 @@ class Zo:
         self._orderbook = orderbook
         self._orders = orders
 
-    async def __refresh_margin(self, *, commitment: None | Commitment = None):
+    async def __refresh_margin(self, *, commitment: None or Commitment = None):
         if self.margin_key is not None:
             self.margin, self.control = await asyncio.gather(
                 self._program.account["Margin"].fetch(self.margin_key, commitment),

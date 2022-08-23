@@ -95,7 +95,7 @@ class MarketInfo:
     index_price: float
     mark_price: float
     funding_sample_start_time: datetime
-    funding_info: None | FundingInfo
+    funding_info: None or FundingInfo
 
     @property
     def funding_rate(self):
@@ -120,21 +120,20 @@ class PositionInfo:
 
 def order_type_from_str(t: OrderType, /, *, program: Program):
     typ = program.type["OrderType"]
-    match t:
-        case "limit":
-            return typ.Limit()
-        case "ioc":
-            return typ.ImmediateOrCancel()
-        case "postonly":
-            return typ.PostOnly()
-        case "reduceonlyioc":
-            return typ.ReduceOnlyIoc()
-        case "reduceonlylimit":
-            return typ.ReduceOnlyLimit()
-        case "fok":
-            return typ.FillOrKill()
-        case _:
-            raise TypeError(f"unsupported order type {t}")
+    if t == "limit":
+        return typ.Limit()
+    elif t == "ioc":
+        return typ.ImmediateOrCancel()
+    elif t == "postonly":
+        return typ.PostOnly()
+    elif t == "reduceonlyioc":
+        return typ.ReduceOnlyIoc()
+    elif t == "reduceonlylimit":
+        return typ.ReduceOnlyLimit()
+    elif t == "fok":
+        return typ.FillOrKill()
+    else:
+        raise TypeError(f"unsupported order type {t}")
 
 
 def perp_type_to_str(t: Any, /, *, program: Program) -> PerpType:

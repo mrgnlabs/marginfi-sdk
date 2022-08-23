@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from solana.publickey import PublicKey
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Config:
     cluster_url: str
     zo_program_id: PublicKey

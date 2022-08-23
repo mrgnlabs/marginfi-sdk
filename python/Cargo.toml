@@ -10,7 +10,7 @@ path = "src/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "^0.16.5", features = ["extension-module", "abi3-py310"] }
+pyo3 = { version = "^0.16.5", features = ["extension-module", "abi3-py39"] }
 marginfi-common = { path = "../rust/marginfi-common" }
 bytemuck = "^1.7.2"
 mango-protocol = { git = "https://github.com/mrgnlabs/mango-v3.git", tag="v3.5.1-fork.1", package= "mango", features = ["no-entrypoint", "client"] }
