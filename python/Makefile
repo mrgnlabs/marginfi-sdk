@@ -47,7 +47,7 @@ format:
 
 build:  ## Build
 	make clean
-	poetry run maturin build --sdist
+	poetry run maturin build --sdist --release
 
 # ##@ Publishing
 build-and-publish:  ## Publish to pypi
