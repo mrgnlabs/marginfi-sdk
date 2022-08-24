@@ -52,6 +52,11 @@ jobs:
           pip install pytest based58 pybip39
           pip install ${{ env.name }} --find-links dist --force-reinstall
           pytest -vv -m unit
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: dist
 
   windows:
     runs-on: windows-latest
@@ -82,6 +87,11 @@ jobs:
           python -m pip install pytest based58 pybip39
           python -m pip install ${{ env.name }} --find-links dist --force-reinstall
           python -m pytest -vv -m unit
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: dist
 
   linux:
     runs-on: ubuntu-latest
@@ -115,3 +125,27 @@ jobs:
           pip install pytest based58 pybip39
           pip install ${{ env.name }} --find-links dist --force-reinstall
           pytest -vv -m unit
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: dist
+
+  sdist:
+    runs-on: ubuntu-latest
+    if: needs.changed_files.outputs.python-marginpy == 'true'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version:
+      - name: Build sdist
+        uses: messense/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist -m python/marginpy/Cargo.toml
+      - name: Upload sdist
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: dist
