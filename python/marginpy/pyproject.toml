@@ -1,6 +1,6 @@
 [project]
 name = "marginpy"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 description = "marginfi Python SDK"
 readme = "README.md"
 requires-python = ">=3.9, <3.11"
@@ -36,7 +36,7 @@ repository = "https://https://github.com/mrgnlabs/marginfi-sdk/tree/main/python/
 
 [tool.poetry]
 name = "marginpy"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 description = "marginfi Python SDK"
 authors = ["MRGN Labs", "man0s <95379755+losman0s@users.noreply.github.com>"]
 
