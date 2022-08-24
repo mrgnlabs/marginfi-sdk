@@ -121,7 +121,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
           manylinux: auto
-          args: --release --out dist -m python/marginpy/Cargo.toml
+          args: --release --out dist -m python/marginpy/Cargo.toml --sdist
       - name: Install built wheel and test
         if: matrix.target == 'x86_64'
         run: |
@@ -134,28 +134,27 @@ jobs:
           name: marginpy-wheels
           path: dist
 
-  sdist:
-    runs-on: ubuntu-latest
-    needs: changed_files
-    if: needs.changed_files.outputs.python-marginpy == 'true'
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ env.python_version }}
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          profile: minimal
-          default: true
-      - name: Build sdist
-        uses: messense/maturin-action@v1
-        with:
-          command: sdist
-          args: --out dist -m python/marginpy/Cargo.toml
-      - name: Upload sdist
-        uses: actions/upload-artifact@v2
-        with:
-          name: marginpy-wheels
-          path: dist
+  # sdist:
+  #   runs-on: ubuntu-latest
+  #   needs: changed_files
+  #   if: needs.changed_files.outputs.python-marginpy == 'true'
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-python@v2
+  #       with:
+  #         python-version: ${{ env.python_version }}
+  #     - name: Install Rust toolchain
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #         toolchain: nightly
+  #         profile: minimal
+  #         default: true
+  #     - name: Build sdist
+  #       uses: messense/maturin-action@v1
+  #       with:
+  #         args: --out dist -m python/marginpy/Cargo.toml
+  #     - name: Upload sdist
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: marginpy-wheels
+  #         path: dist
