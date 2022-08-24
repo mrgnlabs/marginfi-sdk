@@ -55,7 +55,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v2
         with:
-          name: wheels
+          name: marginpy-wheels
           path: dist
 
   windows:
@@ -90,7 +90,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v2
         with:
-          name: wheels
+          name: marginpy-wheels
           path: dist
 
   linux:
@@ -128,7 +128,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v2
         with:
-          name: wheels
+          name: marginpy-wheels
           path: dist
 
   sdist:
@@ -138,7 +138,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version:
+          python-version: ${{ env.python_version }}
       - name: Build sdist
         uses: messense/maturin-action@v1
         with:
@@ -147,5 +147,5 @@ jobs:
       - name: Upload sdist
         uses: actions/upload-artifact@v2
         with:
-          name: wheels
+          name: marginpy-wheels
           path: dist
