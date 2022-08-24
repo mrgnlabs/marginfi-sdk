@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>marginpy.types module &mdash; marginpy 0.1.0-alpha.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="marginpy.marginpy module" href="marginpy.marginpy.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> marginpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">marginpy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="marginpy.html">marginpy package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="marginpy.html#subpackages">Subpackages</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="marginpy.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="marginpy.account.html">marginpy.account module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.bank.html">marginpy.bank module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.client.html">marginpy.client module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.config.html">marginpy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.constants.html">marginpy.constants module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.group.html">marginpy.group module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.instructions.html">marginpy.instructions module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.logger.html">marginpy.logger module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.marginpy.html">marginpy.marginpy module</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">marginpy.types module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">marginpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">marginpy</a> &raquo;</li>
+          <li><a href="marginpy.html">marginpy package</a> &raquo;</li>
+      <li>marginpy.types module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/marginpy.types.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-marginpy.types">
+<span id="marginpy-types-module"></span><h1>marginpy.types module<a class="headerlink" href="#module-marginpy.types" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.Environment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.Environment" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.Environment.LOCALNET">
+<span class="sig-name descname"><span class="pre">LOCALNET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'localnet'</span></em><a class="headerlink" href="#marginpy.types.Environment.LOCALNET" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.Environment.DEVNET">
+<span class="sig-name descname"><span class="pre">DEVNET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'devnet'</span></em><a class="headerlink" href="#marginpy.types.Environment.DEVNET" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.Environment.MAINNET">
+<span class="sig-name descname"><span class="pre">MAINNET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mainnet'</span></em><a class="headerlink" href="#marginpy.types.Environment.MAINNET" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.AccountType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AccountType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.AccountType" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.AccountType.MARGINFI_GROUP">
+<span class="sig-name descname"><span class="pre">MARGINFI_GROUP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'MarginfiGroup'</span></em><a class="headerlink" href="#marginpy.types.AccountType.MARGINFI_GROUP" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.AccountType.MARGINFI_ACCOUNT">
+<span class="sig-name descname"><span class="pre">MARGINFI_ACCOUNT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'MarginfiAccount'</span></em><a class="headerlink" href="#marginpy.types.AccountType.MARGINFI_ACCOUNT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.BankVaultType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BankVaultType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.BankVaultType" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.BankVaultType.LIQUIDITY_VAULT">
+<span class="sig-name descname"><span class="pre">LIQUIDITY_VAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'LiquidityVault'</span></em><a class="headerlink" href="#marginpy.types.BankVaultType.LIQUIDITY_VAULT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.BankVaultType.INSURANCE_VAULT">
+<span class="sig-name descname"><span class="pre">INSURANCE_VAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'InsuranceVault'</span></em><a class="headerlink" href="#marginpy.types.BankVaultType.INSURANCE_VAULT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.BankVaultType.FEE_VAULT">
+<span class="sig-name descname"><span class="pre">FEE_VAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FeeVault'</span></em><a class="headerlink" href="#marginpy.types.BankVaultType.FEE_VAULT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.UtpIndex">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UtpIndex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.UtpIndex" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.UtpIndex.MANGO">
+<span class="sig-name descname"><span class="pre">MANGO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#marginpy.types.UtpIndex.MANGO" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.UtpIndex.ZO">
+<span class="sig-name descname"><span class="pre">ZO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#marginpy.types.UtpIndex.ZO" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.GroupConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GroupConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">admin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'typing.Optional[PublicKey]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'typing.Optional[bank_config.BankConfig]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paused</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'typing.Optional[bool]'</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.GroupConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="marginpy.generated_client.types.group_config.html#marginpy.generated_client.types.group_config.GroupConfig" title="marginpy.generated_client.types.group_config.GroupConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">GroupConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.BankConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BankConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling_factor_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'typing.Optional[int]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_fee</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'typing.Optional[int]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interest_fee</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'typing.Optional[int]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_margin_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'typing.Optional[int]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maint_margin_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'typing.Optional[int]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account_deposit_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'typing.Optional[int]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lp_deposit_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'typing.Optional[int]'</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.BankConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="marginpy.generated_client.types.bank_config.html#marginpy.generated_client.types.bank_config.BankConfig" title="marginpy.generated_client.types.bank_config.BankConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BankConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.LiquidationPrices">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LiquidationPrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">final_price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discounted_liquidator_price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insurance_vault_fee</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.LiquidationPrices" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.LiquidationPrices.final_price">
+<span class="sig-name descname"><span class="pre">final_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.types.LiquidationPrices.final_price" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.LiquidationPrices.discounted_liquidator_price">
+<span class="sig-name descname"><span class="pre">discounted_liquidator_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.types.LiquidationPrices.discounted_liquidator_price" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.LiquidationPrices.insurance_vault_fee">
+<span class="sig-name descname"><span class="pre">insurance_vault_fee</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.types.LiquidationPrices.insurance_vault_fee" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.UtpData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UtpData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.generated_client.types.utp_account_config.html#marginpy.generated_client.types.utp_account_config.UTPAccountConfig" title="marginpy.generated_client.types.utp_account_config.UTPAccountConfig"><span class="pre">marginpy.generated_client.types.utp_account_config.UTPAccountConfig</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.UtpData" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.UtpData.is_active">
+<span class="sig-name descname"><span class="pre">is_active</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#marginpy.types.UtpData.is_active" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.UtpData.account_config">
+<span class="sig-name descname"><span class="pre">account_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="marginpy.generated_client.types.utp_account_config.html#marginpy.generated_client.types.utp_account_config.UTPAccountConfig" title="marginpy.generated_client.types.utp_account_config.UTPAccountConfig"><span class="pre">UTPAccountConfig</span></a></em><a class="headerlink" href="#marginpy.types.UtpData.account_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.UtpConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UtpConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">utp_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#marginpy.types.UtpIndex" title="marginpy.types.UtpIndex"><span class="pre">marginpy.types.UtpIndex</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">program_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">solana.publickey.PublicKey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.UtpConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.UtpConfig.utp_index">
+<span class="sig-name descname"><span class="pre">utp_index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#marginpy.types.UtpIndex" title="marginpy.types.UtpIndex"><span class="pre">UtpIndex</span></a></em><a class="headerlink" href="#marginpy.types.UtpConfig.utp_index" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.UtpConfig.program_id">
+<span class="sig-name descname"><span class="pre">program_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">PublicKey</span></em><a class="headerlink" href="#marginpy.types.UtpConfig.program_id" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.InstructionsWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">InstructionsWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">solana.transaction.TransactionInstruction</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">solana.keypair.Keypair</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.InstructionsWrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.InstructionsWrapper.instructions">
+<span class="sig-name descname"><span class="pre">instructions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">TransactionInstruction</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#marginpy.types.InstructionsWrapper.instructions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.InstructionsWrapper.signers">
+<span class="sig-name descname"><span class="pre">signers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Keypair</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#marginpy.types.InstructionsWrapper.signers" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.EquityType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EquityType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.EquityType" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.EquityType.INIT_REQ_ADJUSTED">
+<span class="sig-name descname"><span class="pre">INIT_REQ_ADJUSTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INIT_REQ_ADJUSTED'</span></em><a class="headerlink" href="#marginpy.types.EquityType.INIT_REQ_ADJUSTED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.EquityType.TOTAL">
+<span class="sig-name descname"><span class="pre">TOTAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'TOTAL'</span></em><a class="headerlink" href="#marginpy.types.EquityType.TOTAL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.AccountBalances">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AccountBalances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">equity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">liabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.AccountBalances" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.AccountBalances.equity">
+<span class="sig-name descname"><span class="pre">equity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.types.AccountBalances.equity" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.AccountBalances.assets">
+<span class="sig-name descname"><span class="pre">assets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.types.AccountBalances.assets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.AccountBalances.liabilities">
+<span class="sig-name descname"><span class="pre">liabilities</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.types.AccountBalances.liabilities" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.MarginRequirement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MarginRequirement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.MarginRequirement" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.MarginRequirement.INITIAL">
+<span class="sig-name descname"><span class="pre">INITIAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INITIAL'</span></em><a class="headerlink" href="#marginpy.types.MarginRequirement.INITIAL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.MarginRequirement.PARTIAL_LIQUIDATION">
+<span class="sig-name descname"><span class="pre">PARTIAL_LIQUIDATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PARTIAL_LIQUIDATION'</span></em><a class="headerlink" href="#marginpy.types.MarginRequirement.PARTIAL_LIQUIDATION" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.MarginRequirement.MAINTENANCE">
+<span class="sig-name descname"><span class="pre">MAINTENANCE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'MAINTENANCE'</span></em><a class="headerlink" href="#marginpy.types.MarginRequirement.MAINTENANCE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.LendingSide">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LendingSide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.LendingSide" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.LendingSide.BORROW">
+<span class="sig-name descname"><span class="pre">BORROW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BORROW'</span></em><a class="headerlink" href="#marginpy.types.LendingSide.BORROW" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.types.LendingSide.DEPOSIT">
+<span class="sig-name descname"><span class="pre">DEPOSIT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DEPOSIT'</span></em><a class="headerlink" href="#marginpy.types.LendingSide.DEPOSIT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.BankData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BankData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling_factor_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_fee</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interest_fee</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deposit_accumulator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">borrow_accumulator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_update</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'int'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_deposits_record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_borrows_record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'PublicKey'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vault</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'PublicKey'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vault_authority_pda_bump</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'int'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insurance_vault</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'PublicKey'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insurance_vault_authority_pda_bump</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'int'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insurance_vault_outstanding_transfers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fee_vault</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'PublicKey'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fee_vault_authority_pda_bump</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'int'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fee_vault_outstanding_transfers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_margin_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maint_margin_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account_deposit_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lp_deposit_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'wrapped_i80f48.WrappedI80F48'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reserved_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'list[int]'</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.BankData" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="marginpy.generated_client.types.bank.html#marginpy.generated_client.types.bank.Bank" title="marginpy.generated_client.types.bank.Bank"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bank</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.MarginfiAccountData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MarginfiAccountData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">authority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">solana.publickey.PublicKey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marginfi_group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">solana.publickey.PublicKey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deposit_record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.generated_client.types.wrapped_i80f48.html#marginpy.generated_client.types.wrapped_i80f48.WrappedI80F48" title="marginpy.generated_client.types.wrapped_i80f48.WrappedI80F48"><span class="pre">marginpy.generated_client.types.wrapped_i80f48.WrappedI80F48</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">borrow_record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.generated_client.types.wrapped_i80f48.html#marginpy.generated_client.types.wrapped_i80f48.WrappedI80F48" title="marginpy.generated_client.types.wrapped_i80f48.WrappedI80F48"><span class="pre">marginpy.generated_client.types.wrapped_i80f48.WrappedI80F48</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_utps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utp_account_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="marginpy.generated_client.types.utp_account_config.html#marginpy.generated_client.types.utp_account_config.UTPAccountConfig" title="marginpy.generated_client.types.utp_account_config.UTPAccountConfig"><span class="pre">marginpy.generated_client.types.utp_account_config.UTPAccountConfig</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reserved_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.MarginfiAccountData" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="marginpy.generated_client.accounts.marginfi_account.html#marginpy.generated_client.accounts.marginfi_account.MarginfiAccount" title="marginpy.generated_client.accounts.marginfi_account.MarginfiAccount"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarginfiAccount</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.types.MarginfiGroupData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MarginfiGroupData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">admin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">solana.publickey.PublicKey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.generated_client.types.bank.html#marginpy.generated_client.types.bank.Bank" title="marginpy.generated_client.types.bank.Bank"><span class="pre">marginpy.generated_client.types.bank.Bank</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">paused</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reserved_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.types.MarginfiGroupData" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="marginpy.generated_client.accounts.marginfi_group.html#marginpy.generated_client.accounts.marginfi_group.MarginfiGroup" title="marginpy.generated_client.accounts.marginfi_group.MarginfiGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarginfiGroup</span></code></a></p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="marginpy.marginpy.html" class="btn btn-neutral float-left" title="marginpy.marginpy module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, MRGN Labs.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

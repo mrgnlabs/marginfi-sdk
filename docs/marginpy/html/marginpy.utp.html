@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>marginpy.utp package &mdash; marginpy 0.1.0-alpha.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="marginpy.utp.mango package" href="marginpy.utp.mango.html" />
+    <link rel="prev" title="marginpy.utils.pda module" href="marginpy.utils.pda.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> marginpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">marginpy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="marginpy.html">marginpy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="marginpy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="marginpy.generated_client.html">marginpy.generated_client package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.utils.html">marginpy.utils package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">marginpy.utp package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="marginpy.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">marginpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">marginpy</a> &raquo;</li>
+          <li><a href="marginpy.html">marginpy package</a> &raquo;</li>
+      <li>marginpy.utp package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/marginpy.utp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-marginpy.utp">
+<span id="marginpy-utp-package"></span><h1>marginpy.utp package<a class="headerlink" href="#module-marginpy.utp" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UtpAccount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.html#marginpy.MarginfiClient" title="marginpy.MarginfiClient"><span class="pre">MarginfiClient</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">marginfi_account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.html#marginpy.MarginfiAccount" title="marginpy.MarginfiAccount"><span class="pre">MarginfiAccount</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utp_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.generated_client.types.utp_account_config.html#marginpy.generated_client.types.utp_account_config.UTPAccountConfig" title="marginpy.generated_client.types.utp_account_config.UTPAccountConfig"><span class="pre">UTPAccountConfig</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.utp.UtpAccount" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>[internal] Abstract class for common behaviour in UTP proxies.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.is_active">
+<span class="sig-name descname"><span class="pre">is_active</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#marginpy.utp.UtpAccount.is_active" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.get_observation_accounts">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_observation_accounts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">AccountMeta</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#marginpy.utp.UtpAccount.get_observation_accounts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.observe">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.utp.observation.html#marginpy.utp.observation.UtpObservation" title="marginpy.utp.observation.UtpObservation"><span class="pre">UtpObservation</span></a></span></span><a class="headerlink" href="#marginpy.utp.UtpAccount.observe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.deposit">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deposit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ui_amount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TransactionSignature</span></span></span><a class="headerlink" href="#marginpy.utp.UtpAccount.deposit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.withdraw">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">withdraw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ui_amount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TransactionSignature</span></span></span><a class="headerlink" href="#marginpy.utp.UtpAccount.withdraw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.config">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="marginpy.types.html#marginpy.types.UtpConfig" title="marginpy.types.UtpConfig"><span class="pre">UtpConfig</span></a></em><a class="headerlink" href="#marginpy.utp.UtpAccount.config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.index">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="marginpy.types.html#marginpy.types.UtpIndex" title="marginpy.types.UtpIndex"><span class="pre">UtpIndex</span></a></em><a class="headerlink" href="#marginpy.utp.UtpAccount.index" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.cached_observation">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cached_observation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="marginpy.utp.observation.html#marginpy.utp.observation.UtpObservation" title="marginpy.utp.observation.UtpObservation"><span class="pre">UtpObservation</span></a></em><a class="headerlink" href="#marginpy.utp.UtpAccount.cached_observation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.equity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.utp.UtpAccount.equity" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.free_collateral">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">free_collateral</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.utp.UtpAccount.free_collateral" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.init_margin_requirement">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init_margin_requirement</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.utp.UtpAccount.init_margin_requirement" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.liquidation_value">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">liquidation_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.utp.UtpAccount.liquidation_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.is_rebalance_deposit_needed">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_rebalance_deposit_needed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#marginpy.utp.UtpAccount.is_rebalance_deposit_needed" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.max_rebalance_deposit_amount">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_rebalance_deposit_amount</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.utp.UtpAccount.max_rebalance_deposit_amount" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.is_empty">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_empty</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#marginpy.utp.UtpAccount.is_empty" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.address">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">PublicKey</span></em><a class="headerlink" href="#marginpy.utp.UtpAccount.address" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.authority">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">authority</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">PublicKey</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">PublicKey</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#marginpy.utp.UtpAccount.authority" title="Permalink to this definition"></a></dt>
+<dd><p>Gets UTP authority (PDA).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>seed</strong> (<em>PublicKey</em><em>, </em><em>optional</em>) – seed required only at UTP activation. Defaults to None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.compute_liquidation_prices">
+<span class="sig-name descname"><span class="pre">compute_liquidation_prices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.types.html#marginpy.types.LiquidationPrices" title="marginpy.types.LiquidationPrices"><span class="pre">LiquidationPrices</span></a></span></span><a class="headerlink" href="#marginpy.utp.UtpAccount.compute_liquidation_prices" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates liquidation parameters given an account value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.throw_if_not_active">
+<span class="sig-name descname"><span class="pre">throw_if_not_active</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.utp.UtpAccount.throw_if_not_active" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.UtpAccount.make_create_proxy_token_account_ixs">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_create_proxy_token_account_ixs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proxy_token_account_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Keypair</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utp_authority_pk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PublicKey</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.types.html#marginpy.types.InstructionsWrapper" title="marginpy.types.InstructionsWrapper"><span class="pre">InstructionsWrapper</span></a></span></span><a class="headerlink" href="#marginpy.utp.UtpAccount.make_create_proxy_token_account_ixs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.utp.UtpObservation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UtpObservation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">free_collateral</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_margin_requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">liquidation_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_rebalance_deposit_needed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_rebalance_deposit_amount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_empty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.utp.UtpObservation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>UtpObservation struct mirroring on-chain data.
+Contains a UTP health metrics.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.UtpObservation.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span></em><a class="headerlink" href="#marginpy.utp.UtpObservation.timestamp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.UtpObservation.equity">
+<span class="sig-name descname"><span class="pre">equity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.utp.UtpObservation.equity" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.UtpObservation.free_collateral">
+<span class="sig-name descname"><span class="pre">free_collateral</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.utp.UtpObservation.free_collateral" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.UtpObservation.init_margin_requirement">
+<span class="sig-name descname"><span class="pre">init_margin_requirement</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.utp.UtpObservation.init_margin_requirement" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.UtpObservation.liquidation_value">
+<span class="sig-name descname"><span class="pre">liquidation_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.utp.UtpObservation.liquidation_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.UtpObservation.is_rebalance_deposit_needed">
+<span class="sig-name descname"><span class="pre">is_rebalance_deposit_needed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#marginpy.utp.UtpObservation.is_rebalance_deposit_needed" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.UtpObservation.max_rebalance_deposit_amount">
+<span class="sig-name descname"><span class="pre">max_rebalance_deposit_amount</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.utp.UtpObservation.max_rebalance_deposit_amount" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.utp.UtpObservation.is_empty">
+<span class="sig-name descname"><span class="pre">is_empty</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#marginpy.utp.UtpObservation.is_empty" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.utp.UtpObservation.from_raw">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.utp.observation.html#marginpy.utp.observation.ObservationRaw" title="marginpy.utp.observation.ObservationRaw"><span class="pre">ObservationRaw</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="marginpy.utp.observation.html#marginpy.utp.observation.UtpObservation" title="marginpy.utp.observation.UtpObservation"><span class="pre">UtpObservation</span></a></span></span><a class="headerlink" href="#marginpy.utp.UtpObservation.from_raw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="marginpy.utp.mango.html">marginpy.utp.mango package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="marginpy.utp.mango.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="marginpy.utp.mango.account.html">marginpy.utp.mango.account module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="marginpy.utp.mango.config.html">marginpy.utp.mango.config module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="marginpy.utp.mango.instructions.html">marginpy.utp.mango.instructions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="marginpy.utp.mango.types.html">marginpy.utp.mango.types module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="marginpy.utp.zo.html">marginpy.utp.zo package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="marginpy.utp.zo.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="marginpy.utp.zo.utils.html">marginpy.utp.zo.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.utp.zo.utils.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="marginpy.utp.zo.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="marginpy.utp.zo.account.html">marginpy.utp.zo.account module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="marginpy.utp.zo.config.html">marginpy.utp.zo.config module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="marginpy.utp.zo.instructions.html">marginpy.utp.zo.instructions module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="marginpy.utp.account.html">marginpy.utp.account module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="marginpy.utp.observation.html">marginpy.utp.observation module</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="marginpy.utils.pda.html" class="btn btn-neutral float-left" title="marginpy.utils.pda module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="marginpy.utp.mango.html" class="btn btn-neutral float-right" title="marginpy.utp.mango package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, MRGN Labs.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

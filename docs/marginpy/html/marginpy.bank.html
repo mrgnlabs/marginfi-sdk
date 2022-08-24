@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>marginpy.bank module &mdash; marginpy 0.1.0-alpha.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="marginpy.client module" href="marginpy.client.html" />
+    <link rel="prev" title="marginpy.account module" href="marginpy.account.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> marginpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">marginpy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="marginpy.html">marginpy package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="marginpy.html#subpackages">Subpackages</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="marginpy.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="marginpy.account.html">marginpy.account module</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">marginpy.bank module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.client.html">marginpy.client module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.config.html">marginpy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.constants.html">marginpy.constants module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.group.html">marginpy.group module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.instructions.html">marginpy.instructions module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.logger.html">marginpy.logger module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.marginpy.html">marginpy.marginpy module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="marginpy.types.html">marginpy.types module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">marginpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">marginpy</a> &raquo;</li>
+          <li><a href="marginpy.html">marginpy package</a> &raquo;</li>
+      <li>marginpy.bank module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/marginpy.bank.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-marginpy.bank">
+<span id="marginpy-bank-module"></span><h1>marginpy.bank module<a class="headerlink" href="#module-marginpy.bank" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="marginpy.bank.Bank">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Bank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.types.html#marginpy.types.BankData" title="marginpy.types.BankData"><span class="pre">BankData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#marginpy.bank.Bank" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Bank struct mirroring on-chain data.</p>
+<p>Contains the state of the marginfi group.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.scaling_factor_c">
+<span class="sig-name descname"><span class="pre">scaling_factor_c</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.bank.Bank.scaling_factor_c" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.fixed_fee">
+<span class="sig-name descname"><span class="pre">fixed_fee</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.bank.Bank.fixed_fee" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.interest_fee">
+<span class="sig-name descname"><span class="pre">interest_fee</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.bank.Bank.interest_fee" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.deposit_accumulator">
+<span class="sig-name descname"><span class="pre">deposit_accumulator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.bank.Bank.deposit_accumulator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.borrow_accumulator">
+<span class="sig-name descname"><span class="pre">borrow_accumulator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.bank.Bank.borrow_accumulator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.last_update">
+<span class="sig-name descname"><span class="pre">last_update</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span></em><a class="headerlink" href="#marginpy.bank.Bank.last_update" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.total_deposits_record">
+<span class="sig-name descname"><span class="pre">total_deposits_record</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.bank.Bank.total_deposits_record" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.total_borrows_record">
+<span class="sig-name descname"><span class="pre">total_borrows_record</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.bank.Bank.total_borrows_record" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.mint">
+<span class="sig-name descname"><span class="pre">mint</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">PublicKey</span></em><a class="headerlink" href="#marginpy.bank.Bank.mint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.vault">
+<span class="sig-name descname"><span class="pre">vault</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">PublicKey</span></em><a class="headerlink" href="#marginpy.bank.Bank.vault" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.vault_authority_pda_bump">
+<span class="sig-name descname"><span class="pre">vault_authority_pda_bump</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#marginpy.bank.Bank.vault_authority_pda_bump" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.insurance_vault">
+<span class="sig-name descname"><span class="pre">insurance_vault</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">PublicKey</span></em><a class="headerlink" href="#marginpy.bank.Bank.insurance_vault" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.insurance_vault_authority_pda_bump">
+<span class="sig-name descname"><span class="pre">insurance_vault_authority_pda_bump</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#marginpy.bank.Bank.insurance_vault_authority_pda_bump" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.fee_vault">
+<span class="sig-name descname"><span class="pre">fee_vault</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">PublicKey</span></em><a class="headerlink" href="#marginpy.bank.Bank.fee_vault" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.fee_vault_authority_pda_bump">
+<span class="sig-name descname"><span class="pre">fee_vault_authority_pda_bump</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#marginpy.bank.Bank.fee_vault_authority_pda_bump" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.init_margin_ratio">
+<span class="sig-name descname"><span class="pre">init_margin_ratio</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.bank.Bank.init_margin_ratio" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.maint_margin_ratio">
+<span class="sig-name descname"><span class="pre">maint_margin_ratio</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.bank.Bank.maint_margin_ratio" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.account_deposit_limit">
+<span class="sig-name descname"><span class="pre">account_deposit_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.bank.Bank.account_deposit_limit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.lp_deposit_limit">
+<span class="sig-name descname"><span class="pre">lp_deposit_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#marginpy.bank.Bank.lp_deposit_limit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.compute_native_amount">
+<span class="sig-name descname"><span class="pre">compute_native_amount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record_amount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.types.html#marginpy.types.LendingSide" title="marginpy.types.LendingSide"><span class="pre">LendingSide</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#marginpy.bank.Bank.compute_native_amount" title="Permalink to this definition"></a></dt>
+<dd><p>Converts the provided record amount to its native amount respective to current accumulator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>Exception</strong> – unknown side</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.compute_record_amount">
+<span class="sig-name descname"><span class="pre">compute_record_amount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">native_amount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.types.html#marginpy.types.LendingSide" title="marginpy.types.LendingSide"><span class="pre">LendingSide</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#marginpy.bank.Bank.compute_record_amount" title="Permalink to this definition"></a></dt>
+<dd><p>Converts the provided native amount to its record amount respective to current accumulator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>Exception</strong> – unknown side</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="marginpy.bank.Bank.compute_margin_ratio">
+<span class="sig-name descname"><span class="pre">compute_margin_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mreq_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="marginpy.types.html#marginpy.types.MarginRequirement" title="marginpy.types.MarginRequirement"><span class="pre">MarginRequirement</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#marginpy.bank.Bank.compute_margin_ratio" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="marginpy.account.html" class="btn btn-neutral float-left" title="marginpy.account module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="marginpy.client.html" class="btn btn-neutral float-right" title="marginpy.client module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, MRGN Labs.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

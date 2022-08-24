@@ -15,7 +15,7 @@
     "clean": "rm -rf dist",
     "dev": "tsc -w",
     "shell": "node -e \"$(< shell)\" -i --experimental-repl-await",
-    "generate-docs": "typedoc --out ../../../docs --plugin none"
+    "generate-docs": "typedoc --out ../../../docs/marginfi-client-ts --plugin none"
   },
   "dependencies": {
     "@blockworks-foundation/mango-client": "^3.6.7",
