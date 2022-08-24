@@ -15,8 +15,22 @@ env:
   NODE_VERSION: 17.0.1
 
 jobs:
+  changed_files:
+    runs-on: ubuntu-latest
+    outputs:
+      ts: ${{steps.check-if-files-changed.outputs.any_changed}}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check if any file changed in list provided
+        id: check-if-files-changed
+        uses: tj-actions/changed-files@v18.7
+        with:
+          files: |
+            python/marginpy
+
   build:
     runs-on: ubuntu-latest
+    if: needs.changed_files.outputs.ts == 'true'
     defaults:
       run:
         working-directory: ./ts

@@ -1,4 +1,4 @@
-name: python-build
+name: python-marginpy-build
 
 on:
   push:
@@ -13,8 +13,22 @@ env:
   RUSTFLAGS: "-D warnings"
 
 jobs:
+  changed_files:
+    runs-on: ubuntu-latest
+    outputs:
+      python-marginpy: ${{steps.check-if-files-changed.outputs.any_changed}}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check if any file changed in list provided
+        id: check-if-files-changed
+        uses: tj-actions/changed-files@v18.7
+        with:
+          files: |
+            python/marginpy
+
   macos_x86_64:
     runs-on: macos-latest
+    if: needs.changed_files.outputs.python-marginpy == 'true'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -41,6 +55,7 @@ jobs:
 
   windows:
     runs-on: windows-latest
+    if: needs.changed_files.outputs.python-marginpy == 'true'
     strategy:
       matrix:
         target: [x64]
@@ -70,6 +85,7 @@ jobs:
 
   linux:
     runs-on: ubuntu-latest
+    if: needs.changed_files.outputs.python-marginpy == 'true'
     strategy:
       fail-fast: false
       matrix:
