@@ -152,6 +152,7 @@ jobs:
       - name: Build sdist
         uses: messense/maturin-action@v1
         with:
+          command: sdist
           args: --out dist -m python/marginpy/Cargo.toml
       - name: Upload sdist
         uses: actions/upload-artifact@v2
