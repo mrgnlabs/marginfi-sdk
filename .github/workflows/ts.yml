@@ -1,4 +1,5 @@
-name: main
+name: ts
+
 on:
   push:
     branches:
@@ -6,10 +7,6 @@ on:
   pull_request:
     branches:
       - "*"
-defaults:
-  run:
-    shell: bash
-    working-directory: .
 
 env:
   NODE_VERSION: 17.0.1
@@ -26,7 +23,7 @@ jobs:
         uses: tj-actions/changed-files@v18.7
         with:
           files: |
-            python/marginpy
+            ts
 
   build:
     runs-on: ubuntu-latest
@@ -49,8 +46,6 @@ jobs:
 
       - name: Build
         run: yarn buidl
-        shell: bash
 
       - name: Lint
         run: yarn lint
-        shell: bash
