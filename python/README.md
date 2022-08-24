@@ -4,7 +4,8 @@
   <h1>marginpy</h1>
   
    <!-- [![Actions Status](https://github.com/michaelhly/solanapy/workflows/CI/badge.svg)](https://github.com/michaelhly/solanapy/actions?query=workflow%3ACI) -->
-   <!-- [![PyPI version](https://badge.fury.io/py/solana.svg)](https://badge.fury.io/py/solana) -->
+   [![Python 3.9+](https://img.shields.io/badge/python->=3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
+   [![PyPI version](https://badge.fury.io/py/marginpy.svg)](https://badge.fury.io/py/marginpy)
    [![Codecov](https://codecov.io/gh/michaelhly/solana-py/branch/master/graph/badge.svg)](https://codecov.io/gh/michaelhly/solana-py/branch/master)
    <a href=""><img alt="License" src="https://img.shields.io/github/license/mrgnlabs/marginfi-sdk?style=flat-square&color=ffff00"/></a>
    [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -40,16 +41,16 @@ If you are using an M1, you need to install `marginpy` through a Rosetta-enabled
 
 2. Open a terminal instance with Rosetta enabled
 
-3. Install python3.10 or greater with brew from `/usr/local/`:
+3. Install a supported version of python with brew from `/usr/local/`:
 
 ```shell
-$ /usr/local/bin/brew install python@3.10
+$ /usr/local/bin/brew install python@[PYTHON_VERSION]
 ```
 
 4. Create a new virtualenv using newly installed python:
 
 ```shell
-/usr/local/opt/python@3.10/bin/python3 -m venv .env
+/usr/local/opt/python@[PYTHON_VERSION]/bin/python3 -m venv .env
 ```
 
 5. Activate new env
@@ -76,11 +77,10 @@ Check out the [examples](examples) for more details.
 
 ### Setup local development environment
 
-1. Spare yourself some pain and setup your default `python` command to point to 3.10+
-
+1. Ensure you have python installed.
 1. Install [poetry](https://python-poetry.org/docs/#installation): `$ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -`
 1. Install [nox-poetry](https://github.com/cjolowicz/nox-poetry): `$ pip install nox-poetry`
-1. Initialize Python 3.10 virtual environment: `$ poetry env use 3.10`
+1. Initialize Python virtual environment: `$ poetry env use [PYTHON_VERSION]`
 1. Install project dependencies: `$ poetry install`
 1. Activate virtual environment: `$ poetry shell`
 1. Build the rust crate and install it locally: `$ maturin develop`
