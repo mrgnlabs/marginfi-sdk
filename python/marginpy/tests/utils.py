@@ -203,7 +203,7 @@ def load_marginfi_group(
     account_address, account_info = load_sample_account_info(name)
     account_data = b64str_to_bytes(account_info.data[0])  # type: ignore
     config = MarginfiConfig(Environment.DEVNET)
-    wallet = Wallet.local()
+    wallet = Wallet.dummy()
     rpc_client = AsyncClient(DEVNET_URL)
     provider = Provider(rpc_client, wallet)
     program = Program(load_idl(), config.program_id, provider=provider)
@@ -229,7 +229,7 @@ def load_marginfi_account(
     account_address, account_info = load_sample_account_info(account_name)
     account_data = b64str_to_bytes(account_info.data[0])  # type: ignore
     config = MarginfiConfig(Environment.DEVNET)
-    wallet = Wallet.local()
+    wallet = Wallet.dummy()
     rpc_client = AsyncClient(DEVNET_URL)
     provider = Provider(rpc_client, wallet)
     program = Program(load_idl(), config.program_id, provider=provider)

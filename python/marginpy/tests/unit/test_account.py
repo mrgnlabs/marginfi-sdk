@@ -27,7 +27,7 @@ class TestMarginfiAccountUnit:
     def test_from_account_data_raw_factory(self):
         account_address, account_info = load_sample_account_info()
         config = MarginfiConfig(Environment.DEVNET)
-        wallet = Wallet.local()
+        wallet = Wallet.dummy()
         rpc_client = AsyncClient("https://devnet.genesysgo.net/")
         provider = Provider(rpc_client, wallet)
         program = Program(load_idl(), config.program_id, provider=provider)
@@ -51,7 +51,7 @@ class TestMarginfiAccountUnit:
     def test_from_account_data_factory(self):
         account_address, account_data = load_marginfi_account_data("marginfi_account_2")
         config = MarginfiConfig(Environment.DEVNET)
-        wallet = Wallet.local()
+        wallet = Wallet.dummy()
         rpc_client = AsyncClient("https://devnet.genesysgo.net/")
         provider = Provider(rpc_client, wallet)
         program = Program(load_idl(), config.program_id, provider=provider)
