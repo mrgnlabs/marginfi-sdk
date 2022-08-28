@@ -534,9 +534,19 @@ class MarginfiAccount {
 
     debug("Rebalance withdraw required");
 
-    const richestUtp = this.activeUtps.sort((utp1, utp2) =>
-      utp2.freeCollateral.minus(utp1.freeCollateral).toNumber()
-    )[0];
+    if (this.activeUtps.length == 0) {
+      debug("No active UTPs");
+      return;
+    }
+
+    let richestUtp: UtpAccount;
+
+    if (this.activeUtps.length == 1) {
+      richestUtp = this.activeUtps[0];
+    } else {
+      richestUtp = this.activeUtps.sort((utp1, utp2) => utp2.freeCollateral.minus(utp1.freeCollateral).toNumber())[0];
+    }
+
     const withdrawAmount = this.computeMaxRebalanceWithdrawAmount(richestUtp);
 
     if (withdrawAmount.lte(1)) {
@@ -696,11 +706,11 @@ class MarginfiAccount {
     return equity.lt(marginRequirementInit);
   }
 
-  public computeMaxRebalanceWithdrawAmount(utp: UtpAccount): BigNumber {
+  public computeMaxRebalanceWithdrawAmount(utp?: UtpAccount): BigNumber {
     const { equity } = this.computeBalances();
     const marginRequirementInit = this.computeMarginRequirement(MarginRequirementType.Init);
     const maxAmountAllowed = BigNumber.max(marginRequirementInit.minus(equity), 0);
-    const availableAmount = utp.freeCollateral || 0;
+    const availableAmount = utp?.freeCollateral || 0;
     return BigNumber.min(maxAmountAllowed, availableAmount);
   }
 
@@ -731,7 +741,8 @@ class MarginfiAccount {
   }
 
   public toString() {
-    let { assets, equity, liabilities } = this.computeBalances();
+    let { assets, equity, liabilities } = this.computeBalances(EquityType.Total);
+    let { equity: mrEquity } = this.computeBalances();
     const deposits = this.deposits;
 
     const marginRequirementInit = this.computeMarginRequirement(MarginRequirementType.Init);
@@ -746,7 +757,8 @@ class MarginfiAccount {
 Marginfi account:
   Address: ${this.publicKey.toBase58()}
   GA Balance: ${deposits.toFixed(6)}
-  Equity: ${equity.toFixed(6)},
+  Equity: ${equity.toFixed(6)}
+  Mr Adjusted Equity: ${mrEquity.toFixed(6)}
   Assets: ${assets.toFixed(6)},
   Liabilities: ${liabilities.toFixed(6)}
   Margin ratio: ${marginRatio.toFixed(6)}
