@@ -694,7 +694,7 @@ class MarginfiAccount {
   }
 
   public isBankrupt(): boolean {
-    return this.activeUtps.length === 0 && this._borrowRecord.gt(0);
+    return this.activeUtps.length === 0 && this.borrows.gt(0.0001);
   }
 
   public isRebalanceWithdrawNeeded(): boolean {
