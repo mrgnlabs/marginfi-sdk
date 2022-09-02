@@ -171,7 +171,7 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
       symbol: position.marketKey,
       orderType: ZoPerpOrderType.ReduceOnlyIoc,
       isLong: closeDirectionLong,
-      price: closeDirectionLong ? 1_000_000 : 1,
+      price: closeDirectionLong ? 1_000_000 : 0.0001,
       size: position.coins.number,
     });
   }
