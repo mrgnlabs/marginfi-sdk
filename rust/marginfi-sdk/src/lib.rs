@@ -1,11 +1,4 @@
-mod marginfi_account;
+pub use marginfi;
+pub mod marginfi_account;
+mod observer;
 mod utils;
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-}

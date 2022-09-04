@@ -1,213 +1,232 @@
-use mango_protocol::state::{HealthCache, MangoAccount, MangoCache, MangoGroup, UserActiveAssets};
+use crate::{
+    observer::ClientObserver,
+    utils::{fetch_anchor, get_utp_ui_name, Res},
+};
+use anchor_lang::prelude::Pubkey;
+use fixed::types::I80F48;
 use marginfi::{
-    constants::{MANGO_UTP_INDEX, ZO_UTP_INDEX},
-    prelude::MarginfiAccount,
+    prelude::{MarginfiAccount, MarginfiGroup},
     state::{
-        mango_state::{self, get_free_collateral, is_empty},
-        marginfi_account::UTPAccountConfig,
-        marginfi_group::Bank,
-        utp_observation::{Observable, Observer},
-        zo_state::{self, ZO_STATE_ADDRESS_INDEX},
+        marginfi_account::{EquityType, MarginRequirement},
+        marginfi_group::LendingSide,
+        utp_observation::Observer,
     },
 };
+use serde::Deserialize;
 use solana_client::nonblocking::rpc_client::RpcClient;
+use std::fmt::Display;
 
-#[derive(Default)]
-struct ClientObserver {
-    mango_observer: Option<MangoObserver>,
-    zo_observer: Option<ZoObserver>,
+#[derive(Deserialize, Debug, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum Env {
+    MAINNET,
+    DEVNET,
+    OTHER,
 }
 
-use crate::utils::{fetch_anchor, fetch_mango};
+#[derive(Deserialize, Debug)]
+pub struct MarginfiClientConfig {
+    pub program: Pubkey,
+    pub group: Pubkey,
+    pub env: Env,
+    pub rpc_endpoint: String,
+}
 
-impl ClientObserver {
-    pub async fn new(rpc_client: &RpcClient, mfi_account: &MarginfiAccount) -> Self {
-        let mut empty = Self::default();
+pub struct MarginClient {
+    pub rpc_endpoint: RpcClient,
+    pub config: MarginfiClientConfig,
+    pub group: MarginfiGroup,
+}
 
-        if mfi_account.active_utps[MANGO_UTP_INDEX] {
-            empty
-                .load_mango_observer(rpc_client, &mfi_account.utp_account_config[MANGO_UTP_INDEX])
-                .await;
+impl MarginClient {
+    pub async fn new(config: MarginfiClientConfig) -> Self {
+        let rpc_endpoint = RpcClient::new(config.rpc_endpoint.clone());
+        let group = fetch_anchor::<MarginfiGroup>(&rpc_endpoint, &config.group).await;
+        Self {
+            rpc_endpoint,
+            group,
+            config,
         }
+    }
+    pub async fn new_from_env() -> Res<Self> {
+        let config = envy::from_env::<MarginfiClientConfig>()?;
+        let rpc_endpoint = RpcClient::new(config.rpc_endpoint.clone());
 
-        empty
+        let group = fetch_anchor::<MarginfiGroup>(&rpc_endpoint, &config.group).await;
+        Ok(Self {
+            rpc_endpoint,
+            group,
+            config,
+        })
     }
 
-    pub async fn load_mango_observer(
-        &mut self,
-        rpc_client: &RpcClient,
-        utp_config: &UTPAccountConfig,
-    ) {
-        let mango_account_address = utp_config.address;
-        let mango_account = fetch_mango::<MangoAccount>(rpc_client, &mango_account_address).await;
-        let mango_group = fetch_mango::<MangoGroup>(rpc_client, &mango_account.mango_group).await;
-        let mango_cache = fetch_mango::<MangoCache>(rpc_client, &mango_group.mango_cache).await;
-
-        self.mango_observer = Some(MangoObserver::new(mango_account, mango_group, mango_cache));
-    }
-
-    pub async fn load_zo_observer(
-        &mut self,
-        rpc_client: &RpcClient,
-        utp_config: &UTPAccountConfig,
-    ) {
-        let zo_margin = fetch_anchor::<zo_abi::Margin>(rpc_client, &utp_config.address).await;
-        let zo_control = fetch_anchor::<zo_abi::Control>(rpc_client, &zo_margin.control).await;
-        let zo_state = fetch_anchor::<zo_abi::State>(
-            rpc_client,
-            &utp_config.utp_address_book[ZO_STATE_ADDRESS_INDEX],
-        )
-        .await;
-        let zo_cache = fetch_anchor::<zo_abi::Cache>(rpc_client, &zo_state.cache).await;
-
-        self.zo_observer = Some(ZoObserver::new(zo_margin, zo_control, zo_state, zo_cache));
+    pub async fn load_group(&self) -> Res<MarginfiGroup> {
+        let group = fetch_anchor::<MarginfiGroup>(&self.rpc_endpoint, &self.config.group).await;
+        Ok(group)
     }
 }
 
-impl<'a> Observer<'a> for ClientObserver {
-    fn observations(
-        &self,
-        marginfi_account: &marginfi::prelude::MarginfiAccount,
-    ) -> marginfi::prelude::MarginfiResult<
-        Vec<Box<dyn marginfi::state::utp_observation::Observable + 'a>>,
-    > {
-        Ok(marginfi_account
+pub struct MarginAccount<'a> {
+    pub address: Pubkey,
+    pub marginfi_account: MarginfiAccount,
+    pub client: &'a MarginClient,
+    pub observer: ClientObserver,
+}
+
+impl<'a> MarginAccount<'a> {
+    pub async fn load(mfi_client: &'a MarginClient, address: &Pubkey) -> Res<MarginAccount<'a>> {
+        let marginfi_account =
+            fetch_anchor::<MarginfiAccount>(&mfi_client.rpc_endpoint, address).await;
+        let observer = ClientObserver::load(&mfi_client.rpc_endpoint, &marginfi_account).await;
+
+        Ok(Self {
+            address: *address,
+            marginfi_account,
+            client: mfi_client,
+            observer,
+        })
+    }
+
+    pub fn balance(&self) -> Res<I80F48> {
+        Ok(self.client.group.bank.get_native_amount(
+            self.marginfi_account.deposit_record.into(),
+            LendingSide::Deposit,
+        )?)
+    }
+
+    pub fn liabilities(&self) -> Res<I80F48> {
+        Ok(self.client.group.bank.get_native_amount(
+            self.marginfi_account.borrow_record.into(),
+            LendingSide::Borrow,
+        )?)
+    }
+
+    pub fn equity(&self, equity_type: EquityType) -> Res<I80F48> {
+        Ok(self.marginfi_account.get_equity(
+            &self.client.group.bank,
+            equity_type,
+            &self.observer,
+        )?)
+    }
+
+    pub fn get_margin_requirement(&self, mr_type: MarginRequirement) -> Res<I80F48> {
+        Ok(self
+            .marginfi_account
+            .get_margin_requirement(&self.client.group.bank, mr_type)?)
+    }
+}
+
+const SCALE: I80F48 = fixed_macro::types::I80F48!(1_000_000);
+
+impl<'a> Display for MarginAccount<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let balance = self.balance().unwrap() / SCALE;
+        let liabilities = self.liabilities().unwrap() / SCALE;
+        let equity = self.equity(EquityType::Total).unwrap() / SCALE;
+        let equity_imr = self.equity(EquityType::InitReqAdjusted).unwrap() / SCALE;
+
+        let margin_ratio = if liabilities.is_zero() {
+            I80F48::MAX
+        } else {
+            equity_imr / liabilities
+        };
+
+        let imr = self
+            .get_margin_requirement(MarginRequirement::Init)
+            .unwrap()
+            / SCALE;
+        let mmr = self
+            .get_margin_requirement(MarginRequirement::Maint)
+            .unwrap()
+            / SCALE;
+
+        let imr_health = if imr.is_zero() {
+            I80F48::MAX
+        } else {
+            equity_imr / imr
+        };
+
+        let mmr_health = if mmr.is_zero() {
+            I80F48::MAX
+        } else {
+            equity_imr / mmr
+        };
+
+        write!(
+            f,
+            r#"-----------------
+Marginfi Account:
+    Address: {},
+    Balance: ${:.3},
+    Equity: ${:.3},
+    Mr Adjusted Equity: ${:.3},
+    Liabilities: ${:.3},
+    Margin Ratio: {:.3}, Leverage {:.3}x,
+    Margin Requirement
+        Init: ${:.3}, health [{}]: {:.3},
+        Maint: ${:.3}, health [{}]: {:.3}"#,
+            &self.address,
+            balance,
+            equity,
+            equity_imr,
+            liabilities,
+            margin_ratio,
+            I80F48::ONE / margin_ratio,
+            imr,
+            self.client
+                .group
+                .bank
+                .get_margin_ratio(MarginRequirement::Init),
+            imr_health,
+            mmr,
+            self.client
+                .group
+                .bank
+                .get_margin_ratio(MarginRequirement::Maint),
+            mmr_health
+        )?;
+
+        write!(
+            f,
+            r#"
+-----------------
+UTPs"#
+        )?;
+
+        for (ui, _) in self
+            .marginfi_account
             .active_utps
             .iter()
             .enumerate()
-            .filter_map(|(uindex, active)| if *active { Some(uindex) } else { None })
-            .map(|ui| self.observation(&marginfi_account, ui).unwrap())
-            .collect())
-    }
+            .filter(|(_, active)| **active)
+        {
+            let utp_config = self.marginfi_account.utp_account_config[ui];
+            let utp_observer = self
+                .observer
+                .observation(&self.marginfi_account, ui)
+                .unwrap();
 
-    fn observation(
-        &self,
-        _marginfi_account: &marginfi::prelude::MarginfiAccount,
-        utp_index: usize,
-    ) -> marginfi::prelude::MarginfiResult<Box<dyn marginfi::state::utp_observation::Observable + 'a>>
-    {
-        Ok(match utp_index {
-            MANGO_UTP_INDEX => Box::new(self.mango_observer.unwrap()),
-            ZO_UTP_INDEX => Box::new(self.zo_observer.unwrap()),
-            _ => panic!("Unknown UTP index"),
-        })
-    }
-}
+            let address = utp_config.address;
+            let equity = utp_observer.get_equity().unwrap() / SCALE;
+            let free_collateral = utp_observer.get_free_collateral().unwrap() / SCALE;
 
-#[derive(Clone, Copy)]
-struct MangoObserver {
-    mango_account: MangoAccount,
-    mango_group: MangoGroup,
-    mango_cache: MangoCache,
-}
-
-impl MangoObserver {
-    pub fn new(
-        mango_account: MangoAccount,
-        mango_group: MangoGroup,
-        mango_cache: MangoCache,
-    ) -> Self {
-        Self {
-            mango_account,
-            mango_group,
-            mango_cache,
+            write!(
+                f,
+                r#"
+    {}:
+        Address: {}
+        Equity: ${:.3}
+        Free Collateral: ${:.3}
+        Needs to be rebalanced: {} (${:.3})"#,
+                get_utp_ui_name(ui),
+                address,
+                equity,
+                free_collateral,
+                utp_observer.is_rebalance_deposit_valid().unwrap(),
+                utp_observer.get_max_rebalance_deposit_amount().unwrap() / SCALE,
+            )?;
         }
+
+        Ok(())
     }
-
-    /// Create health cache
-    pub fn get_health_cache(&self) -> HealthCache {
-        let uaa = UserActiveAssets::new(&self.mango_group, &self.mango_account, vec![]);
-        let mut health_cache = HealthCache::new(uaa);
-        health_cache
-            .init_vals_with_orders_vec::<&serum_dex::state::OpenOrders>(
-                &self.mango_group,
-                &self.mango_cache,
-                &self.mango_account,
-                &[],
-            )
-            .unwrap();
-
-        health_cache
-    }
-}
-
-impl Observable for MangoObserver {
-    fn get_free_collateral(&self) -> marginfi::prelude::MarginfiResult<fixed::types::I80F48> {
-        let mut health_cache = self.get_health_cache();
-        mango_state::get_free_collateral(&mut health_cache, &self.mango_group)
-    }
-
-    fn is_empty(&self) -> marginfi::prelude::MarginfiResult<bool> {
-        let mut health_cache = self.get_health_cache();
-        mango_state::is_empty(&mut health_cache, &self.mango_group)
-    }
-
-    fn is_rebalance_deposit_valid(&self) -> marginfi::prelude::MarginfiResult<bool> {
-        let mut health_cache = self.get_health_cache();
-        mango_state::is_rebalance_deposit_valid(&mut health_cache, &self.mango_group)
-    }
-
-    fn get_equity(&self) -> marginfi::prelude::MarginfiResult<fixed::types::I80F48> {
-        let mut health_cache = self.get_health_cache();
-        mango_state::get_equity(&mut health_cache, &self.mango_group)
-    }
-
-    fn get_liquidation_value(&self) -> marginfi::prelude::MarginfiResult<fixed::types::I80F48> {
-        let mut health_cache = self.get_health_cache();
-        mango_state::get_liquidation_value(&mut health_cache, &self.mango_group)
-    }
-}
-
-#[derive(Clone, Copy)]
-struct ZoObserver {
-    margin: zo_abi::Margin,
-    control: zo_abi::Control,
-    state: zo_abi::State,
-    cache: zo_abi::Cache,
-}
-
-impl ZoObserver {
-    pub fn new(
-        margin: zo_abi::Margin,
-        control: zo_abi::Control,
-        state: zo_abi::State,
-        cache: zo_abi::Cache,
-    ) -> Self {
-        Self {
-            margin,
-            control,
-            state,
-            cache,
-        }
-    }
-}
-
-impl Observable for ZoObserver {
-    fn get_free_collateral(&self) -> marginfi::prelude::MarginfiResult<fixed::types::I80F48> {
-        zo_state::get_free_collateral(&self.margin, &self.control, &self.state, &self.cache)
-    }
-
-    fn is_empty(&self) -> marginfi::prelude::MarginfiResult<bool> {
-        zo_state::is_empty(&self.margin, &self.control, &self.state, &self.cache)
-    }
-
-    fn is_rebalance_deposit_valid(&self) -> marginfi::prelude::MarginfiResult<bool> {
-        zo_state::is_rebalance_deposit_valid(&self.margin, &self.control, &self.state, &self.cache)
-    }
-
-    fn get_equity(&self) -> marginfi::prelude::MarginfiResult<fixed::types::I80F48> {
-        zo_state::get_equity(&self.margin, &self.control, &self.state, &self.cache)
-    }
-
-    fn get_liquidation_value(&self) -> marginfi::prelude::MarginfiResult<fixed::types::I80F48> {
-        zo_state::get_liquidation_value(&self.margin, &self.control, &self.state, &self.cache)
-    }
-}
-
-fn test(mfia: MarginfiAccount, bank: Bank, co: ClientObserver) {
-    let a = mfia.get_equity(
-        &bank,
-        marginfi::state::marginfi_account::EquityType::InitReqAdjusted,
-        &co,
-    );
 }
