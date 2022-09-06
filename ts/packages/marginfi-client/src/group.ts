@@ -1,4 +1,4 @@
-import { BorshCoder, Program } from "@project-serum/anchor";
+import { AnchorProvider, BorshCoder, Program } from "@project-serum/anchor";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import Bank from "./bank";
 import { MarginfiIdl, MARGINFI_IDL } from "./idl";
@@ -155,7 +155,7 @@ class MarginfiGroup {
    */
   async updateInterestAccumulator() {
     const tx = new Transaction().add(await this.makeUpdateInterestAccumulatorIx());
-    return await processTransaction(this._program.provider, tx);
+    return await processTransaction(this._program.provider as AnchorProvider, tx);
   }
 }
 

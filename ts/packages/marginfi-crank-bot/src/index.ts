@@ -120,7 +120,7 @@ async function checkPartialLiqClosePositions(mfiAccount: MarginfiAccount) {
     const zoMargin = await mfiAccount.zo.getZoMargin(zoState);
 
     await zoMargin.loadPositions();
-    await zoState.loadMarkets(true);
+    await zoState.loadMarkets();
 
     for (let i = 0; i < zoMargin.positions.length; i++) {
       const position = zoMargin.positions[i];
@@ -180,7 +180,7 @@ async function checkPartialLiqClosePositions(mfiAccount: MarginfiAccount) {
     const zoMargin = await mfiAccount.zo.getZoMargin(zoState);
 
     await zoMargin.loadPositions();
-    await zoState.loadMarkets(true);
+    await zoState.loadMarkets();
 
     const position = zoMargin.position(biggestPosition.market);
     const long = !position.isLong;

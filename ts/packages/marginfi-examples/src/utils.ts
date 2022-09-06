@@ -1,5 +1,5 @@
 import { processTransaction } from "@mrgnlabs/marginfi-client";
-import { BN, Provider } from "@project-serum/anchor";
+import { AnchorProvider, BN } from "@project-serum/anchor";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 
@@ -7,7 +7,7 @@ export const DEVNET_USDC_FAUCET = new PublicKey("B87AhxX6BkBsj3hnyHzcerX2WxPoACC
 
 export const FAUCET_PROGRAM_ID = new PublicKey("4bXpkKSV8swHSnwqtzuboGPaPDeEgAn4Vt8GfarV5rZt");
 
-export async function getAtaOrCreate(provider: Provider, payerPk: PublicKey, mint: PublicKey): Promise<PublicKey> {
+export async function getAtaOrCreate(provider: AnchorProvider, payerPk: PublicKey, mint: PublicKey): Promise<PublicKey> {
   const ata = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint, payerPk);
 
   const ataAccountInfo = await provider.connection.getAccountInfo(ata);
@@ -30,7 +30,7 @@ export async function getAtaOrCreate(provider: Provider, payerPk: PublicKey, min
 }
 
 export async function airdropCollateral(
-  provider: Provider,
+  provider: AnchorProvider,
   amount: number,
   mint: PublicKey,
   tokenAccount: PublicKey

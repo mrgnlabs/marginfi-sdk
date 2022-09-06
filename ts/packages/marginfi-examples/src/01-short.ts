@@ -25,7 +25,7 @@ const depositAmount = 5;
   const zoState = await mfiAccount.zo.getZoState();
   const zoMargin = await mfiAccount.zo.getZoMargin(zoState);
 
-  const market: ZoClient.ZoMarket = await zoState.getMarketBySymbol(marketKey);
+  const market = await zoState.getMarketBySymbol(marketKey);
 
   const price = (await market.loadBids(connection)).getL2(1)[0][0];
   const size = 5 / price;

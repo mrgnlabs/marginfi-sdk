@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-import { BN } from "@project-serum/anchor";
+import { AnchorProvider, BN } from "@project-serum/anchor";
 import { Connection, Transaction } from "@solana/web3.js";
 
 import {
@@ -34,7 +34,7 @@ async function configureMarginReq(client: MarginfiClient, initMReq: number, main
   );
 
   const tx = new Transaction().add(ix);
-  await processTransaction(program.provider, tx, undefined, {
+  await processTransaction(program.provider as AnchorProvider, tx, undefined, {
     skipPreflight: false,
   });
 }

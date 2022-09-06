@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@mrgnlabs/marginfi-client": "^0.7.1",
-    "@project-serum/anchor": "^0.23.0",
+    "@project-serum/anchor": "^0.25.0",
     "@solana/web3.js": "^1.41.1",
     "commander": "^9.2.0"
   },

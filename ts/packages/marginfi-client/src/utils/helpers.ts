@@ -1,4 +1,4 @@
-import { BN, BorshAccountsCoder, Program, Provider } from "@project-serum/anchor";
+import { AnchorProvider, BN, BorshAccountsCoder, Program } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
   ConfirmOptions,
@@ -68,7 +68,7 @@ export async function getUtpAuthority(
  * Transaction processing and error-handling helper.
  */
 export async function processTransaction(
-  provider: Provider,
+  provider: AnchorProvider,
   tx: Transaction,
   signers?: Array<Signer>,
   opts?: ConfirmOptions
@@ -197,7 +197,7 @@ export function loadKeypair(keypairPath: string): Keypair {
  * @returns
  */
 export function getMfiProgram(programAddress: PublicKey, connection: Connection, wallet: Wallet): Program<MarginfiIdl> {
-  const provider = new Provider(connection, wallet, {});
+  const provider = new AnchorProvider(connection, wallet, {});
   const program: Program<MarginfiIdl> = new Program(MARGINFI_IDL, programAddress, provider) as any;
 
   return program;
@@ -207,7 +207,7 @@ export function getMfiProgram(programAddress: PublicKey, connection: Connection,
  * @internal
  */
 export async function createTempTransferAccounts(
-  provider: Provider,
+  provider: AnchorProvider,
   mint: PublicKey,
   authority: PublicKey
 ): Promise<[Keypair, TransactionInstruction, TransactionInstruction]> {

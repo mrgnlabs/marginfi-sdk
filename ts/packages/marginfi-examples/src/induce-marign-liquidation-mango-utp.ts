@@ -14,6 +14,7 @@ import {
 } from "@mrgnlabs/marginfi-client";
 
 import { getMarketByBaseSymbolAndKind, I80F48, QUOTE_INDEX } from "@blockworks-foundation/mango-client";
+import { AnchorProvider } from "@project-serum/anchor";
 
 // const MARGINFI_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 const connection = new Connection(process.env.RPC_ENDPOINT!);
@@ -39,7 +40,7 @@ async function configureMarginReq(client: MarginfiClient, initMReq: number, main
   );
 
   const tx = new Transaction().add(ix);
-  const sig = await processTransaction(program.provider, tx, undefined, {
+  const sig = await processTransaction(program.provider as AnchorProvider, tx, undefined, {
     skipPreflight: false,
   });
   console.log("Sig %s", sig);
