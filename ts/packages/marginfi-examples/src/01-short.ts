@@ -2,7 +2,6 @@ require("dotenv").config();
 
 import { loadKeypair, MarginfiClient, Wallet, ZoPerpOrderType } from "@mrgnlabs/marginfi-client";
 import { Connection, PublicKey } from "@solana/web3.js";
-import * as ZoClient from "@zero_one/client";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, {
   commitment: "confirmed",

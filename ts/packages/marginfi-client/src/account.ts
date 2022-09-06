@@ -37,13 +37,12 @@ class MarginfiAccount {
   public readonly publicKey: PublicKey;
   public group: MarginfiGroup;
   public observationCache: ObservationCache = new Map<UtpIndex, UtpObservation>();
-  
 
   private _authority: PublicKey;
   private _depositRecord: BigNumber;
   private _borrowRecord: BigNumber;
   private readonly _client: MarginfiClient;
-  
+
   public readonly mango: UtpMangoAccount;
   public readonly zo: UtpZoAccount;
 

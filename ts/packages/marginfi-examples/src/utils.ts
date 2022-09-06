@@ -7,7 +7,11 @@ export const DEVNET_USDC_FAUCET = new PublicKey("B87AhxX6BkBsj3hnyHzcerX2WxPoACC
 
 export const FAUCET_PROGRAM_ID = new PublicKey("4bXpkKSV8swHSnwqtzuboGPaPDeEgAn4Vt8GfarV5rZt");
 
-export async function getAtaOrCreate(provider: AnchorProvider, payerPk: PublicKey, mint: PublicKey): Promise<PublicKey> {
+export async function getAtaOrCreate(
+  provider: AnchorProvider,
+  payerPk: PublicKey,
+  mint: PublicKey
+): Promise<PublicKey> {
   const ata = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint, payerPk);
 
   const ataAccountInfo = await provider.connection.getAccountInfo(ata);

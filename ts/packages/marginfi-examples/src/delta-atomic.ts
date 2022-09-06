@@ -15,7 +15,6 @@ import {
 } from "@mrgnlabs/marginfi-client";
 
 import { getMarketByBaseSymbolAndKind, I80F48 } from "@blockworks-foundation/mango-client";
-import * as ZoClient from "@zero_one/client";
 import { AnchorProvider } from "@project-serum/anchor";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, {

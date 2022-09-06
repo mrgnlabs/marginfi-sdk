@@ -1,10 +1,10 @@
 require("dotenv").config();
 
 import { Environment, getConfig, loadKeypair, MarginfiClient, Wallet } from "@mrgnlabs/marginfi-client";
+import { AnchorProvider } from "@project-serum/anchor";
 import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection } from "@solana/web3.js";
 import { airdropCollateral } from "./utils";
-import { AnchorProvider } from "@project-serum/anchor";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, {
   commitment: "confirmed",
@@ -24,7 +24,12 @@ const wallet = new Wallet(loadKeypair(process.env.WALLET!));
   const ataAi = await collateral.getOrCreateAssociatedAccountInfo(wallet.publicKey);
   // Create marginfi account
   const marginfiAccount = await client.createMarginfiAccount();
-  await airdropCollateral(client.program.provider as AnchorProvider, depositAmount, config.collateralMintPk, ataAi.address);
+  await airdropCollateral(
+    client.program.provider as AnchorProvider,
+    depositAmount,
+    config.collateralMintPk,
+    ataAi.address
+  );
 
   console.log("Marginfi account created: %s", marginfiAccount.publicKey);
 

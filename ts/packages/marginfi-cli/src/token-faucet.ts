@@ -19,7 +19,6 @@ export async function airdropCollateral(amountDec: string, options: OptionValues
   const faucet = new PublicKey(options.faucet);
   const mint = new PublicKey(options.mint);
 
-
   const tokenAccount = await getAtaOrCreate(provider, wallet.publicKey, mint);
 
   const [faucetPda] = await PublicKey.findProgramAddress([Buffer.from("faucet")], FAUCET_PROGRAM_ID);

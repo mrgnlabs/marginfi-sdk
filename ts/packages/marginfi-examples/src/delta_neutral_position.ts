@@ -15,8 +15,6 @@ import {
 
 import { getMarketByBaseSymbolAndKind, I80F48, QUOTE_INDEX } from "@blockworks-foundation/mango-client";
 // import { airdropCollateral } from "./utils";
-// import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import * as ZoClient from "@zero_one/client";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, {
   commitment: "confirmed",
