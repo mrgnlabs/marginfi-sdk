@@ -15,7 +15,7 @@ import {
 } from "@mrgnlabs/marginfi-client";
 
 import { getMarketByBaseSymbolAndKind, I80F48 } from "@blockworks-foundation/mango-client";
-import * as ZoClient from "@zero_one/client";
+import { AnchorProvider } from "@project-serum/anchor";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, {
   commitment: "confirmed",
@@ -43,7 +43,7 @@ const zoMarketKey = "BTC-PERP";
   // Open BTC SHORT on 01
   const zoState = await mfiAccount.zo.getZoState();
   const zoMargin = await mfiAccount.zo.getZoMargin(zoState);
-  const market: ZoClient.ZoMarket = await zoState.getMarketBySymbol(zoMarketKey);
+  const market = await zoState.getMarketBySymbol(zoMarketKey);
   const bids = [...(await market.loadBids(connection)).items(false)];
   const zoPrice = bids[0].price;
 
@@ -98,7 +98,7 @@ const zoMarketKey = "BTC-PERP";
     ...mangoIx.instructions
   );
 
-  const sig = await processTransaction(client.program.provider, tx);
+  const sig = await processTransaction(client.program.provider as AnchorProvider, tx);
   console.log("Sig %s", sig);
 
   process.exit();

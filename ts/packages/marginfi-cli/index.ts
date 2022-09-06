@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 import { BankVaultType, getBankAuthority, MarginfiClient } from "@mrgnlabs/marginfi-client";
+import { AnchorProvider } from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
@@ -111,7 +112,7 @@ attachDefaultOptions(utilProgram.command("get-config")).action(async (options: O
     client.config.groupPk,
     process.env.MARGINFI_ACCOUNT,
     options.keypair,
-    client.program.provider.wallet.publicKey
+    (client.program.provider as AnchorProvider).wallet.publicKey
   );
 });
 
@@ -137,7 +138,7 @@ attachDefaultOptions(groupProgram.command("withdraw-fees"))
       .bankFeeVaultWithdraw(new BN(amount))
       .accounts({
         marginfiGroup: mfiClient.group.publicKey,
-        admin: mfiClient.program.provider.wallet.publicKey,
+        admin: (mfiClient.program.provider as AnchorProvider).wallet.publicKey,
         bankFeeVault: mfiClient.group.bank.feeVault,
         bankFeeVaultAuthority,
         tokenProgram: TOKEN_PROGRAM_ID,

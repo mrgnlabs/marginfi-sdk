@@ -9,6 +9,7 @@ import {
   processTransaction,
   Wallet,
 } from "@mrgnlabs/marginfi-client";
+import { AnchorProvider } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { OptionValues } from "commander";
@@ -93,7 +94,7 @@ export async function createGroup(options: OptionValues) {
   ];
 
   const tx = new Transaction().add(...ixs);
-  const sig = await processTransaction(program.provider, tx, [
+  const sig = await processTransaction(program.provider as AnchorProvider, tx, [
     mfiGroupKey,
     bankVaultKey,
     insuranceVaultKey,

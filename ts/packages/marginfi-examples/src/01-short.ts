@@ -2,7 +2,6 @@ require("dotenv").config();
 
 import { loadKeypair, MarginfiClient, Wallet, ZoPerpOrderType } from "@mrgnlabs/marginfi-client";
 import { Connection, PublicKey } from "@solana/web3.js";
-import * as ZoClient from "@zero_one/client";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, {
   commitment: "confirmed",
@@ -25,7 +24,7 @@ const depositAmount = 5;
   const zoState = await mfiAccount.zo.getZoState();
   const zoMargin = await mfiAccount.zo.getZoMargin(zoState);
 
-  const market: ZoClient.ZoMarket = await zoState.getMarketBySymbol(marketKey);
+  const market = await zoState.getMarketBySymbol(marketKey);
 
   const price = (await market.loadBids(connection)).getL2(1)[0][0];
   const size = 5 / price;
