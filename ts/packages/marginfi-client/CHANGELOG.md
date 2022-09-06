@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.2](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.1...@mrgnlabs/marginfi-client@0.7.2) (2022-09-06)
+
+
+### Bug Fixes
+
+* correctly handle re-balances with one utp ([#77](https://github.com/mrgnlabs/marginfi-sdk/issues/77)) ([08825d6](https://github.com/mrgnlabs/marginfi-sdk/commit/08825d60aad05769d160158b5b18353cbabee679))
+* don't handled phantom bankruptcies ([#78](https://github.com/mrgnlabs/marginfi-sdk/issues/78)) ([6a9780e](https://github.com/mrgnlabs/marginfi-sdk/commit/6a9780ed012697e2868d446fe0a7f339a854371e))
+
+
+
+
+
 ## [0.7.1](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.0...@mrgnlabs/marginfi-client@0.7.1) (2022-08-08)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-client

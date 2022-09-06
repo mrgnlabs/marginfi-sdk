@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.10](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-liquidator-bot@0.3.8-alpha.3...@mrgnlabs/marginfi-liquidator-bot@0.3.10) (2022-09-06)
+
+
+### Bug Fixes
+
+* use arbitrary price when closing positions ([#51](https://github.com/mrgnlabs/marginfi-sdk/issues/51)) ([8f63f80](https://github.com/mrgnlabs/marginfi-sdk/commit/8f63f80950bb21f7938f5dfc7a7af08bc738b5e6))
+
+
+
+
+
 ## [0.3.9](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-liquidator-bot@0.3.8-alpha.3...@mrgnlabs/marginfi-liquidator-bot@0.3.9) (2022-08-08)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-liquidator-bot
