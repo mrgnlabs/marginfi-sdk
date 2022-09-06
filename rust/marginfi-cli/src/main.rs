@@ -1,9 +1,4 @@
-
-
-
-use marginfi_sdk::{
-    marginfi_account::{Env, MarginAccount, MarginClient, MarginfiClientConfig},
-};
+use marginfi_sdk::marginfi_account::{Env, MarginAccount, MarginClient, MarginfiClientConfig};
 use solana_sdk::pubkey;
 
 #[tokio::main]

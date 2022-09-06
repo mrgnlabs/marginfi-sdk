@@ -192,10 +192,10 @@ impl Observable for MangoObserver {
 
 #[derive(Clone, Copy)]
 pub struct ZoObserver {
-    margin: zo_abi::Margin,
-    control: zo_abi::Control,
-    state: zo_abi::State,
-    cache: zo_abi::Cache,
+    pub margin: zo_abi::Margin,
+    pub control: zo_abi::Control,
+    pub state: zo_abi::State,
+    pub cache: zo_abi::Cache,
 }
 
 impl ZoObserver {
