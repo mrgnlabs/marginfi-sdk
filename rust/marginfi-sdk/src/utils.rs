@@ -15,15 +15,26 @@ pub type Res<T> = std::result::Result<T, Box<dyn Error>>;
 pub async fn fetch_mango<T: Loadable>(rpc_client: &RpcClient, address: &Pubkey) -> Result<T> {
     let mut account = rpc_client.get_account(address).await?;
     let ai = (address, &mut account).into_account_info();
-    let t = T::load(&ai)?;
+    load_mango(&ai)
+}
 
+pub fn load_mango<T: Loadable>(ai: &AccountInfo) -> Result<T> {
+    let t = T::load(ai)?;
     Ok(*t)
 }
 
 pub async fn fetch_anchor<T: Pod + Copy>(rpc_client: &RpcClient, address: &Pubkey) -> Result<T> {
     let mut account = rpc_client.get_account(address).await?;
     let ai = (address, &mut account).into_account_info();
-    let t = load::<T>(&ai).map_err(|_| anyhow!("Failed to load account {}", address))?;
+    let t = load_anchor::<T>(&ai).map_err(|_| anyhow!("Failed to load account {}", address))?;
+
+    Ok(*t)
+}
+
+pub async fn fetch_no_discriminator<T: Pod + Copy>(rpc_client: &RpcClient, address: &Pubkey) -> Result<T> {
+    let mut account = rpc_client.get_account(address).await?;
+    let ai = (address, &mut account).into_account_info();
+    let t = load_no_discriminator::<T>(&ai).map_err(|_| anyhow!("Failed to load account {}", address))?;
 
     Ok(*t)
 }
@@ -38,8 +49,15 @@ pub fn get_utp_ui_name(index: usize) -> String {
 }
 
 #[inline]
-pub fn load<'a, T: bytemuck::Pod>(account: &'a AccountInfo) -> Result<Ref<'a, T>> {
+pub fn load_anchor<'a, T: bytemuck::Pod>(account: &'a AccountInfo) -> Result<Ref<'a, T>> {
     Ok(Ref::map(account.try_borrow_data()?, |data| {
         bytemuck::from_bytes(&data[8..])
+    }))
+}
+
+#[inline]
+pub fn load_no_discriminator<'a, T: bytemuck::Pod>(account: &'a AccountInfo) -> Result<Ref<'a, T>> {
+    Ok(Ref::map(account.try_borrow_data()?, |data| {
+        bytemuck::from_bytes(&data)
     }))
 }
