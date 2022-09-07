@@ -10,7 +10,7 @@ anchor-lang = "0.25.0"
 bytemuck = "1.12.1"
 fixed = "1.11"
 fixed-macro = "1.1.1"
-marginfi = { path = "../../../programs/marginfi", features = ["client", "cpi"] }
+marginfi = { path = "../../../programs/marginfi", features = [ "client" ] }
 envy = "0.4.2"
 solana-client = "1.10"
 solana-sdk = "1.10"
@@ -29,3 +29,4 @@ serum_dex = { git = "https://github.com/blockworks-foundation/serum-dex.git", re
     "program",
 ] }
 serde = "1.0.144"
+anyhow = "1.0"

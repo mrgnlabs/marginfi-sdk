@@ -1,10 +1,13 @@
 use crate::{
+    client::MarginClient,
     observer::ClientObserver,
     utils::{fetch_anchor, get_utp_ui_name, Res},
 };
 use anchor_lang::prelude::Pubkey;
+use anyhow::Result;
 use fixed::types::I80F48;
 use marginfi::{
+    constants::{MANGO_PROGRAM, MANGO_UTP_INDEX, PDA_UTP_AUTH_SEED, ZO_PROGRAM, ZO_UTP_INDEX},
     prelude::{MarginfiAccount, MarginfiGroup},
     state::{
         marginfi_account::{EquityType, MarginRequirement},
@@ -14,57 +17,8 @@ use marginfi::{
 };
 use serde::Deserialize;
 use solana_client::nonblocking::rpc_client::RpcClient;
+use solana_sdk::instruction::Instruction;
 use std::fmt::Display;
-
-#[derive(Deserialize, Debug, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum Env {
-    MAINNET,
-    DEVNET,
-    OTHER,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct MarginfiClientConfig {
-    pub program: Pubkey,
-    pub group: Pubkey,
-    pub env: Env,
-    pub rpc_endpoint: String,
-}
-
-pub struct MarginClient {
-    pub rpc_endpoint: RpcClient,
-    pub config: MarginfiClientConfig,
-    pub group: MarginfiGroup,
-}
-
-impl MarginClient {
-    pub async fn new(config: MarginfiClientConfig) -> Self {
-        let rpc_endpoint = RpcClient::new(config.rpc_endpoint.clone());
-        let group = fetch_anchor::<MarginfiGroup>(&rpc_endpoint, &config.group).await;
-        Self {
-            rpc_endpoint,
-            group,
-            config,
-        }
-    }
-    pub async fn new_from_env() -> Res<Self> {
-        let config = envy::from_env::<MarginfiClientConfig>()?;
-        let rpc_endpoint = RpcClient::new(config.rpc_endpoint.clone());
-
-        let group = fetch_anchor::<MarginfiGroup>(&rpc_endpoint, &config.group).await;
-        Ok(Self {
-            rpc_endpoint,
-            group,
-            config,
-        })
-    }
-
-    pub async fn load_group(&self) -> Res<MarginfiGroup> {
-        let group = fetch_anchor::<MarginfiGroup>(&self.rpc_endpoint, &self.config.group).await;
-        Ok(group)
-    }
-}
 
 pub struct MarginAccount<'a> {
     pub address: Pubkey,
@@ -76,8 +30,8 @@ pub struct MarginAccount<'a> {
 impl<'a> MarginAccount<'a> {
     pub async fn load(mfi_client: &'a MarginClient, address: &Pubkey) -> Res<MarginAccount<'a>> {
         let marginfi_account =
-            fetch_anchor::<MarginfiAccount>(&mfi_client.rpc_endpoint, address).await;
-        let observer = ClientObserver::load(&mfi_client.rpc_endpoint, &marginfi_account).await;
+            fetch_anchor::<MarginfiAccount>(&mfi_client.rpc_endpoint, address).await?;
+        let observer = ClientObserver::load(&mfi_client.rpc_endpoint, &marginfi_account).await?;
 
         Ok(Self {
             address: *address,
@@ -113,6 +67,27 @@ impl<'a> MarginAccount<'a> {
         Ok(self
             .marginfi_account
             .get_margin_requirement(&self.client.group.bank, mr_type)?)
+    }
+
+    #[inline]
+    pub fn get_utp_authority(&self, utp_index: usize) -> (Pubkey, u8) {
+        let utp_program_address = match utp_index {
+            MANGO_UTP_INDEX => MANGO_PROGRAM,
+            ZO_UTP_INDEX => ZO_PROGRAM,
+            _ => panic!("Unsupported utp index {}", utp_index),
+        }
+        .to_bytes();
+
+        let utp_config = &self.marginfi_account.utp_account_config[utp_index];
+
+        Pubkey::find_program_address(
+            &[
+                PDA_UTP_AUTH_SEED,
+                &utp_program_address,
+                &utp_config.authority_seed.to_bytes(),
+            ],
+            &marginfi::ID,
+        )
     }
 }
 

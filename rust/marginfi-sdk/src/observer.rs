@@ -11,6 +11,7 @@ use marginfi::{
     },
 };
 use solana_client::nonblocking::rpc_client::RpcClient;
+use anyhow::Result;
 
 #[derive(Default)]
 pub struct ClientObserver {
@@ -21,33 +22,33 @@ pub struct ClientObserver {
 use crate::utils::{fetch_anchor, fetch_mango};
 
 impl ClientObserver {
-    pub async fn load(rpc_client: &RpcClient, mfi_account: &MarginfiAccount) -> Self {
+    pub async fn load(rpc_client: &RpcClient, mfi_account: &MarginfiAccount) -> Result<Self> {
         let mut observer = Self::default();
 
         if mfi_account.active_utps[MANGO_UTP_INDEX] {
             observer
                 .load_mango_observer(rpc_client, &mfi_account.utp_account_config[MANGO_UTP_INDEX])
-                .await;
+                .await?;
         }
 
         if mfi_account.active_utps[ZO_UTP_INDEX] {
             observer
                 .load_zo_observer(rpc_client, &mfi_account.utp_account_config[ZO_UTP_INDEX])
-                .await;
+                .await?;
         }
 
-        observer
+        Ok(observer)
     }
 
     pub async fn load_mango_observer(
         &mut self,
         rpc_client: &RpcClient,
         utp_config: &UTPAccountConfig,
-    ) {
+    ) -> Result<()> {
         let mango_account_address = utp_config.address;
-        let mango_account = fetch_mango::<MangoAccount>(rpc_client, &mango_account_address).await;
-        let mango_group = fetch_mango::<MangoGroup>(rpc_client, &mango_account.mango_group).await;
-        let mango_cache = fetch_mango::<MangoCache>(rpc_client, &mango_group.mango_cache).await;
+        let mango_account = fetch_mango::<MangoAccount>(rpc_client, &mango_account_address).await?;
+        let mango_group = fetch_mango::<MangoGroup>(rpc_client, &mango_account.mango_group).await?;
+        let mango_cache = fetch_mango::<MangoCache>(rpc_client, &mango_group.mango_cache).await?;
 
         self.mango_observer = Some(MangoObserver::new(
             mango_account_address,
@@ -57,23 +58,41 @@ impl ClientObserver {
             mango_group,
             mango_cache,
         ));
+
+        Ok(())
     }
 
     pub async fn load_zo_observer(
         &mut self,
         rpc_client: &RpcClient,
         utp_config: &UTPAccountConfig,
-    ) {
-        let zo_margin = fetch_anchor::<zo_abi::Margin>(rpc_client, &utp_config.address).await;
-        let zo_control = fetch_anchor::<zo_abi::Control>(rpc_client, &zo_margin.control).await;
+    ) -> Result<()> {
+        let zo_margin = fetch_anchor::<zo_abi::Margin>(rpc_client, &utp_config.address).await?;
+        let zo_control = fetch_anchor::<zo_abi::Control>(rpc_client, &zo_margin.control).await?;
         let zo_state = fetch_anchor::<zo_abi::State>(
             rpc_client,
             &utp_config.utp_address_book[ZO_STATE_ADDRESS_INDEX],
         )
-        .await;
-        let zo_cache = fetch_anchor::<zo_abi::Cache>(rpc_client, &zo_state.cache).await;
+        .await?;
+        let zo_cache = fetch_anchor::<zo_abi::Cache>(rpc_client, &zo_state.cache).await?;
 
-        self.zo_observer = Some(ZoObserver::new(zo_margin, zo_control, zo_state, zo_cache));
+        let zo_margin_pk = utp_config.address;
+        let zo_control_pk = zo_margin.control;
+        let zo_state_pk = utp_config.utp_address_book[ZO_STATE_ADDRESS_INDEX];
+        let zo_cache_pk = zo_state.cache;
+
+        self.zo_observer = Some(ZoObserver::new(
+            zo_margin_pk,
+            zo_control_pk,
+            zo_state_pk,
+            zo_cache_pk,
+            zo_margin,
+            zo_control,
+            zo_state,
+            zo_cache,
+        ));
+
+        Ok(())
     }
 }
 
@@ -192,6 +211,11 @@ impl Observable for MangoObserver {
 
 #[derive(Clone, Copy)]
 pub struct ZoObserver {
+    pub margin_pk: Pubkey,
+    pub control_pk: Pubkey,
+    pub state_pk: Pubkey,
+    pub cache_pk: Pubkey,
+
     pub margin: zo_abi::Margin,
     pub control: zo_abi::Control,
     pub state: zo_abi::State,
@@ -199,13 +223,23 @@ pub struct ZoObserver {
 }
 
 impl ZoObserver {
-    pub fn new(
+    fn new(
+        margin_pk: Pubkey,
+        control_pk: Pubkey,
+        state_pk: Pubkey,
+        cache_pk: Pubkey,
+
         margin: zo_abi::Margin,
         control: zo_abi::Control,
         state: zo_abi::State,
         cache: zo_abi::Cache,
     ) -> Self {
         Self {
+            margin_pk,
+            control_pk,
+            state_pk,
+            cache_pk,
+
             margin,
             control,
             state,
