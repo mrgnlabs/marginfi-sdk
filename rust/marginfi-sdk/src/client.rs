@@ -29,6 +29,7 @@ pub struct MarginfiClientConfigRaw {
     pub marginfi_account: Option<String>,
 }
 
+#[derive(Debug)]
 pub struct MarginfiClientConfig {
     pub marginfi_program: Pubkey,
     pub marginfi_group: Pubkey,
