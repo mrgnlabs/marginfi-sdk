@@ -20,6 +20,7 @@ use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_sdk::instruction::Instruction;
 use std::fmt::Display;
 
+#[derive(Clone)]
 pub struct MarginAccount<'a> {
     pub address: Pubkey,
     pub marginfi_account: MarginfiAccount,

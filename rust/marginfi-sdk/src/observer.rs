@@ -1,4 +1,5 @@
 use anchor_lang::prelude::Pubkey;
+use anyhow::Result;
 use mango_protocol::state::{HealthCache, MangoAccount, MangoCache, MangoGroup, UserActiveAssets};
 use marginfi::{
     constants::{MANGO_UTP_INDEX, ZO_UTP_INDEX},
@@ -11,9 +12,8 @@ use marginfi::{
     },
 };
 use solana_client::nonblocking::rpc_client::RpcClient;
-use anyhow::Result;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct ClientObserver {
     pub mango_observer: Option<MangoObserver>,
     pub zo_observer: Option<ZoObserver>,

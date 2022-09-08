@@ -4,7 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-mainnet-beta = ["marginfi/mainnet-beta"]
+mainnet-beta = [
+    "marginfi/mainnet-beta",
+    "idontsee/mainnet-beta",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -33,3 +36,4 @@ serum_dex = { git = "https://github.com/blockworks-foundation/serum-dex.git", re
 ] }
 serde = "1.0.144"
 anyhow = "1.0"
+idontsee = { git = "https://github.com/mrgnlabs/defi-execution-tools-library" }

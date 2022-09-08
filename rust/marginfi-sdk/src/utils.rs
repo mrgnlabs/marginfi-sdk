@@ -31,10 +31,14 @@ pub async fn fetch_anchor<T: Pod + Copy>(rpc_client: &RpcClient, address: &Pubke
     Ok(*t)
 }
 
-pub async fn fetch_no_discriminator<T: Pod + Copy>(rpc_client: &RpcClient, address: &Pubkey) -> Result<T> {
+pub async fn fetch_no_discriminator<T: Pod + Copy>(
+    rpc_client: &RpcClient,
+    address: &Pubkey,
+) -> Result<T> {
     let mut account = rpc_client.get_account(address).await?;
     let ai = (address, &mut account).into_account_info();
-    let t = load_no_discriminator::<T>(&ai).map_err(|_| anyhow!("Failed to load account {}", address))?;
+    let t = load_no_discriminator::<T>(&ai)
+        .map_err(|_| anyhow!("Failed to load account {}", address))?;
 
     Ok(*t)
 }

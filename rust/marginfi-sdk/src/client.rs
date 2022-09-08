@@ -1,6 +1,7 @@
 use std::{
     convert::{TryFrom, TryInto},
     str::FromStr,
+    sync::Arc,
 };
 
 use crate::utils::{fetch_anchor, Res};
@@ -60,7 +61,7 @@ impl TryFrom<MarginfiClientConfigRaw> for MarginfiClientConfig {
 }
 
 pub struct MarginClient {
-    pub rpc_endpoint: RpcClient,
+    pub rpc_endpoint: Arc<RpcClient>,
     pub config: MarginfiClientConfig,
     pub group: MarginfiGroup,
     pub keypair: Keypair,
@@ -68,9 +69,9 @@ pub struct MarginClient {
 
 impl MarginClient {
     pub async fn new(config: MarginfiClientConfig) -> Res<Self> {
-        let rpc_endpoint = RpcClient::new(config.rpc_endpoint.clone());
+        let rpc_endpoint = Arc::new(RpcClient::new(config.rpc_endpoint.clone()));
         let group = fetch_anchor::<MarginfiGroup>(&rpc_endpoint, &config.marginfi_group).await?;
-        let keypair = read_keypair_file(&config.wallet)?;
+        let keypair = read_keypair_file(&config.wallet).expect("Failed to read wallet file");
 
         Ok(Self {
             rpc_endpoint,
