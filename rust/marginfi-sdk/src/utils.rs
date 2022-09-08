@@ -2,10 +2,7 @@ use anchor_lang::prelude::{AccountInfo, Pubkey};
 use anyhow::{anyhow, Result};
 use bytemuck::Pod;
 use mango_common::Loadable;
-use marginfi::{
-    constants::{MANGO_UTP_INDEX, ZO_UTP_INDEX},
-    prelude::MarginfiAccount,
-};
+use marginfi::constants::{MANGO_UTP_INDEX, ZO_UTP_INDEX};
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_sdk::account_info::IntoAccountInfo;
 use std::{cell::Ref, error::Error};

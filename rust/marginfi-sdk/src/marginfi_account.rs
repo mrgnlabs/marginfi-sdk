@@ -4,20 +4,18 @@ use crate::{
     utils::{fetch_anchor, get_utp_ui_name, Res},
 };
 use anchor_lang::prelude::Pubkey;
-use anyhow::Result;
+
 use fixed::types::I80F48;
 use marginfi::{
     constants::{MANGO_PROGRAM, MANGO_UTP_INDEX, PDA_UTP_AUTH_SEED, ZO_PROGRAM, ZO_UTP_INDEX},
-    prelude::{MarginfiAccount, MarginfiGroup},
+    prelude::MarginfiAccount,
     state::{
         marginfi_account::{EquityType, MarginRequirement},
         marginfi_group::LendingSide,
         utp_observation::Observer,
     },
 };
-use serde::Deserialize;
-use solana_client::nonblocking::rpc_client::RpcClient;
-use solana_sdk::instruction::Instruction;
+
 use std::fmt::Display;
 
 #[derive(Clone)]

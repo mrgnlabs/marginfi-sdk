@@ -1,8 +1,8 @@
 use crate::marginfi_account::MarginAccount;
-use anchor_lang::prelude::{Pubkey, Sysvar};
+use anchor_lang::prelude::Pubkey;
 use anchor_lang::InstructionData;
 use anchor_lang::ToAccountMetas;
-use anyhow::Result;
+
 use marginfi::constants::{ZO_PROGRAM, ZO_UTP_INDEX};
 use marginfi::instructions::UtpZoPlacePerpOrderIxArgs;
 use marginfi::state::zo_state::ZO_STATE_ADDRESS_INDEX;
