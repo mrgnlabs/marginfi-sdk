@@ -173,6 +173,10 @@ impl MangoObserver {
 
         health_cache
     }
+
+    pub fn get_observation_accounts(&self) -> Vec<Pubkey> {
+        vec![self.mango_account_pk, self.mango_group_pk, self.mango_cache_pk]
+    }
 }
 
 impl Observable for MangoObserver {
@@ -245,6 +249,15 @@ impl ZoObserver {
             state,
             cache,
         }
+    }
+
+    pub fn get_observation_accounts(&self) -> Vec<Pubkey> {
+        vec![
+            self.margin_pk,
+            self.control_pk,
+            self.state_pk,
+            self.cache_pk,
+        ]
     }
 }
 

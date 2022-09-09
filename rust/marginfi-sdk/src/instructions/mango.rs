@@ -1,3 +1,4 @@
+use anchor_lang::prelude::AccountMeta;
 use anchor_lang::prelude::Pubkey;
 use anchor_lang::InstructionData;
 use anchor_lang::ToAccountMetas;
@@ -26,6 +27,7 @@ pub struct MangoPlacePerpOrderAccounts {
     mango_bids: Pubkey,
     mango_asks: Pubkey,
     mango_event_queue: Pubkey,
+    observation_accounts: Vec<Pubkey>,
 }
 
 impl MangoPlacePerpOrderAccounts {
@@ -36,6 +38,7 @@ impl MangoPlacePerpOrderAccounts {
         perp_market: &PerpMarket,
     ) -> Self {
         let mango_utp_config = &margin_account.marginfi_account.utp_account_config[MANGO_UTP_INDEX];
+
         MangoPlacePerpOrderAccounts {
             marginfi_account: margin_account.address,
             marginfi_group: margin_account.client.config.marginfi_group,
@@ -48,6 +51,7 @@ impl MangoPlacePerpOrderAccounts {
             mango_bids: perp_market.bids,
             mango_asks: perp_market.asks,
             mango_event_queue: perp_market.event_queue,
+            observation_accounts: margin_account.get_observation_accounts(),
         }
     }
 }
@@ -56,7 +60,7 @@ pub fn mango_make_place_perp_order_ix(
     acc: MangoPlacePerpOrderAccounts,
     args: UtpMangoPlacePerpOrderArgs,
 ) -> Instruction {
-    let accounts = marginfi::accounts::UtpMangoPlacePerpOrder {
+    let mut accounts = marginfi::accounts::UtpMangoPlacePerpOrder {
         marginfi_account: acc.marginfi_account,
         marginfi_group: acc.marginfi_group,
         signer: acc.signer,
@@ -71,6 +75,14 @@ pub fn mango_make_place_perp_order_ix(
         mango_event_queue: acc.mango_event_queue,
     }
     .to_account_metas(Some(true));
+
+    let mut observation_account_metas = acc
+        .observation_accounts
+        .iter()
+        .map(|acc| AccountMeta::new_readonly(*acc, false))
+        .collect::<Vec<_>>();
+
+    accounts.append(&mut observation_account_metas);
 
     Instruction {
         program_id: marginfi::ID,

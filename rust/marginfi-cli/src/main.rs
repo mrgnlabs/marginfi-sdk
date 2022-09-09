@@ -15,7 +15,7 @@ async fn main() {
         marginfi_account: None,
     };
 
-    let address = pubkey!("7BBaUQ9NaN8ztSni95pga9C1bz8KNdhiQR39Tvbfvbp3");
+    let address = pubkey!("ANSb3uegManRtrH2kvqzwXc8PxMxNFoY3esSHmjM5hGU");
 
     let marginfi_client = MarginClient::new(config).await.unwrap();
     let marginfi_account = MarginAccount::load(&marginfi_client, &address)

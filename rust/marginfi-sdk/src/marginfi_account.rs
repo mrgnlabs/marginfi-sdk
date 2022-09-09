@@ -88,6 +88,26 @@ impl<'a> MarginAccount<'a> {
             &marginfi::ID,
         )
     }
+
+    pub fn get_observation_accounts(&self) -> Vec<Pubkey> {
+        let mut observation_accounts = vec![];
+
+        observation_accounts.extend(
+            self.observer
+                .mango_observer
+                .map(|o| o.get_observation_accounts())
+                .unwrap_or_default(),
+        );
+
+        observation_accounts.extend(
+            self.observer
+                .zo_observer
+                .map(|o| o.get_observation_accounts())
+                .unwrap_or_default(),
+        );
+
+        observation_accounts
+    }
 }
 
 const SCALE: I80F48 = fixed_macro::types::I80F48!(1_000_000);

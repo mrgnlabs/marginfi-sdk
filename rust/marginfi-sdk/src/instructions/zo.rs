@@ -1,4 +1,5 @@
 use crate::marginfi_account::MarginAccount;
+use anchor_lang::prelude::AccountMeta;
 use anchor_lang::prelude::Pubkey;
 use anchor_lang::InstructionData;
 use anchor_lang::ToAccountMetas;
@@ -27,6 +28,7 @@ pub struct ZoPlacePerpOrderAccounts {
     event_q: Pubkey,
     market_bids: Pubkey,
     market_asks: Pubkey,
+    observation_accounts: Vec<Pubkey>,
 }
 
 pub fn get_state_signer(state_pk: &Pubkey) -> (Pubkey, u8) {
@@ -63,6 +65,7 @@ impl ZoPlacePerpOrderAccounts {
             event_q: dex_market.event_q,
             market_bids: dex_market.bids,
             market_asks: dex_market.asks,
+            observation_accounts: margin_account.get_observation_accounts(),
         }
     }
 }
@@ -71,7 +74,7 @@ pub fn zo_make_place_perp_order_ix(
     acc: ZoPlacePerpOrderAccounts,
     args: UtpZoPlacePerpOrderIxArgs,
 ) -> Instruction {
-    let accounts = marginfi::accounts::UtpZoPlacePerpOrder {
+    let mut accounts = marginfi::accounts::UtpZoPlacePerpOrder {
         header: marginfi::accounts::HeaderAccountsNoAuthorityCheck {
             marginfi_account: acc.marginfi_account,
             marginfi_group: acc.marginfi_group,
@@ -94,6 +97,14 @@ pub fn zo_make_place_perp_order_ix(
         rent: solana_sdk::sysvar::rent::Rent::id(),
     }
     .to_account_metas(Some(true));
+
+    let mut observation_account_metas = acc
+        .observation_accounts
+        .iter()
+        .map(|acc| AccountMeta::new_readonly(*acc, false))
+        .collect::<Vec<_>>();
+
+    accounts.append(&mut observation_account_metas);
 
     Instruction {
         program_id: marginfi::ID,
