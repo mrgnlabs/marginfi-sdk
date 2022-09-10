@@ -9,7 +9,7 @@ import {
   MangoOrderSide,
   MangoPerpOrderType,
   MarginfiClient,
-  Wallet,
+  NodeWallet,
   ZoPerpOrderType,
 } from "@mrgnlabs/marginfi-client";
 
@@ -20,7 +20,7 @@ const connection = new Connection(process.env.RPC_ENDPOINT!, {
   commitment: "confirmed",
   confirmTransactionInitialTimeout: 120_000,
 });
-const wallet = new Wallet(loadKeypair(process.env.WALLET!));
+const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));
 
 const depositAmountUi = 2;
 

@@ -1,13 +1,12 @@
-import AnchorNodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import { Wallet as IWallet } from "@project-serum/anchor/dist/cjs/provider";
 import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import { Wallet } from "./types";
 
 /**
  * NodeWallet
  *
  * Anchor-compliant wallet implementation.
  */
-export class NodeWallet implements IWallet {
+export class NodeWallet implements Wallet {
   /**
    * @param payer Keypair of the associated payer
    */
@@ -38,7 +37,20 @@ export class NodeWallet implements IWallet {
    * Factory for the Anchor local wallet.
    */
   static anchor(): NodeWallet {
-    return AnchorNodeWallet.local();
+    const process = require("process");
+    if (!process.env.ANCHOR_WALLET || process.env.ANCHOR_WALLET === "") {
+      throw new Error("expected environment variable `ANCHOR_WALLET` is not set.");
+    }
+    const payer = Keypair.fromSecretKey(
+      Buffer.from(
+        JSON.parse(
+          require("fs").readFileSync(process.env.ANCHOR_WALLET, {
+            encoding: "utf-8",
+          })
+        )
+      )
+    );
+    return new NodeWallet(payer);
   }
 
   async signTransaction(tx: Transaction): Promise<Transaction> {

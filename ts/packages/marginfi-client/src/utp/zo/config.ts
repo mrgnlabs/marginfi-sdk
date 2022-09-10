@@ -24,7 +24,7 @@ export interface ZoConfig extends UtpConfig {
  *
  * @internal
  */
-export async function getZoConfig(environment: Environment, overrides?: Partial<ZoConfig>): Promise<ZoConfig> {
+export function getZoConfig(environment: Environment, overrides?: Partial<ZoConfig>): ZoConfig {
   switch (environment) {
     case Environment.MAINNET:
       return {

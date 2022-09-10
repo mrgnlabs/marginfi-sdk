@@ -1,13 +1,13 @@
 require("dotenv").config();
 
-import { loadKeypair, MarginfiClient, Wallet, ZoPerpOrderType } from "@mrgnlabs/marginfi-client";
+import { loadKeypair, MarginfiClient, NodeWallet, ZoPerpOrderType } from "@mrgnlabs/marginfi-client";
 import { Connection, PublicKey } from "@solana/web3.js";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, {
   commitment: "confirmed",
   confirmTransactionInitialTimeout: 120_000,
 });
-const wallet = new Wallet(loadKeypair(process.env.WALLET!));
+const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));
 const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
 const marketKey = "BTC-PERP";

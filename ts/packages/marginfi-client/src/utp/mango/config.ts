@@ -14,7 +14,7 @@ export interface MangoConfig extends UtpConfig {
  *
  * @internal
  */
-export async function getMangoConfig(environment: Environment, overrides?: Partial<MangoConfig>): Promise<MangoConfig> {
+export function getMangoConfig(environment: Environment, overrides?: Partial<MangoConfig>): MangoConfig {
   switch (environment) {
     case Environment.MAINNET: {
       const mangoConfig = new Config(IDS);

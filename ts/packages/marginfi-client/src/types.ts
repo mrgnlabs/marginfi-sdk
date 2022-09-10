@@ -1,5 +1,6 @@
 import { I80F48 } from "@blockworks-foundation/mango-client";
 import { BN } from "@project-serum/anchor";
+import { SignerWalletAdapter } from "@solana/wallet-adapter-base";
 import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { MangoConfig } from "./utp/mango";
@@ -10,6 +11,10 @@ export * from "./utp/mango/types";
 export * from "./utp/zo/types";
 
 export type UiAmount = BigNumber | number | I80F48 | string;
+
+export type Wallet = Pick<SignerWalletAdapter, "signAllTransactions" | "signTransaction"> & {
+  publicKey: PublicKey;
+};
 
 export enum UtpIndex {
   Mango = 0,

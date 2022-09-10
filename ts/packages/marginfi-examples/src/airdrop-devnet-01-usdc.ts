@@ -1,9 +1,9 @@
 require("dotenv").config();
-import { loadKeypair, Wallet } from "@mrgnlabs/marginfi-client";
+import { loadKeypair, NodeWallet } from "@mrgnlabs/marginfi-client";
 import { PublicKey } from "@solana/web3.js";
 import fetch from "node-fetch";
 
-const wallet = new Wallet(loadKeypair(process.env.WALLET!));
+const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));
 
 export async function airdrop01Usdc(publicKey: PublicKey, amount: number) {
   await fetch(
