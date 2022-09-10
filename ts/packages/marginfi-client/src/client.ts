@@ -4,17 +4,24 @@ import { ConfirmOptions, Connection, Keypair, PublicKey, Transaction } from "@so
 import { getConfig, Wallet } from ".";
 import MarginfiAccount from "./account";
 import MarginfiGroup from "./group";
-import { MarginfiIdl, MARGINFI_IDL } from "./idl";
+import { MARGINFI_IDL } from "./idl";
 import instruction from "./instructions";
 import { NodeWallet } from "./nodeWallet";
-import { AccountType, Environment, MarginfiAccountData, MarginfiConfig } from "./types";
+import {
+  AccountType,
+  Environment,
+  InstructionsWrapper,
+  MarginfiAccountData,
+  MarginfiConfig,
+  MarginfiProgram,
+} from "./types";
 import { getEnvFromStr, loadKeypair, processTransaction } from "./utils";
 
 /**
  * Entrypoint to interact with the marginfi contract.
  */
 class MarginfiClient {
-  public readonly program: Program<MarginfiIdl>;
+  public readonly program: MarginfiProgram;
   public readonly config: MarginfiConfig;
 
   public readonly programId: PublicKey;
@@ -23,7 +30,7 @@ class MarginfiClient {
   /**
    * @internal
    */
-  private constructor(config: MarginfiConfig, program: Program<MarginfiIdl>, group: MarginfiGroup) {
+  private constructor(config: MarginfiConfig, program: MarginfiProgram, group: MarginfiGroup) {
     this.config = config;
     this.program = program;
     this.programId = config.programId;
@@ -53,7 +60,7 @@ class MarginfiClient {
       connection.rpcEndpoint
     );
     const provider = new AnchorProvider(connection, wallet, opts || AnchorProvider.defaultOptions());
-    const program = new Program(MARGINFI_IDL, config.programId, provider) as Program<MarginfiIdl>;
+    const program = new Program(MARGINFI_IDL, config.programId, provider) as any as MarginfiProgram;
     return new MarginfiClient(config, program, await MarginfiGroup.fetch(config, program));
   }
 
@@ -108,6 +115,32 @@ class MarginfiClient {
   // --- Others
 
   /**
+   * Create transaction instruction to create a new marginfi account under the authority of the user.
+   *
+   * @returns transaction instruction
+   */
+  async makeCreateMarginfiAccountIx(marginfiAccountKeypair?: Keypair): Promise<InstructionsWrapper> {
+    const dbg = require("debug")("mfi:client");
+    const accountKeypair = marginfiAccountKeypair || Keypair.generate();
+
+    dbg("Generating marginfi account ix for %s", accountKeypair.publicKey);
+
+    const createMarginfiAccountAccountIx = await this.program.account.marginfiAccount.createInstruction(accountKeypair);
+    const initMarginfiAccountIx = await instruction.makeInitMarginfiAccountIx(this.program, {
+      marginfiGroupPk: this._group.publicKey,
+      marginfiAccountPk: accountKeypair.publicKey,
+      authorityPk: this.provider.wallet.publicKey,
+    });
+
+    const ixs = [createMarginfiAccountAccountIx, initMarginfiAccountIx];
+
+    return {
+      instructions: ixs,
+      keys: [accountKeypair],
+    };
+  }
+
+  /**
    * Create a new marginfi account under the authority of the user.
    *
    * @returns MarginfiAccount instance
@@ -116,7 +149,7 @@ class MarginfiClient {
     const dbg = require("debug")("mfi:client");
     const marginfiAccountKey = Keypair.generate();
 
-    dbg("Creating Marginfi account %s", marginfiAccountKey.publicKey);
+    dbg("Generating Marginfi account ix for %s", marginfiAccountKey.publicKey);
 
     const createMarginfiAccountAccountIx = await this.program.account.marginfiAccount.createInstruction(
       marginfiAccountKey

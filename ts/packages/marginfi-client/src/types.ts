@@ -1,14 +1,20 @@
 import { I80F48 } from "@blockworks-foundation/mango-client";
-import { BN } from "@project-serum/anchor";
+import { AnchorProvider, BN, Program } from "@project-serum/anchor";
 import { SignerWalletAdapter } from "@solana/wallet-adapter-base";
 import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
+import { Marginfi } from "./idl/marginfi";
 import { MangoConfig } from "./utp/mango";
 import { UtpObservation } from "./utp/observation";
 import { ZoConfig } from "./utp/zo";
 
 export * from "./utp/mango/types";
 export * from "./utp/zo/types";
+
+export type MarginfiProgram = Omit<Program<Marginfi>, "provider"> & {
+  provider: AnchorProvider;
+};
+export type MarginfiReadonlyProgram = Program<Marginfi>;
 
 export type UiAmount = BigNumber | number | I80F48 | string;
 

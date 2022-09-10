@@ -1,12 +1,10 @@
-import { Program } from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, PublicKey, SystemProgram } from "@solana/web3.js";
 import BN from "bn.js";
-import { MarginfiIdl } from "./idl";
-import { GroupConfig, UtpIndex } from "./types";
+import { GroupConfig, MarginfiProgram, UtpIndex } from "./types";
 
 async function makeInitMarginfiGroupIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiGroupPk: PublicKey;
     adminPk: PublicKey;
@@ -42,7 +40,7 @@ async function makeInitMarginfiGroupIx(
 }
 
 async function makeConfigureMarginfiGroupIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiGroupPk: PublicKey;
     adminPk: PublicKey;
@@ -73,7 +71,7 @@ async function makeConfigureMarginfiGroupIx(
 }
 
 async function makeInitMarginfiAccountIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiGroupPk: PublicKey;
     marginfiAccountPk: PublicKey;
@@ -92,7 +90,7 @@ async function makeInitMarginfiAccountIx(
 }
 
 async function makeDepositIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiGroupPk: PublicKey;
     marginfiAccountPk: PublicKey;
@@ -120,7 +118,7 @@ async function makeDepositIx(
 }
 
 async function makeWithdrawIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiGroupPk: PublicKey;
     marginfiAccountPk: PublicKey;
@@ -150,7 +148,7 @@ async function makeWithdrawIx(
 }
 
 async function makeUpdateInterestAccumulatorIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiGroupPk: PublicKey;
     bankVault: PublicKey;
@@ -171,7 +169,7 @@ async function makeUpdateInterestAccumulatorIx(
 }
 
 async function makeDeactivateUtpIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiAccountPk: PublicKey;
     authorityPk: PublicKey;
@@ -192,7 +190,7 @@ async function makeDeactivateUtpIx(
 }
 
 async function makeLiquidateIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiAccountPk: PublicKey;
     marginfiAccountLiquidateePk: PublicKey;
@@ -224,7 +222,7 @@ async function makeLiquidateIx(
 }
 
 async function makeHandleBankruptcyIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiAccountPk: PublicKey;
     marginfiGroupPk: PublicKey;

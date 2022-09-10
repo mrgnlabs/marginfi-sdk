@@ -23,8 +23,8 @@ import {
   PDA_UTP_AUTH_SEED,
   VERY_VERBOSE_ERROR,
 } from "../constants";
-import { MarginfiIdl, MARGINFI_IDL } from "../idl";
-import { AccountType, BankVaultType, UiAmount } from "../types";
+import { MARGINFI_IDL } from "../idl";
+import { AccountType, BankVaultType, MarginfiProgram, UiAmount } from "../types";
 
 function getVaultSeeds(type: BankVaultType): Buffer {
   switch (type) {
@@ -143,7 +143,7 @@ export function uiToNative(amount: UiAmount, decimals: number = COLLATERAL_DECIM
 /**
  * Converts a native representation of a token amount into its UI value as `number`, given the specified mint decimal amount (default to 6 for USDC).
  */
-export function nativetoUi(amount: UiAmount | BN, decimals: number = COLLATERAL_DECIMALS): number {
+export function nativeToUi(amount: UiAmount | BN, decimals: number = COLLATERAL_DECIMALS): number {
   let amt = toBigNumber(amount);
   return amt.div(10 ** decimals).toNumber();
 }
@@ -196,10 +196,9 @@ export function loadKeypair(keypairPath: string): Keypair {
  * @param wallet
  * @returns
  */
-export function getMfiProgram(programAddress: PublicKey, connection: Connection, wallet: Wallet): Program<MarginfiIdl> {
+export function getMfiProgram(programAddress: PublicKey, connection: Connection, wallet: Wallet): MarginfiProgram {
   const provider = new AnchorProvider(connection, wallet, {});
-  const program: Program<MarginfiIdl> = new Program(MARGINFI_IDL, programAddress, provider) as any;
-
+  const program = new Program(MARGINFI_IDL, programAddress, provider) as any as MarginfiProgram;
   return program;
 }
 
