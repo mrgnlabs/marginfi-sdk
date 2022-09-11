@@ -1,11 +1,11 @@
-import { BN, Program } from "@project-serum/anchor";
+import { BN } from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, TransactionInstruction } from "@solana/web3.js";
-import { MarginfiIdl } from "../../idl";
+import { MarginfiProgram } from "../../types";
 import { UtpZoPlacePerpOrderArgs } from "./types";
 
 async function makeActivateIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiAccount: PublicKey;
     marginfiGroup: PublicKey;
@@ -40,7 +40,7 @@ async function makeActivateIx(
 }
 
 async function makeDepositIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiAccount: PublicKey;
     marginfiGroup: PublicKey;
@@ -86,7 +86,7 @@ async function makeDepositIx(
 }
 
 async function makeWithdrawIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiAccount: PublicKey;
     marginfiGroup: PublicKey;
@@ -130,7 +130,7 @@ async function makeWithdrawIx(
 }
 
 async function makeCreatePerpOpenOrdersIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiAccount: PublicKey;
     marginfiGroup: PublicKey;
@@ -170,7 +170,7 @@ async function makeCreatePerpOpenOrdersIx(
 }
 
 async function makePlacePerpOrderIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiAccount: PublicKey;
     marginfiGroup: PublicKey;
@@ -224,7 +224,7 @@ async function makePlacePerpOrderIx(
 }
 
 async function makeCancelPerpOrderIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiAccount: PublicKey;
     marginfiGroup: PublicKey;
@@ -275,7 +275,7 @@ async function makeCancelPerpOrderIx(
 }
 
 async function makeSettleFundsIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiAccount: PublicKey;
     marginfiGroup: PublicKey;

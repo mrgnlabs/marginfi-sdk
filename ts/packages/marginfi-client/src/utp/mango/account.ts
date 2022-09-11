@@ -17,7 +17,7 @@ import { MarginfiClient } from "../..";
 import MarginfiAccount from "../../account";
 import { DUST_THRESHOLD } from "../../constants";
 import { InstructionsWrapper, UiAmount, UtpData } from "../../types";
-import { getBankAuthority, nativetoUi, processTransaction, toNumber, uiToNative } from "../../utils";
+import { getBankAuthority, nativeToUi, processTransaction, toNumber, uiToNative } from "../../utils";
 import UtpAccount from "../account";
 import { UtpObservation } from "../observation";
 import instructions from "./instructions";
@@ -494,8 +494,8 @@ export class UtpMangoAccount extends UtpAccount {
         quote,
         "Init"
       );
-      initWeightedAssets = new BigNumber(nativetoUi(assets).toString());
-      initWeightedLiabilities = new BigNumber(nativetoUi(liabs).toString());
+      initWeightedAssets = new BigNumber(nativeToUi(assets).toString());
+      initWeightedLiabilities = new BigNumber(nativeToUi(liabs).toString());
     }
     const freeCollateral = initWeightedAssets.minus(initWeightedLiabilities);
 
@@ -510,8 +510,8 @@ export class UtpMangoAccount extends UtpAccount {
     //     quote,
     //     "Maint"
     //   );
-    //   maintWeightedAssets = new BigNumber(nativetoUi(assets).toString());
-    //   maintWeightedLiabilities = new BigNumber(nativetoUi(liabs).toString());
+    //   maintWeightedAssets = new BigNumber(nativeToUi(assets).toString());
+    //   maintWeightedLiabilities = new BigNumber(nativeToUi(liabs).toString());
     // }
 
     const unweightedAssets = new BigNumber(mangoAccount.getAssetsVal(mangoGroup, mangoCache).toString());

@@ -1,9 +1,9 @@
-import { AnchorProvider, BorshCoder, Program } from "@project-serum/anchor";
+import { AnchorProvider, BorshCoder } from "@project-serum/anchor";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import Bank from "./bank";
-import { MarginfiIdl, MARGINFI_IDL } from "./idl";
+import { MARGINFI_IDL } from "./idl";
 import instructions from "./instructions";
-import { AccountType, MarginfiConfig, MarginfiGroupData } from "./types";
+import { AccountType, MarginfiConfig, MarginfiGroupData, MarginfiProgram } from "./types";
 import { getBankAuthority, processTransaction } from "./utils";
 
 /**
@@ -14,13 +14,13 @@ class MarginfiGroup {
   public readonly publicKey: PublicKey;
   public readonly admin: PublicKey;
 
-  private _program: Program<MarginfiIdl>;
+  private _program: MarginfiProgram;
   private _config: MarginfiConfig;
 
   /**
    * @internal
    */
-  private constructor(config: MarginfiConfig, program: Program<MarginfiIdl>, rawData: MarginfiGroupData) {
+  private constructor(config: MarginfiConfig, program: MarginfiProgram, rawData: MarginfiGroupData) {
     this.publicKey = config.groupPk;
     this._config = config;
     this._program = program;
@@ -40,7 +40,7 @@ class MarginfiGroup {
    * @param program marginfi Anchor program
    * @return MarginfiGroup instance
    */
-  static async fetch(config: MarginfiConfig, program: Program<MarginfiIdl>) {
+  static async fetch(config: MarginfiConfig, program: MarginfiProgram) {
     const debug = require("debug")(`mfi:margin-group`);
     debug("Loading Marginfi Group %s", config.groupPk);
     const accountData = await MarginfiGroup._fetchAccountData(config, program);
@@ -58,7 +58,7 @@ class MarginfiGroup {
    * @param accountData Decoded marginfi group data
    * @return MarginfiGroup instance
    */
-  static fromAccountData(config: MarginfiConfig, program: Program<MarginfiIdl>, accountData: MarginfiGroupData) {
+  static fromAccountData(config: MarginfiConfig, program: MarginfiProgram, accountData: MarginfiGroupData) {
     if (!accountData.bank.mint.equals(config.collateralMintPk))
       throw Error(
         `Marginfi group uses collateral ${accountData.bank.mint.toBase58()}. Expected: ${config.collateralMintPk.toBase58()}`
@@ -78,7 +78,7 @@ class MarginfiGroup {
    * @param data Encoded marginfi group data
    * @return MarginfiGroup instance
    */
-  static fromAccountDataRaw(config: MarginfiConfig, program: Program<MarginfiIdl>, rawData: Buffer) {
+  static fromAccountDataRaw(config: MarginfiConfig, program: MarginfiProgram, rawData: Buffer) {
     const data = MarginfiGroup.decode(rawData);
     return MarginfiGroup.fromAccountData(config, program, data);
   }
@@ -93,10 +93,7 @@ class MarginfiGroup {
    * @param program marginfi Anchor program
    * @return Decoded marginfi group account data struct
    */
-  private static async _fetchAccountData(
-    config: MarginfiConfig,
-    program: Program<MarginfiIdl>
-  ): Promise<MarginfiGroupData> {
+  private static async _fetchAccountData(config: MarginfiConfig, program: MarginfiProgram): Promise<MarginfiGroupData> {
     const data: MarginfiGroupData = (await program.account.marginfiGroup.fetch(config.groupPk)) as any;
 
     if (!data.bank.mint.equals(config.collateralMintPk))

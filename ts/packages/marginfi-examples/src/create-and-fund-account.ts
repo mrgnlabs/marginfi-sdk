@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-import { Environment, getConfig, loadKeypair, MarginfiClient, Wallet } from "@mrgnlabs/marginfi-client";
+import { Environment, getConfig, loadKeypair, MarginfiClient, NodeWallet } from "@mrgnlabs/marginfi-client";
 import { AnchorProvider } from "@project-serum/anchor";
 import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection } from "@solana/web3.js";
@@ -10,7 +10,7 @@ const connection = new Connection(process.env.RPC_ENDPOINT!, {
   commitment: "confirmed",
   confirmTransactionInitialTimeout: 120_000,
 });
-const wallet = new Wallet(loadKeypair(process.env.WALLET!));
+const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));
 
 (async function () {
   const depositAmount = 50;

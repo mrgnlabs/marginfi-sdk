@@ -9,8 +9,8 @@ import {
   MangoOrderSide,
   MangoPerpOrderType,
   MarginfiClient,
+  NodeWallet,
   processTransaction,
-  Wallet,
   ZoPerpOrderType,
 } from "@mrgnlabs/marginfi-client";
 
@@ -21,7 +21,7 @@ const connection = new Connection(process.env.RPC_ENDPOINT!, {
   commitment: "confirmed",
   confirmTransactionInitialTimeout: 120_000,
 });
-const wallet = new Wallet(loadKeypair(process.env.WALLET!));
+const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));
 const MARGIN_ACCOUNT_PK = new PublicKey(process.env.MARGINFI_ACCOUNT!);
 
 const posAmountUi = 10;

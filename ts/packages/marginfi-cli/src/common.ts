@@ -1,6 +1,6 @@
-import { MarginfiConfig } from "@mrgnlabs/marginfi-client";
+import { MarginfiConfig, NodeWallet } from "@mrgnlabs/marginfi-client";
 
-import { Environment, getConfig, loadKeypair, MarginfiClient, Wallet } from "@mrgnlabs/marginfi-client";
+import { Environment, getConfig, loadKeypair, MarginfiClient } from "@mrgnlabs/marginfi-client";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { OptionValues } from "commander";
 
@@ -28,5 +28,5 @@ export async function getClientFromOptions(options: OptionValues): Promise<Margi
   }
 
   const config = await getConfig(getEnvironment(options.environment), overrides);
-  return MarginfiClient.fetch(config, new Wallet(loadKeypair(options.keypair)), connection);
+  return MarginfiClient.fetch(config, new NodeWallet(loadKeypair(options.keypair)), connection);
 }

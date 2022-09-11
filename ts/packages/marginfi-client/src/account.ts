@@ -1,10 +1,10 @@
-import { BorshCoder, Program } from "@project-serum/anchor";
+import { BorshCoder } from "@project-serum/anchor";
 import { associatedAddress } from "@project-serum/anchor/dist/cjs/utils/token";
 import { AccountInfo, AccountMeta, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { MarginfiClient } from ".";
 import MarginfiGroup from "./group";
-import { MarginfiIdl, MARGINFI_IDL } from "./idl";
+import { MARGINFI_IDL } from "./idl";
 import instructions from "./instructions";
 import {
   AccountBalances,
@@ -15,6 +15,7 @@ import {
   LendingSide,
   MarginfiAccountData,
   MarginfiConfig,
+  MarginfiProgram,
   MarginRequirementType,
   ObservationCache,
   UiAmount,
@@ -210,7 +211,7 @@ class MarginfiAccount {
   private static async _fetchAccountData(
     accountAddress: PublicKey,
     config: MarginfiConfig,
-    program: Program<MarginfiIdl>
+    program: MarginfiProgram
   ): Promise<MarginfiAccountData> {
     const data: MarginfiAccountData = (await program.account.marginfiAccount.fetch(accountAddress)) as any;
 
