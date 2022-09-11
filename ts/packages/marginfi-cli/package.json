@@ -1,6 +1,6 @@
 {
   "name": "@mrgnlabs/marginfi-cli",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "marginfi CLI",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
   "author": "MRGN Labs",
@@ -18,7 +18,7 @@
     "mfi-dev": "ts-node index.ts"
   },
   "dependencies": {
-    "@mrgnlabs/marginfi-client": "^0.7.2",
+    "@mrgnlabs/marginfi-client": "^0.7.3",
     "@project-serum/anchor": "^0.25.0",
     "@solana/web3.js": "^1.41.1",
     "commander": "^9.2.0"
