@@ -1,7 +1,7 @@
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, PublicKey, SystemProgram } from "@solana/web3.js";
 import BN from "bn.js";
-import { GroupConfig, MarginfiProgram, UtpIndex } from "./types";
+import { GroupConfig, MarginfiAccountType, MarginfiProgram, toProgramMarginAccountType, UtpIndex } from "./types";
 
 async function makeInitMarginfiGroupIx(
   mfProgram: MarginfiProgram,
@@ -80,6 +80,28 @@ async function makeInitMarginfiAccountIx(
 ) {
   return mfProgram.methods
     .initMarginfiAccount()
+    .accounts({
+      marginfiGroup: accounts.marginfiGroupPk,
+      marginfiAccount: accounts.marginfiAccountPk,
+      authority: accounts.authorityPk,
+      systemProgram: SystemProgram.programId,
+    })
+    .instruction();
+}
+
+async function makeInitMarginfiAccountWithTypeIx(
+  mfProgram: MarginfiProgram,
+  accounts: {
+    marginfiGroupPk: PublicKey;
+    marginfiAccountPk: PublicKey;
+    authorityPk: PublicKey;
+  },
+  args: {
+    accountType: MarginfiAccountType;
+  }
+) {
+  return mfProgram.methods
+    .initMarginfiAccountWithType(toProgramMarginAccountType(args.accountType))
     .accounts({
       marginfiGroup: accounts.marginfiGroupPk,
       marginfiAccount: accounts.marginfiAccountPk,
@@ -253,6 +275,7 @@ export default {
   makeDepositIx,
   makeHandleBankruptcyIx,
   makeInitMarginfiAccountIx,
+  makeInitMarginfiAccountWithTypeIx,
   makeWithdrawIx,
   makeUpdateInterestAccumulatorIx,
   makeLiquidateIx,
