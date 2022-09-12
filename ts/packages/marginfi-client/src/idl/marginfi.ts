@@ -4,6 +4,11 @@ export type Marginfi = {
   instructions: [
     {
       name: "initMarginfiGroup";
+      docs: [
+        "Creates a marginfi group, which acts as a global liquidity pool between",
+        "marginfi accounts in the marginfi group and a set of whitelisted underlying",
+        "trading protocols (UTPs)."
+      ];
       accounts: [
         {
           name: "marginfiGroup";
@@ -14,16 +19,33 @@ export type Marginfi = {
           name: "admin";
           isMut: true;
           isSigner: true;
+          docs: [
+            "The signer that creates the marginfi group becomes",
+            "its admin, and in creating the group specifies",
+            "the UTPs that will be whitelisted in this marginfi group."
+          ];
         },
         {
           name: "collateralMint";
           isMut: false;
           isSigner: false;
+          docs: [
+            "The collateral token mint, which speifies the collateral type",
+            "supported in this marginfi group. Currently, marginfi architecture",
+            "supports one collateral type per marginfi group, specified",
+            "here via the token mint."
+          ];
         },
         {
           name: "bankVault";
           isMut: false;
           isSigner: false;
+          docs: [
+            "The marginfi group bank vault stores funds deposited by users",
+            "available for lending to other users. In other words, this is",
+            "the liquidity available at the marginfi group level for marginfi accounts",
+            "in this marginfi group to borrow from."
+          ];
         },
         {
           name: "bankAuthority";
@@ -73,6 +95,7 @@ export type Marginfi = {
     },
     {
       name: "configureMarginfiGroup";
+      docs: ["Updates configurations for an existing marginfi group."];
       accounts: [
         {
           name: "marginfiGroup";
@@ -96,6 +119,10 @@ export type Marginfi = {
     },
     {
       name: "bankFeeVaultWithdraw";
+      docs: [
+        "Allows a marginfi group admin to withdraw accrued protocol fees for the",
+        "relevant marginfi group from the protocol to an arbitrary wallet."
+      ];
       accounts: [
         {
           name: "marginfiGroup";
@@ -121,6 +148,7 @@ export type Marginfi = {
           name: "recipientTokenAccount";
           isMut: true;
           isSigner: false;
+          docs: ["- an honest admin will provide the correct one", "- incorrect mints will fail tx"];
         },
         {
           name: "tokenProgram";
@@ -137,16 +165,29 @@ export type Marginfi = {
     },
     {
       name: "initMarginfiAccount";
+      docs: ["Creates a new marginfi account with a given authority."];
       accounts: [
         {
           name: "authority";
           isMut: true;
           isSigner: true;
+          docs: [
+            "The authority that owns the marginfi account, ie the 'trader'.",
+            "Also the one signer that has authority to deposit/withdraw",
+            "collateral from the marginfi account, as well as take action",
+            "on UTPs."
+          ];
         },
         {
           name: "marginfiGroup";
           isMut: false;
           isSigner: false;
+          docs: [
+            "The marginfi group this marginfi account belongs to,",
+            "which determins the UTPs this marginfi account can access.",
+            "",
+            "TODO: Should we limit the number of marginfi accounts?"
+          ];
         },
         {
           name: "marginfiAccount";
@@ -162,7 +203,60 @@ export type Marginfi = {
       args: [];
     },
     {
+      name: "initMarginfiAccountWithType";
+      docs: ["Creates a new marginfi account with a given authority and account flags."];
+      accounts: [
+        {
+          name: "authority";
+          isMut: true;
+          isSigner: true;
+          docs: [
+            "The authority that owns the marginfi account, ie the 'trader'.",
+            "Also the one signer that has authority to deposit/withdraw",
+            "collateral from the marginfi account, as well as take action",
+            "on UTPs."
+          ];
+        },
+        {
+          name: "marginfiGroup";
+          isMut: false;
+          isSigner: false;
+          docs: [
+            "The marginfi group this marginfi account belongs to,",
+            "which determins the UTPs this marginfi account can access.",
+            "",
+            "TODO: Should we limit the number of marginfi accounts?"
+          ];
+        },
+        {
+          name: "marginfiAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "marginfiAccountType";
+          type: {
+            defined: "AccountType";
+          };
+        }
+      ];
+    },
+    {
       name: "bankInsuranceVaultWithdraw";
+      docs: [
+        "Allows an admin of a given marginfi group to withdraw funds from that",
+        "marginfi group's bank's insurance vault. While requiring signing from the",
+        "admin for the transaction, this method allows the admin to withdraw",
+        "funds to an arbitrary `recipient_token_account`, thereby assuming an",
+        "honest admin."
+      ];
       accounts: [
         {
           name: "marginfiGroup";
@@ -188,6 +282,7 @@ export type Marginfi = {
           name: "recipientTokenAccount";
           isMut: true;
           isSigner: false;
+          docs: ["- an honest admin will provide the correct one", "- incorrect mints will fail tx"];
         },
         {
           name: "tokenProgram";
@@ -204,6 +299,7 @@ export type Marginfi = {
     },
     {
       name: "marginDepositCollateral";
+      docs: ["Allows the owner of a marginfi account to deposit collateral into it."];
       accounts: [
         {
           name: "marginfiAccount";
@@ -224,6 +320,7 @@ export type Marginfi = {
           name: "fundingAccount";
           isMut: true;
           isSigner: false;
+          docs: ["#[soteria(ignore)]"];
         },
         {
           name: "tokenVault";
@@ -245,6 +342,7 @@ export type Marginfi = {
     },
     {
       name: "marginWithdrawCollateral";
+      docs: ["Allows the owner of a marginfi account to withdraw available collateral", "from that marginfi account."];
       accounts: [
         {
           name: "marginfiAccount";
@@ -275,6 +373,7 @@ export type Marginfi = {
           name: "receivingTokenAccount";
           isMut: true;
           isSigner: false;
+          docs: ["#[soteria(ignore)]"];
         },
         {
           name: "tokenProgram";
@@ -291,11 +390,25 @@ export type Marginfi = {
     },
     {
       name: "liquidate";
+      docs: [
+        "Allows a liquidator to liquidate marginfi accounts that have fallen below",
+        "margin requirements. marginfi liquidations occur at the UTP account",
+        "level. In other words, when marginfi marginfi accounts fall below margin",
+        "requirements, liquidators pay marginfi accounts a discounted rate to take",
+        "ownership of UTP accounts that those marginfi accounts own.",
+        "The marginfi takes a fee on liquidations as well, and those funds are",
+        "added to marginfi's insurance vault."
+      ];
       accounts: [
         {
           name: "marginfiAccount";
           isMut: true;
           isSigner: false;
+          docs: [
+            "Manually verified for:",
+            "- not same account as `marginfi_account_liquidatee` (c.f. `marginfi_account_liquidatee` checks)",
+            "#[soteria(ignore)]"
+          ];
         },
         {
           name: "marginfiGroup";
@@ -311,6 +424,12 @@ export type Marginfi = {
           name: "marginfiAccountLiquidatee";
           isMut: true;
           isSigner: false;
+          docs: [
+            "Manually verified for:",
+            "- can be liquidated (in body)",
+            "- has an active UTP (in body)",
+            "#[soteria(ignore)]"
+          ];
         },
         {
           name: "bankVault";
@@ -342,6 +461,10 @@ export type Marginfi = {
     },
     {
       name: "deactivateUtp";
+      docs: [
+        "Allows the owner of a marginfi account to deactivate a UTP account when the",
+        "UTP account is empty and no longer has collateral or positions in it."
+      ];
       accounts: [
         {
           name: "marginfiAccount";
@@ -362,7 +485,43 @@ export type Marginfi = {
       ];
     },
     {
+      name: "marginfiAccountConfigureAdmin";
+      accounts: [
+        {
+          name: "admin";
+          isMut: false;
+          isSigner: true;
+        },
+        {
+          name: "marginfiGroup";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "marginfiAccount";
+          isMut: true;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "config";
+          type: {
+            defined: "MarginfiAccountConfigArg";
+          };
+        }
+      ];
+    },
+    {
       name: "handleBankruptcy";
+      docs: [
+        "For a marginfi account not meeting the maintenence margin requirements,",
+        "outstanding debts, and no assets left to liquidate, this method",
+        "manages repaying the debt for that marginfi account by",
+        "using funds from the insurance vault",
+        "or socializing losses among lenders in the related marginfi group's liquidity pool",
+        "in case the insurance fund is empty."
+      ];
       accounts: [
         {
           name: "marginfiAccount";
@@ -399,6 +558,11 @@ export type Marginfi = {
     },
     {
       name: "updateInterestAccumulator";
+      docs: [
+        "Updates a central interest rate accumulator that tracks interest fees",
+        "owed by all borrowers within the protocol, and collects related protocol fees.",
+        "This method is executed by crankers."
+      ];
       accounts: [
         {
           name: "marginfiGroup";
@@ -430,6 +594,15 @@ export type Marginfi = {
     },
     {
       name: "utpMangoActivate";
+      docs: [
+        "Mango instructions",
+        "Activate a UTP account on Mango for a given marginfi account and pay",
+        "related rent fees. marginfi supports only one UTP account per UTP per",
+        "marginfi account. Rent fees are determined by UTPs and marginfi passes",
+        "those up to UTP account activators, i.e. marginfi account owners.",
+        "This action can only be taken by the owner of the marginfi account for",
+        "which this UTP account is activated."
+      ];
       accounts: [
         {
           name: "marginfiAccount";
@@ -455,6 +628,9 @@ export type Marginfi = {
           name: "mangoAccount";
           isMut: true;
           isSigner: false;
+          docs: [
+            "TODO: What would happen if we used `zero` or if someone sent an already existing account (assuming init would fail on Mango?)"
+          ];
         },
         {
           name: "mangoProgram";
@@ -485,6 +661,12 @@ export type Marginfi = {
     },
     {
       name: "utpMangoDeposit";
+      docs: [
+        "Deposits funds into a Mango UTP account, which may be done by the owner",
+        "of the marginfi account the UTP account is related to, or by the",
+        "rebalancing mechanism of the marginfi protocol if rebalancing conditions",
+        "are satisfied, which is ultimately an action enforced by crankers."
+      ];
       accounts: [
         {
           name: "marginfiAccount";
@@ -500,6 +682,7 @@ export type Marginfi = {
           name: "signer";
           isMut: true;
           isSigner: true;
+          docs: ["Authority is verified in `check_rebalance_deposit_conditions`"];
         },
         {
           name: "marginCollateralVault";
@@ -515,6 +698,14 @@ export type Marginfi = {
           name: "tempCollateralAccount";
           isMut: true;
           isSigner: false;
+          docs: [
+            "We are assuming that the ix will fail if the owner is anyone but the UTP pda.",
+            "",
+            "Because multiple marginfi accounts might share the same UTP PDA, there a possibility that an attacker might expose",
+            "the token account of another marginfi account.",
+            "I am not sure what they could do with it, as the collateral only enters these token accounts atomically in this ix and is later closed.",
+            "But because I am superstitious, we are making sure here that the temp token account is empty."
+          ];
         },
         {
           name: "mangoAuthority";
@@ -586,6 +777,7 @@ export type Marginfi = {
           name: "signer";
           isMut: false;
           isSigner: true;
+          docs: ["Partially permission-less"];
         },
         {
           name: "marginCollateralVault";
@@ -874,6 +1066,7 @@ export type Marginfi = {
           name: "signer";
           isMut: true;
           isSigner: true;
+          docs: ["Authority is verified in `check_rebalance_deposit_conditions`"];
         },
         {
           name: "marginCollateralVault";
@@ -889,6 +1082,14 @@ export type Marginfi = {
           name: "tempCollateralAccount";
           isMut: true;
           isSigner: false;
+          docs: [
+            "We are assuming that the ix will fail if the owner is anyone but the UTP pda.",
+            "",
+            "Because multiple marginfi accounts might share the same UTP PDA, there a possibility that an attacker might expose",
+            "the token account of another marginfi account.",
+            "I am not sure what they could do with it, as the collateral only enters these token accounts atomically in this ix and is later closed.",
+            "But because I am superstitious, we are making sure here that the temp token account is empty."
+          ];
         },
         {
           name: "utpAuthority";
@@ -965,6 +1166,7 @@ export type Marginfi = {
           name: "signer";
           isMut: false;
           isSigner: true;
+          docs: ["Partially permission-less"];
         },
         {
           name: "marginCollateralVault";
@@ -1444,9 +1646,28 @@ export type Marginfi = {
             };
           },
           {
-            name: "reservedSpace";
+            name: "depositLimit";
             type: {
-              array: ["u128", 256];
+              defined: "WrappedI80F48";
+            };
+          },
+          {
+            name: "flags";
+            type: {
+              defined: "AccountFlags";
+            };
+          },
+          {
+            name: "reservedSpace";
+            docs: ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct"];
+            type: {
+              array: ["u128", 254];
+            };
+          },
+          {
+            name: "reservedSpace2";
+            type: {
+              array: ["u8", 14];
             };
           }
         ];
@@ -1469,10 +1690,12 @@ export type Marginfi = {
           },
           {
             name: "paused";
+            docs: ["Group operations paused flag."];
             type: "bool";
           },
           {
             name: "reservedSpace";
+            docs: ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct."];
             type: {
               array: ["u128", 384];
             };
@@ -1635,7 +1858,35 @@ export type Marginfi = {
       };
     },
     {
+      name: "MarginfiAccountConfigArg";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "depositLimit";
+            type: {
+              option: "u64";
+            };
+          }
+        ];
+      };
+    },
+    {
       name: "UTPAccountConfig";
+      docs: [
+        "Data about a UTP account owned by a marginfi account.",
+        "- `address` is the address of the UTP user account (mango account, drift user account)",
+        "- `authority_seed, authority_bump` are used to derive the PDA that controls the UTP user account.",
+        "",
+        "#### Security assumption:",
+        "We cannot generate PDAs unique to UTP user accounts, because some UTPs use the signer (PDA) address as a seed for the user account.",
+        "We also cannot use the marginfi account address as a PDA seed, because the UTP might change owners through liquidations.",
+        "Alternatively, using a random oracle increases complexity with diminishing returns.",
+        "",
+        "Because of this we pessimistically assume that two marginfi accounts might share a PDA for a given UTP,",
+        "and our security relies on making sure that the UTP can only be accessed by their owners, by checking the `UTPAccountConfig` instead of relying",
+        "on the uniqueness of the PDA."
+      ];
       type: {
         kind: "struct";
         fields: [
@@ -1653,6 +1904,7 @@ export type Marginfi = {
           },
           {
             name: "utpAddressBook";
+            docs: ["A cache of UTP addresses used for local security verification"];
             type: {
               array: ["publicKey", 4];
             };
@@ -1764,11 +2016,25 @@ export type Marginfi = {
     },
     {
       name: "Bank";
+      docs: [
+        "A bank is a subset of a marginfi group, and one bank",
+        "exists for each marginfi group. The bank's job is to",
+        "set parameters for the marginfi group related to borrowing",
+        "and lending portfolio-level collateral, and to store",
+        "collateral funds to lend to marginfi accounts in the marginfi group",
+        "in the bank vault `bank.vault`."
+      ];
       type: {
         kind: "struct";
         fields: [
           {
             name: "scalingFactorC";
+            docs: [
+              "`scaling_factor_c`, `fixed_fee`, and `interest_fee`",
+              "are parameters in marginfi's interest rate calculation",
+              "for lending and borrowing. The interest rate calculation",
+              "can be observed in the bank's `calculate_interest_rate` fn."
+            ];
             type: {
               defined: "WrappedI80F48";
             };
@@ -1787,6 +2053,13 @@ export type Marginfi = {
           },
           {
             name: "depositAccumulator";
+            docs: [
+              "Accumulators are time-dependent compound interest rate multipliers.",
+              "Accumulators are determined in functions part of impl `Bank` and",
+              "are calculated based on the appropriate interest rate",
+              "(lending or borrowing) and how much time has passed since the",
+              "last interest calculation, herein denoted as `time_delta`."
+            ];
             type: {
               defined: "WrappedI80F48";
             };
@@ -1815,18 +2088,22 @@ export type Marginfi = {
           },
           {
             name: "mint";
+            docs: ["The mint denotes the collateral type."];
             type: "publicKey";
           },
           {
             name: "vault";
+            docs: ["The vault pubkey denotes the bank's vault,", "where liquidity is actually stored."];
             type: "publicKey";
           },
           {
             name: "vaultAuthorityPdaBump";
+            docs: ["Bank authority pda bump seed"];
             type: "u8";
           },
           {
             name: "insuranceVault";
+            docs: ["Insurance vault address"];
             type: "publicKey";
           },
           {
@@ -1835,12 +2112,14 @@ export type Marginfi = {
           },
           {
             name: "insuranceVaultOutstandingTransfers";
+            docs: ["Outstanding balance to be transferred to the fee vault from the main liquidity vault."];
             type: {
               defined: "WrappedI80F48";
             };
           },
           {
             name: "feeVault";
+            docs: ["Protocol fee vault address"];
             type: "publicKey";
           },
           {
@@ -1849,12 +2128,18 @@ export type Marginfi = {
           },
           {
             name: "feeVaultOutstandingTransfers";
+            docs: ["Outstanding balance to be transferred to the fee vault from the main liquidity vault."];
             type: {
               defined: "WrappedI80F48";
             };
           },
           {
             name: "initMarginRatio";
+            docs: [
+              "Today's marginfi groups in marginfi each have fixed",
+              "initial and maintenance margin requirements, which",
+              "are stored as attributes part of the Bank."
+            ];
             type: {
               defined: "WrappedI80F48";
             };
@@ -1867,18 +2152,24 @@ export type Marginfi = {
           },
           {
             name: "accountDepositLimit";
+            docs: ["Account equity above which deposits are not allowed.", "If Decimal::ZERO, no limit is applied."];
             type: {
               defined: "WrappedI80F48";
             };
           },
           {
             name: "lpDepositLimit";
+            docs: [
+              "Balance of liquidity pool (LP) deposits above which deposits are not allowed.",
+              "If Decimal::ZERO, no limit is applied."
+            ];
             type: {
               defined: "WrappedI80F48";
             };
           },
           {
             name: "reservedSpace";
+            docs: ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct."];
             type: {
               array: ["u128", 31];
             };
@@ -1938,6 +2229,21 @@ export type Marginfi = {
       };
     },
     {
+      name: "AccountType";
+      docs: ["Type use when initializing a margin account.", "Type maps to specific account flags."];
+      type: {
+        kind: "enum";
+        variants: [
+          {
+            name: "NormalAccount";
+          },
+          {
+            name: "LPAccount";
+          }
+        ];
+      };
+    },
+    {
       name: "MarginRequirement";
       type: {
         kind: "enum";
@@ -1987,6 +2293,11 @@ export type Marginfi = {
     },
     {
       name: "InternalTransferType";
+      docs: [
+        "Possible internal transfers:",
+        "- InsuranceFee - Fees collected and sent from the main liquidity vault to the insurance vault.",
+        "- ProtocolFee - Fees collected and sent from the main liquidity vault to the protocol fee vault."
+      ];
       type: {
         kind: "enum";
         variants: [
@@ -2284,6 +2595,11 @@ export const IDL: Marginfi = {
   instructions: [
     {
       name: "initMarginfiGroup",
+      docs: [
+        "Creates a marginfi group, which acts as a global liquidity pool between",
+        "marginfi accounts in the marginfi group and a set of whitelisted underlying",
+        "trading protocols (UTPs).",
+      ],
       accounts: [
         {
           name: "marginfiGroup",
@@ -2294,16 +2610,33 @@ export const IDL: Marginfi = {
           name: "admin",
           isMut: true,
           isSigner: true,
+          docs: [
+            "The signer that creates the marginfi group becomes",
+            "its admin, and in creating the group specifies",
+            "the UTPs that will be whitelisted in this marginfi group.",
+          ],
         },
         {
           name: "collateralMint",
           isMut: false,
           isSigner: false,
+          docs: [
+            "The collateral token mint, which speifies the collateral type",
+            "supported in this marginfi group. Currently, marginfi architecture",
+            "supports one collateral type per marginfi group, specified",
+            "here via the token mint.",
+          ],
         },
         {
           name: "bankVault",
           isMut: false,
           isSigner: false,
+          docs: [
+            "The marginfi group bank vault stores funds deposited by users",
+            "available for lending to other users. In other words, this is",
+            "the liquidity available at the marginfi group level for marginfi accounts",
+            "in this marginfi group to borrow from.",
+          ],
         },
         {
           name: "bankAuthority",
@@ -2353,6 +2686,7 @@ export const IDL: Marginfi = {
     },
     {
       name: "configureMarginfiGroup",
+      docs: ["Updates configurations for an existing marginfi group."],
       accounts: [
         {
           name: "marginfiGroup",
@@ -2376,6 +2710,10 @@ export const IDL: Marginfi = {
     },
     {
       name: "bankFeeVaultWithdraw",
+      docs: [
+        "Allows a marginfi group admin to withdraw accrued protocol fees for the",
+        "relevant marginfi group from the protocol to an arbitrary wallet.",
+      ],
       accounts: [
         {
           name: "marginfiGroup",
@@ -2401,6 +2739,7 @@ export const IDL: Marginfi = {
           name: "recipientTokenAccount",
           isMut: true,
           isSigner: false,
+          docs: ["- an honest admin will provide the correct one", "- incorrect mints will fail tx"],
         },
         {
           name: "tokenProgram",
@@ -2417,16 +2756,29 @@ export const IDL: Marginfi = {
     },
     {
       name: "initMarginfiAccount",
+      docs: ["Creates a new marginfi account with a given authority."],
       accounts: [
         {
           name: "authority",
           isMut: true,
           isSigner: true,
+          docs: [
+            "The authority that owns the marginfi account, ie the 'trader'.",
+            "Also the one signer that has authority to deposit/withdraw",
+            "collateral from the marginfi account, as well as take action",
+            "on UTPs.",
+          ],
         },
         {
           name: "marginfiGroup",
           isMut: false,
           isSigner: false,
+          docs: [
+            "The marginfi group this marginfi account belongs to,",
+            "which determins the UTPs this marginfi account can access.",
+            "",
+            "TODO: Should we limit the number of marginfi accounts?",
+          ],
         },
         {
           name: "marginfiAccount",
@@ -2442,7 +2794,60 @@ export const IDL: Marginfi = {
       args: [],
     },
     {
+      name: "initMarginfiAccountWithType",
+      docs: ["Creates a new marginfi account with a given authority and account flags."],
+      accounts: [
+        {
+          name: "authority",
+          isMut: true,
+          isSigner: true,
+          docs: [
+            "The authority that owns the marginfi account, ie the 'trader'.",
+            "Also the one signer that has authority to deposit/withdraw",
+            "collateral from the marginfi account, as well as take action",
+            "on UTPs.",
+          ],
+        },
+        {
+          name: "marginfiGroup",
+          isMut: false,
+          isSigner: false,
+          docs: [
+            "The marginfi group this marginfi account belongs to,",
+            "which determins the UTPs this marginfi account can access.",
+            "",
+            "TODO: Should we limit the number of marginfi accounts?",
+          ],
+        },
+        {
+          name: "marginfiAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "marginfiAccountType",
+          type: {
+            defined: "AccountType",
+          },
+        },
+      ],
+    },
+    {
       name: "bankInsuranceVaultWithdraw",
+      docs: [
+        "Allows an admin of a given marginfi group to withdraw funds from that",
+        "marginfi group's bank's insurance vault. While requiring signing from the",
+        "admin for the transaction, this method allows the admin to withdraw",
+        "funds to an arbitrary `recipient_token_account`, thereby assuming an",
+        "honest admin.",
+      ],
       accounts: [
         {
           name: "marginfiGroup",
@@ -2468,6 +2873,7 @@ export const IDL: Marginfi = {
           name: "recipientTokenAccount",
           isMut: true,
           isSigner: false,
+          docs: ["- an honest admin will provide the correct one", "- incorrect mints will fail tx"],
         },
         {
           name: "tokenProgram",
@@ -2484,6 +2890,7 @@ export const IDL: Marginfi = {
     },
     {
       name: "marginDepositCollateral",
+      docs: ["Allows the owner of a marginfi account to deposit collateral into it."],
       accounts: [
         {
           name: "marginfiAccount",
@@ -2504,6 +2911,7 @@ export const IDL: Marginfi = {
           name: "fundingAccount",
           isMut: true,
           isSigner: false,
+          docs: ["#[soteria(ignore)]"],
         },
         {
           name: "tokenVault",
@@ -2525,6 +2933,7 @@ export const IDL: Marginfi = {
     },
     {
       name: "marginWithdrawCollateral",
+      docs: ["Allows the owner of a marginfi account to withdraw available collateral", "from that marginfi account."],
       accounts: [
         {
           name: "marginfiAccount",
@@ -2555,6 +2964,7 @@ export const IDL: Marginfi = {
           name: "receivingTokenAccount",
           isMut: true,
           isSigner: false,
+          docs: ["#[soteria(ignore)]"],
         },
         {
           name: "tokenProgram",
@@ -2571,11 +2981,25 @@ export const IDL: Marginfi = {
     },
     {
       name: "liquidate",
+      docs: [
+        "Allows a liquidator to liquidate marginfi accounts that have fallen below",
+        "margin requirements. marginfi liquidations occur at the UTP account",
+        "level. In other words, when marginfi marginfi accounts fall below margin",
+        "requirements, liquidators pay marginfi accounts a discounted rate to take",
+        "ownership of UTP accounts that those marginfi accounts own.",
+        "The marginfi takes a fee on liquidations as well, and those funds are",
+        "added to marginfi's insurance vault.",
+      ],
       accounts: [
         {
           name: "marginfiAccount",
           isMut: true,
           isSigner: false,
+          docs: [
+            "Manually verified for:",
+            "- not same account as `marginfi_account_liquidatee` (c.f. `marginfi_account_liquidatee` checks)",
+            "#[soteria(ignore)]",
+          ],
         },
         {
           name: "marginfiGroup",
@@ -2591,6 +3015,12 @@ export const IDL: Marginfi = {
           name: "marginfiAccountLiquidatee",
           isMut: true,
           isSigner: false,
+          docs: [
+            "Manually verified for:",
+            "- can be liquidated (in body)",
+            "- has an active UTP (in body)",
+            "#[soteria(ignore)]",
+          ],
         },
         {
           name: "bankVault",
@@ -2622,6 +3052,10 @@ export const IDL: Marginfi = {
     },
     {
       name: "deactivateUtp",
+      docs: [
+        "Allows the owner of a marginfi account to deactivate a UTP account when the",
+        "UTP account is empty and no longer has collateral or positions in it.",
+      ],
       accounts: [
         {
           name: "marginfiAccount",
@@ -2642,7 +3076,43 @@ export const IDL: Marginfi = {
       ],
     },
     {
+      name: "marginfiAccountConfigureAdmin",
+      accounts: [
+        {
+          name: "admin",
+          isMut: false,
+          isSigner: true,
+        },
+        {
+          name: "marginfiGroup",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "marginfiAccount",
+          isMut: true,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "config",
+          type: {
+            defined: "MarginfiAccountConfigArg",
+          },
+        },
+      ],
+    },
+    {
       name: "handleBankruptcy",
+      docs: [
+        "For a marginfi account not meeting the maintenence margin requirements,",
+        "outstanding debts, and no assets left to liquidate, this method",
+        "manages repaying the debt for that marginfi account by",
+        "using funds from the insurance vault",
+        "or socializing losses among lenders in the related marginfi group's liquidity pool",
+        "in case the insurance fund is empty.",
+      ],
       accounts: [
         {
           name: "marginfiAccount",
@@ -2679,6 +3149,11 @@ export const IDL: Marginfi = {
     },
     {
       name: "updateInterestAccumulator",
+      docs: [
+        "Updates a central interest rate accumulator that tracks interest fees",
+        "owed by all borrowers within the protocol, and collects related protocol fees.",
+        "This method is executed by crankers.",
+      ],
       accounts: [
         {
           name: "marginfiGroup",
@@ -2710,6 +3185,15 @@ export const IDL: Marginfi = {
     },
     {
       name: "utpMangoActivate",
+      docs: [
+        "Mango instructions",
+        "Activate a UTP account on Mango for a given marginfi account and pay",
+        "related rent fees. marginfi supports only one UTP account per UTP per",
+        "marginfi account. Rent fees are determined by UTPs and marginfi passes",
+        "those up to UTP account activators, i.e. marginfi account owners.",
+        "This action can only be taken by the owner of the marginfi account for",
+        "which this UTP account is activated.",
+      ],
       accounts: [
         {
           name: "marginfiAccount",
@@ -2735,6 +3219,9 @@ export const IDL: Marginfi = {
           name: "mangoAccount",
           isMut: true,
           isSigner: false,
+          docs: [
+            "TODO: What would happen if we used `zero` or if someone sent an already existing account (assuming init would fail on Mango?)",
+          ],
         },
         {
           name: "mangoProgram",
@@ -2765,6 +3252,12 @@ export const IDL: Marginfi = {
     },
     {
       name: "utpMangoDeposit",
+      docs: [
+        "Deposits funds into a Mango UTP account, which may be done by the owner",
+        "of the marginfi account the UTP account is related to, or by the",
+        "rebalancing mechanism of the marginfi protocol if rebalancing conditions",
+        "are satisfied, which is ultimately an action enforced by crankers.",
+      ],
       accounts: [
         {
           name: "marginfiAccount",
@@ -2780,6 +3273,7 @@ export const IDL: Marginfi = {
           name: "signer",
           isMut: true,
           isSigner: true,
+          docs: ["Authority is verified in `check_rebalance_deposit_conditions`"],
         },
         {
           name: "marginCollateralVault",
@@ -2795,6 +3289,14 @@ export const IDL: Marginfi = {
           name: "tempCollateralAccount",
           isMut: true,
           isSigner: false,
+          docs: [
+            "We are assuming that the ix will fail if the owner is anyone but the UTP pda.",
+            "",
+            "Because multiple marginfi accounts might share the same UTP PDA, there a possibility that an attacker might expose",
+            "the token account of another marginfi account.",
+            "I am not sure what they could do with it, as the collateral only enters these token accounts atomically in this ix and is later closed.",
+            "But because I am superstitious, we are making sure here that the temp token account is empty.",
+          ],
         },
         {
           name: "mangoAuthority",
@@ -2866,6 +3368,7 @@ export const IDL: Marginfi = {
           name: "signer",
           isMut: false,
           isSigner: true,
+          docs: ["Partially permission-less"],
         },
         {
           name: "marginCollateralVault",
@@ -3154,6 +3657,7 @@ export const IDL: Marginfi = {
           name: "signer",
           isMut: true,
           isSigner: true,
+          docs: ["Authority is verified in `check_rebalance_deposit_conditions`"],
         },
         {
           name: "marginCollateralVault",
@@ -3169,6 +3673,14 @@ export const IDL: Marginfi = {
           name: "tempCollateralAccount",
           isMut: true,
           isSigner: false,
+          docs: [
+            "We are assuming that the ix will fail if the owner is anyone but the UTP pda.",
+            "",
+            "Because multiple marginfi accounts might share the same UTP PDA, there a possibility that an attacker might expose",
+            "the token account of another marginfi account.",
+            "I am not sure what they could do with it, as the collateral only enters these token accounts atomically in this ix and is later closed.",
+            "But because I am superstitious, we are making sure here that the temp token account is empty.",
+          ],
         },
         {
           name: "utpAuthority",
@@ -3245,6 +3757,7 @@ export const IDL: Marginfi = {
           name: "signer",
           isMut: false,
           isSigner: true,
+          docs: ["Partially permission-less"],
         },
         {
           name: "marginCollateralVault",
@@ -3724,9 +4237,28 @@ export const IDL: Marginfi = {
             },
           },
           {
-            name: "reservedSpace",
+            name: "depositLimit",
             type: {
-              array: ["u128", 256],
+              defined: "WrappedI80F48",
+            },
+          },
+          {
+            name: "flags",
+            type: {
+              defined: "AccountFlags",
+            },
+          },
+          {
+            name: "reservedSpace",
+            docs: ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct"],
+            type: {
+              array: ["u128", 254],
+            },
+          },
+          {
+            name: "reservedSpace2",
+            type: {
+              array: ["u8", 14],
             },
           },
         ],
@@ -3749,10 +4281,12 @@ export const IDL: Marginfi = {
           },
           {
             name: "paused",
+            docs: ["Group operations paused flag."],
             type: "bool",
           },
           {
             name: "reservedSpace",
+            docs: ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct."],
             type: {
               array: ["u128", 384],
             },
@@ -3915,7 +4449,35 @@ export const IDL: Marginfi = {
       },
     },
     {
+      name: "MarginfiAccountConfigArg",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "depositLimit",
+            type: {
+              option: "u64",
+            },
+          },
+        ],
+      },
+    },
+    {
       name: "UTPAccountConfig",
+      docs: [
+        "Data about a UTP account owned by a marginfi account.",
+        "- `address` is the address of the UTP user account (mango account, drift user account)",
+        "- `authority_seed, authority_bump` are used to derive the PDA that controls the UTP user account.",
+        "",
+        "#### Security assumption:",
+        "We cannot generate PDAs unique to UTP user accounts, because some UTPs use the signer (PDA) address as a seed for the user account.",
+        "We also cannot use the marginfi account address as a PDA seed, because the UTP might change owners through liquidations.",
+        "Alternatively, using a random oracle increases complexity with diminishing returns.",
+        "",
+        "Because of this we pessimistically assume that two marginfi accounts might share a PDA for a given UTP,",
+        "and our security relies on making sure that the UTP can only be accessed by their owners, by checking the `UTPAccountConfig` instead of relying",
+        "on the uniqueness of the PDA.",
+      ],
       type: {
         kind: "struct",
         fields: [
@@ -3933,6 +4495,7 @@ export const IDL: Marginfi = {
           },
           {
             name: "utpAddressBook",
+            docs: ["A cache of UTP addresses used for local security verification"],
             type: {
               array: ["publicKey", 4],
             },
@@ -4044,11 +4607,25 @@ export const IDL: Marginfi = {
     },
     {
       name: "Bank",
+      docs: [
+        "A bank is a subset of a marginfi group, and one bank",
+        "exists for each marginfi group. The bank's job is to",
+        "set parameters for the marginfi group related to borrowing",
+        "and lending portfolio-level collateral, and to store",
+        "collateral funds to lend to marginfi accounts in the marginfi group",
+        "in the bank vault `bank.vault`.",
+      ],
       type: {
         kind: "struct",
         fields: [
           {
             name: "scalingFactorC",
+            docs: [
+              "`scaling_factor_c`, `fixed_fee`, and `interest_fee`",
+              "are parameters in marginfi's interest rate calculation",
+              "for lending and borrowing. The interest rate calculation",
+              "can be observed in the bank's `calculate_interest_rate` fn.",
+            ],
             type: {
               defined: "WrappedI80F48",
             },
@@ -4067,6 +4644,13 @@ export const IDL: Marginfi = {
           },
           {
             name: "depositAccumulator",
+            docs: [
+              "Accumulators are time-dependent compound interest rate multipliers.",
+              "Accumulators are determined in functions part of impl `Bank` and",
+              "are calculated based on the appropriate interest rate",
+              "(lending or borrowing) and how much time has passed since the",
+              "last interest calculation, herein denoted as `time_delta`.",
+            ],
             type: {
               defined: "WrappedI80F48",
             },
@@ -4095,18 +4679,22 @@ export const IDL: Marginfi = {
           },
           {
             name: "mint",
+            docs: ["The mint denotes the collateral type."],
             type: "publicKey",
           },
           {
             name: "vault",
+            docs: ["The vault pubkey denotes the bank's vault,", "where liquidity is actually stored."],
             type: "publicKey",
           },
           {
             name: "vaultAuthorityPdaBump",
+            docs: ["Bank authority pda bump seed"],
             type: "u8",
           },
           {
             name: "insuranceVault",
+            docs: ["Insurance vault address"],
             type: "publicKey",
           },
           {
@@ -4115,12 +4703,14 @@ export const IDL: Marginfi = {
           },
           {
             name: "insuranceVaultOutstandingTransfers",
+            docs: ["Outstanding balance to be transferred to the fee vault from the main liquidity vault."],
             type: {
               defined: "WrappedI80F48",
             },
           },
           {
             name: "feeVault",
+            docs: ["Protocol fee vault address"],
             type: "publicKey",
           },
           {
@@ -4129,12 +4719,18 @@ export const IDL: Marginfi = {
           },
           {
             name: "feeVaultOutstandingTransfers",
+            docs: ["Outstanding balance to be transferred to the fee vault from the main liquidity vault."],
             type: {
               defined: "WrappedI80F48",
             },
           },
           {
             name: "initMarginRatio",
+            docs: [
+              "Today's marginfi groups in marginfi each have fixed",
+              "initial and maintenance margin requirements, which",
+              "are stored as attributes part of the Bank.",
+            ],
             type: {
               defined: "WrappedI80F48",
             },
@@ -4147,18 +4743,24 @@ export const IDL: Marginfi = {
           },
           {
             name: "accountDepositLimit",
+            docs: ["Account equity above which deposits are not allowed.", "If Decimal::ZERO, no limit is applied."],
             type: {
               defined: "WrappedI80F48",
             },
           },
           {
             name: "lpDepositLimit",
+            docs: [
+              "Balance of liquidity pool (LP) deposits above which deposits are not allowed.",
+              "If Decimal::ZERO, no limit is applied.",
+            ],
             type: {
               defined: "WrappedI80F48",
             },
           },
           {
             name: "reservedSpace",
+            docs: ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct."],
             type: {
               array: ["u128", 31],
             },
@@ -4218,6 +4820,21 @@ export const IDL: Marginfi = {
       },
     },
     {
+      name: "AccountType",
+      docs: ["Type use when initializing a margin account.", "Type maps to specific account flags."],
+      type: {
+        kind: "enum",
+        variants: [
+          {
+            name: "NormalAccount",
+          },
+          {
+            name: "LPAccount",
+          },
+        ],
+      },
+    },
+    {
       name: "MarginRequirement",
       type: {
         kind: "enum",
@@ -4267,6 +4884,11 @@ export const IDL: Marginfi = {
     },
     {
       name: "InternalTransferType",
+      docs: [
+        "Possible internal transfers:",
+        "- InsuranceFee - Fees collected and sent from the main liquidity vault to the insurance vault.",
+        "- ProtocolFee - Fees collected and sent from the main liquidity vault to the protocol fee vault.",
+      ],
       type: {
         kind: "enum",
         variants: [

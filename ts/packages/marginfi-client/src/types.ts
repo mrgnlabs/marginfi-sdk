@@ -158,6 +158,7 @@ export interface MarginfiAccountData {
   borrowRecord: WrappedI8048F;
   activeUtps: boolean[];
   utpAccountConfig: UTPAccountConfig[];
+  flags: number;
   reservedSpace: BN[];
 }
 

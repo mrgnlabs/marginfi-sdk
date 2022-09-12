@@ -58,7 +58,8 @@ class MarginfiAccount {
     depositRecord: BigNumber,
     borrowRecord: BigNumber,
     mangoUtpData: UtpData,
-    zoUtpData: UtpData
+    zoUtpData: UtpData,
+    readonly flags: number
   ) {
     this.publicKey = marginfiAccountPk;
 
@@ -107,6 +108,17 @@ class MarginfiAccount {
     return this.group.bank.computeNativeAmount(this._borrowRecord, LendingSide.Borrow);
   }
 
+  // Flags
+  private static BORROW_DISABLED_MASK = 1 << 0;
+  private static DEPOSIT_LIMIT_EXEMPT_MASK = 1 << 1;
+
+  public get canBorrow(): boolean {
+    return (this.flags & MarginfiAccount.BORROW_DISABLED_MASK) === 0;
+  }
+
+  public get depositLimitExempt(): boolean {
+    return (this.flags & MarginfiAccount.DEPOSIT_LIMIT_EXEMPT_MASK) === 1;
+  }
   // --- Factories
 
   /**
@@ -131,7 +143,8 @@ class MarginfiAccount {
       wrappedI80F48toBigNumber(accountData.depositRecord),
       wrappedI80F48toBigNumber(accountData.borrowRecord),
       MarginfiAccount._packUtpData(accountData, config.mango.utpIndex),
-      MarginfiAccount._packUtpData(accountData, config.zo.utpIndex)
+      MarginfiAccount._packUtpData(accountData, config.zo.utpIndex),
+      accountData.flags
     );
 
     require("debug")("mfi:margin-account")("Loaded marginfi account %s", marginfiAccountPk);
@@ -170,7 +183,8 @@ class MarginfiAccount {
       wrappedI80F48toBigNumber(accountData.depositRecord),
       wrappedI80F48toBigNumber(accountData.borrowRecord),
       MarginfiAccount._packUtpData(accountData, client.config.mango.utpIndex),
-      MarginfiAccount._packUtpData(accountData, client.config.zo.utpIndex)
+      MarginfiAccount._packUtpData(accountData, client.config.zo.utpIndex),
+      accountData.flags
     );
   }
 
@@ -515,6 +529,21 @@ class MarginfiAccount {
     return this.allUtps[utpIndex];
   }
 
+  public computePurchasingPower(): BigNumber {
+    if (this.canBorrow) {
+      const marginReq = this.computeMarginRequirement(MarginRequirementType.Init);
+      const equity = this.computeBalances(EquityType.InitReqAdjusted).equity;
+      const marginFraction = this.group.bank.marginRatio(MarginRequirementType.Init);
+
+      const nonLockedCollateral = equity.minus(marginReq);
+      const tal = nonLockedCollateral.div(marginFraction);
+
+      return tal;
+    } else {
+      return this.deposits;
+    }
+  }
+
   async checkRebalance() {
     require("debug")(`mfi:margin-account:${this.publicKey.toString()}:rebalance`)("Checking rebalance");
     await this.checkRebalanceDeposit();
@@ -583,20 +612,24 @@ class MarginfiAccount {
       }
 
       let rebalanceAmountDecimal = this.computeMaxRebalanceDepositAmount(utp);
-      let cappedRebalanceAmount = rebalanceAmountDecimal.times(0.95);
-      debug("Trying to rebalance deposit UTP:%s amount %s (RBDA)", utp.index, cappedRebalanceAmount);
+      let cappedRebalanceAmount = rebalanceAmountDecimal.times(0.75);
+      let pp = this.computePurchasingPower();
 
-      if (cappedRebalanceAmount.lte(1)) {
+      const rebalanceAmount = BigNumber.min(cappedRebalanceAmount, pp);
+
+      debug("Trying to rebalance deposit UTP:%s amount %s (RBDA)", utp.index, rebalanceAmount);
+
+      if (rebalanceAmount.lte(1)) {
         debug("Rebalance amount below dust ");
         continue;
       }
 
-      if (cappedRebalanceAmount.isNaN()) {
+      if (rebalanceAmount.isNaN()) {
         throw new Error("Rebalance amount is NaN");
       }
 
       try {
-        let sig = await this.utpFromIndex(utp.index).deposit(cappedRebalanceAmount);
+        let sig = await this.utpFromIndex(utp.index).deposit(rebalanceAmount);
         debug("Rebalance success (RBDS) sig %s", sig);
       } catch (e) {
         debug("Rebalance failed (RBDF)");
