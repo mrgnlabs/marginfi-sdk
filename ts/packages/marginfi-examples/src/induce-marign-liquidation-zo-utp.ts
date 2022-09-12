@@ -1,19 +1,19 @@
 require("dotenv").config();
 
-import { BN } from "@project-serum/anchor";
+import { AnchorProvider, BN } from "@project-serum/anchor";
 import { Connection, Transaction } from "@solana/web3.js";
 
 import {
   instructions,
   loadKeypair,
   MarginfiClient,
+  NodeWallet,
   processTransaction,
-  Wallet,
   ZoPerpOrderType,
 } from "@mrgnlabs/marginfi-client";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, "confirmed");
-const wallet = new Wallet(loadKeypair(process.env.WALLET!));
+const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));
 
 async function configureMarginReq(client: MarginfiClient, initMReq: number, maintMReq: number) {
   const program = client.program;
@@ -34,7 +34,7 @@ async function configureMarginReq(client: MarginfiClient, initMReq: number, main
   );
 
   const tx = new Transaction().add(ix);
-  await processTransaction(program.provider, tx, undefined, {
+  await processTransaction(program.provider as AnchorProvider, tx, undefined, {
     skipPreflight: false,
   });
 }

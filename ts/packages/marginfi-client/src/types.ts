@@ -1,7 +1,9 @@
 import { I80F48 } from "@blockworks-foundation/mango-client";
-import { BN } from "@project-serum/anchor";
+import { AnchorProvider, BN, Program } from "@project-serum/anchor";
+import { SignerWalletAdapter } from "@solana/wallet-adapter-base";
 import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
+import { Marginfi } from "./idl/marginfi";
 import { MangoConfig } from "./utp/mango";
 import { UtpObservation } from "./utp/observation";
 import { ZoConfig } from "./utp/zo";
@@ -9,7 +11,16 @@ import { ZoConfig } from "./utp/zo";
 export * from "./utp/mango/types";
 export * from "./utp/zo/types";
 
+export type MarginfiProgram = Omit<Program<Marginfi>, "provider"> & {
+  provider: AnchorProvider;
+};
+export type MarginfiReadonlyProgram = Program<Marginfi>;
+
 export type UiAmount = BigNumber | number | I80F48 | string;
+
+export type Wallet = Pick<SignerWalletAdapter, "signAllTransactions" | "signTransaction"> & {
+  publicKey: PublicKey;
+};
 
 export enum UtpIndex {
   Mango = 0,
@@ -134,6 +145,24 @@ export enum AccountType {
   MarginfiAccount = "marginfiAccount",
 }
 
+export enum MarginfiAccountType {
+  NormalAccount,
+  LPAccount,
+}
+
+export function toProgramMarginAccountType(orderType: MarginfiAccountType): IMarginfiAccountType {
+  switch (orderType) {
+    case MarginfiAccountType.NormalAccount:
+      return { normalAccount: {} };
+    case MarginfiAccountType.LPAccount:
+      return { lpAccount: {} };
+    default:
+      throw new Error(`Unknown order type: ${orderType}`);
+  }
+}
+
+export type IMarginfiAccountType = { normalAccount: {} } | { lpAccount: {} };
+
 export interface MarginfiGroupData {
   admin: PublicKey;
   bank: BankData;
@@ -147,6 +176,7 @@ export interface MarginfiAccountData {
   borrowRecord: WrappedI8048F;
   activeUtps: boolean[];
   utpAccountConfig: UTPAccountConfig[];
+  flags: number;
   reservedSpace: BN[];
 }
 

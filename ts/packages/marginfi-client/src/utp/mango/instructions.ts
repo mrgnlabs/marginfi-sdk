@@ -1,12 +1,12 @@
 import { ZERO_BN } from "@blockworks-foundation/mango-client";
-import { BN, Program } from "@project-serum/anchor";
+import { BN } from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, PublicKey, SystemProgram } from "@solana/web3.js";
-import { MarginfiIdl } from "../../idl";
+import { MarginfiProgram } from "../../types";
 import { toProgramExpiryType, toProgramPerpOrderType, toProgramSide, UtpMangoPlacePerpOrderArgs } from "./types";
 
 async function makeActivateIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiGroupPk: PublicKey;
     marginfiAccountPk: PublicKey;
@@ -37,7 +37,7 @@ async function makeActivateIx(
 }
 
 async function makeDepositIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiGroupPk: PublicKey;
     marginfiAccountPk: PublicKey;
@@ -81,7 +81,7 @@ async function makeDepositIx(
 }
 
 async function makeWithdrawIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiGroupPk: PublicKey;
     marginfiAccountPk: PublicKey;
@@ -121,7 +121,7 @@ async function makeWithdrawIx(
 }
 
 async function makePlacePerpOrderIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiAccountPk: PublicKey;
     marginfiGroupPk: PublicKey;
@@ -173,7 +173,7 @@ async function makePlacePerpOrderIx(
 }
 
 async function makeCancelPerpOrderIx(
-  mfProgram: Program<MarginfiIdl>,
+  mfProgram: MarginfiProgram,
   accounts: {
     marginfiAccountPk: PublicKey;
     marginfiGroupPk: PublicKey;

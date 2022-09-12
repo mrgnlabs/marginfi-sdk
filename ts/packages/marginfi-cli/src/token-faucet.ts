@@ -1,5 +1,5 @@
-import { getConfig, getMfiProgram, loadKeypair, processTransaction, Wallet } from "@mrgnlabs/marginfi-client";
-import { BN, Provider } from "@project-serum/anchor";
+import { getConfig, getMfiProgram, loadKeypair, NodeWallet, processTransaction } from "@mrgnlabs/marginfi-client";
+import { AnchorProvider, BN } from "@project-serum/anchor";
 import { ASSOCIATED_PROGRAM_ID } from "@project-serum/anchor/dist/cjs/utils/token";
 import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
@@ -10,15 +10,14 @@ export async function airdropCollateral(amountDec: string, options: OptionValues
   const connection = new Connection(options.url, "confirmed");
   const config = await getConfig(getEnvironment(options.env));
 
-  const program = getMfiProgram(config.programId, connection, new Wallet(loadKeypair(options.keypair)));
+  const program = getMfiProgram(config.programId, connection, new NodeWallet(loadKeypair(options.keypair)));
+  const provider = program.provider as AnchorProvider;
 
-  const wallet = program.provider.wallet;
+  const wallet = provider.wallet;
   const amount = Number.parseFloat(amountDec) * 10 ** 6;
 
   const faucet = new PublicKey(options.faucet);
   const mint = new PublicKey(options.mint);
-
-  const provider = program.provider;
 
   const tokenAccount = await getAtaOrCreate(provider, wallet.publicKey, mint);
 
@@ -50,7 +49,7 @@ export async function airdropCollateral(amountDec: string, options: OptionValues
 
 const FAUCET_PROGRAM_ID = new PublicKey("4bXpkKSV8swHSnwqtzuboGPaPDeEgAn4Vt8GfarV5rZt");
 
-async function getAtaOrCreate(provider: Provider, payerPk: PublicKey, mint: PublicKey): Promise<PublicKey> {
+async function getAtaOrCreate(provider: AnchorProvider, payerPk: PublicKey, mint: PublicKey): Promise<PublicKey> {
   const ata = await Token.getAssociatedTokenAddress(ASSOCIATED_PROGRAM_ID, TOKEN_PROGRAM_ID, mint, payerPk);
 
   const ataAccountInfo = await provider.connection.getAccountInfo(ata);

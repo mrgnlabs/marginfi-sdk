@@ -1,4 +1,4 @@
-import { BN, BorshAccountsCoder, Program, Provider } from "@project-serum/anchor";
+import { AnchorProvider, BN, BorshAccountsCoder, Program } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
   ConfirmOptions,
@@ -23,8 +23,8 @@ import {
   PDA_UTP_AUTH_SEED,
   VERY_VERBOSE_ERROR,
 } from "../constants";
-import { MarginfiIdl, MARGINFI_IDL } from "../idl";
-import { AccountType, BankVaultType, UiAmount } from "../types";
+import { MARGINFI_IDL } from "../idl";
+import { AccountType, BankVaultType, MarginfiProgram, UiAmount } from "../types";
 
 function getVaultSeeds(type: BankVaultType): Buffer {
   switch (type) {
@@ -68,7 +68,7 @@ export async function getUtpAuthority(
  * Transaction processing and error-handling helper.
  */
 export async function processTransaction(
-  provider: Provider,
+  provider: AnchorProvider,
   tx: Transaction,
   signers?: Array<Signer>,
   opts?: ConfirmOptions
@@ -143,7 +143,7 @@ export function uiToNative(amount: UiAmount, decimals: number = COLLATERAL_DECIM
 /**
  * Converts a native representation of a token amount into its UI value as `number`, given the specified mint decimal amount (default to 6 for USDC).
  */
-export function nativetoUi(amount: UiAmount | BN, decimals: number = COLLATERAL_DECIMALS): number {
+export function nativeToUi(amount: UiAmount | BN, decimals: number = COLLATERAL_DECIMALS): number {
   let amt = toBigNumber(amount);
   return amt.div(10 ** decimals).toNumber();
 }
@@ -196,10 +196,9 @@ export function loadKeypair(keypairPath: string): Keypair {
  * @param wallet
  * @returns
  */
-export function getMfiProgram(programAddress: PublicKey, connection: Connection, wallet: Wallet): Program<MarginfiIdl> {
-  const provider = new Provider(connection, wallet, {});
-  const program: Program<MarginfiIdl> = new Program(MARGINFI_IDL, programAddress, provider) as any;
-
+export function getMfiProgram(programAddress: PublicKey, connection: Connection, wallet: Wallet): MarginfiProgram {
+  const provider = new AnchorProvider(connection, wallet, {});
+  const program = new Program(MARGINFI_IDL, programAddress, provider) as any as MarginfiProgram;
   return program;
 }
 
@@ -207,7 +206,7 @@ export function getMfiProgram(programAddress: PublicKey, connection: Connection,
  * @internal
  */
 export async function createTempTransferAccounts(
-  provider: Provider,
+  provider: AnchorProvider,
   mint: PublicKey,
   authority: PublicKey
 ): Promise<[Keypair, TransactionInstruction, TransactionInstruction]> {

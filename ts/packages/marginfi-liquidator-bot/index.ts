@@ -11,7 +11,7 @@ import {
   MarginfiAccount,
   MarginfiAccountData,
   MarginfiClient,
-  Wallet,
+  NodeWallet,
   ZoPerpOrderType,
 } from "@mrgnlabs/marginfi-client";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
@@ -19,7 +19,7 @@ import debugBuilder from "debug";
 import { captureException } from "./sentry";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, { commitment: "confirmed" });
-const wallet = new Wallet(
+const wallet = new NodeWallet(
   process.env.WALLET_KEY
     ? Keypair.fromSecretKey(new Uint8Array(JSON.parse(process.env.WALLET_KEY)))
     : loadKeypair(process.env.WALLET!)

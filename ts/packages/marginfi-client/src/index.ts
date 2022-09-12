@@ -14,4 +14,4 @@ export * from "./types";
 export * from "./utils";
 export * from "./utp";
 export { Bank, MarginfiAccount, MarginfiClient, MarginfiGroup, instructions };
-export { NodeWallet as Wallet };
+export { NodeWallet };

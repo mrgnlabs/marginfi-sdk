@@ -7,9 +7,9 @@ export async function getAccounts(options: OptionValues) {
   const client = await getClientFromOptions(options);
   const accounts = await await client.getOwnMarginfiAccounts();
   if (accounts.length > 0) {
-    console.log("%s accounts owned by %s:\n", accounts.length, client.program.provider.wallet.publicKey);
+    console.log("%s accounts owned by %s:\n", accounts.length, client.provider.wallet.publicKey);
   } else {
-    console.log("No accounts owned by %s", client.program.provider.wallet.publicKey);
+    console.log("No accounts owned by %s", client.provider.wallet.publicKey);
   }
   for (let account of accounts) {
     console.log("%s", account.publicKey);

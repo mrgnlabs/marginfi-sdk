@@ -6,9 +6,10 @@ import {
   instructions,
   loadKeypair,
   MarginfiConfig,
+  NodeWallet,
   processTransaction,
-  Wallet,
 } from "@mrgnlabs/marginfi-client";
+import { AnchorProvider } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { OptionValues } from "commander";
@@ -16,7 +17,7 @@ import { getEnvironment } from "../common";
 
 export async function createGroup(options: OptionValues) {
   const connection = new Connection(options.url, "confirmed");
-  const wallet = new Wallet(loadKeypair(options.keypair));
+  const wallet = new NodeWallet(loadKeypair(options.keypair));
 
   const overrides: Partial<MarginfiConfig> = {
     programId: process.env.MARGINFI_PROGRAM ? new PublicKey(process.env.MARGINFI_PROGRAM) : undefined,
@@ -93,7 +94,7 @@ export async function createGroup(options: OptionValues) {
   ];
 
   const tx = new Transaction().add(...ixs);
-  const sig = await processTransaction(program.provider, tx, [
+  const sig = await processTransaction(program.provider as AnchorProvider, tx, [
     mfiGroupKey,
     bankVaultKey,
     insuranceVaultKey,

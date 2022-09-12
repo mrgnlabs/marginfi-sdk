@@ -1,5 +1,5 @@
 import { instructions, MarginfiClient, processTransaction } from "@mrgnlabs/marginfi-client";
-import { BN } from "@project-serum/anchor";
+import { AnchorProvider, BN } from "@project-serum/anchor";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { OptionValues } from "commander";
 
@@ -7,7 +7,7 @@ export async function configureGroup(options: OptionValues) {
   const client = await MarginfiClient.fromEnv();
   const program = client.program;
 
-  const wallet = program.provider.wallet;
+  const wallet = (program.provider as AnchorProvider).wallet;
   const marginfiGroupPk = client.group.publicKey;
 
   const args = {
@@ -34,7 +34,7 @@ export async function configureGroup(options: OptionValues) {
   );
 
   const tx = new Transaction().add(ix);
-  const sig = await processTransaction(program.provider, tx, undefined, {
+  const sig = await processTransaction(program.provider as AnchorProvider, tx, undefined, {
     skipPreflight: false,
   });
 
