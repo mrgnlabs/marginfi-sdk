@@ -145,6 +145,24 @@ export enum AccountType {
   MarginfiAccount = "marginfiAccount",
 }
 
+export enum MarginfiAccountType {
+  NormalAccount,
+  LPAccount,
+}
+
+export function toProgramMarginAccountType(orderType: MarginfiAccountType): IMarginfiAccountType {
+  switch (orderType) {
+    case MarginfiAccountType.NormalAccount:
+      return { normalAccount: {} };
+    case MarginfiAccountType.LPAccount:
+      return { lpAccount: {} };
+    default:
+      throw new Error(`Unknown order type: ${orderType}`);
+  }
+}
+
+export type IMarginfiAccountType = { normalAccount: {} } | { lpAccount: {} };
+
 export interface MarginfiGroupData {
   admin: PublicKey;
   bank: BankData;

@@ -12,6 +12,7 @@ import {
   Environment,
   InstructionsWrapper,
   MarginfiAccountData,
+  MarginfiAccountType,
   MarginfiConfig,
   MarginfiProgram,
 } from "./types";
@@ -141,6 +142,39 @@ class MarginfiClient {
   }
 
   /**
+   * Create transaction instruction to create a new marginfi account under the authority of the user.
+   *
+   * @returns transaction instruction
+   */
+  async makeCreateMarginfiAccountWithTypeIx(
+    accountType: MarginfiAccountType,
+    marginfiAccountKeypair?: Keypair
+  ): Promise<InstructionsWrapper> {
+    const dbg = require("debug")("mfi:client");
+    const accountKeypair = marginfiAccountKeypair || Keypair.generate();
+
+    dbg("Generating marginfi account ix for %s", accountKeypair.publicKey);
+
+    const createMarginfiAccountAccountIx = await this.program.account.marginfiAccount.createInstruction(accountKeypair);
+    const initMarginfiAccountIx = await instruction.makeInitMarginfiAccountWithTypeIx(
+      this.program,
+      {
+        marginfiGroupPk: this._group.publicKey,
+        marginfiAccountPk: accountKeypair.publicKey,
+        authorityPk: this.provider.wallet.publicKey,
+      },
+      { accountType }
+    );
+
+    const ixs = [createMarginfiAccountAccountIx, initMarginfiAccountIx];
+
+    return {
+      instructions: ixs,
+      keys: [accountKeypair],
+    };
+  }
+
+  /**
    * Create a new marginfi account under the authority of the user.
    *
    * @returns MarginfiAccount instance
@@ -164,6 +198,26 @@ class MarginfiClient {
 
     const tx = new Transaction().add(...ixs);
     const sig = await processTransaction(this.provider, tx, [marginfiAccountKey]);
+
+    dbg("Created Marginfi account %s", sig);
+
+    return MarginfiAccount.fetch(marginfiAccountKey.publicKey, this);
+  }
+
+  /**
+   * Create a new marginfi account under the authority of the user.
+   *
+   * @returns MarginfiAccount instance
+   */
+  async createMarginfiAccountWithType(accountType: MarginfiAccountType): Promise<MarginfiAccount> {
+    const dbg = require("debug")("mfi:client");
+    const marginfiAccountKey = Keypair.generate();
+
+    dbg("Generating Marginfi account ix for %s", marginfiAccountKey.publicKey);
+
+    const ixw = await this.makeCreateMarginfiAccountWithTypeIx(accountType, marginfiAccountKey);
+    const tx = new Transaction().add(...ixw.instructions);
+    const sig = await processTransaction(this.provider, tx, [...ixw.keys]);
 
     dbg("Created Marginfi account %s", sig);
 
