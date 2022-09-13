@@ -13,7 +13,7 @@ export const VERY_VERBOSE_ERROR = Buffer.from(
  * @internal
  */
 export const COLLATERAL_DECIMALS = 6; // USDC decimals
-export const LIQUIDATOR_LIQUIDATION_FEE = new BigNumber(0.025); // USDC decimals
-export const INSURANCE_VAULT_LIQUIDATION_FEE = new BigNumber(0.025); // USDC decimals
-export const DUST_THRESHOLD = new BigNumber(1); // USDC decimals
+export const LIQUIDATOR_LIQUIDATION_FEE = new BigNumber(0.025);
+export const INSURANCE_VAULT_LIQUIDATION_FEE = new BigNumber(0.025);
+export const DUST_THRESHOLD = new BigNumber(1);
 export const PARTIAL_LIQUIDATION_FACTOR = new BigNumber(0.2);
