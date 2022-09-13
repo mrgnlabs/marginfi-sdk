@@ -8,6 +8,7 @@ import { MARGINFI_IDL } from "./idl";
 import instructions from "./instructions";
 import {
   AccountBalances,
+  AccountFlags,
   AccountType,
   BankVaultType,
   EquityType,
@@ -59,7 +60,7 @@ class MarginfiAccount {
     borrowRecord: BigNumber,
     mangoUtpData: UtpData,
     zoUtpData: UtpData,
-    readonly flags: number
+    readonly accountFlags: AccountFlags
   ) {
     this.publicKey = marginfiAccountPk;
 
@@ -113,11 +114,11 @@ class MarginfiAccount {
   private static DEPOSIT_LIMIT_EXEMPT_MASK = 1 << 1;
 
   public get canBorrow(): boolean {
-    return (this.flags & MarginfiAccount.BORROW_DISABLED_MASK) === 0;
+    return (this.accountFlags.flags & MarginfiAccount.BORROW_DISABLED_MASK) === 0;
   }
 
   public get depositLimitExempt(): boolean {
-    return (this.flags & MarginfiAccount.DEPOSIT_LIMIT_EXEMPT_MASK) === 1;
+    return (this.accountFlags.flags & MarginfiAccount.DEPOSIT_LIMIT_EXEMPT_MASK) === 1;
   }
   // --- Factories
 
