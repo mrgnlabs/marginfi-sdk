@@ -1861,6 +1861,18 @@
       }
     },
     {
+      "name": "AccountFlags",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "flags",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
       "name": "MarginfiAccountConfigArg",
       "type": {
         "kind": "struct",
