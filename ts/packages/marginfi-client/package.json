@@ -23,7 +23,7 @@
     "@solana/spl-token": "^0.3.4",
     "@solana/wallet-adapter-base": "^0.9.16",
     "@solana/web3.js": "^1.37.0",
-    "@zero_one/client": "^0.11.2-beta.1",
+    "@zero_one/client": "^0.11.3-beta12",
     "bigint-buffer": "^1.1.5",
     "bignumber.js": "^9.0.2",
     "debug": "^4.3.4",

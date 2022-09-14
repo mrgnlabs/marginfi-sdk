@@ -1647,10 +1647,10 @@
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
 
-"@zero_one/client@^0.11.2-beta.1":
-  version "0.11.2-beta.1"
-  resolved "https://registry.yarnpkg.com/@zero_one/client/-/client-0.11.2-beta.1.tgz#d5789df1903180e3dba41da880c1c04d4dfddc4b"
-  integrity sha512-tu11drrRsNJqpSjiHZFLZrKhTuHKEWCaVGnae9PRCTOsANUW//piSNygO8GfXVlEY7YNfV5uiMyaTi7Wa+FdtQ==
+"@zero_one/client@^0.11.3-beta12":
+  version "0.11.3-beta12"
+  resolved "https://registry.yarnpkg.com/@zero_one/client/-/client-0.11.3-beta12.tgz#66897378cd97558b33c831309c8e821d614d5baf"
+  integrity sha512-fH/7P8OX0iDlHWTHwv4wKSvQoMPQ2IY7HFUUjNuL2R3XZUtfl9iiaSbgQnn6u96SeeTbZQbovhIlkOx7EkUHKQ==
   dependencies:
     "@project-serum/anchor" "^0.25.0"
     "@solana/spl-token" "^0.1.8"
