@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.15](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-liquidator-bot@0.3.14...@mrgnlabs/marginfi-liquidator-bot@0.3.15) (2022-09-14)
+
+**Note:** Version bump only for package @mrgnlabs/marginfi-liquidator-bot
+
+
+
+
+
 ## [0.3.10](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-liquidator-bot@0.3.8-alpha.3...@mrgnlabs/marginfi-liquidator-bot@0.3.10) (2022-09-06)
 
 

@@ -169,6 +169,10 @@ export interface MarginfiGroupData {
   reservedSpace: BN[];
 }
 
+export interface AccountFlags {
+  flags: number;
+}
+
 export interface MarginfiAccountData {
   authority: PublicKey;
   marginfiGroup: PublicKey;
@@ -176,7 +180,7 @@ export interface MarginfiAccountData {
   borrowRecord: WrappedI8048F;
   activeUtps: boolean[];
   utpAccountConfig: UTPAccountConfig[];
-  flags: number;
+  flags: AccountFlags;
   reservedSpace: BN[];
 }
 

@@ -1858,6 +1858,18 @@ export type Marginfi = {
       };
     },
     {
+      name: "AccountFlags";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "flags";
+            type: "u16";
+          }
+        ];
+      };
+    },
+    {
       name: "MarginfiAccountConfigArg";
       type: {
         kind: "struct";
@@ -4444,6 +4456,18 @@ export const IDL: Marginfi = {
           {
             name: "bits",
             type: "i128",
+          },
+        ],
+      },
+    },
+    {
+      name: "AccountFlags",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "flags",
+            type: "u16",
           },
         ],
       },
