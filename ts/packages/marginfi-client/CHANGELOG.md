@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.8](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.7...@mrgnlabs/marginfi-client@0.7.8) (2022-09-17)
+
+
+### Bug Fixes
+
+* revert spl token version ([18f90a7](https://github.com/mrgnlabs/marginfi-sdk/commit/18f90a71d4562d5943a00ebfb79d09b12ae19322))
+
+
+
+
+
 ## [0.7.7](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.6...@mrgnlabs/marginfi-client@0.7.7) (2022-09-14)
 
 **Note:** Version bump only for package @mrgnlabs/marginfi-client
