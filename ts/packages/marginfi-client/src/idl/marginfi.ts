@@ -833,6 +833,11 @@ export type Marginfi = {
           name: "tokenProgram";
           isMut: false;
           isSigner: false;
+        },
+        {
+          name: "emptyMangoOpenOrdersAccount";
+          isMut: false;
+          isSigner: false;
         }
       ];
       args: [
@@ -3434,6 +3439,11 @@ export const IDL: Marginfi = {
         },
         {
           name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "emptyMangoOpenOrdersAccount",
           isMut: false,
           isSigner: false,
         },
