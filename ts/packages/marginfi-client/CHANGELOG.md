@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.9](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.8...@mrgnlabs/marginfi-client@0.7.9) (2022-09-17)
+
+
+### Bug Fixes
+
+* pass an default pubkey as the open orders account ([#87](https://github.com/mrgnlabs/marginfi-sdk/issues/87)) ([b54123f](https://github.com/mrgnlabs/marginfi-sdk/commit/b54123f2e05d990eb03f0eca5bb9320b333cd591))
+
+
+
+
+
 ## [0.7.8](https://github.com/mrgnlabs/marginfi-sdk/compare/@mrgnlabs/marginfi-client@0.7.7...@mrgnlabs/marginfi-client@0.7.8) (2022-09-17)
 
 
