@@ -40,6 +40,21 @@ impl<'a> MarginAccount<'a> {
         })
     }
 
+    pub async fn load_from_marginfi_account(
+        mfi_client: &'a MarginClient,
+        address: Pubkey,
+        marginfi_account: &MarginfiAccount,
+    ) -> Res<MarginAccount<'a>> {
+        let observer = ClientObserver::load(&mfi_client.rpc_endpoint, &marginfi_account).await?;
+
+        Ok(Self {
+            address,
+            marginfi_account: marginfi_account.clone(),
+            client: mfi_client,
+            observer,
+        })
+    }
+
     pub fn balance(&self) -> Res<I80F48> {
         Ok(self.client.group.bank.get_native_amount(
             self.marginfi_account.deposit_record.into(),

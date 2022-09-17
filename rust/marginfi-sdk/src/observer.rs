@@ -1,6 +1,6 @@
 use anchor_lang::prelude::Pubkey;
 use anyhow::Result;
-use mango_protocol::state::{HealthCache, MangoAccount, MangoCache, MangoGroup, UserActiveAssets};
+use mango_protocol::state::{HealthCache, MangoAccount, MangoCache, MangoGroup, UserActiveAssets, MAX_TOKENS};
 use marginfi::{
     constants::{MANGO_UTP_INDEX, ZO_UTP_INDEX},
     prelude::MarginfiAccount,
@@ -161,13 +161,14 @@ impl MangoObserver {
     /// Create health cache
     pub fn get_health_cache(&self) -> HealthCache {
         let uaa = UserActiveAssets::new(&self.mango_group, &self.mango_account, vec![]);
+
         let mut health_cache = HealthCache::new(uaa);
         health_cache
             .init_vals_with_orders_vec::<&serum_dex::state::OpenOrders>(
                 &self.mango_group,
                 &self.mango_cache,
                 &self.mango_account,
-                &[],
+                &[None; MAX_TOKENS],
             )
             .unwrap();
 

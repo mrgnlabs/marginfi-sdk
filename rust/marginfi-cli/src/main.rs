@@ -1,8 +1,8 @@
 use marginfi_sdk::{
-    client::{Env, MarginClient, MarginfiClientConfig},
+    client::{MarginClient},
     marginfi_account::MarginAccount,
 };
-use solana_sdk::pubkey;
+
 
 #[tokio::main]
 async fn main() {
