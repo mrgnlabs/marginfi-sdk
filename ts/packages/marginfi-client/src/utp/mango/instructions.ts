@@ -116,6 +116,7 @@ async function makeWithdrawIx(
       mangoRootBank: accounts.mangoRootBankPk,
       mangoNodeBank: accounts.mangoNodeBankPk,
       tokenProgram: TOKEN_PROGRAM_ID,
+      emptyMangoOpenOrdersAccount: PublicKey.default,
     })
     .instruction();
 }

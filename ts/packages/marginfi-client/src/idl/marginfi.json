@@ -836,6 +836,11 @@
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "emptyMangoOpenOrdersAccount",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
