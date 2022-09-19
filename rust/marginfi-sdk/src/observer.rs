@@ -1,6 +1,8 @@
 use anchor_lang::prelude::Pubkey;
 use anyhow::Result;
-use mango_protocol::state::{HealthCache, MangoAccount, MangoCache, MangoGroup, UserActiveAssets, MAX_TOKENS};
+use mango_protocol::state::{
+    HealthCache, MangoAccount, MangoCache, MangoGroup, UserActiveAssets, MAX_TOKENS,
+};
 use marginfi::{
     constants::{MANGO_UTP_INDEX, ZO_UTP_INDEX},
     prelude::MarginfiAccount,
@@ -22,6 +24,13 @@ pub struct ClientObserver {
 use crate::utils::{fetch_anchor, fetch_mango};
 
 impl ClientObserver {
+    pub fn new(mango_observer: Option<MangoObserver>, zo_observer: Option<ZoObserver>) -> Self {
+        Self {
+            mango_observer,
+            zo_observer,
+        }
+    }
+
     pub async fn load(rpc_client: &RpcClient, mfi_account: &MarginfiAccount) -> Result<Self> {
         let mut observer = Self::default();
 
@@ -138,7 +147,7 @@ pub struct MangoObserver {
 }
 
 impl MangoObserver {
-    fn new(
+    pub fn new(
         mango_account_pk: Pubkey,
         mango_group_pk: Pubkey,
         mango_cache_pk: Pubkey,
@@ -176,7 +185,11 @@ impl MangoObserver {
     }
 
     pub fn get_observation_accounts(&self) -> Vec<Pubkey> {
-        vec![self.mango_account_pk, self.mango_group_pk, self.mango_cache_pk]
+        vec![
+            self.mango_account_pk,
+            self.mango_group_pk,
+            self.mango_cache_pk,
+        ]
     }
 }
 
@@ -228,7 +241,7 @@ pub struct ZoObserver {
 }
 
 impl ZoObserver {
-    fn new(
+    pub fn new(
         margin_pk: Pubkey,
         control_pk: Pubkey,
         state_pk: Pubkey,

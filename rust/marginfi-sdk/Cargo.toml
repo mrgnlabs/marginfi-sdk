@@ -37,3 +37,4 @@ serum_dex = { git = "https://github.com/blockworks-foundation/serum-dex.git", re
 serde = "1.0.144"
 anyhow = "1.0"
 idontsee = { git = "https://github.com/mrgnlabs/defi-execution-tools-library", features = [ "no-entrypoint" ] }
+anchor-spl = "0.25.0"

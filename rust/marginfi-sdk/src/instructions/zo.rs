@@ -1,4 +1,5 @@
 use crate::marginfi_account::MarginAccount;
+use crate::utils::get_bank_authority;
 use anchor_lang::prelude::AccountMeta;
 use anchor_lang::prelude::Pubkey;
 use anchor_lang::InstructionData;
@@ -6,7 +7,10 @@ use anchor_lang::ToAccountMetas;
 
 use marginfi::constants::{ZO_PROGRAM, ZO_UTP_INDEX};
 use marginfi::instructions::UtpZoPlacePerpOrderIxArgs;
+use marginfi::state::marginfi_group::BankVaultType;
 use marginfi::state::zo_state::ZO_STATE_ADDRESS_INDEX;
+use solana_sdk::system_program;
+use solana_sdk::sysvar;
 use solana_sdk::sysvar::SysvarId;
 use solana_sdk::{instruction::Instruction, signer::Signer};
 use zo_abi::dex::ZoDexMarket;
@@ -110,5 +114,96 @@ pub fn zo_make_place_perp_order_ix(
         program_id: marginfi::ID,
         accounts,
         data: marginfi::instruction::UtpZoPlacePerpOrder { args }.data(),
+    }
+}
+
+pub struct UtpZoDepositAccounts {
+    marginfi_group: Pubkey,
+    marginfi_account: Pubkey,
+    signer: Pubkey,
+    margin_collateral_vault: Pubkey,
+    bank_authority: Pubkey,
+    temp_collateral_account: Pubkey,
+    utp_authority: Pubkey,
+    zo_program: Pubkey,
+    zo_margin: Pubkey,
+    zo_state: Pubkey,
+    zo_state_signer: Pubkey,
+    zo_cache: Pubkey,
+    zo_vault: Pubkey,
+    token_program: Pubkey,
+    rent: Pubkey,
+    system_program: Pubkey,
+}
+
+impl UtpZoDepositAccounts {
+    pub fn new(margin_account: &MarginAccount, temp_collateral_account: &Pubkey) -> Self {
+        let (bank_authority, _) = get_bank_authority(
+            BankVaultType::LiquidityVault,
+            &margin_account.client.config.marginfi_group,
+        );
+
+        let (utp_authority, _) = margin_account.get_utp_authority(ZO_UTP_INDEX);
+
+        let zo_observer = margin_account.observer.zo_observer.expect("no zo observer");
+
+        let (zo_state_signer, _) = get_state_signer(&zo_observer.state_pk);
+
+        let zo_state = zo_observer.state;
+
+        let vault_mint = margin_account.client.group.bank.mint;
+        let vault_index = zo_state
+            .collaterals
+            .iter()
+            .position(|ci| ci.mint == vault_mint)
+            .expect("Cannot find zo vault");
+
+        let zo_vault = zo_state.vaults[vault_index];
+
+        Self {
+            marginfi_group: margin_account.client.config.marginfi_group,
+            marginfi_account: margin_account.address,
+            signer: margin_account.client.keypair.pubkey(),
+            margin_collateral_vault: margin_account.client.group.bank.vault,
+            bank_authority,
+            temp_collateral_account: *temp_collateral_account,
+            utp_authority,
+            zo_program: ZO_PROGRAM,
+            zo_margin: zo_observer.margin_pk,
+            zo_state: zo_observer.state_pk,
+            zo_state_signer,
+            zo_cache: zo_observer.cache_pk,
+            zo_vault: zo_vault,
+            token_program: anchor_spl::token::ID,
+            rent: sysvar::rent::ID,
+            system_program: system_program::ID,
+        }
+    }
+}
+
+pub fn zo_make_deposit_ix(amount: u64) -> Instruction {
+    let accounts = marginfi::accounts::UtpZoDeposit {
+        marginfi_group: Pubkey::new_unique(),
+        marginfi_account: Pubkey::default(),
+        signer: Pubkey::default(),
+        margin_collateral_vault: Pubkey::default(),
+        bank_authority: Pubkey::default(),
+        temp_collateral_account: Pubkey::default(),
+        utp_authority: Pubkey::default(),
+        zo_program: ZO_PROGRAM,
+        zo_margin: Pubkey::default(),
+        zo_state: Pubkey::default(),
+        zo_state_signer: Pubkey::default(),
+        zo_cache: Pubkey::default(),
+        zo_vault: Pubkey::default(),
+        token_program: anchor_spl::token::ID,
+        rent: Pubkey::default(),
+        system_program: solana_sdk::system_program::ID,
+    };
+
+    Instruction {
+        program_id: marginfi::ID,
+        accounts: vec![],
+        data: marginfi::instruction::UtpZoDeposit { amount }.data(),
     }
 }

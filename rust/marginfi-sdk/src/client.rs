@@ -4,11 +4,16 @@ use std::{
     sync::Arc,
 };
 
-use crate::utils::{fetch_anchor, Res};
+use crate::utils::{fetch_anchor, get_group_account_filter, load_anchor, Res};
 use anchor_lang::prelude::*;
-use marginfi::prelude::MarginfiGroup;
+use anyhow::Result;
+use marginfi::prelude::{MarginfiAccount, MarginfiGroup};
 use serde::Deserialize;
-use solana_client::nonblocking::rpc_client::RpcClient;
+use solana_client::{
+    nonblocking::rpc_client::RpcClient,
+    rpc_config::RpcProgramAccountsConfig,
+    rpc_filter::{Memcmp, RpcFilterType},
+};
 use solana_sdk::signature::{read_keypair_file, Keypair};
 
 #[derive(Deserialize, Debug, PartialEq)]
@@ -69,7 +74,7 @@ pub struct MarginClient {
 }
 
 impl MarginClient {
-    pub async fn new(config: MarginfiClientConfig) -> Res<Self> {
+    pub async fn new(config: MarginfiClientConfig) -> Result<Self> {
         let rpc_endpoint = Arc::new(RpcClient::new(config.rpc_endpoint.clone()));
         let group = fetch_anchor::<MarginfiGroup>(&rpc_endpoint, &config.marginfi_group).await?;
         let keypair = read_keypair_file(&config.wallet).expect("Failed to read wallet file");
@@ -81,14 +86,35 @@ impl MarginClient {
             keypair,
         })
     }
-    pub async fn new_from_env() -> Res<Self> {
+    pub async fn new_from_env() -> Result<Self> {
         let config = envy::from_env::<MarginfiClientConfigRaw>()?.try_into()?;
         Self::new(config).await
     }
 
-    pub async fn load_group(&self) -> Res<MarginfiGroup> {
+    pub async fn load_group(&self) -> Result<MarginfiGroup> {
         let group =
             fetch_anchor::<MarginfiGroup>(&self.rpc_endpoint, &self.config.marginfi_group).await?;
         Ok(group)
+    }
+
+    pub async fn get_all_marginfi_accounts(&self) -> Result<Vec<MarginfiAccount>> {
+        self.rpc_endpoint
+            .get_program_accounts_with_config(
+                &self.config.marginfi_program,
+                RpcProgramAccountsConfig {
+                    filters: Some(vec![get_group_account_filter(&self.config.marginfi_group)]),
+                    ..Default::default()
+                },
+            )
+            .await?
+            .into_iter()
+            .map(|(address, account)| {
+                let mut account = account.clone();
+                let ai: AccountInfo = (&address, &mut account).into();
+                let marginfi_account = load_anchor::<MarginfiAccount>(&ai)?;
+
+                Ok::<_, anyhow::Error>(*marginfi_account)
+            })
+            .collect::<Result<Vec<MarginfiAccount>>>()
     }
 }

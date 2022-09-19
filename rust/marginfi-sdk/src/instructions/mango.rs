@@ -4,16 +4,22 @@ use anchor_lang::InstructionData;
 use anchor_lang::ToAccountMetas;
 use idontsee;
 use mango_protocol::state::MangoGroup;
+use mango_protocol::state::NodeBank;
 use mango_protocol::state::PerpMarket;
 use mango_protocol::state::PerpMarketInfo;
+use mango_protocol::state::RootBank;
+use mango_protocol::state::QUOTE_INDEX;
 use marginfi::constants::MANGO_PROGRAM;
 use marginfi::constants::MANGO_UTP_INDEX;
 use marginfi::instructions::UtpMangoPlacePerpOrderArgs;
 use marginfi::state::mango_state::MANGO_GROUP_ADDRESS_INDEX;
+use marginfi::state::marginfi_group::BankVaultType;
 use solana_sdk::instruction::Instruction;
 use solana_sdk::signer::Signer;
 
 use crate::marginfi_account::MarginAccount;
+use crate::utils::get_bank_authority;
+use crate::utils::pubkey_to_readonly_account_metas;
 
 pub struct MangoPlacePerpOrderAccounts {
     marginfi_account: Pubkey,
@@ -138,4 +144,106 @@ pub fn make_mango_guard_ix(
         }
         .data(),
     }
+}
+
+pub struct MangoDepositAccounts {
+    marginfi_account: Pubkey,
+    marginfi_group: Pubkey,
+    signer: Pubkey,
+    mango_authority: Pubkey,
+    mango_account: Pubkey,
+    mango_program: Pubkey,
+    mango_group: Pubkey,
+    mango_cache: Pubkey,
+    mango_node_bank: Pubkey,
+    mango_root_bank: Pubkey,
+    bank_authority: Pubkey,
+    mango_vault: Pubkey,
+    margin_collateral_vault: Pubkey,
+    temp_collateral_account: Pubkey,
+    token_program: Pubkey,
+    observation_accounts: Vec<Pubkey>,
+}
+
+impl MangoDepositAccounts {
+    pub fn new(
+        margin_account: &MarginAccount,
+        root_bank: &RootBank,
+        node_bank: &NodeBank,
+        temp_collateral_account: Pubkey,
+    ) -> Self {
+        let (mango_authority, _) = margin_account.get_utp_authority(MANGO_UTP_INDEX);
+        let utp_config = &margin_account.marginfi_account.utp_account_config[MANGO_UTP_INDEX];
+
+        let mango_observer = &margin_account
+            .observer
+            .mango_observer
+            .expect("mango observer not found");
+
+        let mango_group = mango_observer.mango_group;
+        let root_bank_pk = mango_group.tokens[QUOTE_INDEX].root_bank;
+
+        let (bank_authority, _) = get_bank_authority(
+            BankVaultType::LiquidityVault,
+            &margin_account.client.config.marginfi_group,
+        );
+
+        Self {
+            marginfi_account: margin_account.address,
+            marginfi_group: margin_account.client.config.marginfi_group,
+            signer: margin_account.client.keypair.pubkey(),
+            mango_authority,
+            mango_account: utp_config.address,
+            mango_program: MANGO_PROGRAM,
+            mango_group: mango_observer.mango_group_pk,
+            mango_cache: mango_observer.mango_cache_pk,
+            mango_root_bank: root_bank_pk,
+            mango_node_bank: root_bank
+                .node_banks
+                .first()
+                .expect("node bank not found")
+                .clone(),
+            bank_authority,
+            mango_vault: node_bank.vault,
+            margin_collateral_vault: margin_account.client.group.bank.vault,
+            temp_collateral_account,
+            token_program: anchor_spl::token::ID,
+            observation_accounts: margin_account.get_observation_accounts(),
+        }
+    }
+}
+
+pub fn mango_make_deposit_ix(accounts: MangoDepositAccounts, amount: u64) -> Instruction {
+    let mut account_metas = marginfi::accounts::UtpMangoDeposit {
+        marginfi_account: accounts.marginfi_account,
+        marginfi_group: accounts.marginfi_group,
+        signer: accounts.signer,
+        mango_authority: accounts.mango_authority,
+        mango_account: accounts.mango_account,
+        mango_program: accounts.mango_program,
+        mango_group: accounts.mango_group,
+        mango_cache: accounts.mango_cache,
+        mango_root_bank: accounts.mango_root_bank,
+        mango_node_bank: accounts.mango_node_bank,
+        bank_authority: accounts.bank_authority,
+        mango_vault: accounts.mango_vault,
+        margin_collateral_vault: accounts.margin_collateral_vault,
+        temp_collateral_account: accounts.temp_collateral_account,
+        token_program: accounts.token_program,
+    }
+    .to_account_metas(Some(true));
+
+    account_metas.append(&mut pubkey_to_readonly_account_metas(
+        &accounts.observation_accounts,
+    ));
+
+    Instruction {
+        program_id: marginfi::id(),
+        accounts: account_metas,
+        data: marginfi::instruction::UtpMangoDeposit { amount }.data(),
+    }
+}
+
+pub fn mango_make_withdraw_ix() -> Instruction {
+    unimplemented!()
 }

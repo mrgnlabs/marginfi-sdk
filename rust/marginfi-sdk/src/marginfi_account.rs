@@ -8,7 +8,7 @@ use anchor_lang::prelude::Pubkey;
 use fixed::types::I80F48;
 use marginfi::{
     constants::{MANGO_PROGRAM, MANGO_UTP_INDEX, PDA_UTP_AUTH_SEED, ZO_PROGRAM, ZO_UTP_INDEX},
-    prelude::MarginfiAccount,
+    prelude::{MarginfiAccount, MarginfiGroup},
     state::{
         marginfi_account::{EquityType, MarginRequirement},
         marginfi_group::LendingSide,
@@ -16,7 +16,7 @@ use marginfi::{
     },
 };
 
-use std::fmt::Display;
+use std::{borrow::Borrow, cell::Ref, fmt::Display, sync::Arc};
 
 #[derive(Clone)]
 pub struct MarginAccount<'a> {
@@ -35,7 +35,7 @@ impl<'a> MarginAccount<'a> {
         Ok(Self {
             address: *address,
             marginfi_account,
-            client: mfi_client,
+            client: &mfi_client,
             observer,
         })
     }
@@ -50,9 +50,23 @@ impl<'a> MarginAccount<'a> {
         Ok(Self {
             address,
             marginfi_account: marginfi_account.clone(),
-            client: mfi_client,
             observer,
+            client: &mfi_client,
         })
+    }
+
+    pub fn new(
+        address: Pubkey,
+        marginfi_account: MarginfiAccount,
+        client: &'a MarginClient,
+        observer: ClientObserver,
+    ) -> Self {
+        Self {
+            address,
+            marginfi_account,
+            client,
+            observer,
+        }
     }
 
     pub fn balance(&self) -> Res<I80F48> {
