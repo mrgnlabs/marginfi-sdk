@@ -283,21 +283,16 @@ impl MangoWithdrawAccounts {
 
         let root_bank_pk = mango_group.tokens[QUOTE_INDEX].root_bank;
 
-        let (mango_vault_authority, _) = Pubkey::find_program_address(
-            &[mango_group_pk.as_ref(), bytes_of(&mango_group.signer_nonce)],
-            &MANGO_PROGRAM,
-        );
-
         Self {
             marginfi_account: margin_account.address,
             marginfi_group: margin_account.client.config.marginfi_group,
             signer: margin_account.client.keypair.pubkey(),
             margin_collateral_vault: margin_account.client.group.bank.vault,
             mango_authority: mango_authority,
-            mango_account: mango_account_pk,
+            mango_account: *mango_account_pk,
             mango_program: MANGO_PROGRAM,
-            mango_group: mango_group_pk,
-            mango_cache: mango_cache_pk,
+            mango_group: *mango_group_pk,
+            mango_cache: *mango_cache_pk,
             mango_root_bank: root_bank_pk,
             mango_node_bank: root_bank
                 .node_banks
@@ -305,13 +300,13 @@ impl MangoWithdrawAccounts {
                 .expect("node bank not found")
                 .clone(),
             mango_vault: node_bank.vault,
-            mango_vault_authority,
+            mango_vault_authority: mango_group.signer_key,
             token_program: token::ID,
         }
     }
 }
 
-pub fn mango_make_withdraw_ix(accounts: MangoDepositAccounts, amount: u64) -> Instruction {
+pub fn mango_make_withdraw_ix(accounts: MangoWithdrawAccounts, amount: u64) -> Instruction {
     let account_metas = marginfi::accounts::UtpMangoWithdraw {
         marginfi_account: accounts.marginfi_account,
         marginfi_group: accounts.marginfi_group,
@@ -327,12 +322,13 @@ pub fn mango_make_withdraw_ix(accounts: MangoDepositAccounts, amount: u64) -> In
         mango_vault: accounts.mango_vault,
         mango_vault_authority: accounts.mango_vault_authority,
         token_program: accounts.token_program,
+        empty_mango_open_orders_account: Pubkey::default(),
     }
     .to_account_metas(Some(true));
 
     Instruction {
         program_id: marginfi::id(),
-        accounts: (),
+        accounts: account_metas,
         data: marginfi::instruction::UtpMangoWithdraw { amount }.data(),
     }
 }

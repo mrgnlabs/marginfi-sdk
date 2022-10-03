@@ -10,7 +10,7 @@ use anyhow::Result;
 use marginfi::prelude::{MarginfiAccount, MarginfiGroup};
 use serde::Deserialize;
 use solana_client::{
-    nonblocking::rpc_client::RpcClient,
+    nonblocking, rpc_client,
     rpc_config::RpcProgramAccountsConfig,
     rpc_filter::{Memcmp, RpcFilterType},
 };
@@ -67,7 +67,8 @@ impl TryFrom<MarginfiClientConfigRaw> for MarginfiClientConfig {
 }
 
 pub struct MarginClient {
-    pub rpc_endpoint: Arc<RpcClient>,
+    pub non_blocking_rpc_client: Arc<nonblocking::rpc_client::RpcClient>,
+    pub rpc_client: Arc<rpc_client::RpcClient>,
     pub config: MarginfiClientConfig,
     pub group: MarginfiGroup,
     pub keypair: Keypair,
@@ -75,15 +76,17 @@ pub struct MarginClient {
 
 impl MarginClient {
     pub async fn new(config: MarginfiClientConfig) -> Result<Self> {
-        let rpc_endpoint = Arc::new(RpcClient::new(config.rpc_endpoint.clone()));
-        let group = fetch_anchor::<MarginfiGroup>(&rpc_endpoint, &config.marginfi_group).await?;
+        let rpc_url = config.rpc_endpoint.clone();
+        let nb_rpc_client = Arc::new(nonblocking::rpc_client::RpcClient::new(rpc_url.clone()));
+        let group = fetch_anchor::<MarginfiGroup>(&nb_rpc_client, &config.marginfi_group).await?;
         let keypair = read_keypair_file(&config.wallet).expect("Failed to read wallet file");
 
         Ok(Self {
-            rpc_endpoint,
+            non_blocking_rpc_client: nb_rpc_client,
             group,
             config,
             keypair,
+            rpc_client: Arc::new(rpc_client::RpcClient::new(rpc_url.clone())),
         })
     }
     pub async fn new_from_env() -> Result<Self> {
@@ -92,13 +95,16 @@ impl MarginClient {
     }
 
     pub async fn load_group(&self) -> Result<MarginfiGroup> {
-        let group =
-            fetch_anchor::<MarginfiGroup>(&self.rpc_endpoint, &self.config.marginfi_group).await?;
+        let group = fetch_anchor::<MarginfiGroup>(
+            &self.non_blocking_rpc_client,
+            &self.config.marginfi_group,
+        )
+        .await?;
         Ok(group)
     }
 
     pub async fn get_all_marginfi_accounts(&self) -> Result<Vec<MarginfiAccount>> {
-        self.rpc_endpoint
+        self.non_blocking_rpc_client
             .get_program_accounts_with_config(
                 &self.config.marginfi_program,
                 RpcProgramAccountsConfig {

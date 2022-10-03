@@ -16,7 +16,7 @@ use marginfi::{
     },
 };
 
-use std::{borrow::Borrow, cell::Ref, fmt::Display, future::join, sync::Arc};
+use std::{borrow::Borrow, cell::Ref, fmt::Display};
 
 #[derive(Clone)]
 pub struct MarginAccount<'a> {
@@ -29,8 +29,9 @@ pub struct MarginAccount<'a> {
 impl<'a> MarginAccount<'a> {
     pub async fn load(mfi_client: &'a MarginClient, address: &Pubkey) -> Res<MarginAccount<'a>> {
         let marginfi_account =
-            fetch_anchor::<MarginfiAccount>(&mfi_client.rpc_endpoint, address).await?;
-        let observer = ClientObserver::load(&mfi_client.rpc_endpoint, &marginfi_account).await?;
+            fetch_anchor::<MarginfiAccount>(&mfi_client.non_blocking_rpc_client, address).await?;
+        let observer =
+            ClientObserver::load(&mfi_client.non_blocking_rpc_client, &marginfi_account).await?;
 
         Ok(Self {
             address: *address,
@@ -45,7 +46,8 @@ impl<'a> MarginAccount<'a> {
         address: Pubkey,
         marginfi_account: &MarginfiAccount,
     ) -> Res<MarginAccount<'a>> {
-        let observer = ClientObserver::load(&mfi_client.rpc_endpoint, &marginfi_account).await?;
+        let observer =
+            ClientObserver::load(&mfi_client.non_blocking_rpc_client, &marginfi_account).await?;
 
         Ok(Self {
             address,
@@ -69,11 +71,13 @@ impl<'a> MarginAccount<'a> {
         }
     }
 
-    pub fn reload(&mut self) -> Res<()> {
+    pub async fn reload(&mut self) -> Res<()> {
         self.marginfi_account =
-            fetch_anchor::<MarginfiAccount>(&self.client.rpc_endpoint, &self.address).await?;
+            fetch_anchor::<MarginfiAccount>(&self.client.non_blocking_rpc_client, &self.address)
+                .await?;
         self.observer =
-            ClientObserver::load(&self.client.rpc_endpoint, &self.marginfi_account).await?;
+            ClientObserver::load(&self.client.non_blocking_rpc_client, &self.marginfi_account)
+                .await?;
 
         Ok(())
     }

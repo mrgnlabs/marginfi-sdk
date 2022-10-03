@@ -14,6 +14,7 @@ use solana_sdk::sysvar;
 use solana_sdk::sysvar::SysvarId;
 use solana_sdk::{instruction::Instruction, signer::Signer};
 use zo_abi::dex::ZoDexMarket;
+use zo_abi::ZO_HEIMDALL_ID;
 use zo_abi::{PerpMarketInfo, ZO_DEX_PID};
 
 pub struct ZoPlacePerpOrderAccounts {
@@ -205,5 +206,107 @@ pub fn zo_make_deposit_ix(amount: u64) -> Instruction {
         program_id: marginfi::ID,
         accounts: vec![],
         data: marginfi::instruction::UtpZoDeposit { amount }.data(),
+    }
+}
+
+pub struct UtpZoWithdrawAccounts {
+    marginfi_account: Pubkey,
+    marginfi_group: Pubkey,
+    signer: Pubkey,
+    margin_collateral_vault: Pubkey,
+    utp_authority: Pubkey,
+    zo_margin: Pubkey,
+    zo_program: Pubkey,
+    zo_state: Pubkey,
+    zo_state_signer: Pubkey,
+    zo_cache: Pubkey,
+    zo_control: Pubkey,
+    zo_vault: Pubkey,
+    heimdall: Pubkey,
+    token_program: Pubkey,
+}
+
+impl UtpZoWithdrawAccounts {
+    pub fn new(margin_account: &MarginAccount) -> Self {
+        let (bank_authority, _) = get_bank_authority(
+            BankVaultType::LiquidityVault,
+            &margin_account.client.config.marginfi_group,
+        );
+
+        let (utp_authority, _) = margin_account.get_utp_authority(ZO_UTP_INDEX);
+
+        let zo_observer = margin_account.observer.zo_observer.expect("no zo observer");
+
+        let (zo_state_signer, _) = get_state_signer(&zo_observer.state_pk);
+
+        let zo_state = zo_observer.state;
+        let vault_mint = margin_account.client.group.bank.mint;
+        let vault_index = zo_state
+            .collaterals
+            .iter()
+            .position(|ci| ci.mint == vault_mint)
+            .expect("Cannot find zo vault");
+
+        let zo_vault = zo_state.vaults[vault_index];
+
+        Self {
+            marginfi_group: margin_account.client.config.marginfi_group,
+            marginfi_account: margin_account.address,
+            signer: margin_account.client.keypair.pubkey(),
+            margin_collateral_vault: margin_account.client.group.bank.vault,
+            utp_authority,
+            zo_program: ZO_PROGRAM,
+            zo_margin: zo_observer.margin_pk,
+            zo_state: zo_observer.state_pk,
+            zo_state_signer,
+            zo_cache: zo_observer.cache_pk,
+            zo_vault: zo_vault,
+            token_program: anchor_spl::token::ID,
+            heimdall: ZO_HEIMDALL_ID,
+            zo_control: zo_observer.control_pk,
+        }
+    }
+}
+
+pub fn zo_make_withdraw_ix(withdraw_accounts: UtpZoWithdrawAccounts, amount: u64) -> Instruction {
+    let UtpZoWithdrawAccounts {
+        marginfi_account,
+        marginfi_group,
+        signer,
+        margin_collateral_vault,
+        utp_authority,
+        zo_margin,
+        zo_program,
+        zo_state,
+        zo_state_signer,
+        zo_cache,
+        zo_control,
+        zo_vault,
+        heimdall,
+        token_program,
+    } = withdraw_accounts;
+
+    let accounts = marginfi::accounts::UtpZoWithdraw {
+        marginfi_account,
+        marginfi_group,
+        signer,
+        margin_collateral_vault,
+        utp_authority,
+        zo_margin,
+        zo_program,
+        zo_state,
+        zo_state_signer,
+        zo_cache,
+        zo_control,
+        zo_vault,
+        heimdall,
+        token_program,
+    }
+    .to_account_metas(Some(true));
+
+    Instruction {
+        program_id: marginfi::ID,
+        accounts,
+        data: marginfi::instruction::UtpZoWithdraw { amount }.data(),
     }
 }

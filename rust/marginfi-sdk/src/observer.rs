@@ -1,3 +1,4 @@
+use crate::utils::{fetch_anchor, fetch_mango};
 use anchor_lang::prelude::Pubkey;
 use anyhow::Result;
 use mango_protocol::state::{
@@ -20,8 +21,6 @@ pub struct ClientObserver {
     pub mango_observer: Option<MangoObserver>,
     pub zo_observer: Option<ZoObserver>,
 }
-
-use crate::utils::{fetch_anchor, fetch_mango};
 
 impl ClientObserver {
     pub fn new(mango_observer: Option<MangoObserver>, zo_observer: Option<ZoObserver>) -> Self {

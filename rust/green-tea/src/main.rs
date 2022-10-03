@@ -39,7 +39,7 @@ async fn main() -> Result<()> {
 
     let client = MarginClient::new_from_env().await?;
     let (s, r) = crossbeam_channel::unbounded::<u64>();
-    let rpc_client = Arc::new(RpcClient::new(&client.rpc_endpoint.url()));
+    let rpc_client = Arc::new(RpcClient::new(&client.non_blocking_rpc_client.url()));
     let pubsub_client =
         Arc::new(PubsubClient::new(&env::var("WS_ENDPOINT").expect("WS_URL not set")).await?);
     let ras = RpcAccountService::new(Arc::new(s), rpc_client, pubsub_client);
