@@ -2,6 +2,8 @@ use anchor_lang::prelude::AccountMeta;
 use anchor_lang::prelude::Pubkey;
 use anchor_lang::InstructionData;
 use anchor_lang::ToAccountMetas;
+use anchor_spl::token;
+use bytemuck::bytes_of;
 use idontsee;
 use mango_protocol::state::MangoGroup;
 use mango_protocol::state::NodeBank;
@@ -18,6 +20,7 @@ use solana_sdk::instruction::Instruction;
 use solana_sdk::signer::Signer;
 
 use crate::marginfi_account::MarginAccount;
+use crate::observer::MangoObserver;
 use crate::utils::get_bank_authority;
 use crate::utils::pubkey_to_readonly_account_metas;
 
@@ -244,6 +247,92 @@ pub fn mango_make_deposit_ix(accounts: MangoDepositAccounts, amount: u64) -> Ins
     }
 }
 
-pub fn mango_make_withdraw_ix() -> Instruction {
-    unimplemented!()
+pub struct MangoWithdrawAccounts {
+    marginfi_account: Pubkey,
+    marginfi_group: Pubkey,
+    signer: Pubkey,
+    margin_collateral_vault: Pubkey,
+    mango_authority: Pubkey,
+    mango_account: Pubkey,
+    mango_program: Pubkey,
+    mango_group: Pubkey,
+    mango_cache: Pubkey,
+    mango_root_bank: Pubkey,
+    mango_node_bank: Pubkey,
+    mango_vault: Pubkey,
+    mango_vault_authority: Pubkey,
+    token_program: Pubkey,
+}
+
+impl MangoWithdrawAccounts {
+    pub fn new(margin_account: &MarginAccount, root_bank: &RootBank, node_bank: &NodeBank) -> Self {
+        let (mango_authority, _) = margin_account.get_utp_authority(MANGO_UTP_INDEX);
+        let mango_config = &margin_account.marginfi_account.utp_account_config[MANGO_UTP_INDEX];
+
+        let MangoObserver {
+            mango_account_pk,
+            mango_group_pk,
+            mango_cache_pk,
+            mango_account,
+            mango_group,
+            mango_cache,
+        } = &margin_account
+            .observer
+            .mango_observer
+            .expect("mango observer not found");
+
+        let root_bank_pk = mango_group.tokens[QUOTE_INDEX].root_bank;
+
+        let (mango_vault_authority, _) = Pubkey::find_program_address(
+            &[mango_group_pk.as_ref(), bytes_of(&mango_group.signer_nonce)],
+            &MANGO_PROGRAM,
+        );
+
+        Self {
+            marginfi_account: margin_account.address,
+            marginfi_group: margin_account.client.config.marginfi_group,
+            signer: margin_account.client.keypair.pubkey(),
+            margin_collateral_vault: margin_account.client.group.bank.vault,
+            mango_authority: mango_authority,
+            mango_account: mango_account_pk,
+            mango_program: MANGO_PROGRAM,
+            mango_group: mango_group_pk,
+            mango_cache: mango_cache_pk,
+            mango_root_bank: root_bank_pk,
+            mango_node_bank: root_bank
+                .node_banks
+                .first()
+                .expect("node bank not found")
+                .clone(),
+            mango_vault: node_bank.vault,
+            mango_vault_authority,
+            token_program: token::ID,
+        }
+    }
+}
+
+pub fn mango_make_withdraw_ix(accounts: MangoDepositAccounts, amount: u64) -> Instruction {
+    let account_metas = marginfi::accounts::UtpMangoWithdraw {
+        marginfi_account: accounts.marginfi_account,
+        marginfi_group: accounts.marginfi_group,
+        signer: accounts.signer,
+        margin_collateral_vault: accounts.margin_collateral_vault,
+        mango_authority: accounts.mango_authority,
+        mango_account: accounts.mango_account,
+        mango_program: accounts.mango_program,
+        mango_group: accounts.mango_group,
+        mango_cache: accounts.mango_cache,
+        mango_root_bank: accounts.mango_root_bank,
+        mango_node_bank: accounts.mango_node_bank,
+        mango_vault: accounts.mango_vault,
+        mango_vault_authority: accounts.mango_vault_authority,
+        token_program: accounts.token_program,
+    }
+    .to_account_metas(Some(true));
+
+    Instruction {
+        program_id: marginfi::id(),
+        accounts: (),
+        data: marginfi::instruction::UtpMangoWithdraw { amount }.data(),
+    }
 }

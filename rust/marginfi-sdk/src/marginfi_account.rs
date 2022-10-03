@@ -16,7 +16,7 @@ use marginfi::{
     },
 };
 
-use std::{borrow::Borrow, cell::Ref, fmt::Display, sync::Arc};
+use std::{borrow::Borrow, cell::Ref, fmt::Display, future::join, sync::Arc};
 
 #[derive(Clone)]
 pub struct MarginAccount<'a> {
@@ -67,6 +67,15 @@ impl<'a> MarginAccount<'a> {
             client,
             observer,
         }
+    }
+
+    pub fn reload(&mut self) -> Res<()> {
+        self.marginfi_account =
+            fetch_anchor::<MarginfiAccount>(&self.client.rpc_endpoint, &self.address).await?;
+        self.observer =
+            ClientObserver::load(&self.client.rpc_endpoint, &self.marginfi_account).await?;
+
+        Ok(())
     }
 
     pub fn balance(&self) -> Res<I80F48> {
