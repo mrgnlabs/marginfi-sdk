@@ -588,7 +588,7 @@ class MarginfiAccount {
     debug("Trying to rebalance withdraw UTP:%s, amount %s (RBWA)", richestUtp.index, withdrawAmount);
 
     try {
-      const sig = await this.utpFromIndex(richestUtp.index).withdraw(withdrawAmount);
+      const sig = await this.utpFromIndex(richestUtp.index).withdraw(withdrawAmount, true);
       debug("Rebalance withdraw success - sig %s (RBWS)", sig);
     } catch (e) {
       debug("Rebalance withdraw failed (RBWF)");

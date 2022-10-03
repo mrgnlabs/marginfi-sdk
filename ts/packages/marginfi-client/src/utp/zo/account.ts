@@ -198,13 +198,12 @@ export class UtpZoAccount extends UtpAccount {
     return sig;
   }
 
-  async makeWithdrawIx(amount: UiAmount): Promise<TransactionInstruction> {
+  async makeWithdrawIx(amount: UiAmount, includeObservations: boolean = false): Promise<TransactionInstruction> {
     const [utpAuthority] = await this.authority();
     const zoProgram = ZoClient.createProgram(this._client.provider, this.config.cluster);
     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
     const [zoVaultPk] = zoState.getVaultCollateralByMint(this._client.group.bank.mint);
     const zoMargin = await ZoClient.Margin.load(zoProgram, zoState, undefined, utpAuthority);
-    const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     return instructions.makeWithdrawIx(
       this._program,
@@ -224,15 +223,15 @@ export class UtpZoAccount extends UtpAccount {
         heimdall: this.config.heimdall,
       },
       { amount: uiToNative(amount) },
-      remainingAccounts
+      includeObservations ? await this._marginfiAccount.getObservationAccounts() : []
     );
   }
 
-  async withdraw(amount: UiAmount): Promise<string> {
+  async withdraw(amount: UiAmount, includeObservations: boolean = false): Promise<string> {
     const debug = require("debug")(`mfi:margin-account:${this._marginfiAccount.publicKey}:utp:zo:withdraw`);
     debug("Withdrawing %s from 01", amount);
 
-    const withdrawIx = await this.makeWithdrawIx(amount);
+    const withdrawIx = await this.makeWithdrawIx(amount, includeObservations);
     const tx = new Transaction().add(withdrawIx);
     const sig = await processTransaction(this._client.provider, tx);
     debug("Sig %s", sig);

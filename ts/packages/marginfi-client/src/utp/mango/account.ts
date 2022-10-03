@@ -218,7 +218,7 @@ export class UtpMangoAccount extends UtpAccount {
    * @param amount Amount to deposit (mint native unit)
    * @returns `MangoWithdrawCollateral` transaction instruction
    */
-  async makeWithdrawIx(amount: UiAmount): Promise<InstructionsWrapper> {
+  async makeWithdrawIx(amount: UiAmount, includeObservationAccounts: boolean = false): Promise<InstructionsWrapper> {
     const [mangoAuthorityPk] = await await this.authority();
     const mangoGroup = await this.getMangoGroup();
     const collateralMintIndex = mangoGroup.getTokenIndex(this._config.collateralMintPk);
@@ -247,7 +247,8 @@ export class UtpMangoAccount extends UtpAccount {
             mangoAuthorityPk,
             mangoProgramId: this._config.mango.programId,
           },
-          { amount: uiToNative(amount) }
+          { amount: uiToNative(amount) },
+          includeObservationAccounts ? await this._marginfiAccount.getObservationAccounts() : []
         ),
       ],
       keys: [],
@@ -260,12 +261,12 @@ export class UtpMangoAccount extends UtpAccount {
    * @param amount Amount to deposit (mint native unit)
    * @returns Transaction signature
    */
-  async withdraw(amount: UiAmount) {
+  async withdraw(amount: UiAmount, includeObservationAccounts: boolean = false) {
     const debug = require("debug")(`mfi:utp:${this.address}:mango:withdraw`);
     debug("Withdrawing %s from Mango", amount);
     this.verifyActive();
 
-    const depositIx = await this.makeWithdrawIx(amount);
+    const depositIx = await this.makeWithdrawIx(amount, includeObservationAccounts);
     const tx = new Transaction().add(...depositIx.instructions);
     const sig = await processTransaction(this._client.provider, tx);
     debug("Sig %s", sig);

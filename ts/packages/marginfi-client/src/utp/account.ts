@@ -16,7 +16,7 @@ abstract class UtpAccount implements Omit<IUtpObservation, "timestamp"> {
   abstract getObservationAccounts(): Promise<AccountMeta[]>;
   abstract observe(): Promise<UtpObservation>;
   abstract deposit(amount: UiAmount): Promise<string>;
-  abstract withdraw(amount: UiAmount): Promise<string>;
+  abstract withdraw(amount: UiAmount, includeObservationAccounts?: boolean): Promise<string>;
   abstract config: UtpConfig;
 
   constructor(

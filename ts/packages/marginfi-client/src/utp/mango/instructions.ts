@@ -97,7 +97,8 @@ async function makeWithdrawIx(
     mangoNodeBankPk: PublicKey;
     mangoAuthorityPk: PublicKey;
   },
-  args: { amount: BN }
+  args: { amount: BN },
+  remainingAccounts: AccountMeta[] = []
 ) {
   return mfProgram.methods
     .utpMangoWithdraw(args.amount)
@@ -118,6 +119,7 @@ async function makeWithdrawIx(
       tokenProgram: TOKEN_PROGRAM_ID,
       emptyMangoOpenOrdersAccount: PublicKey.default,
     })
+    .remainingAccounts(remainingAccounts)
     .instruction();
 }
 
