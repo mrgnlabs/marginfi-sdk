@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../../effective-altruism"
+		},
+		{
+			"path": "../../../../../../../yearn/cykura-protocol"
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {}
+}

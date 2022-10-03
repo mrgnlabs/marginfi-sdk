@@ -1,0 +1,224 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'doctor'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=doctor",
+                    "--package=doctor"
+                ],
+                "filter": {
+                    "name": "doctor",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'doctor'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=doctor",
+                    "--package=doctor"
+                ],
+                "filter": {
+                    "name": "doctor",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'marginfi-cli'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=marginfi-cli",
+                    "--package=marginfi-cli"
+                ],
+                "filter": {
+                    "name": "marginfi-cli",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'marginfi-cli'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=marginfi-cli",
+                    "--package=marginfi-cli"
+                ],
+                "filter": {
+                    "name": "marginfi-cli",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'marginfi-sdk'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=marginfi-sdk"
+                ],
+                "filter": {
+                    "name": "marginfi-sdk",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'marginfi-common'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=marginfi-common"
+                ],
+                "filter": {
+                    "name": "marginfi-common",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'zo-utils'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=zo-utils"
+                ],
+                "filter": {
+                    "name": "zo-utils",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=bench",
+                    "--package=zo-utils"
+                ],
+                "filter": {
+                    "name": "bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'marginfi-cpi'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=marginfi-cpi"
+                ],
+                "filter": {
+                    "name": "marginfi-cpi",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'green-tea'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=green-tea",
+                    "--package=green-tea"
+                ],
+                "filter": {
+                    "name": "green-tea",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "ENV": "mainnet",
+                "RPC_ENDPOINT": "https://mrgn.rpcpool.com/c293bade994b3864b52c6bbbba4b",
+                "WS_ENDPOINT": "ws://mrgn.rpcpool.com/c293bade994b3864b52c6bbbba4b",
+                "MARGINFI_PROGRAM": "MRGNWSHaWmz3CPFcYt9Fyh8VDcvLJyy2SCURnMco2bC",
+                "MARGINFI_GROUP": "2FdddfNp6knT5tDjKjFREKUjsFKvAppc61bCyuCrTnj2",
+                "MARGINFI_ACCOUNT": "ANSb3uegManRtrH2kvqzwXc8PxMxNFoY3esSHmjM5hGU",
+                "WALLET": "/Users/jakob/.config/solana/id.json",
+                "RUST_LOG": "debug"
+            }
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'green-tea'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=green-tea",
+                    "--package=green-tea"
+                ],
+                "filter": {
+                    "name": "green-tea",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

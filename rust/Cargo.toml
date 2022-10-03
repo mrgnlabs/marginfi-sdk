@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "doctor",
+    "marginfi-cli",
+    "marginfi-sdk",
+    "marginfi-common",
+    "marginfi-cpi",
+    "green-tea",
+]

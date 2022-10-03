@@ -1,0 +1,40 @@
+[package]
+name = "marginfi-sdk"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+mainnet-beta = [
+    "marginfi/mainnet-beta",
+    "idontsee/mainnet-beta",
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anchor-lang = "0.25.0"
+bytemuck = "1.12.1"
+fixed = "1.11"
+fixed-macro = "1.1.1"
+marginfi = { git = "ssh://git@github.com/mrgnlabs/marginfi.git", branch = "feat-observer-trait", features = [ "client", "no-entrypoint" ] }
+envy = "0.4.2"
+solana-client = "1.10"
+solana-sdk = "1.10"
+mango-protocol = { git = "https://github.com/mrgnlabs/mango-v3.git", tag = "v3.5.1-fork.1", package = "mango", features = [
+    "no-entrypoint",
+    "client",
+] }
+mango-common = { git = "https://github.com/mrgnlabs/mango-v3.git", tag = "v3.5.1-fork.1" }
+zo-abi = { git = "https://github.com/01protocol/zo-abi.git", rev = "97e2caeeb117fa0ab625effcf80b6125d9470415", features = [
+    "no-entrypoint",
+    "cpi",
+] }
+async-trait = "0.1.57"
+serum_dex = { git = "https://github.com/blockworks-foundation/serum-dex.git", rev = "7f55a5ef5f7937b74381a3124021a261cd7d7283", default-features = false, features = [
+    "no-entrypoint",
+    "program",
+] }
+serde = "1.0.144"
+anyhow = "1.0"
+idontsee = { git = "https://github.com/mrgnlabs/defi-execution-tools-library", features = [ "no-entrypoint" ] }
+anchor-spl = "0.25.0"
