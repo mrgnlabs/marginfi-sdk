@@ -109,13 +109,7 @@ impl<'a> UtpAdapter for Mango<'a> {
             .margin_account
             .client
             .rpc_client
-            .send_transaction_with_config(
-                &tx,
-                RpcSendTransactionConfig {
-                    skip_preflight: true,
-                    ..Default::default()
-                },
-            )?)
+            .send_and_confirm_transaction(&tx)?)
     }
 }
 
@@ -145,6 +139,7 @@ impl<'a> UtpAdapter for Zo<'a> {
             recent_block_hash,
         );
 
+        // TODO: Move to the margin client
         Ok(self
             .margin_account
             .client
