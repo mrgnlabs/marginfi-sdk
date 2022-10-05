@@ -10,6 +10,7 @@ use mango_protocol::state::{
     HealthCache, MangoAccount, MangoCache, MangoGroup, NodeBank, RootBank, UserActiveAssets,
     MAX_PAIRS, QUOTE_INDEX,
 };
+use marginfi::state::mango_state;
 use marginfi::{
     constants::{MANGO_UTP_INDEX, PDA_BANK_VAULT_SEED, PDA_UTP_AUTH_SEED, ZO_UTP_INDEX},
     prelude::{MarginfiAccount, MarginfiGroup},
@@ -49,11 +50,8 @@ macro_rules! setup_sentry_if_enabled {
     };
 }
 
-<<<<<<< Updated upstream
-=======
 const NUMBER_SCALE: I80F48 = fixed_macro::types::I80F48!(1_000_000);
 
->>>>>>> Stashed changes
 pub struct DoctorConfig {
     pub marginfi_program: Pubkey,
     pub marginfi_group: Pubkey,
@@ -605,12 +603,9 @@ impl<'a> MarginAccountHandler<'a> {
                         )
                         .unwrap();
 
-                    let rebalance_needed =
+                    let rebalance_required =
                         is_rebalance_deposit_valid(&mut health_cache, mango_group).unwrap();
 
-<<<<<<< Updated upstream
-                    if !rebalance_needed {
-=======
                     debug!(
                         "Account {}, mango rebalance required: {}",
                         self.marginfi_account_pk, rebalance_required
@@ -623,7 +618,6 @@ impl<'a> MarginAccountHandler<'a> {
                     );
 
                     if !rebalance_required {
->>>>>>> Stashed changes
                         return;
                     }
 
@@ -736,8 +730,6 @@ impl<'a> MarginAccountHandler<'a> {
                     )
                     .unwrap();
 
-<<<<<<< Updated upstream
-=======
                     debug!(
                         "Account {}, 01 rebalance required: {}",
                         self.marginfi_account_pk, rebalance_required
@@ -745,11 +737,10 @@ impl<'a> MarginAccountHandler<'a> {
                     debug!(
                         "Account {}, 01 free collateral: {}",
                         self.marginfi_account_pk,
-                        get_free_collateral(zo_margin, zo_control, zo_state, zo_cache).unwrap()
+                        marginfi::state::zo_state::get_free_collateral(zo_margin, zo_control, zo_state, zo_cache).unwrap()
                             / NUMBER_SCALE
                     );
 
->>>>>>> Stashed changes
                     if !rebalance_required {
                         return;
                     }

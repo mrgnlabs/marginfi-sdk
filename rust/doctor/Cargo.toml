@@ -31,3 +31,4 @@ spl-token = "*"
 env_logger = "0.9"
 log = "0.4"
 sentry = { version = "0.27.0", optional = true }
+fixed-macro = "1.1"
