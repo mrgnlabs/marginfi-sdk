@@ -49,6 +49,11 @@ macro_rules! setup_sentry_if_enabled {
     };
 }
 
+<<<<<<< Updated upstream
+=======
+const NUMBER_SCALE: I80F48 = fixed_macro::types::I80F48!(1_000_000);
+
+>>>>>>> Stashed changes
 pub struct DoctorConfig {
     pub marginfi_program: Pubkey,
     pub marginfi_group: Pubkey,
@@ -93,7 +98,7 @@ impl DoctorConfig {
     }
 
     pub fn cluster(&self) -> Cluster {
-        Cluster::from_str(&self.cluster_string).unwrap()
+        Cluster::Custom(self.rpc_endpoint.clone(), "".to_string())
     }
 
     pub fn keypair(&self) -> Keypair {
@@ -127,7 +132,7 @@ struct AddressBook {
 impl AddressBook {
     pub fn new(cluster: Cluster) -> AddressBook {
         match cluster {
-            Cluster::Mainnet => AddressBook {
+            Cluster::Mainnet | Cluster::Custom(_, _) => AddressBook {
                 mango_program: pubkey!("mv3ekLzLbnVPNxjSKvqBpU3ZeZXPQdEC3bp5MDEBG68"),
                 mango_group: pubkey!("98pjRuQjK3qA6gXts96PqZT4Ze5QmnCmt3QYjhbUSPue"),
                 zo_program: pubkey!("Zo1ggzTUKMY5bYnDvT5mtVeZxzf2FaLTbKkmvGUhUQk"),
@@ -603,7 +608,22 @@ impl<'a> MarginAccountHandler<'a> {
                     let rebalance_needed =
                         is_rebalance_deposit_valid(&mut health_cache, mango_group).unwrap();
 
+<<<<<<< Updated upstream
                     if !rebalance_needed {
+=======
+                    debug!(
+                        "Account {}, mango rebalance required: {}",
+                        self.marginfi_account_pk, rebalance_required
+                    );
+                    debug!(
+                        "Account {}, mango free collateral: {}",
+                        self.marginfi_account_pk,
+                        mango_state::get_free_collateral(&mut health_cache, mango_group).unwrap()
+                            / NUMBER_SCALE
+                    );
+
+                    if !rebalance_required {
+>>>>>>> Stashed changes
                         return;
                     }
 
@@ -716,6 +736,20 @@ impl<'a> MarginAccountHandler<'a> {
                     )
                     .unwrap();
 
+<<<<<<< Updated upstream
+=======
+                    debug!(
+                        "Account {}, 01 rebalance required: {}",
+                        self.marginfi_account_pk, rebalance_required
+                    );
+                    debug!(
+                        "Account {}, 01 free collateral: {}",
+                        self.marginfi_account_pk,
+                        get_free_collateral(zo_margin, zo_control, zo_state, zo_cache).unwrap()
+                            / NUMBER_SCALE
+                    );
+
+>>>>>>> Stashed changes
                     if !rebalance_required {
                         return;
                     }
@@ -794,7 +828,13 @@ impl<'a> MarginAccountHandler<'a> {
                         self.program.rpc().get_latest_blockhash().unwrap(),
                     );
 
-                    let res = self.program.rpc().send_and_confirm_transaction(&tx);
+                    let res = self.program.rpc().send_transaction_with_config(
+                        &tx,
+                        solana_client::rpc_config::RpcSendTransactionConfig {
+                            skip_preflight: true,
+                            ..Default::default()
+                        },
+                    );
 
                     match res {
                         Ok(sig) => {
