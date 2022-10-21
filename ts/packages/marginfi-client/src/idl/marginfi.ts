@@ -1,4581 +1,5361 @@
 export type Marginfi = {
-  version: "0.1.0";
-  name: "marginfi";
-  instructions: [
+  "version": "0.1.0",
+  "name": "marginfi",
+  "instructions": [
     {
-      name: "initMarginfiGroup";
-      accounts: [
+      "name": "initMarginfiGroup",
+      "docs": [
+        "Creates a marginfi group, which acts as a global liquidity pool between",
+        "marginfi accounts in the marginfi group and a set of whitelisted underlying",
+        "trading protocols (UTPs)."
+      ],
+      "accounts": [
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "admin";
-          isMut: true;
-          isSigner: true;
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The signer that creates the marginfi group becomes",
+            "its admin, and in creating the group specifies",
+            "the UTPs that will be whitelisted in this marginfi group."
+          ]
         },
         {
-          name: "collateralMint";
-          isMut: false;
-          isSigner: false;
+          "name": "collateralMint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The collateral token mint, which speifies the collateral type",
+            "supported in this marginfi group. Currently, marginfi architecture",
+            "supports one collateral type per marginfi group, specified",
+            "here via the token mint."
+          ]
         },
         {
-          name: "bankVault";
-          isMut: false;
-          isSigner: false;
+          "name": "bankVault",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The marginfi group bank vault stores funds deposited by users",
+            "available for lending to other users. In other words, this is",
+            "the liquidity available at the marginfi group level for marginfi accounts",
+            "in this marginfi group to borrow from."
+          ]
         },
         {
-          name: "bankAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "bankAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "insuranceVault";
-          isMut: false;
-          isSigner: false;
+          "name": "insuranceVault",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "insuranceVaultAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "insuranceVaultAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "feeVault";
-          isMut: false;
-          isSigner: false;
+          "name": "feeVault",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "feeVaultAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "feeVaultAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "bankAuthorityPdaBump";
-          type: "u8";
+          "name": "bankAuthorityPdaBump",
+          "type": "u8"
         },
         {
-          name: "insuranceVaultAuthorityPdaBump";
-          type: "u8";
+          "name": "insuranceVaultAuthorityPdaBump",
+          "type": "u8"
         },
         {
-          name: "feeVaultAuthorityPdaBump";
-          type: "u8";
+          "name": "feeVaultAuthorityPdaBump",
+          "type": "u8"
         }
-      ];
+      ]
     },
     {
-      name: "configureMarginfiGroup";
-      accounts: [
+      "name": "configureMarginfiGroup",
+      "docs": [
+        "Updates configurations for an existing marginfi group."
+      ],
+      "accounts": [
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "admin";
-          isMut: false;
-          isSigner: true;
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "configArg";
-          type: {
-            defined: "GroupConfig";
-          };
+          "name": "configArg",
+          "type": {
+            "defined": "GroupConfig"
+          }
         }
-      ];
+      ]
     },
     {
-      name: "bankFeeVaultWithdraw";
-      accounts: [
+      "name": "bankFeeVaultWithdraw",
+      "docs": [
+        "Allows a marginfi group admin to withdraw accrued protocol fees for the",
+        "relevant marginfi group from the protocol to an arbitrary wallet."
+      ],
+      "accounts": [
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "admin";
-          isMut: false;
-          isSigner: true;
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true
         },
         {
-          name: "bankFeeVault";
-          isMut: true;
-          isSigner: false;
+          "name": "bankFeeVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "bankFeeVaultAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "bankFeeVaultAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "recipientTokenAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "- an honest admin will provide the correct one",
+            "- incorrect mints will fail tx"
+          ]
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "amount";
-          type: "u64";
+          "name": "amount",
+          "type": "u64"
         }
-      ];
+      ]
     },
     {
-      name: "initMarginfiAccount";
-      accounts: [
+      "name": "initMarginfiAccount",
+      "docs": [
+        "Creates a new marginfi account with a given authority."
+      ],
+      "accounts": [
         {
-          name: "authority";
-          isMut: true;
-          isSigner: true;
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The authority that owns the marginfi account, ie the 'trader'.",
+            "Also the one signer that has authority to deposit/withdraw",
+            "collateral from the marginfi account, as well as take action",
+            "on UTPs."
+          ]
         },
         {
-          name: "marginfiGroup";
-          isMut: false;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The marginfi group this marginfi account belongs to,",
+            "which determins the UTPs this marginfi account can access.",
+            "",
+            "TODO: Should we limit the number of marginfi accounts?"
+          ]
         },
         {
-          name: "marginfiAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [];
+      ],
+      "args": []
     },
     {
-      name: "bankInsuranceVaultWithdraw";
-      accounts: [
+      "name": "bankInsuranceVaultWithdraw",
+      "docs": [
+        "Allows an admin of a given marginfi group to withdraw funds from that",
+        "marginfi group's bank's insurance vault. While requiring signing from the",
+        "admin for the transaction, this method allows the admin to withdraw",
+        "funds to an arbitrary `recipient_token_account`, thereby assuming an",
+        "honest admin."
+      ],
+      "accounts": [
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "admin";
-          isMut: false;
-          isSigner: true;
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true
         },
         {
-          name: "insuranceVault";
-          isMut: true;
-          isSigner: false;
+          "name": "insuranceVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "insuranceVaultAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "insuranceVaultAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "recipientTokenAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "- an honest admin will provide the correct one",
+            "- incorrect mints will fail tx"
+          ]
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "amount";
-          type: "u64";
+          "name": "amount",
+          "type": "u64"
         }
-      ];
+      ]
     },
     {
-      name: "marginDepositCollateral";
-      accounts: [
+      "name": "marginDepositCollateral",
+      "docs": [
+        "Allows the owner of a marginfi account to deposit collateral into it."
+      ],
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "signer";
-          isMut: false;
-          isSigner: true;
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true
         },
         {
-          name: "fundingAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "fundingAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "#[soteria(ignore)]"
+          ]
         },
         {
-          name: "tokenVault";
-          isMut: true;
-          isSigner: false;
+          "name": "tokenVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "amount";
-          type: "u64";
+          "name": "amount",
+          "type": "u64"
         }
-      ];
+      ]
     },
     {
-      name: "marginWithdrawCollateral";
-      accounts: [
+      "name": "marginWithdrawCollateral",
+      "docs": [
+        "Allows the owner of a marginfi account to withdraw available collateral",
+        "from that marginfi account."
+      ],
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "signer";
-          isMut: false;
-          isSigner: true;
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true
         },
         {
-          name: "marginCollateralVault";
-          isMut: true;
-          isSigner: false;
+          "name": "marginCollateralVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginBankAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "marginBankAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "receivingTokenAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "receivingTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "#[soteria(ignore)]"
+          ]
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "amount";
-          type: "u64";
+          "name": "amount",
+          "type": "u64"
         }
-      ];
+      ]
     },
     {
-      name: "liquidate";
-      accounts: [
+      "name": "liquidate",
+      "docs": [
+        "Allows a liquidator to liquidate marginfi accounts that have fallen below",
+        "margin requirements. marginfi liquidations occur at the UTP account",
+        "level. In other words, when marginfi marginfi accounts fall below margin",
+        "requirements, liquidators pay marginfi accounts a discounted rate to take",
+        "ownership of UTP accounts that those marginfi accounts own.",
+        "The marginfi takes a fee on liquidations as well, and those funds are",
+        "added to marginfi's insurance vault."
+      ],
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Manually verified for:",
+            "- not same account as `marginfi_account_liquidatee` (c.f. `marginfi_account_liquidatee` checks)",
+            "#[soteria(ignore)]"
+          ]
         },
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "signer";
-          isMut: true;
-          isSigner: true;
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "marginfiAccountLiquidatee";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiAccountLiquidatee",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Manually verified for:",
+            "- can be liquidated (in body)",
+            "- has an active UTP (in body)",
+            "#[soteria(ignore)]"
+          ]
         },
         {
-          name: "bankVault";
-          isMut: true;
-          isSigner: false;
+          "name": "bankVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "bankAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "bankAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "bankInsuranceVault";
-          isMut: true;
-          isSigner: false;
+          "name": "bankInsuranceVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "utpIndex";
-          type: "u64";
+          "name": "utpIndex",
+          "type": "u64"
         }
-      ];
+      ]
     },
     {
-      name: "deactivateUtp";
-      accounts: [
+      "name": "deactivateUtp",
+      "docs": [
+        "Allows the owner of a marginfi account to deactivate a UTP account when the",
+        "UTP account is empty and no longer has collateral or positions in it."
+      ],
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "authority";
-          isMut: false;
-          isSigner: true;
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "utpIndex";
-          type: "u64";
+          "name": "utpIndex",
+          "type": "u64"
         }
-      ];
+      ]
     },
     {
-      name: "handleBankruptcy";
-      accounts: [
+      "name": "handleBankruptcy",
+      "docs": [
+        "For a marginfi account not meeting the maintenence margin requirements,",
+        "outstanding debts, and no assets left to liquidate, this method",
+        "manages repaying the debt for that marginfi account by",
+        "using funds from the insurance vault",
+        "or socializing losses among lenders in the related marginfi group's liquidity pool",
+        "in case the insurance fund is empty."
+      ],
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "insuranceVaultAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "insuranceVaultAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "insuranceVault";
-          isMut: true;
-          isSigner: false;
+          "name": "insuranceVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "liquidityVault";
-          isMut: true;
-          isSigner: false;
+          "name": "liquidityVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [];
+      ],
+      "args": []
     },
     {
-      name: "updateInterestAccumulator";
-      accounts: [
+      "name": "updateInterestAccumulator",
+      "docs": [
+        "Updates a central interest rate accumulator that tracks interest fees",
+        "owed by all borrowers within the protocol, and collects related protocol fees.",
+        "This method is executed by crankers."
+      ],
+      "accounts": [
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "bankVault";
-          isMut: true;
-          isSigner: false;
+          "name": "bankVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "bankAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "bankAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "bankFeeVault";
-          isMut: true;
-          isSigner: false;
+          "name": "bankFeeVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [];
+      ],
+      "args": []
     },
     {
-      name: "utpMangoActivate";
-      accounts: [
+      "name": "utpMangoActivate",
+      "docs": [
+        "Mango instructions",
+        "Activate a UTP account on Mango for a given marginfi account and pay",
+        "related rent fees. marginfi supports only one UTP account per UTP per",
+        "marginfi account. Rent fees are determined by UTPs and marginfi passes",
+        "those up to UTP account activators, i.e. marginfi account owners.",
+        "This action can only be taken by the owner of the marginfi account for",
+        "which this UTP account is activated."
+      ],
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup";
-          isMut: false;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "authority";
-          isMut: true;
-          isSigner: true;
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "mangoAuthority";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoAuthority",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "TODO: What would happen if we used `zero` or if someone sent an already existing account (assuming init would fail on Mango?)"
+          ]
         },
         {
-          name: "mangoProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "authoritySeed";
-          type: "publicKey";
+          "name": "authoritySeed",
+          "type": "publicKey"
         },
         {
-          name: "authorityBump";
-          type: "u8";
+          "name": "authorityBump",
+          "type": "u8"
         }
-      ];
+      ]
     },
     {
-      name: "utpMangoDeposit";
-      accounts: [
+      "name": "utpMangoDeposit",
+      "docs": [
+        "Deposits funds into a Mango UTP account, which may be done by the owner",
+        "of the marginfi account the UTP account is related to, or by the",
+        "rebalancing mechanism of the marginfi protocol if rebalancing conditions",
+        "are satisfied, which is ultimately an action enforced by crankers."
+      ],
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "signer";
-          isMut: true;
-          isSigner: true;
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "Authority is verified in `check_rebalance_deposit_conditions`"
+          ]
         },
         {
-          name: "marginCollateralVault";
-          isMut: true;
-          isSigner: false;
+          "name": "marginCollateralVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "bankAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "bankAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tempCollateralAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "tempCollateralAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "We are assuming that the ix will fail if the owner is anyone but the UTP pda.",
+            "",
+            "Because multiple marginfi accounts might share the same UTP PDA, there a possibility that an attacker might expose",
+            "the token account of another marginfi account.",
+            "I am not sure what they could do with it, as the collateral only enters these token accounts atomically in this ix and is later closed.",
+            "But because I am superstitious, we are making sure here that the temp token account is empty."
+          ]
         },
         {
-          name: "mangoAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoGroup";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoCache";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoCache",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoRootBank";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoRootBank",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoNodeBank";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoNodeBank",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoVault";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "amount";
-          type: "u64";
+          "name": "amount",
+          "type": "u64"
         }
-      ];
+      ]
     },
     {
-      name: "utpMangoWithdraw";
-      accounts: [
+      "name": "utpMangoWithdraw",
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "signer";
-          isMut: false;
-          isSigner: true;
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "Partially permission-less"
+          ]
         },
         {
-          name: "marginCollateralVault";
-          isMut: true;
-          isSigner: false;
+          "name": "marginCollateralVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoGroup";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoCache";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoCache",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoRootBank";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoRootBank",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoNodeBank";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoNodeBank",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoVault";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoVaultAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoVaultAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "amount";
-          type: "u64";
+          "name": "amount",
+          "type": "u64"
         }
-      ];
+      ]
     },
     {
-      name: "utpMangoUsePlacePerpOrder";
-      accounts: [
+      "name": "utpMangoUsePlacePerpOrder",
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: false;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup";
-          isMut: false;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "authority";
-          isMut: true;
-          isSigner: true;
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "mangoAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoGroup";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoCache";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoCache",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoPerpMarket";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoPerpMarket",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoBids";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoBids",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoAsks";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoAsks",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoEventQueue";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoEventQueue",
+          "isMut": true,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "args";
-          type: {
-            defined: "UtpMangoPlacePerpOrderArgs";
-          };
+          "name": "args",
+          "type": {
+            "defined": "UtpMangoPlacePerpOrderArgs"
+          }
         }
-      ];
+      ]
     },
     {
-      name: "utpMangoUseCancelPerpOrder";
-      accounts: [
+      "name": "utpMangoUseCancelPerpOrder",
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: false;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup";
-          isMut: false;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "authority";
-          isMut: true;
-          isSigner: true;
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "mangoAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoGroup";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoPerpMarket";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoPerpMarket",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoBids";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoBids",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoAsks";
-          isMut: true;
-          isSigner: false;
+          "name": "mangoAsks",
+          "isMut": true,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "orderId";
-          type: "i128";
+          "name": "orderId",
+          "type": "i128"
         },
         {
-          name: "invalidIdOk";
-          type: "bool";
+          "name": "invalidIdOk",
+          "type": "bool"
         }
-      ];
+      ]
     },
     {
-      name: "utpZoActivate";
-      accounts: [
+      "name": "reimburse",
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup";
-          isMut: false;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "authority";
-          isMut: true;
-          isSigner: true;
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "utpAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "collateralMint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "liquidityVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "zoState";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoReimbursementProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoMargin";
-          isMut: true;
-          isSigner: false;
+          "name": "group",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoControl";
-          isMut: true;
-          isSigner: false;
+          "name": "reimbursementAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "rent";
-          isMut: false;
-          isSigner: false;
+          "name": "mangoAccountOwner",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Mango PDA"
+          ]
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Mango reimb vault"
+          ]
+        },
+        {
+          "name": "tokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Create new token account"
+          ]
+        },
+        {
+          "name": "claimMintTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Checked by mango"
+          ]
+        },
+        {
+          "name": "claimMint",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Checked by mango"
+          ]
+        },
+        {
+          "name": "table",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Checked by mango"
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "authoritySeed";
-          type: "publicKey";
-        },
-        {
-          name: "authorityBump";
-          type: "u8";
-        },
-        {
-          name: "zoMarginNonce";
-          type: "u8";
+          "name": "indexIntoTable",
+          "type": "u64"
         }
-      ];
+      ]
     },
     {
-      name: "utpZoDeposit";
-      accounts: [
+      "name": "utpZoActivate",
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "signer";
-          isMut: true;
-          isSigner: true;
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "marginCollateralVault";
-          isMut: true;
-          isSigner: false;
+          "name": "utpAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "bankAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tempCollateralAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "zoState",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "utpAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "zoMargin",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "zoProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "zoControl",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "zoState";
-          isMut: false;
-          isSigner: false;
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoStateSigner";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "zoCache";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "zoMargin";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "zoVault";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "rent";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "amount";
-          type: "u64";
+          "name": "authoritySeed",
+          "type": "publicKey"
+        },
+        {
+          "name": "authorityBump",
+          "type": "u8"
+        },
+        {
+          "name": "zoMarginNonce",
+          "type": "u8"
         }
-      ];
+      ]
     },
     {
-      name: "utpZoWithdraw";
-      accounts: [
+      "name": "utpZoDeposit",
+      "accounts": [
         {
-          name: "marginfiAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup";
-          isMut: true;
-          isSigner: false;
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "signer";
-          isMut: false;
-          isSigner: true;
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "Authority is verified in `check_rebalance_deposit_conditions`"
+          ]
         },
         {
-          name: "marginCollateralVault";
-          isMut: true;
-          isSigner: false;
+          "name": "marginCollateralVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "utpAuthority";
-          isMut: false;
-          isSigner: false;
+          "name": "bankAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoMargin";
-          isMut: true;
-          isSigner: false;
+          "name": "tempCollateralAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "We are assuming that the ix will fail if the owner is anyone but the UTP pda.",
+            "",
+            "Because multiple marginfi accounts might share the same UTP PDA, there a possibility that an attacker might expose",
+            "the token account of another marginfi account.",
+            "I am not sure what they could do with it, as the collateral only enters these token accounts atomically in this ix and is later closed.",
+            "But because I am superstitious, we are making sure here that the temp token account is empty."
+          ]
         },
         {
-          name: "zoProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "utpAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoState";
-          isMut: true;
-          isSigner: false;
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoStateSigner";
-          isMut: true;
-          isSigner: false;
+          "name": "zoState",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoCache";
-          isMut: true;
-          isSigner: false;
+          "name": "zoStateSigner",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoControl";
-          isMut: true;
-          isSigner: false;
+          "name": "zoCache",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "zoVault";
-          isMut: true;
-          isSigner: false;
+          "name": "zoMargin",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "heimdall";
-          isMut: true;
-          isSigner: false;
+          "name": "zoVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "amount";
-          type: "u64";
+          "name": "amount",
+          "type": "u64"
         }
-      ];
+      ]
     },
     {
-      name: "utpZoCreatePerpOpenOrders";
-      accounts: [
+      "name": "utpZoWithdraw",
+      "accounts": [
         {
-          name: "header";
-          accounts: [
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "Partially permission-less"
+          ]
+        },
+        {
+          "name": "marginCollateralVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "utpAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zoMargin",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zoState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zoStateSigner",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zoCache",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zoControl",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zoVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "heimdall",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "utpZoCreatePerpOpenOrders",
+      "accounts": [
+        {
+          "name": "header",
+          "accounts": [
             {
-              name: "marginfiAccount";
-              isMut: false;
-              isSigner: false;
+              "name": "marginfiAccount",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "marginfiGroup";
-              isMut: false;
-              isSigner: false;
+              "name": "marginfiGroup",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "signer";
-              isMut: true;
-              isSigner: true;
+              "name": "signer",
+              "isMut": true,
+              "isSigner": true
             },
             {
-              name: "utpAuthority";
-              isMut: false;
-              isSigner: false;
+              "name": "utpAuthority",
+              "isMut": false,
+              "isSigner": false
             }
-          ];
+          ]
         },
         {
-          name: "zoProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "state";
-          isMut: false;
-          isSigner: false;
+          "name": "state",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "stateSigner";
-          isMut: true;
-          isSigner: false;
+          "name": "stateSigner",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "margin";
-          isMut: true;
-          isSigner: false;
+          "name": "margin",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "control";
-          isMut: true;
-          isSigner: false;
+          "name": "control",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "openOrders";
-          isMut: true;
-          isSigner: false;
+          "name": "openOrders",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexMarket";
-          isMut: true;
-          isSigner: false;
+          "name": "dexMarket",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "dexProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "rent";
-          isMut: false;
-          isSigner: false;
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [];
+      ],
+      "args": []
     },
     {
-      name: "utpZoPlacePerpOrder";
-      accounts: [
+      "name": "utpZoPlacePerpOrder",
+      "accounts": [
         {
-          name: "header";
-          accounts: [
+          "name": "header",
+          "accounts": [
             {
-              name: "marginfiAccount";
-              isMut: false;
-              isSigner: false;
+              "name": "marginfiAccount",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "marginfiGroup";
-              isMut: false;
-              isSigner: false;
+              "name": "marginfiGroup",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "signer";
-              isMut: true;
-              isSigner: true;
+              "name": "signer",
+              "isMut": true,
+              "isSigner": true
             },
             {
-              name: "utpAuthority";
-              isMut: false;
-              isSigner: false;
+              "name": "utpAuthority",
+              "isMut": false,
+              "isSigner": false
             }
-          ];
+          ]
         },
         {
-          name: "zoProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "state";
-          isMut: false;
-          isSigner: false;
+          "name": "state",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "stateSigner";
-          isMut: true;
-          isSigner: false;
+          "name": "stateSigner",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "cache";
-          isMut: true;
-          isSigner: false;
+          "name": "cache",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "margin";
-          isMut: true;
-          isSigner: false;
+          "name": "margin",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "control";
-          isMut: true;
-          isSigner: false;
+          "name": "control",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "openOrders";
-          isMut: true;
-          isSigner: false;
+          "name": "openOrders",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexMarket";
-          isMut: true;
-          isSigner: false;
+          "name": "dexMarket",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "reqQ";
-          isMut: true;
-          isSigner: false;
+          "name": "reqQ",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "eventQ";
-          isMut: true;
-          isSigner: false;
+          "name": "eventQ",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marketBids";
-          isMut: true;
-          isSigner: false;
+          "name": "marketBids",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marketAsks";
-          isMut: true;
-          isSigner: false;
+          "name": "marketAsks",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "dexProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "rent";
-          isMut: false;
-          isSigner: false;
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "args";
-          type: {
-            defined: "UtpZoPlacePerpOrderIxArgs";
-          };
+          "name": "args",
+          "type": {
+            "defined": "UtpZoPlacePerpOrderIxArgs"
+          }
         }
-      ];
+      ]
     },
     {
-      name: "utpZoCancelPerpOrder";
-      accounts: [
+      "name": "utpZoCancelPerpOrder",
+      "accounts": [
         {
-          name: "header";
-          accounts: [
+          "name": "header",
+          "accounts": [
             {
-              name: "marginfiAccount";
-              isMut: false;
-              isSigner: false;
+              "name": "marginfiAccount",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "marginfiGroup";
-              isMut: false;
-              isSigner: false;
+              "name": "marginfiGroup",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "signer";
-              isMut: true;
-              isSigner: true;
+              "name": "signer",
+              "isMut": true,
+              "isSigner": true
             },
             {
-              name: "utpAuthority";
-              isMut: false;
-              isSigner: false;
+              "name": "utpAuthority",
+              "isMut": false,
+              "isSigner": false
             }
-          ];
+          ]
         },
         {
-          name: "zoProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "state";
-          isMut: false;
-          isSigner: false;
+          "name": "state",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "cache";
-          isMut: true;
-          isSigner: false;
+          "name": "cache",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "margin";
-          isMut: true;
-          isSigner: false;
+          "name": "margin",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "control";
-          isMut: true;
-          isSigner: false;
+          "name": "control",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "openOrders";
-          isMut: true;
-          isSigner: false;
+          "name": "openOrders",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexMarket";
-          isMut: true;
-          isSigner: false;
+          "name": "dexMarket",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marketBids";
-          isMut: true;
-          isSigner: false;
+          "name": "marketBids",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marketAsks";
-          isMut: true;
-          isSigner: false;
+          "name": "marketAsks",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "eventQ";
-          isMut: true;
-          isSigner: false;
+          "name": "eventQ",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "dexProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [
+      ],
+      "args": [
         {
-          name: "orderId";
-          type: {
-            option: "u128";
-          };
+          "name": "orderId",
+          "type": {
+            "option": "u128"
+          }
         },
         {
-          name: "isLong";
-          type: {
-            option: "bool";
-          };
+          "name": "isLong",
+          "type": {
+            "option": "bool"
+          }
         },
         {
-          name: "clientId";
-          type: {
-            option: "u64";
-          };
+          "name": "clientId",
+          "type": {
+            "option": "u64"
+          }
         }
-      ];
+      ]
     },
     {
-      name: "utpZoSettleFunds";
-      accounts: [
+      "name": "utpZoSettleFunds",
+      "accounts": [
         {
-          name: "header";
-          accounts: [
+          "name": "header",
+          "accounts": [
             {
-              name: "marginfiAccount";
-              isMut: false;
-              isSigner: false;
+              "name": "marginfiAccount",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "marginfiGroup";
-              isMut: false;
-              isSigner: false;
+              "name": "marginfiGroup",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "signer";
-              isMut: true;
-              isSigner: true;
+              "name": "signer",
+              "isMut": true,
+              "isSigner": true
             },
             {
-              name: "utpAuthority";
-              isMut: false;
-              isSigner: false;
+              "name": "utpAuthority",
+              "isMut": false,
+              "isSigner": false
             }
-          ];
+          ]
         },
         {
-          name: "zoProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "state";
-          isMut: false;
-          isSigner: false;
+          "name": "state",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "stateSigner";
-          isMut: true;
-          isSigner: false;
+          "name": "stateSigner",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "cache";
-          isMut: true;
-          isSigner: false;
+          "name": "cache",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "margin";
-          isMut: true;
-          isSigner: false;
+          "name": "margin",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "control";
-          isMut: true;
-          isSigner: false;
+          "name": "control",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "openOrders";
-          isMut: true;
-          isSigner: false;
+          "name": "openOrders",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexMarket";
-          isMut: true;
-          isSigner: false;
+          "name": "dexMarket",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "dexProgram",
+          "isMut": false,
+          "isSigner": false
         }
-      ];
-      args: [];
+      ],
+      "args": []
     }
-  ];
-  accounts: [
+  ],
+  "accounts": [
     {
-      name: "marginfiAccount";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "marginfiAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "authority";
-            type: "publicKey";
+            "name": "authority",
+            "type": "publicKey"
           },
           {
-            name: "marginfiGroup";
-            type: "publicKey";
+            "name": "marginfiGroup",
+            "type": "publicKey"
           },
           {
-            name: "depositRecord";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "depositRecord",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "borrowRecord";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "borrowRecord",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "activeUtps";
-            type: {
-              array: ["bool", 32];
-            };
+            "name": "activeUtps",
+            "type": {
+              "array": [
+                "bool",
+                32
+              ]
+            }
           },
           {
-            name: "utpAccountConfig";
-            type: {
-              array: [
+            "name": "utpAccountConfig",
+            "type": {
+              "array": [
                 {
-                  defined: "UTPAccountConfig";
+                  "defined": "UTPAccountConfig"
                 },
                 32
-              ];
-            };
+              ]
+            }
           },
           {
-            name: "reservedSpace";
-            type: {
-              array: ["u128", 256];
-            };
+            "name": "reservedSpace",
+            "docs": [
+              "Reserved space for future fields.",
+              "Reduce accordingly when adding new fields to the struct"
+            ],
+            "type": {
+              "array": [
+                "u128",
+                256
+              ]
+            }
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "marginfiGroup";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "marginfiGroup",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "admin";
-            type: "publicKey";
+            "name": "admin",
+            "type": "publicKey"
           },
           {
-            name: "bank";
-            type: {
-              defined: "Bank";
-            };
+            "name": "bank",
+            "type": {
+              "defined": "Bank"
+            }
           },
           {
-            name: "paused";
-            type: "bool";
+            "name": "paused",
+            "docs": [
+              "Group operations paused flag."
+            ],
+            "type": "bool"
           },
           {
-            name: "reservedSpace";
-            type: {
-              array: ["u128", 384];
-            };
+            "name": "reservedSpace",
+            "docs": [
+              "Reserved space for future fields.",
+              "Reduce accordingly when adding new fields to the struct."
+            ],
+            "type": {
+              "array": [
+                "u128",
+                384
+              ]
+            }
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "state";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "state",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "totalCollateral";
-            type: "u128";
+            "name": "totalCollateral",
+            "type": "u128"
           },
           {
-            name: "freeCollateral";
-            type: "u128";
+            "name": "freeCollateral",
+            "type": "u128"
           },
           {
-            name: "marginRequirementInit";
-            type: "u128";
+            "name": "marginRequirementInit",
+            "type": "u128"
           },
           {
-            name: "marginRequirementMaint";
-            type: "u128";
+            "name": "marginRequirementMaint",
+            "type": "u128"
           },
           {
-            name: "equity";
-            type: "u128";
+            "name": "equity",
+            "type": "u128"
           }
-        ];
-      };
+        ]
+      }
     }
-  ];
-  types: [
+  ],
+  "types": [
     {
-      name: "UtpMangoPlacePerpOrderArgs";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "UtpMangoPlacePerpOrderArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "side";
-            type: {
-              defined: "MangoSide";
-            };
+            "name": "side",
+            "type": {
+              "defined": "MangoSide"
+            }
           },
           {
-            name: "price";
-            type: "i64";
+            "name": "price",
+            "type": "i64"
           },
           {
-            name: "maxBaseQuantity";
-            type: "i64";
+            "name": "maxBaseQuantity",
+            "type": "i64"
           },
           {
-            name: "maxQuoteQuantity";
-            type: "i64";
+            "name": "maxQuoteQuantity",
+            "type": "i64"
           },
           {
-            name: "clientOrderId";
-            type: "u64";
+            "name": "clientOrderId",
+            "type": "u64"
           },
           {
-            name: "orderType";
-            type: {
-              defined: "MangoOrderType";
-            };
+            "name": "orderType",
+            "type": {
+              "defined": "MangoOrderType"
+            }
           },
           {
-            name: "reduceOnly";
-            type: "bool";
+            "name": "reduceOnly",
+            "type": "bool"
           },
           {
-            name: "expiryTimestamp";
-            type: {
-              option: "u64";
-            };
+            "name": "expiryTimestamp",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "limit";
-            type: "u8";
+            "name": "limit",
+            "type": "u8"
           },
           {
-            name: "expiryType";
-            type: {
-              defined: "MangoExpiryType";
-            };
+            "name": "expiryType",
+            "type": {
+              "defined": "MangoExpiryType"
+            }
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "UtpZoPlacePerpOrderIxArgs";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "UtpZoPlacePerpOrderIxArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "isLong";
-            type: "bool";
+            "name": "isLong",
+            "type": "bool"
           },
           {
-            name: "limitPrice";
-            type: "u64";
+            "name": "limitPrice",
+            "type": "u64"
           },
           {
-            name: "maxBaseQuantity";
-            type: "u64";
+            "name": "maxBaseQuantity",
+            "type": "u64"
           },
           {
-            name: "maxQuoteQuantity";
-            type: "u64";
+            "name": "maxQuoteQuantity",
+            "type": "u64"
           },
           {
-            name: "orderType";
-            type: {
-              defined: "OrderType";
-            };
+            "name": "orderType",
+            "type": {
+              "defined": "OrderType"
+            }
           },
           {
-            name: "limit";
-            type: "u16";
+            "name": "limit",
+            "type": "u16"
           },
           {
-            name: "clientId";
-            type: "u64";
+            "name": "clientId",
+            "type": "u64"
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "UtpZoCancelPerpOrderIxArgs";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "UtpZoCancelPerpOrderIxArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "orderId";
-            type: {
-              option: "u128";
-            };
+            "name": "orderId",
+            "type": {
+              "option": "u128"
+            }
           },
           {
-            name: "isLong";
-            type: {
-              option: "bool";
-            };
+            "name": "isLong",
+            "type": {
+              "option": "bool"
+            }
           },
           {
-            name: "clientId";
-            type: {
-              option: "u64";
-            };
+            "name": "clientId",
+            "type": {
+              "option": "u64"
+            }
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "MDecimal";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "MDecimal",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "flags";
-            type: "u32";
+            "name": "flags",
+            "type": "u32"
           },
           {
-            name: "hi";
-            type: "u32";
+            "name": "hi",
+            "type": "u32"
           },
           {
-            name: "lo";
-            type: "u32";
+            "name": "lo",
+            "type": "u32"
           },
           {
-            name: "mid";
-            type: "u32";
+            "name": "mid",
+            "type": "u32"
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "UTPAccountConfig";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "UTPAccountConfig",
+      "docs": [
+        "Data about a UTP account owned by a marginfi account.",
+        "- `address` is the address of the UTP user account (mango account, drift user account)",
+        "- `authority_seed, authority_bump` are used to derive the PDA that controls the UTP user account.",
+        "",
+        "#### Security assumption:",
+        "We cannot generate PDAs unique to UTP user accounts, because some UTPs use the signer (PDA) address as a seed for the user account.",
+        "We also cannot use the marginfi account address as a PDA seed, because the UTP might change owners through liquidations.",
+        "Alternatively, using a random oracle increases complexity with diminishing returns.",
+        "",
+        "Because of this we pessimistically assume that two marginfi accounts might share a PDA for a given UTP,",
+        "and our security relies on making sure that the UTP can only be accessed by their owners, by checking the `UTPAccountConfig` instead of relying",
+        "on the uniqueness of the PDA."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "address";
-            type: "publicKey";
+            "name": "address",
+            "type": "publicKey"
           },
           {
-            name: "authoritySeed";
-            type: "publicKey";
+            "name": "authoritySeed",
+            "type": "publicKey"
           },
           {
-            name: "authorityBump";
-            type: "u8";
+            "name": "authorityBump",
+            "type": "u8"
           },
           {
-            name: "utpAddressBook";
-            type: {
-              array: ["publicKey", 4];
-            };
+            "name": "utpAddressBook",
+            "docs": [
+              "A cache of UTP addresses used for local security verification"
+            ],
+            "type": {
+              "array": [
+                "publicKey",
+                4
+              ]
+            }
           },
           {
-            name: "reservedSpace";
-            type: {
-              array: ["u32", 32];
-            };
+            "name": "reservedSpace",
+            "type": {
+              "array": [
+                "u32",
+                32
+              ]
+            }
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "UTPConfig";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "UTPConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "utpProgramId";
-            type: "publicKey";
+            "name": "utpProgramId",
+            "type": "publicKey"
           },
           {
-            name: "marginRequirementDepositBuffer";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "marginRequirementDepositBuffer",
+            "type": {
+              "defined": "MDecimal"
+            }
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "GroupConfig";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "GroupConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "admin";
-            type: {
-              option: "publicKey";
-            };
+            "name": "admin",
+            "type": {
+              "option": "publicKey"
+            }
           },
           {
-            name: "bank";
-            type: {
-              option: {
-                defined: "BankConfig";
-              };
-            };
+            "name": "bank",
+            "type": {
+              "option": {
+                "defined": "BankConfig"
+              }
+            }
           },
           {
-            name: "paused";
-            type: {
-              option: "bool";
-            };
+            "name": "paused",
+            "type": {
+              "option": "bool"
+            }
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "BankConfig";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "BankConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "scalingFactorC";
-            type: {
-              option: "u64";
-            };
+            "name": "scalingFactorC",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "fixedFee";
-            type: {
-              option: "u64";
-            };
+            "name": "fixedFee",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "interestFee";
-            type: {
-              option: "u64";
-            };
+            "name": "interestFee",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "initMarginRatio";
-            type: {
-              option: "u64";
-            };
+            "name": "initMarginRatio",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "maintMarginRatio";
-            type: {
-              option: "u64";
-            };
+            "name": "maintMarginRatio",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "accountDepositLimit";
-            type: {
-              option: "u64";
-            };
+            "name": "accountDepositLimit",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "lpDepositLimit";
-            type: {
-              option: "u64";
-            };
+            "name": "lpDepositLimit",
+            "type": {
+              "option": "u64"
+            }
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "Bank";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "Bank",
+      "docs": [
+        "A bank is a subset of a marginfi group, and one bank",
+        "exists for each marginfi group. The bank's job is to",
+        "set parameters for the marginfi group related to borrowing",
+        "and lending portfolio-level collateral, and to store",
+        "collateral funds to lend to marginfi accounts in the marginfi group",
+        "in the bank vault `bank.vault`."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "scalingFactorC";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "scalingFactorC",
+            "docs": [
+              "`scaling_factor_c`, `fixed_fee`, and `interest_fee`",
+              "are parameters in marginfi's interest rate calculation",
+              "for lending and borrowing. The interest rate calculation",
+              "can be observed in the bank's `calculate_interest_rate` fn."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "fixedFee";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "fixedFee",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "interestFee";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "interestFee",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "depositAccumulator";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "depositAccumulator",
+            "docs": [
+              "Accumulators are time-dependent compound interest rate multipliers.",
+              "Accumulators are determined in functions part of impl `Bank` and",
+              "are calculated based on the appropriate interest rate",
+              "(lending or borrowing) and how much time has passed since the",
+              "last interest calculation, herein denoted as `time_delta`."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "borrowAccumulator";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "borrowAccumulator",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "lastUpdate";
-            type: "i64";
+            "name": "lastUpdate",
+            "type": "i64"
           },
           {
-            name: "nativeDepositBalance";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "nativeDepositBalance",
+            "docs": [
+              "Native deposits and borrows denote total",
+              "borrowed and deposited into the bank, including",
+              "relevant accumulated interest."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "nativeBorrowBalance";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "nativeBorrowBalance",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "mint";
-            type: "publicKey";
+            "name": "mint",
+            "docs": [
+              "The mint denotes the collateral type."
+            ],
+            "type": "publicKey"
           },
           {
-            name: "vault";
-            type: "publicKey";
+            "name": "vault",
+            "docs": [
+              "The vault pubkey denotes the bank's vault,",
+              "where liquidity is actually stored."
+            ],
+            "type": "publicKey"
           },
           {
-            name: "vaultAuthorityPdaBump";
-            type: "u8";
+            "name": "vaultAuthorityPdaBump",
+            "docs": [
+              "Bank authority pda bump seed"
+            ],
+            "type": "u8"
           },
           {
-            name: "insuranceVault";
-            type: "publicKey";
+            "name": "insuranceVault",
+            "docs": [
+              "Insurance vault address"
+            ],
+            "type": "publicKey"
           },
           {
-            name: "insuranceVaultAuthorityPdaBump";
-            type: "u8";
+            "name": "insuranceVaultAuthorityPdaBump",
+            "type": "u8"
           },
           {
-            name: "insuranceVaultOutstandingTransfers";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "insuranceVaultOutstandingTransfers",
+            "docs": [
+              "Outstanding balance to be transferred to the fee vault from the main liquidity vault."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "feeVault";
-            type: "publicKey";
+            "name": "feeVault",
+            "docs": [
+              "Protocol fee vault address"
+            ],
+            "type": "publicKey"
           },
           {
-            name: "feeVaultAuthorityPdaBump";
-            type: "u8";
+            "name": "feeVaultAuthorityPdaBump",
+            "type": "u8"
           },
           {
-            name: "feeVaultOutstandingTransfers";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "feeVaultOutstandingTransfers",
+            "docs": [
+              "Outstanding balance to be transferred to the fee vault from the main liquidity vault."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "initMarginRatio";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "initMarginRatio",
+            "docs": [
+              "Today's marginfi groups in marginfi each have fixed",
+              "initial and maintenance margin requirements, which",
+              "are stored as attributes part of the Bank."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "maintMarginRatio";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "maintMarginRatio",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "accountDepositLimit";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "accountDepositLimit",
+            "docs": [
+              "Account equity above which deposits are not allowed.",
+              "If Decimal::ZERO, no limit is applied."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "lpDepositLimit";
-            type: {
-              defined: "MDecimal";
-            };
+            "name": "lpDepositLimit",
+            "docs": [
+              "Balance of liquidity pool (LP) deposits above which deposits are not allowed.",
+              "If Decimal::ZERO, no limit is applied."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "reservedSpace";
-            type: {
-              array: ["u128", 31];
-            };
+            "name": "reservedSpace",
+            "docs": [
+              "Reserved space for future fields.",
+              "Reduce accordingly when adding new fields to the struct."
+            ],
+            "type": {
+              "array": [
+                "u128",
+                31
+              ]
+            }
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "MangoOrderType";
-      type: {
-        kind: "enum";
-        variants: [
+      "name": "MangoOrderType",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Limit";
+            "name": "Limit"
           },
           {
-            name: "ImmediateOrCancel";
+            "name": "ImmediateOrCancel"
           },
           {
-            name: "PostOnly";
+            "name": "PostOnly"
           },
           {
-            name: "Market";
+            "name": "Market"
           },
           {
-            name: "PostOnlySlide";
+            "name": "PostOnlySlide"
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "MangoSide";
-      type: {
-        kind: "enum";
-        variants: [
+      "name": "MangoSide",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Bid";
+            "name": "Bid"
           },
           {
-            name: "Ask";
+            "name": "Ask"
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "MangoExpiryType";
-      type: {
-        kind: "enum";
-        variants: [
+      "name": "MangoExpiryType",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Absolute";
+            "name": "Absolute"
           },
           {
-            name: "Relative";
+            "name": "Relative"
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "MarginRequirement";
-      type: {
-        kind: "enum";
-        variants: [
+      "name": "MarginRequirement",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Init";
+            "name": "Init"
           },
           {
-            name: "Maint";
+            "name": "Maint"
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "EquityType";
-      type: {
-        kind: "enum";
-        variants: [
+      "name": "EquityType",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "InitReqAdjusted";
+            "name": "InitReqAdjusted"
           },
           {
-            name: "Total";
+            "name": "Total"
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "BankVaultType";
-      type: {
-        kind: "enum";
-        variants: [
+      "name": "BankVaultType",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "LiquidityVault";
+            "name": "LiquidityVault"
           },
           {
-            name: "InsuranceVault";
+            "name": "InsuranceVault"
           },
           {
-            name: "ProtocolFeeVault";
+            "name": "ProtocolFeeVault"
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "InternalTransferType";
-      type: {
-        kind: "enum";
-        variants: [
+      "name": "InternalTransferType",
+      "docs": [
+        "Possible internal transfers:",
+        "- InsuranceFee - Fees collected and sent from the main liquidity vault to the insurance vault.",
+        "- ProtocolFee - Fees collected and sent from the main liquidity vault to the protocol fee vault."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "InsuranceFee";
+            "name": "InsuranceFee"
           },
           {
-            name: "ProtocolFee";
+            "name": "ProtocolFee"
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "LendingSide";
-      type: {
-        kind: "enum";
-        variants: [
+      "name": "LendingSide",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Borrow";
+            "name": "Borrow"
           },
           {
-            name: "Deposit";
+            "name": "Deposit"
           }
-        ];
-      };
+        ]
+      }
     },
     {
-      name: "OrderType";
-      type: {
-        kind: "enum";
-        variants: [
+      "name": "OrderType",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Limit";
+            "name": "Limit"
           },
           {
-            name: "ImmediateOrCancel";
+            "name": "ImmediateOrCancel"
           },
           {
-            name: "PostOnly";
+            "name": "PostOnly"
           },
           {
-            name: "ReduceOnlyIoc";
+            "name": "ReduceOnlyIoc"
           },
           {
-            name: "ReduceOnlyLimit";
+            "name": "ReduceOnlyLimit"
           },
           {
-            name: "FillOrKill";
+            "name": "FillOrKill"
           }
-        ];
-      };
+        ]
+      }
     }
-  ];
-  events: [
+  ],
+  "events": [
     {
-      name: "UpdateInterestAccumulatorEvent";
-      fields: [
+      "name": "UpdateInterestAccumulatorEvent",
+      "fields": [
         {
-          name: "currentTimestamp";
-          type: "i64";
-          index: false;
+          "name": "currentTimestamp",
+          "type": "i64",
+          "index": false
         },
         {
-          name: "deltaCompoundingPeriods";
-          type: "u64";
-          index: false;
+          "name": "deltaCompoundingPeriods",
+          "type": "u64",
+          "index": false
         },
         {
-          name: "feesCollected";
-          type: {
-            defined: "MDecimal";
-          };
-          index: false;
+          "name": "feesCollected",
+          "type": {
+            "defined": "MDecimal"
+          },
+          "index": false
         },
         {
-          name: "utilizationRate";
-          type: {
-            defined: "MDecimal";
-          };
-          index: false;
+          "name": "utilizationRate",
+          "type": {
+            "defined": "MDecimal"
+          },
+          "index": false
         },
         {
-          name: "interestRate";
-          type: {
-            defined: "MDecimal";
-          };
-          index: false;
+          "name": "interestRate",
+          "type": {
+            "defined": "MDecimal"
+          },
+          "index": false
         }
-      ];
+      ]
     },
     {
-      name: "MarginRequirementCheck";
-      fields: [
+      "name": "MarginRequirementCheck",
+      "fields": [
         {
-          name: "init";
-          type: "bool";
-          index: false;
+          "name": "init",
+          "type": "bool",
+          "index": false
         },
         {
-          name: "equity";
-          type: {
-            defined: "MDecimal";
-          };
-          index: false;
+          "name": "equity",
+          "type": {
+            "defined": "MDecimal"
+          },
+          "index": false
         },
         {
-          name: "marginRequirement";
-          type: {
-            defined: "MDecimal";
-          };
-          index: false;
+          "name": "marginRequirement",
+          "type": {
+            "defined": "MDecimal"
+          },
+          "index": false
         }
-      ];
+      ]
     },
     {
-      name: "UptObservationFreeCollateral";
-      fields: [
+      "name": "UptObservationFreeCollateral",
+      "fields": [
         {
-          name: "utpIndex";
-          type: "u8";
-          index: false;
+          "name": "utpIndex",
+          "type": "u8",
+          "index": false
         },
         {
-          name: "value";
-          type: {
-            defined: "MDecimal";
-          };
-          index: false;
+          "name": "value",
+          "type": {
+            "defined": "MDecimal"
+          },
+          "index": false
         }
-      ];
+      ]
     },
     {
-      name: "UptObservationNeedsRebalance";
-      fields: [
+      "name": "UptObservationNeedsRebalance",
+      "fields": [
         {
-          name: "utpIndex";
-          type: "u8";
-          index: false;
+          "name": "utpIndex",
+          "type": "u8",
+          "index": false
         },
         {
-          name: "collateralOrEquity";
-          type: {
-            defined: "MDecimal";
-          };
-          index: false;
+          "name": "collateralOrEquity",
+          "type": {
+            "defined": "MDecimal"
+          },
+          "index": false
         },
         {
-          name: "marginRequirement";
-          type: {
-            defined: "MDecimal";
-          };
-          index: false;
+          "name": "marginRequirement",
+          "type": {
+            "defined": "MDecimal"
+          },
+          "index": false
         }
-      ];
+      ]
     }
-  ];
-  errors: [
+  ],
+  "errors": [
     {
-      code: 6000;
-      name: "EmptyLendingPool";
-      msg: "Lending pool empty";
+      "code": 6000,
+      "name": "EmptyLendingPool",
+      "msg": "Lending pool empty"
     },
     {
-      code: 6001;
-      name: "IllegalUtilizationRatio";
-      msg: "Illegal utilization ratio";
+      "code": 6001,
+      "name": "IllegalUtilizationRatio",
+      "msg": "Illegal utilization ratio"
     },
     {
-      code: 6002;
-      name: "MathError";
-      msg: "very bad mafs";
+      "code": 6002,
+      "name": "MathError",
+      "msg": "very bad mafs"
     },
     {
-      code: 6003;
-      name: "InvalidTimestamp";
-      msg: "Invalid timestamp";
+      "code": 6003,
+      "name": "InvalidTimestamp",
+      "msg": "Invalid timestamp"
     },
     {
-      code: 6004;
-      name: "MarginRequirementsNotMet";
-      msg: "Initialization margin requirements not met";
+      "code": 6004,
+      "name": "MarginRequirementsNotMet",
+      "msg": "Initialization margin requirements not met"
     },
     {
-      code: 6005;
-      name: "OnlyReduceAllowed";
-      msg: "Only reducing trades are allowed when under init margin requirements";
+      "code": 6005,
+      "name": "OnlyReduceAllowed",
+      "msg": "Only reducing trades are allowed when under init margin requirements"
     },
     {
-      code: 6006;
-      name: "UtpInactive";
-      msg: "Inactive UTP";
+      "code": 6006,
+      "name": "UtpInactive",
+      "msg": "Inactive UTP"
     },
     {
-      code: 6007;
-      name: "UtpAlreadyActive";
-      msg: "Utp is already active";
+      "code": 6007,
+      "name": "UtpAlreadyActive",
+      "msg": "Utp is already active"
     },
     {
-      code: 6008;
-      name: "InvalidAccountData";
-      msg: "Invalid Account Data";
+      "code": 6008,
+      "name": "InvalidAccountData",
+      "msg": "Invalid Account Data"
     },
     {
-      code: 6009;
-      name: "LiquidatorHasActiveUtps";
-      msg: "Liquidator has active utps";
+      "code": 6009,
+      "name": "LiquidatorHasActiveUtps",
+      "msg": "Liquidator has active utps"
     },
     {
-      code: 6010;
-      name: "AccountHasActiveUtps";
-      msg: "Account has active utps";
+      "code": 6010,
+      "name": "AccountHasActiveUtps",
+      "msg": "Account has active utps"
     },
     {
-      code: 6011;
-      name: "AccountNotLiquidatable";
-      msg: "Marginfi account not liquidatable";
+      "code": 6011,
+      "name": "AccountNotLiquidatable",
+      "msg": "Marginfi account not liquidatable"
     },
     {
-      code: 6012;
-      name: "AccountNotBankrupt";
-      msg: "Marginfi account not bankrupt";
+      "code": 6012,
+      "name": "AccountNotBankrupt",
+      "msg": "Marginfi account not bankrupt"
     },
     {
-      code: 6013;
-      name: "IllegalUtpDeactivation";
-      msg: "Utp account cannot be deactivated";
+      "code": 6013,
+      "name": "IllegalUtpDeactivation",
+      "msg": "Utp account cannot be deactivated"
     },
     {
-      code: 6014;
-      name: "IllegalRebalance";
-      msg: "Rebalance not legal";
+      "code": 6014,
+      "name": "IllegalRebalance",
+      "msg": "Rebalance not legal"
     },
     {
-      code: 6015;
-      name: "BorrowNotAllowed";
-      msg: "Borrow not allowed";
+      "code": 6015,
+      "name": "BorrowNotAllowed",
+      "msg": "Borrow not allowed"
     },
     {
-      code: 6016;
-      name: "IllegalConfig";
-      msg: "Config value not legal";
+      "code": 6016,
+      "name": "IllegalConfig",
+      "msg": "Config value not legal"
     },
     {
-      code: 6017;
-      name: "OperationsPaused";
-      msg: "Operations paused";
+      "code": 6017,
+      "name": "OperationsPaused",
+      "msg": "Operations paused"
     },
     {
-      code: 6018;
-      name: "InsufficientVaultBalance";
-      msg: "Insufficient balance";
+      "code": 6018,
+      "name": "InsufficientVaultBalance",
+      "msg": "Insufficient balance"
     },
     {
-      code: 6019;
-      name: "Forbidden";
-      msg: "This operation is forbidden";
+      "code": 6019,
+      "name": "Forbidden",
+      "msg": "This operation is forbidden"
     },
     {
-      code: 6020;
-      name: "InvalidUTPAccount";
-      msg: "Invalid account key";
+      "code": 6020,
+      "name": "InvalidUTPAccount",
+      "msg": "Invalid account key"
     },
     {
-      code: 6021;
-      name: "AccountDepositLimit";
-      msg: "Deposit exceeds account cap";
+      "code": 6021,
+      "name": "AccountDepositLimit",
+      "msg": "Deposit exceeds account cap"
     },
     {
-      code: 6022;
-      name: "GroupDepositLimit";
-      msg: "Deposit exceeds group cap";
+      "code": 6022,
+      "name": "GroupDepositLimit",
+      "msg": "Deposit exceeds group cap"
     },
     {
-      code: 6023;
-      name: "InvalidObserveAccounts";
-      msg: "Missing accounts for UTP observation";
+      "code": 6023,
+      "name": "InvalidObserveAccounts",
+      "msg": "Missing accounts for UTP observation"
     },
     {
-      code: 6024;
-      name: "MangoError";
-      msg: "Mango error";
+      "code": 6024,
+      "name": "MangoError",
+      "msg": "Mango error"
+    },
+    {
+      "code": 6025,
+      "name": "OperationDisabled",
+      "msg": "Operation no longer supported"
     }
-  ];
+  ]
 };
 
 export const IDL: Marginfi = {
-  version: "0.1.0",
-  name: "marginfi",
-  instructions: [
+  "version": "0.1.0",
+  "name": "marginfi",
+  "instructions": [
     {
-      name: "initMarginfiGroup",
-      accounts: [
-        {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "admin",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "collateralMint",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "bankVault",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "bankAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "insuranceVault",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "insuranceVaultAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "feeVault",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "feeVaultAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
+      "name": "initMarginfiGroup",
+      "docs": [
+        "Creates a marginfi group, which acts as a global liquidity pool between",
+        "marginfi accounts in the marginfi group and a set of whitelisted underlying",
+        "trading protocols (UTPs)."
       ],
-      args: [
+      "accounts": [
         {
-          name: "bankAuthorityPdaBump",
-          type: "u8",
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "insuranceVaultAuthorityPdaBump",
-          type: "u8",
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The signer that creates the marginfi group becomes",
+            "its admin, and in creating the group specifies",
+            "the UTPs that will be whitelisted in this marginfi group."
+          ]
         },
         {
-          name: "feeVaultAuthorityPdaBump",
-          type: "u8",
+          "name": "collateralMint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The collateral token mint, which speifies the collateral type",
+            "supported in this marginfi group. Currently, marginfi architecture",
+            "supports one collateral type per marginfi group, specified",
+            "here via the token mint."
+          ]
         },
+        {
+          "name": "bankVault",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The marginfi group bank vault stores funds deposited by users",
+            "available for lending to other users. In other words, this is",
+            "the liquidity available at the marginfi group level for marginfi accounts",
+            "in this marginfi group to borrow from."
+          ]
+        },
+        {
+          "name": "bankAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "insuranceVault",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "insuranceVaultAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "feeVault",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "feeVaultAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
+      "args": [
+        {
+          "name": "bankAuthorityPdaBump",
+          "type": "u8"
+        },
+        {
+          "name": "insuranceVaultAuthorityPdaBump",
+          "type": "u8"
+        },
+        {
+          "name": "feeVaultAuthorityPdaBump",
+          "type": "u8"
+        }
+      ]
     },
     {
-      name: "configureMarginfiGroup",
-      accounts: [
-        {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "admin",
-          isMut: false,
-          isSigner: true,
-        },
+      "name": "configureMarginfiGroup",
+      "docs": [
+        "Updates configurations for an existing marginfi group."
       ],
-      args: [
+      "accounts": [
         {
-          name: "configArg",
-          type: {
-            defined: "GroupConfig",
-          },
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true
+        }
       ],
+      "args": [
+        {
+          "name": "configArg",
+          "type": {
+            "defined": "GroupConfig"
+          }
+        }
+      ]
     },
     {
-      name: "bankFeeVaultWithdraw",
-      accounts: [
-        {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "admin",
-          isMut: false,
-          isSigner: true,
-        },
-        {
-          name: "bankFeeVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "bankFeeVaultAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "recipientTokenAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+      "name": "bankFeeVaultWithdraw",
+      "docs": [
+        "Allows a marginfi group admin to withdraw accrued protocol fees for the",
+        "relevant marginfi group from the protocol to an arbitrary wallet."
       ],
-      args: [
+      "accounts": [
         {
-          name: "amount",
-          type: "u64",
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "bankFeeVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "bankFeeVaultAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "- an honest admin will provide the correct one",
+            "- incorrect mints will fail tx"
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "initMarginfiAccount",
-      accounts: [
-        {
-          name: "authority",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "marginfiGroup",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "marginfiAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
+      "name": "initMarginfiAccount",
+      "docs": [
+        "Creates a new marginfi account with a given authority."
       ],
-      args: [],
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The authority that owns the marginfi account, ie the 'trader'.",
+            "Also the one signer that has authority to deposit/withdraw",
+            "collateral from the marginfi account, as well as take action",
+            "on UTPs."
+          ]
+        },
+        {
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The marginfi group this marginfi account belongs to,",
+            "which determins the UTPs this marginfi account can access.",
+            "",
+            "TODO: Should we limit the number of marginfi accounts?"
+          ]
+        },
+        {
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
-      name: "bankInsuranceVaultWithdraw",
-      accounts: [
-        {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "admin",
-          isMut: false,
-          isSigner: true,
-        },
-        {
-          name: "insuranceVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "insuranceVaultAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "recipientTokenAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+      "name": "bankInsuranceVaultWithdraw",
+      "docs": [
+        "Allows an admin of a given marginfi group to withdraw funds from that",
+        "marginfi group's bank's insurance vault. While requiring signing from the",
+        "admin for the transaction, this method allows the admin to withdraw",
+        "funds to an arbitrary `recipient_token_account`, thereby assuming an",
+        "honest admin."
       ],
-      args: [
+      "accounts": [
         {
-          name: "amount",
-          type: "u64",
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "insuranceVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "insuranceVaultAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "- an honest admin will provide the correct one",
+            "- incorrect mints will fail tx"
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "marginDepositCollateral",
-      accounts: [
-        {
-          name: "marginfiAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "signer",
-          isMut: false,
-          isSigner: true,
-        },
-        {
-          name: "fundingAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "tokenVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+      "name": "marginDepositCollateral",
+      "docs": [
+        "Allows the owner of a marginfi account to deposit collateral into it."
       ],
-      args: [
+      "accounts": [
         {
-          name: "amount",
-          type: "u64",
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
+        {
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "fundingAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "#[soteria(ignore)]"
+          ]
+        },
+        {
+          "name": "tokenVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "marginWithdrawCollateral",
-      accounts: [
-        {
-          name: "marginfiAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "signer",
-          isMut: false,
-          isSigner: true,
-        },
-        {
-          name: "marginCollateralVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "marginBankAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "receivingTokenAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+      "name": "marginWithdrawCollateral",
+      "docs": [
+        "Allows the owner of a marginfi account to withdraw available collateral",
+        "from that marginfi account."
       ],
-      args: [
+      "accounts": [
         {
-          name: "amount",
-          type: "u64",
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
+        {
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "marginCollateralVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "marginBankAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "receivingTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "#[soteria(ignore)]"
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "liquidate",
-      accounts: [
-        {
-          name: "marginfiAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "signer",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "marginfiAccountLiquidatee",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "bankVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "bankAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "bankInsuranceVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+      "name": "liquidate",
+      "docs": [
+        "Allows a liquidator to liquidate marginfi accounts that have fallen below",
+        "margin requirements. marginfi liquidations occur at the UTP account",
+        "level. In other words, when marginfi marginfi accounts fall below margin",
+        "requirements, liquidators pay marginfi accounts a discounted rate to take",
+        "ownership of UTP accounts that those marginfi accounts own.",
+        "The marginfi takes a fee on liquidations as well, and those funds are",
+        "added to marginfi's insurance vault."
       ],
-      args: [
+      "accounts": [
         {
-          name: "utpIndex",
-          type: "u64",
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Manually verified for:",
+            "- not same account as `marginfi_account_liquidatee` (c.f. `marginfi_account_liquidatee` checks)",
+            "#[soteria(ignore)]"
+          ]
         },
+        {
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "marginfiAccountLiquidatee",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Manually verified for:",
+            "- can be liquidated (in body)",
+            "- has an active UTP (in body)",
+            "#[soteria(ignore)]"
+          ]
+        },
+        {
+          "name": "bankVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "bankAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "bankInsuranceVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
+      "args": [
+        {
+          "name": "utpIndex",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "deactivateUtp",
-      accounts: [
-        {
-          name: "marginfiAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "authority",
-          isMut: false,
-          isSigner: true,
-        },
+      "name": "deactivateUtp",
+      "docs": [
+        "Allows the owner of a marginfi account to deactivate a UTP account when the",
+        "UTP account is empty and no longer has collateral or positions in it."
       ],
-      args: [
+      "accounts": [
         {
-          name: "utpIndex",
-          type: "u64",
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
       ],
+      "args": [
+        {
+          "name": "utpIndex",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "handleBankruptcy",
-      accounts: [
-        {
-          name: "marginfiAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "insuranceVaultAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "insuranceVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "liquidityVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+      "name": "handleBankruptcy",
+      "docs": [
+        "For a marginfi account not meeting the maintenence margin requirements,",
+        "outstanding debts, and no assets left to liquidate, this method",
+        "manages repaying the debt for that marginfi account by",
+        "using funds from the insurance vault",
+        "or socializing losses among lenders in the related marginfi group's liquidity pool",
+        "in case the insurance fund is empty."
       ],
-      args: [],
+      "accounts": [
+        {
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "insuranceVaultAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "insuranceVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "liquidityVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
-      name: "updateInterestAccumulator",
-      accounts: [
-        {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "bankVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "bankAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "bankFeeVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+      "name": "updateInterestAccumulator",
+      "docs": [
+        "Updates a central interest rate accumulator that tracks interest fees",
+        "owed by all borrowers within the protocol, and collects related protocol fees.",
+        "This method is executed by crankers."
       ],
-      args: [],
+      "accounts": [
+        {
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "bankVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "bankAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "bankFeeVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
-      name: "utpMangoActivate",
-      accounts: [
-        {
-          name: "marginfiAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "marginfiGroup",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "authority",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "mangoAuthority",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "mangoAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "mangoProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "mangoGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
+      "name": "utpMangoActivate",
+      "docs": [
+        "Mango instructions",
+        "Activate a UTP account on Mango for a given marginfi account and pay",
+        "related rent fees. marginfi supports only one UTP account per UTP per",
+        "marginfi account. Rent fees are determined by UTPs and marginfi passes",
+        "those up to UTP account activators, i.e. marginfi account owners.",
+        "This action can only be taken by the owner of the marginfi account for",
+        "which this UTP account is activated."
       ],
-      args: [
+      "accounts": [
         {
-          name: "authoritySeed",
-          type: "publicKey",
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "authorityBump",
-          type: "u8",
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false
         },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "mangoAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mangoAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "TODO: What would happen if we used `zero` or if someone sent an already existing account (assuming init would fail on Mango?)"
+          ]
+        },
+        {
+          "name": "mangoProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mangoGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
+      "args": [
+        {
+          "name": "authoritySeed",
+          "type": "publicKey"
+        },
+        {
+          "name": "authorityBump",
+          "type": "u8"
+        }
+      ]
     },
     {
-      name: "utpMangoDeposit",
-      accounts: [
-        {
-          name: "marginfiAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "signer",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "marginCollateralVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "bankAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "tempCollateralAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "mangoAuthority",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "mangoAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "mangoProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "mangoGroup",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "mangoCache",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "mangoRootBank",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "mangoNodeBank",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "mangoVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+      "name": "utpMangoDeposit",
+      "docs": [
+        "Deposits funds into a Mango UTP account, which may be done by the owner",
+        "of the marginfi account the UTP account is related to, or by the",
+        "rebalancing mechanism of the marginfi protocol if rebalancing conditions",
+        "are satisfied, which is ultimately an action enforced by crankers."
       ],
-      args: [
+      "accounts": [
         {
-          name: "amount",
-          type: "u64",
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
+        {
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "Authority is verified in `check_rebalance_deposit_conditions`"
+          ]
+        },
+        {
+          "name": "marginCollateralVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "bankAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tempCollateralAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "We are assuming that the ix will fail if the owner is anyone but the UTP pda.",
+            "",
+            "Because multiple marginfi accounts might share the same UTP PDA, there a possibility that an attacker might expose",
+            "the token account of another marginfi account.",
+            "I am not sure what they could do with it, as the collateral only enters these token accounts atomically in this ix and is later closed.",
+            "But because I am superstitious, we are making sure here that the temp token account is empty."
+          ]
+        },
+        {
+          "name": "mangoAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mangoAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mangoProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mangoGroup",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mangoCache",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mangoRootBank",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mangoNodeBank",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mangoVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "utpMangoWithdraw",
-      accounts: [
+      "name": "utpMangoWithdraw",
+      "accounts": [
         {
-          name: "marginfiAccount",
-          isMut: true,
-          isSigner: false,
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "signer",
-          isMut: false,
-          isSigner: true,
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "Partially permission-less"
+          ]
         },
         {
-          name: "marginCollateralVault",
-          isMut: true,
-          isSigner: false,
+          "name": "marginCollateralVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoAuthority",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoAccount",
-          isMut: true,
-          isSigner: false,
+          "name": "mangoAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoGroup",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoCache",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoCache",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoRootBank",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoRootBank",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoNodeBank",
-          isMut: true,
-          isSigner: false,
+          "name": "mangoNodeBank",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoVault",
-          isMut: true,
-          isSigner: false,
+          "name": "mangoVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoVaultAuthority",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoVaultAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "amount",
-          type: "u64",
-        },
-      ],
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "utpMangoUsePlacePerpOrder",
-      accounts: [
+      "name": "utpMangoUsePlacePerpOrder",
+      "accounts": [
         {
-          name: "marginfiAccount",
-          isMut: false,
-          isSigner: false,
+          "name": "marginfiAccount",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup",
-          isMut: false,
-          isSigner: false,
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "authority",
-          isMut: true,
-          isSigner: true,
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "mangoAuthority",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoAccount",
-          isMut: true,
-          isSigner: false,
+          "name": "mangoAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoGroup",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoCache",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoCache",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoPerpMarket",
-          isMut: true,
-          isSigner: false,
+          "name": "mangoPerpMarket",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoBids",
-          isMut: true,
-          isSigner: false,
+          "name": "mangoBids",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoAsks",
-          isMut: true,
-          isSigner: false,
+          "name": "mangoAsks",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoEventQueue",
-          isMut: true,
-          isSigner: false,
-        },
+          "name": "mangoEventQueue",
+          "isMut": true,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "args",
-          type: {
-            defined: "UtpMangoPlacePerpOrderArgs",
-          },
-        },
-      ],
+          "name": "args",
+          "type": {
+            "defined": "UtpMangoPlacePerpOrderArgs"
+          }
+        }
+      ]
     },
     {
-      name: "utpMangoUseCancelPerpOrder",
-      accounts: [
+      "name": "utpMangoUseCancelPerpOrder",
+      "accounts": [
         {
-          name: "marginfiAccount",
-          isMut: false,
-          isSigner: false,
+          "name": "marginfiAccount",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup",
-          isMut: false,
-          isSigner: false,
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "authority",
-          isMut: true,
-          isSigner: true,
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "mangoAuthority",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoAccount",
-          isMut: true,
-          isSigner: false,
+          "name": "mangoAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoGroup",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "mangoPerpMarket",
-          isMut: true,
-          isSigner: false,
+          "name": "mangoPerpMarket",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoBids",
-          isMut: true,
-          isSigner: false,
+          "name": "mangoBids",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mangoAsks",
-          isMut: true,
-          isSigner: false,
-        },
+          "name": "mangoAsks",
+          "isMut": true,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "orderId",
-          type: "i128",
+          "name": "orderId",
+          "type": "i128"
         },
         {
-          name: "invalidIdOk",
-          type: "bool",
-        },
-      ],
+          "name": "invalidIdOk",
+          "type": "bool"
+        }
+      ]
     },
     {
-      name: "utpZoActivate",
-      accounts: [
+      "name": "reimburse",
+      "accounts": [
         {
-          name: "marginfiAccount",
-          isMut: true,
-          isSigner: false,
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup",
-          isMut: false,
-          isSigner: false,
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "authority",
-          isMut: true,
-          isSigner: true,
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "utpAuthority",
-          isMut: false,
-          isSigner: false,
+          "name": "collateralMint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "liquidityVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "zoState",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoReimbursementProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoMargin",
-          isMut: true,
-          isSigner: false,
+          "name": "group",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoControl",
-          isMut: true,
-          isSigner: false,
+          "name": "reimbursementAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "rent",
-          isMut: false,
-          isSigner: false,
+          "name": "mangoAccountOwner",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Mango PDA"
+          ]
         },
         {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Mango reimb vault"
+          ]
         },
+        {
+          "name": "tokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Create new token account"
+          ]
+        },
+        {
+          "name": "claimMintTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Checked by mango"
+          ]
+        },
+        {
+          "name": "claimMint",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Checked by mango"
+          ]
+        },
+        {
+          "name": "table",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Checked by mango"
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "authoritySeed",
-          type: "publicKey",
-        },
-        {
-          name: "authorityBump",
-          type: "u8",
-        },
-        {
-          name: "zoMarginNonce",
-          type: "u8",
-        },
-      ],
+          "name": "indexIntoTable",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "utpZoDeposit",
-      accounts: [
+      "name": "utpZoActivate",
+      "accounts": [
         {
-          name: "marginfiAccount",
-          isMut: true,
-          isSigner: false,
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "signer",
-          isMut: true,
-          isSigner: true,
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "marginCollateralVault",
-          isMut: true,
-          isSigner: false,
+          "name": "utpAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "bankAuthority",
-          isMut: false,
-          isSigner: false,
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tempCollateralAccount",
-          isMut: true,
-          isSigner: false,
+          "name": "zoState",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "utpAuthority",
-          isMut: false,
-          isSigner: false,
+          "name": "zoMargin",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "zoProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "zoControl",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "zoState",
-          isMut: false,
-          isSigner: false,
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoStateSigner",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "zoCache",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "zoMargin",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "zoVault",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "rent",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "amount",
-          type: "u64",
+          "name": "authoritySeed",
+          "type": "publicKey"
         },
-      ],
+        {
+          "name": "authorityBump",
+          "type": "u8"
+        },
+        {
+          "name": "zoMarginNonce",
+          "type": "u8"
+        }
+      ]
     },
     {
-      name: "utpZoWithdraw",
-      accounts: [
+      "name": "utpZoDeposit",
+      "accounts": [
         {
-          name: "marginfiAccount",
-          isMut: true,
-          isSigner: false,
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marginfiGroup",
-          isMut: true,
-          isSigner: false,
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "signer",
-          isMut: false,
-          isSigner: true,
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "Authority is verified in `check_rebalance_deposit_conditions`"
+          ]
         },
         {
-          name: "marginCollateralVault",
-          isMut: true,
-          isSigner: false,
+          "name": "marginCollateralVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "utpAuthority",
-          isMut: false,
-          isSigner: false,
+          "name": "bankAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoMargin",
-          isMut: true,
-          isSigner: false,
+          "name": "tempCollateralAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "We are assuming that the ix will fail if the owner is anyone but the UTP pda.",
+            "",
+            "Because multiple marginfi accounts might share the same UTP PDA, there a possibility that an attacker might expose",
+            "the token account of another marginfi account.",
+            "I am not sure what they could do with it, as the collateral only enters these token accounts atomically in this ix and is later closed.",
+            "But because I am superstitious, we are making sure here that the temp token account is empty."
+          ]
         },
         {
-          name: "zoProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "utpAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoState",
-          isMut: true,
-          isSigner: false,
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoStateSigner",
-          isMut: true,
-          isSigner: false,
+          "name": "zoState",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoCache",
-          isMut: true,
-          isSigner: false,
+          "name": "zoStateSigner",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "zoControl",
-          isMut: true,
-          isSigner: false,
+          "name": "zoCache",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "zoVault",
-          isMut: true,
-          isSigner: false,
+          "name": "zoMargin",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "heimdall",
-          isMut: true,
-          isSigner: false,
+          "name": "zoVault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
         },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "amount",
-          type: "u64",
-        },
-      ],
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "utpZoCreatePerpOpenOrders",
-      accounts: [
+      "name": "utpZoWithdraw",
+      "accounts": [
         {
-          name: "header",
-          accounts: [
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "Partially permission-less"
+          ]
+        },
+        {
+          "name": "marginCollateralVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "utpAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zoMargin",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zoState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zoStateSigner",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zoCache",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zoControl",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zoVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "heimdall",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "utpZoCreatePerpOpenOrders",
+      "accounts": [
+        {
+          "name": "header",
+          "accounts": [
             {
-              name: "marginfiAccount",
-              isMut: false,
-              isSigner: false,
+              "name": "marginfiAccount",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "marginfiGroup",
-              isMut: false,
-              isSigner: false,
+              "name": "marginfiGroup",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "signer",
-              isMut: true,
-              isSigner: true,
+              "name": "signer",
+              "isMut": true,
+              "isSigner": true
             },
             {
-              name: "utpAuthority",
-              isMut: false,
-              isSigner: false,
-            },
-          ],
+              "name": "utpAuthority",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
-          name: "zoProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "state",
-          isMut: false,
-          isSigner: false,
+          "name": "state",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "stateSigner",
-          isMut: true,
-          isSigner: false,
+          "name": "stateSigner",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "margin",
-          isMut: true,
-          isSigner: false,
+          "name": "margin",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "control",
-          isMut: true,
-          isSigner: false,
+          "name": "control",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "openOrders",
-          isMut: true,
-          isSigner: false,
+          "name": "openOrders",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexMarket",
-          isMut: true,
-          isSigner: false,
+          "name": "dexMarket",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "dexProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "rent",
-          isMut: false,
-          isSigner: false,
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [],
+      "args": []
     },
     {
-      name: "utpZoPlacePerpOrder",
-      accounts: [
+      "name": "utpZoPlacePerpOrder",
+      "accounts": [
         {
-          name: "header",
-          accounts: [
+          "name": "header",
+          "accounts": [
             {
-              name: "marginfiAccount",
-              isMut: false,
-              isSigner: false,
+              "name": "marginfiAccount",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "marginfiGroup",
-              isMut: false,
-              isSigner: false,
+              "name": "marginfiGroup",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "signer",
-              isMut: true,
-              isSigner: true,
+              "name": "signer",
+              "isMut": true,
+              "isSigner": true
             },
             {
-              name: "utpAuthority",
-              isMut: false,
-              isSigner: false,
-            },
-          ],
+              "name": "utpAuthority",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
-          name: "zoProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "state",
-          isMut: false,
-          isSigner: false,
+          "name": "state",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "stateSigner",
-          isMut: true,
-          isSigner: false,
+          "name": "stateSigner",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "cache",
-          isMut: true,
-          isSigner: false,
+          "name": "cache",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "margin",
-          isMut: true,
-          isSigner: false,
+          "name": "margin",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "control",
-          isMut: true,
-          isSigner: false,
+          "name": "control",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "openOrders",
-          isMut: true,
-          isSigner: false,
+          "name": "openOrders",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexMarket",
-          isMut: true,
-          isSigner: false,
+          "name": "dexMarket",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "reqQ",
-          isMut: true,
-          isSigner: false,
+          "name": "reqQ",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "eventQ",
-          isMut: true,
-          isSigner: false,
+          "name": "eventQ",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marketBids",
-          isMut: true,
-          isSigner: false,
+          "name": "marketBids",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marketAsks",
-          isMut: true,
-          isSigner: false,
+          "name": "marketAsks",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "dexProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "rent",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "args",
-          type: {
-            defined: "UtpZoPlacePerpOrderIxArgs",
-          },
-        },
-      ],
+          "name": "args",
+          "type": {
+            "defined": "UtpZoPlacePerpOrderIxArgs"
+          }
+        }
+      ]
     },
     {
-      name: "utpZoCancelPerpOrder",
-      accounts: [
+      "name": "utpZoCancelPerpOrder",
+      "accounts": [
         {
-          name: "header",
-          accounts: [
+          "name": "header",
+          "accounts": [
             {
-              name: "marginfiAccount",
-              isMut: false,
-              isSigner: false,
+              "name": "marginfiAccount",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "marginfiGroup",
-              isMut: false,
-              isSigner: false,
+              "name": "marginfiGroup",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "signer",
-              isMut: true,
-              isSigner: true,
+              "name": "signer",
+              "isMut": true,
+              "isSigner": true
             },
             {
-              name: "utpAuthority",
-              isMut: false,
-              isSigner: false,
-            },
-          ],
+              "name": "utpAuthority",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
-          name: "zoProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "state",
-          isMut: false,
-          isSigner: false,
+          "name": "state",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "cache",
-          isMut: true,
-          isSigner: false,
+          "name": "cache",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "margin",
-          isMut: true,
-          isSigner: false,
+          "name": "margin",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "control",
-          isMut: true,
-          isSigner: false,
+          "name": "control",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "openOrders",
-          isMut: true,
-          isSigner: false,
+          "name": "openOrders",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexMarket",
-          isMut: true,
-          isSigner: false,
+          "name": "dexMarket",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marketBids",
-          isMut: true,
-          isSigner: false,
+          "name": "marketBids",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "marketAsks",
-          isMut: true,
-          isSigner: false,
+          "name": "marketAsks",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "eventQ",
-          isMut: true,
-          isSigner: false,
+          "name": "eventQ",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexProgram",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "dexProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "orderId",
-          type: {
-            option: "u128",
-          },
+          "name": "orderId",
+          "type": {
+            "option": "u128"
+          }
         },
         {
-          name: "isLong",
-          type: {
-            option: "bool",
-          },
+          "name": "isLong",
+          "type": {
+            "option": "bool"
+          }
         },
         {
-          name: "clientId",
-          type: {
-            option: "u64",
-          },
-        },
-      ],
+          "name": "clientId",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
     },
     {
-      name: "utpZoSettleFunds",
-      accounts: [
+      "name": "utpZoSettleFunds",
+      "accounts": [
         {
-          name: "header",
-          accounts: [
+          "name": "header",
+          "accounts": [
             {
-              name: "marginfiAccount",
-              isMut: false,
-              isSigner: false,
+              "name": "marginfiAccount",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "marginfiGroup",
-              isMut: false,
-              isSigner: false,
+              "name": "marginfiGroup",
+              "isMut": false,
+              "isSigner": false
             },
             {
-              name: "signer",
-              isMut: true,
-              isSigner: true,
+              "name": "signer",
+              "isMut": true,
+              "isSigner": true
             },
             {
-              name: "utpAuthority",
-              isMut: false,
-              isSigner: false,
-            },
-          ],
+              "name": "utpAuthority",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
-          name: "zoProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "zoProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "state",
-          isMut: false,
-          isSigner: false,
+          "name": "state",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "stateSigner",
-          isMut: true,
-          isSigner: false,
+          "name": "stateSigner",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "cache",
-          isMut: true,
-          isSigner: false,
+          "name": "cache",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "margin",
-          isMut: true,
-          isSigner: false,
+          "name": "margin",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "control",
-          isMut: true,
-          isSigner: false,
+          "name": "control",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "openOrders",
-          isMut: true,
-          isSigner: false,
+          "name": "openOrders",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexMarket",
-          isMut: true,
-          isSigner: false,
+          "name": "dexMarket",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "dexProgram",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "dexProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [],
-    },
+      "args": []
+    }
   ],
-  accounts: [
+  "accounts": [
     {
-      name: "marginfiAccount",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "marginfiAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "authority",
-            type: "publicKey",
+            "name": "authority",
+            "type": "publicKey"
           },
           {
-            name: "marginfiGroup",
-            type: "publicKey",
+            "name": "marginfiGroup",
+            "type": "publicKey"
           },
           {
-            name: "depositRecord",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "depositRecord",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "borrowRecord",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "borrowRecord",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "activeUtps",
-            type: {
-              array: ["bool", 32],
-            },
+            "name": "activeUtps",
+            "type": {
+              "array": [
+                "bool",
+                32
+              ]
+            }
           },
           {
-            name: "utpAccountConfig",
-            type: {
-              array: [
+            "name": "utpAccountConfig",
+            "type": {
+              "array": [
                 {
-                  defined: "UTPAccountConfig",
+                  "defined": "UTPAccountConfig"
                 },
-                32,
-              ],
-            },
+                32
+              ]
+            }
           },
           {
-            name: "reservedSpace",
-            type: {
-              array: ["u128", 256],
-            },
-          },
-        ],
-      },
+            "name": "reservedSpace",
+            "docs": [
+              "Reserved space for future fields.",
+              "Reduce accordingly when adding new fields to the struct"
+            ],
+            "type": {
+              "array": [
+                "u128",
+                256
+              ]
+            }
+          }
+        ]
+      }
     },
     {
-      name: "marginfiGroup",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "marginfiGroup",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "admin",
-            type: "publicKey",
+            "name": "admin",
+            "type": "publicKey"
           },
           {
-            name: "bank",
-            type: {
-              defined: "Bank",
-            },
+            "name": "bank",
+            "type": {
+              "defined": "Bank"
+            }
           },
           {
-            name: "paused",
-            type: "bool",
+            "name": "paused",
+            "docs": [
+              "Group operations paused flag."
+            ],
+            "type": "bool"
           },
           {
-            name: "reservedSpace",
-            type: {
-              array: ["u128", 384],
-            },
-          },
-        ],
-      },
+            "name": "reservedSpace",
+            "docs": [
+              "Reserved space for future fields.",
+              "Reduce accordingly when adding new fields to the struct."
+            ],
+            "type": {
+              "array": [
+                "u128",
+                384
+              ]
+            }
+          }
+        ]
+      }
     },
     {
-      name: "state",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "state",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "totalCollateral",
-            type: "u128",
+            "name": "totalCollateral",
+            "type": "u128"
           },
           {
-            name: "freeCollateral",
-            type: "u128",
+            "name": "freeCollateral",
+            "type": "u128"
           },
           {
-            name: "marginRequirementInit",
-            type: "u128",
+            "name": "marginRequirementInit",
+            "type": "u128"
           },
           {
-            name: "marginRequirementMaint",
-            type: "u128",
+            "name": "marginRequirementMaint",
+            "type": "u128"
           },
           {
-            name: "equity",
-            type: "u128",
-          },
-        ],
-      },
-    },
+            "name": "equity",
+            "type": "u128"
+          }
+        ]
+      }
+    }
   ],
-  types: [
+  "types": [
     {
-      name: "UtpMangoPlacePerpOrderArgs",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "UtpMangoPlacePerpOrderArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "side",
-            type: {
-              defined: "MangoSide",
-            },
+            "name": "side",
+            "type": {
+              "defined": "MangoSide"
+            }
           },
           {
-            name: "price",
-            type: "i64",
+            "name": "price",
+            "type": "i64"
           },
           {
-            name: "maxBaseQuantity",
-            type: "i64",
+            "name": "maxBaseQuantity",
+            "type": "i64"
           },
           {
-            name: "maxQuoteQuantity",
-            type: "i64",
+            "name": "maxQuoteQuantity",
+            "type": "i64"
           },
           {
-            name: "clientOrderId",
-            type: "u64",
+            "name": "clientOrderId",
+            "type": "u64"
           },
           {
-            name: "orderType",
-            type: {
-              defined: "MangoOrderType",
-            },
+            "name": "orderType",
+            "type": {
+              "defined": "MangoOrderType"
+            }
           },
           {
-            name: "reduceOnly",
-            type: "bool",
+            "name": "reduceOnly",
+            "type": "bool"
           },
           {
-            name: "expiryTimestamp",
-            type: {
-              option: "u64",
-            },
+            "name": "expiryTimestamp",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "limit",
-            type: "u8",
+            "name": "limit",
+            "type": "u8"
           },
           {
-            name: "expiryType",
-            type: {
-              defined: "MangoExpiryType",
-            },
-          },
-        ],
-      },
+            "name": "expiryType",
+            "type": {
+              "defined": "MangoExpiryType"
+            }
+          }
+        ]
+      }
     },
     {
-      name: "UtpZoPlacePerpOrderIxArgs",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "UtpZoPlacePerpOrderIxArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "isLong",
-            type: "bool",
+            "name": "isLong",
+            "type": "bool"
           },
           {
-            name: "limitPrice",
-            type: "u64",
+            "name": "limitPrice",
+            "type": "u64"
           },
           {
-            name: "maxBaseQuantity",
-            type: "u64",
+            "name": "maxBaseQuantity",
+            "type": "u64"
           },
           {
-            name: "maxQuoteQuantity",
-            type: "u64",
+            "name": "maxQuoteQuantity",
+            "type": "u64"
           },
           {
-            name: "orderType",
-            type: {
-              defined: "OrderType",
-            },
+            "name": "orderType",
+            "type": {
+              "defined": "OrderType"
+            }
           },
           {
-            name: "limit",
-            type: "u16",
+            "name": "limit",
+            "type": "u16"
           },
           {
-            name: "clientId",
-            type: "u64",
-          },
-        ],
-      },
+            "name": "clientId",
+            "type": "u64"
+          }
+        ]
+      }
     },
     {
-      name: "UtpZoCancelPerpOrderIxArgs",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "UtpZoCancelPerpOrderIxArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "orderId",
-            type: {
-              option: "u128",
-            },
+            "name": "orderId",
+            "type": {
+              "option": "u128"
+            }
           },
           {
-            name: "isLong",
-            type: {
-              option: "bool",
-            },
+            "name": "isLong",
+            "type": {
+              "option": "bool"
+            }
           },
           {
-            name: "clientId",
-            type: {
-              option: "u64",
-            },
-          },
-        ],
-      },
+            "name": "clientId",
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
     },
     {
-      name: "MDecimal",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "MDecimal",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "flags",
-            type: "u32",
+            "name": "flags",
+            "type": "u32"
           },
           {
-            name: "hi",
-            type: "u32",
+            "name": "hi",
+            "type": "u32"
           },
           {
-            name: "lo",
-            type: "u32",
+            "name": "lo",
+            "type": "u32"
           },
           {
-            name: "mid",
-            type: "u32",
-          },
-        ],
-      },
+            "name": "mid",
+            "type": "u32"
+          }
+        ]
+      }
     },
     {
-      name: "UTPAccountConfig",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "UTPAccountConfig",
+      "docs": [
+        "Data about a UTP account owned by a marginfi account.",
+        "- `address` is the address of the UTP user account (mango account, drift user account)",
+        "- `authority_seed, authority_bump` are used to derive the PDA that controls the UTP user account.",
+        "",
+        "#### Security assumption:",
+        "We cannot generate PDAs unique to UTP user accounts, because some UTPs use the signer (PDA) address as a seed for the user account.",
+        "We also cannot use the marginfi account address as a PDA seed, because the UTP might change owners through liquidations.",
+        "Alternatively, using a random oracle increases complexity with diminishing returns.",
+        "",
+        "Because of this we pessimistically assume that two marginfi accounts might share a PDA for a given UTP,",
+        "and our security relies on making sure that the UTP can only be accessed by their owners, by checking the `UTPAccountConfig` instead of relying",
+        "on the uniqueness of the PDA."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "address",
-            type: "publicKey",
+            "name": "address",
+            "type": "publicKey"
           },
           {
-            name: "authoritySeed",
-            type: "publicKey",
+            "name": "authoritySeed",
+            "type": "publicKey"
           },
           {
-            name: "authorityBump",
-            type: "u8",
+            "name": "authorityBump",
+            "type": "u8"
           },
           {
-            name: "utpAddressBook",
-            type: {
-              array: ["publicKey", 4],
-            },
+            "name": "utpAddressBook",
+            "docs": [
+              "A cache of UTP addresses used for local security verification"
+            ],
+            "type": {
+              "array": [
+                "publicKey",
+                4
+              ]
+            }
           },
           {
-            name: "reservedSpace",
-            type: {
-              array: ["u32", 32],
-            },
-          },
-        ],
-      },
+            "name": "reservedSpace",
+            "type": {
+              "array": [
+                "u32",
+                32
+              ]
+            }
+          }
+        ]
+      }
     },
     {
-      name: "UTPConfig",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "UTPConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "utpProgramId",
-            type: "publicKey",
+            "name": "utpProgramId",
+            "type": "publicKey"
           },
           {
-            name: "marginRequirementDepositBuffer",
-            type: {
-              defined: "MDecimal",
-            },
-          },
-        ],
-      },
+            "name": "marginRequirementDepositBuffer",
+            "type": {
+              "defined": "MDecimal"
+            }
+          }
+        ]
+      }
     },
     {
-      name: "GroupConfig",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "GroupConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "admin",
-            type: {
-              option: "publicKey",
-            },
+            "name": "admin",
+            "type": {
+              "option": "publicKey"
+            }
           },
           {
-            name: "bank",
-            type: {
-              option: {
-                defined: "BankConfig",
-              },
-            },
+            "name": "bank",
+            "type": {
+              "option": {
+                "defined": "BankConfig"
+              }
+            }
           },
           {
-            name: "paused",
-            type: {
-              option: "bool",
-            },
-          },
-        ],
-      },
+            "name": "paused",
+            "type": {
+              "option": "bool"
+            }
+          }
+        ]
+      }
     },
     {
-      name: "BankConfig",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "BankConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "scalingFactorC",
-            type: {
-              option: "u64",
-            },
+            "name": "scalingFactorC",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "fixedFee",
-            type: {
-              option: "u64",
-            },
+            "name": "fixedFee",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "interestFee",
-            type: {
-              option: "u64",
-            },
+            "name": "interestFee",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "initMarginRatio",
-            type: {
-              option: "u64",
-            },
+            "name": "initMarginRatio",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "maintMarginRatio",
-            type: {
-              option: "u64",
-            },
+            "name": "maintMarginRatio",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "accountDepositLimit",
-            type: {
-              option: "u64",
-            },
+            "name": "accountDepositLimit",
+            "type": {
+              "option": "u64"
+            }
           },
           {
-            name: "lpDepositLimit",
-            type: {
-              option: "u64",
-            },
-          },
-        ],
-      },
+            "name": "lpDepositLimit",
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
     },
     {
-      name: "Bank",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "Bank",
+      "docs": [
+        "A bank is a subset of a marginfi group, and one bank",
+        "exists for each marginfi group. The bank's job is to",
+        "set parameters for the marginfi group related to borrowing",
+        "and lending portfolio-level collateral, and to store",
+        "collateral funds to lend to marginfi accounts in the marginfi group",
+        "in the bank vault `bank.vault`."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "scalingFactorC",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "scalingFactorC",
+            "docs": [
+              "`scaling_factor_c`, `fixed_fee`, and `interest_fee`",
+              "are parameters in marginfi's interest rate calculation",
+              "for lending and borrowing. The interest rate calculation",
+              "can be observed in the bank's `calculate_interest_rate` fn."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "fixedFee",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "fixedFee",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "interestFee",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "interestFee",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "depositAccumulator",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "depositAccumulator",
+            "docs": [
+              "Accumulators are time-dependent compound interest rate multipliers.",
+              "Accumulators are determined in functions part of impl `Bank` and",
+              "are calculated based on the appropriate interest rate",
+              "(lending or borrowing) and how much time has passed since the",
+              "last interest calculation, herein denoted as `time_delta`."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "borrowAccumulator",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "borrowAccumulator",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "lastUpdate",
-            type: "i64",
+            "name": "lastUpdate",
+            "type": "i64"
           },
           {
-            name: "nativeDepositBalance",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "nativeDepositBalance",
+            "docs": [
+              "Native deposits and borrows denote total",
+              "borrowed and deposited into the bank, including",
+              "relevant accumulated interest."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "nativeBorrowBalance",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "nativeBorrowBalance",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "mint",
-            type: "publicKey",
+            "name": "mint",
+            "docs": [
+              "The mint denotes the collateral type."
+            ],
+            "type": "publicKey"
           },
           {
-            name: "vault",
-            type: "publicKey",
+            "name": "vault",
+            "docs": [
+              "The vault pubkey denotes the bank's vault,",
+              "where liquidity is actually stored."
+            ],
+            "type": "publicKey"
           },
           {
-            name: "vaultAuthorityPdaBump",
-            type: "u8",
+            "name": "vaultAuthorityPdaBump",
+            "docs": [
+              "Bank authority pda bump seed"
+            ],
+            "type": "u8"
           },
           {
-            name: "insuranceVault",
-            type: "publicKey",
+            "name": "insuranceVault",
+            "docs": [
+              "Insurance vault address"
+            ],
+            "type": "publicKey"
           },
           {
-            name: "insuranceVaultAuthorityPdaBump",
-            type: "u8",
+            "name": "insuranceVaultAuthorityPdaBump",
+            "type": "u8"
           },
           {
-            name: "insuranceVaultOutstandingTransfers",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "insuranceVaultOutstandingTransfers",
+            "docs": [
+              "Outstanding balance to be transferred to the fee vault from the main liquidity vault."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "feeVault",
-            type: "publicKey",
+            "name": "feeVault",
+            "docs": [
+              "Protocol fee vault address"
+            ],
+            "type": "publicKey"
           },
           {
-            name: "feeVaultAuthorityPdaBump",
-            type: "u8",
+            "name": "feeVaultAuthorityPdaBump",
+            "type": "u8"
           },
           {
-            name: "feeVaultOutstandingTransfers",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "feeVaultOutstandingTransfers",
+            "docs": [
+              "Outstanding balance to be transferred to the fee vault from the main liquidity vault."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "initMarginRatio",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "initMarginRatio",
+            "docs": [
+              "Today's marginfi groups in marginfi each have fixed",
+              "initial and maintenance margin requirements, which",
+              "are stored as attributes part of the Bank."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "maintMarginRatio",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "maintMarginRatio",
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "accountDepositLimit",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "accountDepositLimit",
+            "docs": [
+              "Account equity above which deposits are not allowed.",
+              "If Decimal::ZERO, no limit is applied."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "lpDepositLimit",
-            type: {
-              defined: "MDecimal",
-            },
+            "name": "lpDepositLimit",
+            "docs": [
+              "Balance of liquidity pool (LP) deposits above which deposits are not allowed.",
+              "If Decimal::ZERO, no limit is applied."
+            ],
+            "type": {
+              "defined": "MDecimal"
+            }
           },
           {
-            name: "reservedSpace",
-            type: {
-              array: ["u128", 31],
-            },
-          },
-        ],
-      },
+            "name": "reservedSpace",
+            "docs": [
+              "Reserved space for future fields.",
+              "Reduce accordingly when adding new fields to the struct."
+            ],
+            "type": {
+              "array": [
+                "u128",
+                31
+              ]
+            }
+          }
+        ]
+      }
     },
     {
-      name: "MangoOrderType",
-      type: {
-        kind: "enum",
-        variants: [
+      "name": "MangoOrderType",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Limit",
+            "name": "Limit"
           },
           {
-            name: "ImmediateOrCancel",
+            "name": "ImmediateOrCancel"
           },
           {
-            name: "PostOnly",
+            "name": "PostOnly"
           },
           {
-            name: "Market",
+            "name": "Market"
           },
           {
-            name: "PostOnlySlide",
-          },
-        ],
-      },
+            "name": "PostOnlySlide"
+          }
+        ]
+      }
     },
     {
-      name: "MangoSide",
-      type: {
-        kind: "enum",
-        variants: [
+      "name": "MangoSide",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Bid",
+            "name": "Bid"
           },
           {
-            name: "Ask",
-          },
-        ],
-      },
+            "name": "Ask"
+          }
+        ]
+      }
     },
     {
-      name: "MangoExpiryType",
-      type: {
-        kind: "enum",
-        variants: [
+      "name": "MangoExpiryType",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Absolute",
+            "name": "Absolute"
           },
           {
-            name: "Relative",
-          },
-        ],
-      },
+            "name": "Relative"
+          }
+        ]
+      }
     },
     {
-      name: "MarginRequirement",
-      type: {
-        kind: "enum",
-        variants: [
+      "name": "MarginRequirement",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Init",
+            "name": "Init"
           },
           {
-            name: "Maint",
-          },
-        ],
-      },
+            "name": "Maint"
+          }
+        ]
+      }
     },
     {
-      name: "EquityType",
-      type: {
-        kind: "enum",
-        variants: [
+      "name": "EquityType",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "InitReqAdjusted",
+            "name": "InitReqAdjusted"
           },
           {
-            name: "Total",
-          },
-        ],
-      },
+            "name": "Total"
+          }
+        ]
+      }
     },
     {
-      name: "BankVaultType",
-      type: {
-        kind: "enum",
-        variants: [
+      "name": "BankVaultType",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "LiquidityVault",
+            "name": "LiquidityVault"
           },
           {
-            name: "InsuranceVault",
+            "name": "InsuranceVault"
           },
           {
-            name: "ProtocolFeeVault",
-          },
-        ],
-      },
+            "name": "ProtocolFeeVault"
+          }
+        ]
+      }
     },
     {
-      name: "InternalTransferType",
-      type: {
-        kind: "enum",
-        variants: [
+      "name": "InternalTransferType",
+      "docs": [
+        "Possible internal transfers:",
+        "- InsuranceFee - Fees collected and sent from the main liquidity vault to the insurance vault.",
+        "- ProtocolFee - Fees collected and sent from the main liquidity vault to the protocol fee vault."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "InsuranceFee",
+            "name": "InsuranceFee"
           },
           {
-            name: "ProtocolFee",
-          },
-        ],
-      },
+            "name": "ProtocolFee"
+          }
+        ]
+      }
     },
     {
-      name: "LendingSide",
-      type: {
-        kind: "enum",
-        variants: [
+      "name": "LendingSide",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Borrow",
+            "name": "Borrow"
           },
           {
-            name: "Deposit",
-          },
-        ],
-      },
+            "name": "Deposit"
+          }
+        ]
+      }
     },
     {
-      name: "OrderType",
-      type: {
-        kind: "enum",
-        variants: [
+      "name": "OrderType",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Limit",
+            "name": "Limit"
           },
           {
-            name: "ImmediateOrCancel",
+            "name": "ImmediateOrCancel"
           },
           {
-            name: "PostOnly",
+            "name": "PostOnly"
           },
           {
-            name: "ReduceOnlyIoc",
+            "name": "ReduceOnlyIoc"
           },
           {
-            name: "ReduceOnlyLimit",
+            "name": "ReduceOnlyLimit"
           },
           {
-            name: "FillOrKill",
-          },
-        ],
-      },
-    },
+            "name": "FillOrKill"
+          }
+        ]
+      }
+    }
   ],
-  events: [
+  "events": [
     {
-      name: "UpdateInterestAccumulatorEvent",
-      fields: [
+      "name": "UpdateInterestAccumulatorEvent",
+      "fields": [
         {
-          name: "currentTimestamp",
-          type: "i64",
-          index: false,
+          "name": "currentTimestamp",
+          "type": "i64",
+          "index": false
         },
         {
-          name: "deltaCompoundingPeriods",
-          type: "u64",
-          index: false,
+          "name": "deltaCompoundingPeriods",
+          "type": "u64",
+          "index": false
         },
         {
-          name: "feesCollected",
-          type: {
-            defined: "MDecimal",
+          "name": "feesCollected",
+          "type": {
+            "defined": "MDecimal"
           },
-          index: false,
+          "index": false
         },
         {
-          name: "utilizationRate",
-          type: {
-            defined: "MDecimal",
+          "name": "utilizationRate",
+          "type": {
+            "defined": "MDecimal"
           },
-          index: false,
+          "index": false
         },
         {
-          name: "interestRate",
-          type: {
-            defined: "MDecimal",
+          "name": "interestRate",
+          "type": {
+            "defined": "MDecimal"
           },
-          index: false,
-        },
-      ],
+          "index": false
+        }
+      ]
     },
     {
-      name: "MarginRequirementCheck",
-      fields: [
+      "name": "MarginRequirementCheck",
+      "fields": [
         {
-          name: "init",
-          type: "bool",
-          index: false,
+          "name": "init",
+          "type": "bool",
+          "index": false
         },
         {
-          name: "equity",
-          type: {
-            defined: "MDecimal",
+          "name": "equity",
+          "type": {
+            "defined": "MDecimal"
           },
-          index: false,
+          "index": false
         },
         {
-          name: "marginRequirement",
-          type: {
-            defined: "MDecimal",
+          "name": "marginRequirement",
+          "type": {
+            "defined": "MDecimal"
           },
-          index: false,
-        },
-      ],
+          "index": false
+        }
+      ]
     },
     {
-      name: "UptObservationFreeCollateral",
-      fields: [
+      "name": "UptObservationFreeCollateral",
+      "fields": [
         {
-          name: "utpIndex",
-          type: "u8",
-          index: false,
+          "name": "utpIndex",
+          "type": "u8",
+          "index": false
         },
         {
-          name: "value",
-          type: {
-            defined: "MDecimal",
+          "name": "value",
+          "type": {
+            "defined": "MDecimal"
           },
-          index: false,
-        },
-      ],
+          "index": false
+        }
+      ]
     },
     {
-      name: "UptObservationNeedsRebalance",
-      fields: [
+      "name": "UptObservationNeedsRebalance",
+      "fields": [
         {
-          name: "utpIndex",
-          type: "u8",
-          index: false,
+          "name": "utpIndex",
+          "type": "u8",
+          "index": false
         },
         {
-          name: "collateralOrEquity",
-          type: {
-            defined: "MDecimal",
+          "name": "collateralOrEquity",
+          "type": {
+            "defined": "MDecimal"
           },
-          index: false,
+          "index": false
         },
         {
-          name: "marginRequirement",
-          type: {
-            defined: "MDecimal",
+          "name": "marginRequirement",
+          "type": {
+            "defined": "MDecimal"
           },
-          index: false,
-        },
-      ],
-    },
+          "index": false
+        }
+      ]
+    }
   ],
-  errors: [
+  "errors": [
     {
-      code: 6000,
-      name: "EmptyLendingPool",
-      msg: "Lending pool empty",
+      "code": 6000,
+      "name": "EmptyLendingPool",
+      "msg": "Lending pool empty"
     },
     {
-      code: 6001,
-      name: "IllegalUtilizationRatio",
-      msg: "Illegal utilization ratio",
+      "code": 6001,
+      "name": "IllegalUtilizationRatio",
+      "msg": "Illegal utilization ratio"
     },
     {
-      code: 6002,
-      name: "MathError",
-      msg: "very bad mafs",
+      "code": 6002,
+      "name": "MathError",
+      "msg": "very bad mafs"
     },
     {
-      code: 6003,
-      name: "InvalidTimestamp",
-      msg: "Invalid timestamp",
+      "code": 6003,
+      "name": "InvalidTimestamp",
+      "msg": "Invalid timestamp"
     },
     {
-      code: 6004,
-      name: "MarginRequirementsNotMet",
-      msg: "Initialization margin requirements not met",
+      "code": 6004,
+      "name": "MarginRequirementsNotMet",
+      "msg": "Initialization margin requirements not met"
     },
     {
-      code: 6005,
-      name: "OnlyReduceAllowed",
-      msg: "Only reducing trades are allowed when under init margin requirements",
+      "code": 6005,
+      "name": "OnlyReduceAllowed",
+      "msg": "Only reducing trades are allowed when under init margin requirements"
     },
     {
-      code: 6006,
-      name: "UtpInactive",
-      msg: "Inactive UTP",
+      "code": 6006,
+      "name": "UtpInactive",
+      "msg": "Inactive UTP"
     },
     {
-      code: 6007,
-      name: "UtpAlreadyActive",
-      msg: "Utp is already active",
+      "code": 6007,
+      "name": "UtpAlreadyActive",
+      "msg": "Utp is already active"
     },
     {
-      code: 6008,
-      name: "InvalidAccountData",
-      msg: "Invalid Account Data",
+      "code": 6008,
+      "name": "InvalidAccountData",
+      "msg": "Invalid Account Data"
     },
     {
-      code: 6009,
-      name: "LiquidatorHasActiveUtps",
-      msg: "Liquidator has active utps",
+      "code": 6009,
+      "name": "LiquidatorHasActiveUtps",
+      "msg": "Liquidator has active utps"
     },
     {
-      code: 6010,
-      name: "AccountHasActiveUtps",
-      msg: "Account has active utps",
+      "code": 6010,
+      "name": "AccountHasActiveUtps",
+      "msg": "Account has active utps"
     },
     {
-      code: 6011,
-      name: "AccountNotLiquidatable",
-      msg: "Marginfi account not liquidatable",
+      "code": 6011,
+      "name": "AccountNotLiquidatable",
+      "msg": "Marginfi account not liquidatable"
     },
     {
-      code: 6012,
-      name: "AccountNotBankrupt",
-      msg: "Marginfi account not bankrupt",
+      "code": 6012,
+      "name": "AccountNotBankrupt",
+      "msg": "Marginfi account not bankrupt"
     },
     {
-      code: 6013,
-      name: "IllegalUtpDeactivation",
-      msg: "Utp account cannot be deactivated",
+      "code": 6013,
+      "name": "IllegalUtpDeactivation",
+      "msg": "Utp account cannot be deactivated"
     },
     {
-      code: 6014,
-      name: "IllegalRebalance",
-      msg: "Rebalance not legal",
+      "code": 6014,
+      "name": "IllegalRebalance",
+      "msg": "Rebalance not legal"
     },
     {
-      code: 6015,
-      name: "BorrowNotAllowed",
-      msg: "Borrow not allowed",
+      "code": 6015,
+      "name": "BorrowNotAllowed",
+      "msg": "Borrow not allowed"
     },
     {
-      code: 6016,
-      name: "IllegalConfig",
-      msg: "Config value not legal",
+      "code": 6016,
+      "name": "IllegalConfig",
+      "msg": "Config value not legal"
     },
     {
-      code: 6017,
-      name: "OperationsPaused",
-      msg: "Operations paused",
+      "code": 6017,
+      "name": "OperationsPaused",
+      "msg": "Operations paused"
     },
     {
-      code: 6018,
-      name: "InsufficientVaultBalance",
-      msg: "Insufficient balance",
+      "code": 6018,
+      "name": "InsufficientVaultBalance",
+      "msg": "Insufficient balance"
     },
     {
-      code: 6019,
-      name: "Forbidden",
-      msg: "This operation is forbidden",
+      "code": 6019,
+      "name": "Forbidden",
+      "msg": "This operation is forbidden"
     },
     {
-      code: 6020,
-      name: "InvalidUTPAccount",
-      msg: "Invalid account key",
+      "code": 6020,
+      "name": "InvalidUTPAccount",
+      "msg": "Invalid account key"
     },
     {
-      code: 6021,
-      name: "AccountDepositLimit",
-      msg: "Deposit exceeds account cap",
+      "code": 6021,
+      "name": "AccountDepositLimit",
+      "msg": "Deposit exceeds account cap"
     },
     {
-      code: 6022,
-      name: "GroupDepositLimit",
-      msg: "Deposit exceeds group cap",
+      "code": 6022,
+      "name": "GroupDepositLimit",
+      "msg": "Deposit exceeds group cap"
     },
     {
-      code: 6023,
-      name: "InvalidObserveAccounts",
-      msg: "Missing accounts for UTP observation",
+      "code": 6023,
+      "name": "InvalidObserveAccounts",
+      "msg": "Missing accounts for UTP observation"
     },
     {
-      code: 6024,
-      name: "MangoError",
-      msg: "Mango error",
+      "code": 6024,
+      "name": "MangoError",
+      "msg": "Mango error"
     },
-  ],
+    {
+      "code": 6025,
+      "name": "OperationDisabled",
+      "msg": "Operation no longer supported"
+    }
+  ]
 };

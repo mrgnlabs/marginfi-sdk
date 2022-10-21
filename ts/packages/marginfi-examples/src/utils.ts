@@ -23,6 +23,7 @@ export async function getAtaOrCreate(provider: Provider, payerPk: PublicKey, min
     const tx = new Transaction();
     tx.add(createAtaIx);
 
+    // @ts-ignore
     await processTransaction(provider, tx, []);
   }
 
@@ -54,6 +55,7 @@ export async function airdropCollateral(
   const tx = new Transaction();
   tx.add(airdropIx);
 
+  // @ts-ignore
   return processTransaction(provider, tx, [], {
     skipPreflight: true,
   });

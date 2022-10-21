@@ -153,6 +153,7 @@ export class UtpZoAccount extends UtpAccount {
 
     const [zoStateSigner] = await ZoClient.State.getSigner(this.config.statePk, zoProgramId);
     const zoState = await ZoClient.State.load(
+      // @ts-ignore
       await ZoClient.createProgram(this._client.provider, this.config.cluster),
       this.config.statePk
     );
@@ -201,6 +202,7 @@ export class UtpZoAccount extends UtpAccount {
 
   async makeWithdrawIx(amount: UiAmount): Promise<TransactionInstruction> {
     const [utpAuthority] = await this.authority();
+    // @ts-ignore
     const zoProgram = await ZoClient.createProgram(this._client.provider, this.config.cluster);
     const zoState = await ZoClient.State.load(zoProgram, this.config.statePk);
     const [zoVaultPk] = await zoState.getVaultCollateralByMint(this._client.group.bank.mint);
