@@ -1,5 +1,5 @@
 import { getConfig, getMfiProgram, instructions, loadKeypair, processTransaction } from "@mrgnlabs/marginfi-client";
-import { BN, Wallet } from "@project-serum/anchor";
+import { AnchorProvider, BN, Wallet } from "@project-serum/anchor";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { OptionValues } from "commander";
 import { getEnvironment } from "../common";
@@ -10,7 +10,7 @@ export async function configureGroup(marginfiGroupAddress: string, options: Opti
 
   const program = getMfiProgram(config.programId, connection, new Wallet(loadKeypair(options.keypair)));
 
-  const wallet = program.provider.wallet;
+  const wallet = (program.provider as AnchorProvider).wallet;
   const marginfiGroupPk = new PublicKey(marginfiGroupAddress);
   const args = {
     admin: options.admin ? new PublicKey(options.admin) : undefined,

@@ -1,5 +1,5 @@
 import { getConfig, getMfiProgram, loadKeypair, processTransaction, Wallet } from "@mrgnlabs/marginfi-client";
-import { BN, Provider } from "@project-serum/anchor";
+import { AnchorProvider, BN, Provider } from "@project-serum/anchor";
 import { ASSOCIATED_PROGRAM_ID } from "@project-serum/anchor/dist/cjs/utils/token";
 import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
@@ -12,7 +12,7 @@ export async function airdropCollateral(amountDec: string, options: OptionValues
 
   const program = getMfiProgram(config.programId, connection, new Wallet(loadKeypair(options.keypair)));
 
-  const wallet = program.provider.wallet;
+  const wallet = (program.provider as AnchorProvider).wallet;
   const amount = Number.parseFloat(amountDec) * 10 ** 6;
 
   const faucet = new PublicKey(options.faucet);

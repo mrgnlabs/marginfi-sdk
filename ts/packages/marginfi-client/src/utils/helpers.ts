@@ -1,4 +1,4 @@
-import { BN, BorshAccountsCoder, Program, Provider } from "@project-serum/anchor";
+import { AnchorProvider, BN, BorshAccountsCoder, Program, Provider } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
   ConfirmOptions,
@@ -85,8 +85,8 @@ export async function processTransaction(
   const { blockhash } = await provider.connection.getLatestBlockhash();
 
   tx.recentBlockhash = blockhash;
-  tx.feePayer = provider.wallet.publicKey;
-  tx = await provider.wallet.signTransaction(tx);
+  tx.feePayer = (provider as AnchorProvider).wallet.publicKey;
+  tx = await (provider as AnchorProvider).wallet.signTransaction(tx);
 
   if (signers === undefined) {
     signers = [];
@@ -227,7 +227,7 @@ export function loadKeypair(keypairPath: string): Keypair {
  * @returns
  */
 export function getMfiProgram(programAddress: PublicKey, connection: Connection, wallet: Wallet): Program<MarginfiIdl> {
-  const provider = new Provider(connection, wallet, {});
+  const provider = new AnchorProvider(connection, wallet, {});
   const program: Program<MarginfiIdl> = new Program(MARGINFI_IDL, programAddress, provider) as any;
 
   return program;
@@ -243,7 +243,7 @@ export async function createTempTransferAccounts(
 ): Promise<[Keypair, TransactionInstruction, TransactionInstruction]> {
   const key = Keypair.generate();
   const createTokenAccountIx = SystemProgram.createAccount({
-    fromPubkey: provider.wallet.publicKey,
+    fromPubkey: (provider as AnchorProvider).wallet.publicKey,
     lamports: await provider.connection.getMinimumBalanceForRentExemption(AccountLayout.span),
     newAccountPubkey: key.publicKey,
     programId: TOKEN_PROGRAM_ID,

@@ -1,4 +1,4 @@
-import { BorshAccountsCoder, Program, Provider } from "@project-serum/anchor";
+import { AnchorProvider, BorshAccountsCoder, Program } from "@project-serum/anchor";
 import { bs58 } from "@project-serum/anchor/dist/cjs/utils/bytes";
 import { ConfirmOptions, Connection, Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import { getConfig, Wallet } from ".";
@@ -30,6 +30,10 @@ class MarginfiClient {
     this._group = group;
   }
 
+  get provider(): AnchorProvider {
+    return this.program.provider as AnchorProvider;
+  }
+
   // --- Factories
 
   /**
@@ -52,7 +56,7 @@ class MarginfiClient {
       config.groupPk,
       connection.rpcEndpoint
     );
-    const provider = new Provider(connection, wallet, opts || Provider.defaultOptions());
+    const provider = new AnchorProvider(connection, wallet, opts || AnchorProvider.defaultOptions());
     const program = new Program(MARGINFI_IDL, config.programId, provider) as Program<MarginfiIdl>;
     return new MarginfiClient(config, program, await MarginfiGroup.fetch(config, program));
   }
@@ -120,13 +124,13 @@ class MarginfiClient {
     const initMarginfiAccountIx = await instruction.makeInitMarginfiAccountIx(this.program, {
       marginfiGroupPk: this._group.publicKey,
       marginfiAccountPk: marginfiAccountKey.publicKey,
-      authorityPk: this.program.provider.wallet.publicKey,
+      authorityPk: this.provider.wallet.publicKey,
     });
 
     const ixs = [createMarginfiAccountAccountIx, initMarginfiAccountIx];
 
     const tx = new Transaction().add(...ixs);
-    const sig = await processTransaction(this.program.provider, tx, [marginfiAccountKey]);
+    const sig = await processTransaction(this.provider, tx, [marginfiAccountKey]);
 
     dbg("Created Marginfi account %s", sig);
 
@@ -144,7 +148,7 @@ class MarginfiClient {
       await this.program.account.marginfiAccount.all([
         {
           memcmp: {
-            bytes: this.program.provider.wallet.publicKey.toBase58(),
+            bytes: this.provider.wallet.publicKey.toBase58(),
             offset: 8, // authority is the first field in the account, so only offset is the discriminant
           },
         },
@@ -190,8 +194,8 @@ class MarginfiClient {
    */
   async getAllMarginfiAccountAddresses(): Promise<PublicKey[]> {
     return (
-      await this.program.provider.connection.getProgramAccounts(this.programId, {
-        commitment: this.program.provider.connection.commitment,
+      await this.provider.connection.getProgramAccounts(this.programId, {
+        commitment: this.provider.connection.commitment,
         dataSlice: {
           offset: 0,
           length: 0,
@@ -220,8 +224,8 @@ class MarginfiClient {
    */
   async getAllProgramAccountAddresses(type: AccountType): Promise<PublicKey[]> {
     return (
-      await this.program.provider.connection.getProgramAccounts(this.programId, {
-        commitment: this.program.provider.connection.commitment,
+      await this.provider.connection.getProgramAccounts(this.programId, {
+        commitment: this.provider.connection.commitment,
         dataSlice: {
           offset: 0,
           length: 0,

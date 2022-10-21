@@ -1,4 +1,4 @@
-import { BorshCoder, Program } from "@project-serum/anchor";
+import { AnchorProvider, BorshCoder, Program } from "@project-serum/anchor";
 import { associatedAddress } from "@project-serum/anchor/dist/cjs/utils/token";
 import { AccountInfo, AccountMeta, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
@@ -76,6 +76,10 @@ class MarginfiAccount {
    */
   get authority(): PublicKey {
     return this._authority;
+  }
+
+  get provider(): AnchorProvider {
+    return this._program.provider as AnchorProvider;
   }
 
   /** @internal */
@@ -296,7 +300,7 @@ class MarginfiAccount {
   async makeDepositIx(amount: UiAmount): Promise<TransactionInstruction[]> {
     const userTokenAtaPk = await associatedAddress({
       mint: this.group.bank.mint,
-      owner: this._program.provider.wallet.publicKey,
+      owner: this.provider.wallet.publicKey,
     });
     const remainingAccounts = await this.getObservationAccounts();
     return [
@@ -305,7 +309,7 @@ class MarginfiAccount {
         {
           marginfiGroupPk: this.group.publicKey,
           marginfiAccountPk: this.publicKey,
-          authorityPk: this._program.provider.wallet.publicKey,
+          authorityPk: this.provider.wallet.publicKey,
           userTokenAtaPk,
           bankVaultPk: this.group.bank.vault,
         },
@@ -327,7 +331,7 @@ class MarginfiAccount {
     debug("Depositing %s into marginfi account", amount);
     const depositIx = await this.makeDepositIx(amount);
     const tx = new Transaction().add(...depositIx);
-    const sig = await processTransaction(this._program.provider, tx);
+    const sig = await processTransaction(this.provider, tx);
     debug("Depositing successful %s", sig);
     await this.reload();
     return sig;
@@ -342,7 +346,7 @@ class MarginfiAccount {
   async makeWithdrawIx(amount: UiAmount): Promise<TransactionInstruction[]> {
     const userTokenAtaPk = await associatedAddress({
       mint: this.group.bank.mint,
-      owner: this._program.provider.wallet.publicKey,
+      owner: this.provider.wallet.publicKey,
     });
     const [marginBankAuthorityPk] = await getBankAuthority(this._config.groupPk, this._program.programId);
     const remainingAccounts = await this.getObservationAccounts();
@@ -352,7 +356,7 @@ class MarginfiAccount {
         {
           marginfiGroupPk: this.group.publicKey,
           marginfiAccountPk: this.publicKey,
-          authorityPk: this._program.provider.wallet.publicKey,
+          authorityPk: this.provider.wallet.publicKey,
           receivingTokenAccount: userTokenAtaPk,
           bankVaultPk: this.group.bank.vault,
           bankVaultAuthorityPk: marginBankAuthorityPk,
@@ -374,7 +378,7 @@ class MarginfiAccount {
     debug("Withdrawing %s from marginfi account", amount);
     const withdrawIx = await this.makeWithdrawIx(amount);
     const tx = new Transaction().add(...withdrawIx);
-    const sig = await processTransaction(this._program.provider, tx);
+    const sig = await processTransaction(this.provider, tx);
     debug("Withdrawing successful %s", sig);
     await this.reload();
     return sig;
@@ -397,7 +401,7 @@ class MarginfiAccount {
           this._program,
           {
             marginfiAccountPk: this.publicKey,
-            authorityPk: this._program.provider.wallet.publicKey,
+            authorityPk: this.provider.wallet.publicKey,
           },
           { utpIndex },
           remainingAccounts
@@ -418,7 +422,7 @@ class MarginfiAccount {
   async deactivateUtp(utpIndex: UtpIndex) {
     const verifyIx = await this.makeDeactivateUtpIx(utpIndex);
     const tx = new Transaction().add(...verifyIx.instructions);
-    return processTransaction(this._program.provider, tx);
+    return processTransaction(this.provider, tx);
   }
 
   /**
@@ -458,7 +462,7 @@ class MarginfiAccount {
   async handleBankruptcy() {
     const handleBankruptcyIx = await this.makeHandleBankruptcyIx();
     const tx = new Transaction().add(...handleBankruptcyIx.instructions);
-    return processTransaction(this._program.provider, tx);
+    return processTransaction(this.provider, tx);
   }
 
   /**
@@ -629,7 +633,7 @@ class MarginfiAccount {
     debug("Liquidator %s, liquidating %s UTP %s", this.publicKey, marginfiAccountLiquidatee.publicKey, utpIndex);
 
     const tx = new Transaction().add(liquidateIx);
-    const sig = await processTransaction(this._program.provider, tx);
+    const sig = await processTransaction(this.provider, tx);
     debug("Successfully liquidated %s", sig);
     await this.reload();
     return sig;
@@ -701,7 +705,7 @@ class MarginfiAccount {
     const debug = require("debug")(`mfi:margin-account:${this.publicKey.toString()}:loader`);
     debug("Loading marginfi account %s, and group %s", this.publicKey, this._config.groupPk);
 
-    let [marginfiGroupAi, marginfiAccountAi] = await this._program.provider.connection.getMultipleAccountsInfo([
+    let [marginfiGroupAi, marginfiAccountAi] = await this.provider.connection.getMultipleAccountsInfo([
       this._config.groupPk,
       this.publicKey,
     ]);
