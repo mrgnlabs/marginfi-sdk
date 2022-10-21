@@ -95,7 +95,9 @@
     },
     {
       "name": "configureMarginfiGroup",
-      "docs": ["Updates configurations for an existing marginfi group."],
+      "docs": [
+        "Updates configurations for an existing marginfi group."
+      ],
       "accounts": [
         {
           "name": "marginfiGroup",
@@ -148,7 +150,10 @@
           "name": "recipientTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": ["- an honest admin will provide the correct one", "- incorrect mints will fail tx"]
+          "docs": [
+            "- an honest admin will provide the correct one",
+            "- incorrect mints will fail tx"
+          ]
         },
         {
           "name": "tokenProgram",
@@ -165,7 +170,9 @@
     },
     {
       "name": "initMarginfiAccount",
-      "docs": ["Creates a new marginfi account with a given authority."],
+      "docs": [
+        "Creates a new marginfi account with a given authority."
+      ],
       "accounts": [
         {
           "name": "authority",
@@ -204,7 +211,9 @@
     },
     {
       "name": "initMarginfiAccountWithType",
-      "docs": ["Creates a new marginfi account with a given authority and account flags."],
+      "docs": [
+        "Creates a new marginfi account with a given authority and account flags."
+      ],
       "accounts": [
         {
           "name": "authority",
@@ -282,7 +291,10 @@
           "name": "recipientTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": ["- an honest admin will provide the correct one", "- incorrect mints will fail tx"]
+          "docs": [
+            "- an honest admin will provide the correct one",
+            "- incorrect mints will fail tx"
+          ]
         },
         {
           "name": "tokenProgram",
@@ -299,7 +311,9 @@
     },
     {
       "name": "marginDepositCollateral",
-      "docs": ["Allows the owner of a marginfi account to deposit collateral into it."],
+      "docs": [
+        "Allows the owner of a marginfi account to deposit collateral into it."
+      ],
       "accounts": [
         {
           "name": "marginfiAccount",
@@ -320,7 +334,9 @@
           "name": "fundingAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": ["#[soteria(ignore)]"]
+          "docs": [
+            "#[soteria(ignore)]"
+          ]
         },
         {
           "name": "tokenVault",
@@ -376,7 +392,9 @@
           "name": "receivingTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": ["#[soteria(ignore)]"]
+          "docs": [
+            "#[soteria(ignore)]"
+          ]
         },
         {
           "name": "tokenProgram",
@@ -691,7 +709,9 @@
           "name": "signer",
           "isMut": true,
           "isSigner": true,
-          "docs": ["Authority is verified in `check_rebalance_deposit_conditions`"]
+          "docs": [
+            "Authority is verified in `check_rebalance_deposit_conditions`"
+          ]
         },
         {
           "name": "marginCollateralVault",
@@ -791,7 +811,9 @@
           "name": "signer",
           "isMut": false,
           "isSigner": true,
-          "docs": ["Partially permission-less"]
+          "docs": [
+            "Partially permission-less"
+          ]
         },
         {
           "name": "marginCollateralVault",
@@ -1225,6 +1247,561 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "utpZetaActivate",
+      "accounts": [
+        {
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "zetaAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaGroup",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "only if we want to prevent access to a specific asset"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "authoritySeed",
+          "type": "publicKey"
+        },
+        {
+          "name": "authorityBump",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "utpZetaDeposit",
+      "accounts": [
+        {
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "Authority is verified in `check_rebalance_deposit_conditions`"
+          ]
+        },
+        {
+          "name": "marginfiCollateralVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "bankAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaGroup",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tempCollateralAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaSocializedLossAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaState",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaGreeks",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "utpZetaWithdraw",
+      "accounts": [
+        {
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marginCollateralVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "zetaAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaGreeks",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaOracle",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaSocializedLossAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaState",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaGroup",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "utpZetaInitializeOpenOrders",
+      "accounts": [
+        {
+          "name": "marginfiAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "marginfiGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "zetaGroup",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaState",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaOpenOrders",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaMarket",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaSerumAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaOpenOrdersMap",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "dexProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "utpZetaPlaceOrder",
+      "accounts": [
+        {
+          "name": "marginfiAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "zetaAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaState",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaGroup",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaSerumAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaGreeks",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaOpenOrders",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaMarket",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaRequestQueue",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaEventQueue",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaBids",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaAsks",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaOrderPayerTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaCoinVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaPcVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaCoinWallet",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaPcWallet",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaOracle",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaMarketNode",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaMarketMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaMintAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "dexProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": "UtpZetaPlaceOrderIxArgs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "utpZetaCancelOrder",
+      "accounts": [
+        {
+          "name": "marginfiAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marginfiGroup",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "zetaAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaGroup",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaState",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaSerumAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaOpenOrders",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaMarket",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaBids",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaAsks",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "zetaEventQueue",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "dexProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "zetaProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": "UtpZetaCancelOrderIxArgs"
+          }
+        }
+      ]
     }
   ],
   "accounts": [
@@ -1256,7 +1833,10 @@
           {
             "name": "activeUtps",
             "type": {
-              "array": ["bool", 32]
+              "array": [
+                "bool",
+                32
+              ]
             }
           },
           {
@@ -1284,15 +1864,24 @@
           },
           {
             "name": "reservedSpace",
-            "docs": ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct"],
+            "docs": [
+              "Reserved space for future fields.",
+              "Reduce accordingly when adding new fields to the struct"
+            ],
             "type": {
-              "array": ["u128", 254]
+              "array": [
+                "u128",
+                254
+              ]
             }
           },
           {
             "name": "reservedSpace2",
             "type": {
-              "array": ["u8", 14]
+              "array": [
+                "u8",
+                14
+              ]
             }
           }
         ]
@@ -1315,14 +1904,22 @@
           },
           {
             "name": "paused",
-            "docs": ["Group operations paused flag."],
+            "docs": [
+              "Group operations paused flag."
+            ],
             "type": "bool"
           },
           {
             "name": "reservedSpace",
-            "docs": ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct."],
+            "docs": [
+              "Reserved space for future fields.",
+              "Reduce accordingly when adding new fields to the struct."
+            ],
             "type": {
-              "array": ["u128", 384]
+              "array": [
+                "u128",
+                384
+              ]
             }
           }
         ]
@@ -1485,15 +2082,23 @@
           },
           {
             "name": "utpAddressBook",
-            "docs": ["A cache of UTP addresses used for local security verification"],
+            "docs": [
+              "A cache of UTP addresses used for local security verification"
+            ],
             "type": {
-              "array": ["publicKey", 4]
+              "array": [
+                "publicKey",
+                4
+              ]
             }
           },
           {
             "name": "reservedSpace",
             "type": {
-              "array": ["u32", 32]
+              "array": [
+                "u32",
+                32
+              ]
             }
           }
         ]
@@ -1669,22 +2274,31 @@
           },
           {
             "name": "mint",
-            "docs": ["The mint denotes the collateral type."],
+            "docs": [
+              "The mint denotes the collateral type."
+            ],
             "type": "publicKey"
           },
           {
             "name": "vault",
-            "docs": ["The vault pubkey denotes the bank's vault,", "where liquidity is actually stored."],
+            "docs": [
+              "The vault pubkey denotes the bank's vault,",
+              "where liquidity is actually stored."
+            ],
             "type": "publicKey"
           },
           {
             "name": "vaultAuthorityPdaBump",
-            "docs": ["Bank authority pda bump seed"],
+            "docs": [
+              "Bank authority pda bump seed"
+            ],
             "type": "u8"
           },
           {
             "name": "insuranceVault",
-            "docs": ["Insurance vault address"],
+            "docs": [
+              "Insurance vault address"
+            ],
             "type": "publicKey"
           },
           {
@@ -1693,14 +2307,18 @@
           },
           {
             "name": "insuranceVaultOutstandingTransfers",
-            "docs": ["Outstanding balance to be transferred to the fee vault from the main liquidity vault."],
+            "docs": [
+              "Outstanding balance to be transferred to the fee vault from the main liquidity vault."
+            ],
             "type": {
               "defined": "WrappedI80F48"
             }
           },
           {
             "name": "feeVault",
-            "docs": ["Protocol fee vault address"],
+            "docs": [
+              "Protocol fee vault address"
+            ],
             "type": "publicKey"
           },
           {
@@ -1709,7 +2327,9 @@
           },
           {
             "name": "feeVaultOutstandingTransfers",
-            "docs": ["Outstanding balance to be transferred to the fee vault from the main liquidity vault."],
+            "docs": [
+              "Outstanding balance to be transferred to the fee vault from the main liquidity vault."
+            ],
             "type": {
               "defined": "WrappedI80F48"
             }
@@ -1733,7 +2353,10 @@
           },
           {
             "name": "accountDepositLimit",
-            "docs": ["Account equity above which deposits are not allowed.", "If Decimal::ZERO, no limit is applied."],
+            "docs": [
+              "Account equity above which deposits are not allowed.",
+              "If Decimal::ZERO, no limit is applied."
+            ],
             "type": {
               "defined": "WrappedI80F48"
             }
@@ -1750,9 +2373,15 @@
           },
           {
             "name": "reservedSpace",
-            "docs": ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct."],
+            "docs": [
+              "Reserved space for future fields.",
+              "Reduce accordingly when adding new fields to the struct."
+            ],
             "type": {
-              "array": ["u128", 31]
+              "array": [
+                "u128",
+                31
+              ]
             }
           }
         ]
@@ -1760,7 +2389,10 @@
     },
     {
       "name": "AccountType",
-      "docs": ["Type use when initializing a margin account.", "Type maps to specific account flags."],
+      "docs": [
+        "Type use when initializing a margin account.",
+        "Type maps to specific account flags."
+      ],
       "type": {
         "kind": "enum",
         "variants": [
@@ -1850,6 +2482,23 @@
           },
           {
             "name": "Deposit"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ZetaSide",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Uninitialized"
+          },
+          {
+            "name": "Bid"
+          },
+          {
+            "name": "Ask"
           }
         ]
       }

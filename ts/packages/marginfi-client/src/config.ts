@@ -1,6 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import { Environment, MarginfiConfig, MarginfiDedicatedConfig } from "./types";
 import { getMangoConfig } from "./utp/mango/config";
+import { getZetaConfig } from "./utp/zeta/config";
 import { getZoConfig } from "./utp/zo";
 
 /**
@@ -35,13 +36,14 @@ function getMarginfiConfig(
 /**
  * Retrieve config per environment
  */
-export function getConfig(
+export async function getConfig(
   environment: Environment,
   overrides?: Partial<Omit<MarginfiConfig, "environment">>
-): MarginfiConfig {
+): Promise<MarginfiConfig> {
   return {
     ...getMarginfiConfig(environment, overrides),
     mango: getMangoConfig(environment, overrides?.mango),
+    zeta: await getZetaConfig(environment, overrides?.zeta),
     zo: getZoConfig(environment, overrides?.zo),
   };
 }

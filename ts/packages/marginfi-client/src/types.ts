@@ -6,6 +6,7 @@ import BigNumber from "bignumber.js";
 import { Marginfi } from "./idl/marginfi";
 import { MangoConfig } from "./utp/mango";
 import { UtpObservation } from "./utp/observation";
+import { ZetaConfig } from "./utp/zeta/config";
 import { ZoConfig } from "./utp/zo";
 
 export * from "./utp/zo/types";
@@ -62,6 +63,7 @@ export interface MarginfiDedicatedConfig {
 export interface MarginfiConfig extends MarginfiDedicatedConfig {
   mango: MangoConfig;
   zo: ZoConfig;
+  zeta: ZetaConfig;
 }
 
 /**

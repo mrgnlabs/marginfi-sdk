@@ -29,6 +29,7 @@ import { wrappedI80F48toBigNumber } from "./utils/helpers";
 import UtpAccount from "./utp/account";
 import { UtpMangoAccount } from "./utp/mango";
 import { UtpObservation } from "./utp/observation";
+import { UtpZetaAccount } from "./utp/zeta/account";
 import { UtpZoAccount } from "./utp/zo";
 const customInspectSymbol = Symbol.for("nodejs.util.inspect.custom");
 
@@ -43,10 +44,10 @@ class MarginfiAccount {
   private _authority: PublicKey;
   private _depositRecord: BigNumber;
   private _borrowRecord: BigNumber;
-  // private readonly _client: MarginfiClient;
 
   public readonly mango: UtpMangoAccount;
   public readonly zo: UtpZoAccount;
+  public readonly zeta: UtpZetaAccount;
 
   /**
    * @internal
@@ -60,12 +61,14 @@ class MarginfiAccount {
     borrowRecord: BigNumber,
     mangoUtpData: UtpData,
     zoUtpData: UtpData,
+    zetaUtpData: UtpData,
     readonly accountFlags: AccountFlags
   ) {
     this.publicKey = marginfiAccountPk;
 
     this.mango = new UtpMangoAccount(client, this, mangoUtpData);
     this.zo = new UtpZoAccount(client, this, zoUtpData);
+    this.zeta = new UtpZetaAccount(client, this, zetaUtpData);
 
     this._authority = authority;
     this.group = group;
@@ -94,7 +97,7 @@ class MarginfiAccount {
   }
 
   public get allUtps(): UtpAccount[] {
-    return [this.mango, this.zo]; // *Must* be sorted according to UTP indices
+    return [this.mango, this.zo, this.zeta]; // *Must* be sorted according to UTP indices
   }
 
   public get activeUtps(): UtpAccount[] {
@@ -145,6 +148,7 @@ class MarginfiAccount {
       wrappedI80F48toBigNumber(accountData.borrowRecord),
       MarginfiAccount._packUtpData(accountData, config.mango.utpIndex),
       MarginfiAccount._packUtpData(accountData, config.zo.utpIndex),
+      MarginfiAccount._packUtpData(accountData, config.zeta.utpIndex),
       accountData.flags
     );
 
@@ -185,6 +189,7 @@ class MarginfiAccount {
       wrappedI80F48toBigNumber(accountData.borrowRecord),
       MarginfiAccount._packUtpData(accountData, client.config.mango.utpIndex),
       MarginfiAccount._packUtpData(accountData, client.config.zo.utpIndex),
+      MarginfiAccount._packUtpData(accountData, client.config.zeta.utpIndex),
       accountData.flags
     );
   }
@@ -300,9 +305,7 @@ class MarginfiAccount {
     this._authority = data.authority;
     this._depositRecord = wrappedI80F48toBigNumber(data.depositRecord);
     this._borrowRecord = wrappedI80F48toBigNumber(data.borrowRecord);
-
-    this.mango.update(MarginfiAccount._packUtpData(data, this._config.mango.utpIndex));
-    this.zo.update(MarginfiAccount._packUtpData(data, this._config.zo.utpIndex));
+    this.allUtps.forEach((utp) => utp.update(MarginfiAccount._packUtpData(data, utp.index)));
   }
 
   /**

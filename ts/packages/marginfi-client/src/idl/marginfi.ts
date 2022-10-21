@@ -1222,6 +1222,557 @@ export type Marginfi = {
         }
       ];
       args: [];
+    },
+    {
+      name: "utpZetaActivate";
+      accounts: [
+        {
+          name: "marginfiAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "marginfiGroup";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "signer";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "zetaAuthority";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaGroup";
+          isMut: false;
+          isSigner: false;
+          docs: ["only if we want to prevent access to a specific asset"];
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "authoritySeed";
+          type: "publicKey";
+        },
+        {
+          name: "authorityBump";
+          type: "u8";
+        }
+      ];
+    },
+    {
+      name: "utpZetaDeposit";
+      accounts: [
+        {
+          name: "marginfiAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "marginfiGroup";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "signer";
+          isMut: true;
+          isSigner: true;
+          docs: ["Authority is verified in `check_rebalance_deposit_conditions`"];
+        },
+        {
+          name: "marginfiCollateralVault";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "bankAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaGroup";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaVault";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "tempCollateralAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaSocializedLossAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaState";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaGreeks";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "amount";
+          type: "u64";
+        }
+      ];
+    },
+    {
+      name: "utpZetaWithdraw";
+      accounts: [
+        {
+          name: "marginfiAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "marginfiGroup";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "marginCollateralVault";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "signer";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "zetaAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaVault";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaGreeks";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaOracle";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaSocializedLossAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaState";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaGroup";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "amount";
+          type: "u64";
+        }
+      ];
+    },
+    {
+      name: "utpZetaInitializeOpenOrders";
+      accounts: [
+        {
+          name: "marginfiAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "marginfiGroup";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "signer";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "zetaGroup";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaState";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaOpenOrders";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaAuthority";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaMarket";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaSerumAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaOpenOrdersMap";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "rent";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "dexProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [];
+    },
+    {
+      name: "utpZetaPlaceOrder";
+      accounts: [
+        {
+          name: "marginfiAccount";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "marginfiGroup";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "signer";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "zetaAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaState";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaGroup";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaSerumAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaGreeks";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaOpenOrders";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaMarket";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaRequestQueue";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaEventQueue";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaBids";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaAsks";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaOrderPayerTokenAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaCoinVault";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaPcVault";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaCoinWallet";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaPcWallet";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaOracle";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaMarketNode";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaMarketMint";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaMintAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "rent";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "dexProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "args";
+          type: {
+            defined: "UtpZetaPlaceOrderIxArgs";
+          };
+        }
+      ];
+    },
+    {
+      name: "utpZetaCancelOrder";
+      accounts: [
+        {
+          name: "marginfiAccount";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "marginfiGroup";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "signer";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "zetaAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaGroup";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaState";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaSerumAuthority";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaOpenOrders";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaMarket";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaBids";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaAsks";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "zetaEventQueue";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "dexProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "zetaProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "args";
+          type: {
+            defined: "UtpZetaCancelOrderIxArgs";
+          };
+        }
+      ];
     }
   ];
   accounts: [
@@ -1847,6 +2398,23 @@ export type Marginfi = {
           },
           {
             name: "Deposit";
+          }
+        ];
+      };
+    },
+    {
+      name: "ZetaSide";
+      type: {
+        kind: "enum";
+        variants: [
+          {
+            name: "Uninitialized";
+          },
+          {
+            name: "Bid";
+          },
+          {
+            name: "Ask";
           }
         ];
       };
@@ -3346,6 +3914,557 @@ export const IDL: Marginfi = {
       ],
       args: [],
     },
+    {
+      name: "utpZetaActivate",
+      accounts: [
+        {
+          name: "marginfiAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "marginfiGroup",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "signer",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "zetaAuthority",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaGroup",
+          isMut: false,
+          isSigner: false,
+          docs: ["only if we want to prevent access to a specific asset"],
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "authoritySeed",
+          type: "publicKey",
+        },
+        {
+          name: "authorityBump",
+          type: "u8",
+        },
+      ],
+    },
+    {
+      name: "utpZetaDeposit",
+      accounts: [
+        {
+          name: "marginfiAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "marginfiGroup",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "signer",
+          isMut: true,
+          isSigner: true,
+          docs: ["Authority is verified in `check_rebalance_deposit_conditions`"],
+        },
+        {
+          name: "marginfiCollateralVault",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "bankAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaGroup",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaVault",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "tempCollateralAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaSocializedLossAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaState",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaGreeks",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "amount",
+          type: "u64",
+        },
+      ],
+    },
+    {
+      name: "utpZetaWithdraw",
+      accounts: [
+        {
+          name: "marginfiAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "marginfiGroup",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "marginCollateralVault",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "signer",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "zetaAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaVault",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaGreeks",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaOracle",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaSocializedLossAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaState",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaGroup",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "amount",
+          type: "u64",
+        },
+      ],
+    },
+    {
+      name: "utpZetaInitializeOpenOrders",
+      accounts: [
+        {
+          name: "marginfiAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "marginfiGroup",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "signer",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "zetaGroup",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaState",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaOpenOrders",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaAuthority",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaMarket",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaSerumAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaOpenOrdersMap",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "rent",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "dexProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
+    },
+    {
+      name: "utpZetaPlaceOrder",
+      accounts: [
+        {
+          name: "marginfiAccount",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "marginfiGroup",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "signer",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "zetaAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaState",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaGroup",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaSerumAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaGreeks",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaOpenOrders",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaMarket",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaRequestQueue",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaEventQueue",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaBids",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaAsks",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaOrderPayerTokenAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaCoinVault",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaPcVault",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaCoinWallet",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaPcWallet",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaOracle",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaMarketNode",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaMarketMint",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaMintAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "rent",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "dexProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "args",
+          type: {
+            defined: "UtpZetaPlaceOrderIxArgs",
+          },
+        },
+      ],
+    },
+    {
+      name: "utpZetaCancelOrder",
+      accounts: [
+        {
+          name: "marginfiAccount",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "marginfiGroup",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "signer",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "zetaAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaGroup",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaState",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaSerumAuthority",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaOpenOrders",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaMarket",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaBids",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaAsks",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "zetaEventQueue",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "dexProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "zetaProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "args",
+          type: {
+            defined: "UtpZetaCancelOrderIxArgs",
+          },
+        },
+      ],
+    },
   ],
   accounts: [
     {
@@ -3970,6 +5089,23 @@ export const IDL: Marginfi = {
           },
           {
             name: "Deposit",
+          },
+        ],
+      },
+    },
+    {
+      name: "ZetaSide",
+      type: {
+        kind: "enum",
+        variants: [
+          {
+            name: "Uninitialized",
+          },
+          {
+            name: "Bid",
+          },
+          {
+            name: "Ask",
           },
         ],
       },
