@@ -2,12 +2,9 @@ require("dotenv").config();
 
 import "./sentry";
 
-import { ONE_I80F48, QUOTE_INDEX, sleep, ZERO_BN, ZERO_I80F48 } from "@blockworks-foundation/mango-client";
 import {
   DUST_THRESHOLD,
   loadKeypair,
-  MangoOrderSide,
-  MangoPerpOrderType,
   MarginfiAccount,
   MarginfiAccountData,
   MarginfiClient,
@@ -121,11 +118,6 @@ async function closeAllUTPs(marginfiAccount: MarginfiAccount) {
   await marginfiAccount.reload();
   debug("Closing all UTP accounts");
 
-  // Close all UTP positions
-  if (marginfiAccount.mango.isActive) {
-    await closeMango(marginfiAccount);
-  }
-
   if (marginfiAccount.zo.isActive) {
     await closeZo(marginfiAccount);
   }
@@ -197,121 +189,6 @@ async function closeZo(marginfiAccount: MarginfiAccount) {
 
   debug("Deactivating ZO");
   await marginfiAccount.zo.deactivate();
-}
-
-async function closeMango(marginfiAccount: MarginfiAccount) {
-  const debug = debugBuilder("liquidator:utp:mango");
-  debug("Closing Mango positions");
-
-  await closeMangoPositions(marginfiAccount);
-
-  await withdrawFromMango(marginfiAccount);
-
-  await marginfiAccount.mango.deactivate();
-  debug("Deactivating mango");
-  await marginfiAccount.reload();
-}
-
-async function withdrawFromMango(marginfiAccount: MarginfiAccount) {
-  const debug = debugBuilder("liquidator:utp:mango:withdraw");
-  debug("Trying to withdraw from Mango");
-  let observation = await marginfiAccount.mango.observe();
-  let withdrawAmount = observation.freeCollateral.minus(0.000001);
-
-  if (withdrawAmount.lte(DUST_THRESHOLD)) {
-    return;
-  }
-
-  debug("Withdrawing %d from Mango", withdrawAmount.toString());
-  await marginfiAccount.mango.withdraw(withdrawAmount);
-}
-
-async function closeMangoPositions(marginfiAccount: MarginfiAccount) {
-  const mangoUtp = marginfiAccount.mango;
-
-  const debug = debugBuilder("liquidator:utp:mango");
-  const mangoGroup = await mangoUtp.getMangoGroup();
-  const mangoAccount = await mangoUtp.getMangoAccount(mangoGroup);
-
-  await mangoAccount.reload(marginfiAccount.client.program.provider.connection);
-
-  const perpMarkets = await Promise.all(
-    mangoUtp.config.groupConfig.perpMarkets.map((perpMarket) => {
-      return mangoGroup.loadPerpMarket(
-        connection,
-        perpMarket.marketIndex,
-        perpMarket.baseDecimals,
-        perpMarket.quoteDecimals
-      );
-    })
-  );
-
-  try {
-    debug("Closing positions");
-    await mangoAccount.reload(connection, mangoGroup.dexProgramId);
-    const cache = await mangoGroup.loadCache(connection);
-
-    for (let i = 0; i < perpMarkets.length; i++) {
-      const perpMarket = perpMarkets[i];
-      const index = mangoGroup.getPerpMarketIndex(perpMarket.publicKey);
-      const perpAccount = mangoAccount.perpAccounts[index];
-      const groupIds = mangoUtp.config.groupConfig;
-
-      if (perpMarket && perpAccount) {
-        const openOrders = await perpMarket.loadOrdersForAccount(connection, mangoAccount);
-
-        for (const oo of openOrders) {
-          debug("Canceling Perp Order %s", oo.orderId);
-          await mangoUtp.cancelPerpOrder(perpMarket, oo.orderId, false);
-        }
-
-        const basePositionSize = Math.abs(perpMarket.baseLotsToNumber(perpAccount.basePosition));
-        debug("%s-PERP, size %s", groupIds?.perpMarkets[i].baseSymbol, basePositionSize);
-        const price = mangoGroup.getPrice(index, cache);
-
-        if (basePositionSize != 0) {
-          const side = perpAccount.basePosition.gt(ZERO_BN) ? MangoOrderSide.Ask : MangoOrderSide.Bid;
-          const liquidationFee = mangoGroup.perpMarkets[index].liquidationFee;
-          const orderPrice =
-            side == MangoOrderSide.Ask
-              ? price.mul(ONE_I80F48.sub(liquidationFee)).toNumber()
-              : price.mul(ONE_I80F48.add(liquidationFee)).toNumber();
-
-          debug(`${side}ing ${basePositionSize} of ${groupIds?.perpMarkets[i].baseSymbol}-PERP for $${orderPrice}`);
-
-          await mangoUtp.placePerpOrder(perpMarket, side, orderPrice, basePositionSize, {
-            orderType: MangoPerpOrderType.Market,
-            reduceOnly: true,
-          });
-        }
-
-        await mangoAccount.reload(connection, mangoGroup.dexProgramId);
-      }
-
-      const rootBanks = await mangoGroup.loadRootBanks(connection);
-
-      if (!perpAccount.quotePosition.eq(ZERO_I80F48)) {
-        const quoteRootBank = rootBanks[QUOTE_INDEX];
-        if (quoteRootBank) {
-          debug("Settle %s-PERP, %s", groupIds?.perpMarkets[i].baseSymbol, perpAccount.quotePosition);
-          const mangoClient = mangoUtp.getMangoClient();
-          await mangoClient.settlePnl(
-            mangoGroup,
-            cache,
-            mangoAccount,
-            perpMarket,
-            quoteRootBank,
-            cache.priceCache[index].price,
-            wallet.payer
-          );
-
-          await sleep(5_000);
-        }
-      }
-    }
-  } catch (err) {
-    console.error("Error closing positions", err);
-  }
 }
 
 async function loadAllMarginfiAccounts(mfiClient: MarginfiClient) {

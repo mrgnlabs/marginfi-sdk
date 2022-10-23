@@ -37,6 +37,5 @@ const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));
   await marginfiAccount.deposit(depositAmount);
 
   // Activate Mango and 01 UTPs
-  await marginfiAccount.mango.activate();
   await marginfiAccount.zo.activate();
 })();

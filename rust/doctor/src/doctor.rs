@@ -6,17 +6,12 @@ use bytemuck::from_bytes;
 use bytemuck::Pod;
 use fixed::types::I80F48;
 use log::{debug, info};
-use mango_protocol::state::{
-    HealthCache, MangoAccount, MangoCache, MangoGroup, NodeBank, RootBank, UserActiveAssets,
-    MAX_PAIRS, QUOTE_INDEX,
-};
-use marginfi::state::mango_state;
+
 use marginfi::{
     constants::{MANGO_UTP_INDEX, PDA_BANK_VAULT_SEED, PDA_UTP_AUTH_SEED, ZO_UTP_INDEX},
     prelude::{MarginfiAccount, MarginfiGroup},
-    state::mango_state::is_rebalance_deposit_valid,
 };
-use serum_dex::state::OpenOrders;
+
 use solana_client::{
     rpc_client::RpcClient,
     rpc_filter::{Memcmp, MemcmpEncodedBytes, RpcFilterType},
@@ -121,8 +116,6 @@ fn load_keypair_from_array_string(array_string: &str) -> Keypair {
 }
 
 struct AddressBook {
-    pub mango_program: Pubkey,
-    pub mango_group: Pubkey,
     pub zo_program: Pubkey,
     pub zo_state: Pubkey,
 }
@@ -131,14 +124,10 @@ impl AddressBook {
     pub fn new(cluster: Cluster) -> AddressBook {
         match cluster {
             Cluster::Mainnet | Cluster::Custom(_, _) => AddressBook {
-                mango_program: pubkey!("mv3ekLzLbnVPNxjSKvqBpU3ZeZXPQdEC3bp5MDEBG68"),
-                mango_group: pubkey!("98pjRuQjK3qA6gXts96PqZT4Ze5QmnCmt3QYjhbUSPue"),
                 zo_program: pubkey!("Zo1ggzTUKMY5bYnDvT5mtVeZxzf2FaLTbKkmvGUhUQk"),
                 zo_state: pubkey!("71yykwxq1zQqy99PgRsgZJXi2HHK2UDx9G4va7pH6qRv"),
             },
             Cluster::Devnet => AddressBook {
-                mango_program: pubkey!("4skJ85cdxQAFVKbcGgfun8iZPL7BadVYXG3kGEGkufqA"),
-                mango_group: pubkey!("Ec2enZyoC4nGpEfu2sUNAa2nUGJHWxoUWYSEJ2hNTWTA"),
                 zo_program: pubkey!("Zo1ThtSHMh9tZGECwBDL81WJRL6s3QTHf733Tyko7KQ"),
                 zo_state: pubkey!("KwcWW7WvgSXLJcyjKZJBHLbfriErggzYHpjS9qjVD5F"),
             },
@@ -150,12 +139,6 @@ impl AddressBook {
 struct GroupCache {
     pub marginfi_group: (Pubkey, MarginfiGroup),
     pub bank_authority: Pubkey,
-
-    pub mango_group: (Pubkey, MangoGroup),
-    pub mango_cache: (Pubkey, MangoCache),
-    pub mango_root_bank_pk: Pubkey,
-    pub mango_node_bank_pk: Pubkey,
-    pub mango_vault_pk: Pubkey,
 
     pub zo_state: (Pubkey, zo_abi::State),
     pub zo_cache: (Pubkey, zo_abi::Cache),
@@ -176,32 +159,6 @@ impl GroupCache {
         );
 
         let rpc = program.rpc();
-
-        let mango_group_account = rpc.get_account(&address_book.mango_group).unwrap();
-        let mango_group_raw = &mut (address_book.mango_group, mango_group_account);
-        let mango_group_ai = AccountInfo::from(mango_group_raw);
-        let mango_group =
-            MangoGroup::load_checked(&mango_group_ai, &address_book.mango_program).unwrap();
-
-        let mango_cache_account = rpc.get_account(&mango_group.mango_cache).unwrap();
-
-        let mango_cache_raw = &mut (mango_group.mango_cache, mango_cache_account);
-        let mango_cache_ai = AccountInfo::from(mango_cache_raw);
-        let mango_cache =
-            MangoCache::load_checked(&mango_cache_ai, &address_book.mango_program, &mango_group)
-                .unwrap();
-
-        let root_bank_pk = mango_group.tokens[QUOTE_INDEX].root_bank;
-        let root_bank_account = rpc.get_account(&root_bank_pk).unwrap();
-        let root_bank_raw = &mut (root_bank_pk, root_bank_account);
-        let root_bank_ai = AccountInfo::from(root_bank_raw);
-        let root_bank = RootBank::load_checked(&root_bank_ai, &address_book.mango_program).unwrap();
-
-        let node_bank_pk = root_bank.node_banks[0];
-        let node_bank_account = rpc.get_account(&node_bank_pk).unwrap();
-        let node_bank_raw = &mut (node_bank_pk, node_bank_account);
-        let node_bank_ai = AccountInfo::from(node_bank_raw);
-        let node_bank = NodeBank::load_checked(&node_bank_ai, &address_book.mango_program).unwrap();
 
         let zo_state_pk = address_book.zo_state;
         let zo_state_account = rpc.get_account(&zo_state_pk).unwrap();
@@ -231,12 +188,6 @@ impl GroupCache {
         Self {
             marginfi_group: (config.marginfi_group, marginfi_group),
             bank_authority,
-
-            mango_group: (address_book.mango_group, *mango_group),
-            mango_cache: (mango_group.mango_cache, *mango_cache),
-            mango_root_bank_pk: root_bank_pk,
-            mango_node_bank_pk: node_bank_pk,
-            mango_vault_pk: node_bank.vault,
 
             zo_state: (zo_state_pk, *zo_state),
             zo_cache: (zo_state.cache, *zo_cache),
@@ -381,7 +332,6 @@ fn create_temp_token_account(
 
 #[derive(Default)]
 struct MarginAccountCache {
-    pub utp_mango_cache: Option<UtpMangoCache>,
     pub utp_zo_cache: Option<UtpZoCache>,
 }
 
@@ -389,19 +339,10 @@ impl MarginAccountCache {
     pub fn new(
         program: &Program,
         marginfi_account: &MarginfiAccount,
-        group_cache: &GroupCache,
-        address_book: &AddressBook,
+        _group_cache: &GroupCache,
+        _address_book: &AddressBook,
     ) -> MarginAccountCache {
         let mut cache = MarginAccountCache::default();
-
-        if marginfi_account.active_utps[MANGO_UTP_INDEX] {
-            cache.utp_mango_cache = Some(UtpMangoCache::new(
-                program.rpc(),
-                marginfi_account.utp_account_config[MANGO_UTP_INDEX].address,
-                group_cache.mango_group.0,
-                address_book.mango_program,
-            ));
-        }
 
         if marginfi_account.active_utps[ZO_UTP_INDEX] {
             cache.utp_zo_cache = Some(UtpZoCache::new(
@@ -411,31 +352,6 @@ impl MarginAccountCache {
         }
 
         cache
-    }
-}
-
-struct UtpMangoCache {
-    pub mango_account: (Pubkey, MangoAccount),
-}
-
-impl UtpMangoCache {
-    pub fn new(
-        rpc: RpcClient,
-        mango_account_pk: Pubkey,
-        mango_group_pk: Pubkey,
-        mango_program: Pubkey,
-    ) -> UtpMangoCache {
-        setup_sentry_if_enabled!();
-
-        let mango_account = rpc.get_account(&mango_account_pk).unwrap();
-        let mango_account_raw = &mut (mango_account_pk, mango_account);
-        let mango_account_ai = AccountInfo::from(mango_account_raw);
-        let mango_account =
-            MangoAccount::load_checked(&mango_account_ai, &mango_program, &mango_group_pk).unwrap();
-
-        UtpMangoCache {
-            mango_account: (mango_account_pk, *mango_account),
-        }
     }
 }
 
@@ -517,11 +433,7 @@ impl<'a> MarginAccountHandler<'a> {
 
                 let utp_config = self.marginfi_account.utp_account_config[index];
                 let mut utp_observe_accounts = match index {
-                    MANGO_UTP_INDEX => vec![
-                        AccountMeta::new_readonly(utp_config.address, false),
-                        AccountMeta::new_readonly(self.group_cache.mango_group.0, false),
-                        AccountMeta::new_readonly(self.group_cache.mango_cache.0, false),
-                    ],
+                    MANGO_UTP_INDEX => vec![],
                     ZO_UTP_INDEX => vec![
                         AccountMeta::new_readonly(utp_config.address, false),
                         AccountMeta::new_readonly(
@@ -549,7 +461,6 @@ impl<'a> MarginAccountHandler<'a> {
         setup_sentry_if_enabled!();
 
         let utp_program_address = match utp_index {
-            MANGO_UTP_INDEX => self.address_book.mango_program,
             ZO_UTP_INDEX => self.address_book.zo_program,
             _ => panic!("Unsupported utp index {}", utp_index),
         }
@@ -576,135 +487,6 @@ impl<'a> MarginAccountHandler<'a> {
             .enumerate()
             .filter(|(_, a)| **a)
             .for_each(|(index, _)| match index {
-                MANGO_UTP_INDEX => {
-                    setup_sentry_if_enabled!();
-
-                    let (marginfi_group_pk, marginfi_group) = self.group_cache.marginfi_group;
-                    let (mango_group_pk, mango_group) = &self.group_cache.mango_group;
-                    let (_, mango_cache) = &self.group_cache.mango_cache;
-                    let (mango_account_pk, mango_account) = &self
-                        .margin_account_cache
-                        .utp_mango_cache
-                        .as_ref()
-                        .unwrap()
-                        .mango_account;
-
-                    let mut health_cache =
-                        HealthCache::new(UserActiveAssets::new(mango_group, mango_account, vec![]));
-
-                    let open_orders_accounts: Vec<Option<&OpenOrders>> = vec![None; MAX_PAIRS];
-
-                    health_cache
-                        .init_vals_with_orders_vec(
-                            mango_group,
-                            mango_cache,
-                            mango_account,
-                            &open_orders_accounts,
-                        )
-                        .unwrap();
-
-                    let rebalance_required =
-                        is_rebalance_deposit_valid(&mut health_cache, mango_group).unwrap();
-
-                    debug!(
-                        "Account {}, mango rebalance required: {}",
-                        self.marginfi_account_pk, rebalance_required
-                    );
-                    debug!(
-                        "Account {}, mango free collateral: {}",
-                        self.marginfi_account_pk,
-                        mango_state::get_free_collateral(&mut health_cache, mango_group).unwrap()
-                            / NUMBER_SCALE
-                    );
-
-                    if !rebalance_required {
-                        return;
-                    }
-
-                    let deposit_amount =
-                        marginfi::state::mango_state::get_max_rebalance_deposit_amount(
-                            &mut health_cache,
-                            mango_group,
-                        )
-                        .unwrap()
-                        .div(I80F48::from_num(2_u8))
-                        .to_num();
-
-                    info!(
-                        "Depositing {} into Mango Markets {}",
-                        deposit_amount, self.marginfi_account_pk
-                    );
-
-                    #[cfg(feature = "sentry-reporting")]
-                    sentry::capture_event(sentry::protocol::Event {
-                        user: Some(sentry::User {
-                            id: Some(self.marginfi_account_pk.to_string()),
-                            ..Default::default()
-                        }),
-                        message: Some(format!("Depositing {} into Mango Markets", deposit_amount)),
-                        level: sentry::protocol::Level::Info,
-                        ..Default::default()
-                    });
-
-                    let (mango_authority, _) = self.get_utp_authority(MANGO_UTP_INDEX);
-
-                    let ([create_token_account_ix, init_token_account_ix], temp_token_account) =
-                        create_temp_token_account(
-                            self.program.rpc(),
-                            mango_authority,
-                            marginfi_group.bank.mint,
-                            self.program.payer(),
-                        );
-
-                    let mut account_metas: Vec<AccountMeta> = marginfi::accounts::UtpMangoDeposit {
-                        marginfi_account: *self.marginfi_account_pk,
-                        marginfi_group: marginfi_group_pk,
-                        signer: self.program.payer(),
-                        margin_collateral_vault: marginfi_group.bank.vault,
-                        bank_authority: self.group_cache.bank_authority,
-                        temp_collateral_account: temp_token_account.pubkey(),
-                        mango_authority,
-                        mango_account: *mango_account_pk,
-                        mango_program: self.address_book.mango_program,
-                        mango_group: *mango_group_pk,
-                        mango_cache: mango_group.mango_cache,
-                        mango_root_bank: self.group_cache.mango_root_bank_pk,
-                        mango_node_bank: self.group_cache.mango_node_bank_pk,
-                        mango_vault: self.group_cache.mango_vault_pk,
-                        token_program: spl_token::ID,
-                    }
-                    .to_account_metas(Some(true));
-
-                    account_metas.append(&mut self.get_observation_accounts());
-
-                    let deposit_ix = Instruction {
-                        program_id: self.doctor_config.marginfi_program,
-                        accounts: account_metas,
-                        data: marginfi::instruction::UtpMangoDeposit {
-                            amount: deposit_amount,
-                        }
-                        .data(),
-                    };
-
-                    let tx = Transaction::new_signed_with_payer(
-                        &[create_token_account_ix, init_token_account_ix, deposit_ix],
-                        Some(&self.program.payer()),
-                        &[&self.doctor_config.keypair(), &temp_token_account],
-                        self.program.rpc().get_latest_blockhash().unwrap(),
-                    );
-
-                    let res = self.program.rpc().send_and_confirm_transaction(&tx);
-
-                    match res {
-                        Ok(sig) => {
-                            debug!("Transaction Sig: {:?}", sig);
-                        }
-                        Err(_err) => {
-                            #[cfg(feature = "sentry-reporting")]
-                            sentry::capture_error(&_err);
-                        }
-                    }
-                }
                 ZO_UTP_INDEX => {
                     setup_sentry_if_enabled!();
 
@@ -737,7 +519,10 @@ impl<'a> MarginAccountHandler<'a> {
                     debug!(
                         "Account {}, 01 free collateral: {}",
                         self.marginfi_account_pk,
-                        marginfi::state::zo_state::get_free_collateral(zo_margin, zo_control, zo_state, zo_cache).unwrap()
+                        marginfi::state::zo_state::get_free_collateral(
+                            zo_margin, zo_control, zo_state, zo_cache
+                        )
+                        .unwrap()
                             / NUMBER_SCALE
                     );
 

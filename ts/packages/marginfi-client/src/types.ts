@@ -8,7 +8,6 @@ import { MangoConfig } from "./utp/mango";
 import { UtpObservation } from "./utp/observation";
 import { ZoConfig } from "./utp/zo";
 
-export * from "./utp/mango/types";
 export * from "./utp/zo/types";
 
 export type MarginfiProgram = Omit<Program<Marginfi>, "provider"> & {
