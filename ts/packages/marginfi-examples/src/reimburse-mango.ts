@@ -3,7 +3,6 @@ require("dotenv").config();
 import { Connection, PublicKey } from "@solana/web3.js";
 
 import { QUOTE_INDEX } from "@blockworks-foundation/mango-client";
-import { ID, MangoV3ReimbursementClient } from "../../mango-v3-reimbursement/dist";
 import {
   Environment,
   getConfig,
@@ -11,13 +10,13 @@ import {
   MarginfiAccount,
   MarginfiClient,
   UTPAccountConfig,
-  Wallet,
 } from "@mrgnlabs/marginfi-client";
+import { NodeWallet } from "@mrgnlabs/marginfi-client/dist/nodeWallet";
 import { associatedAddress } from "@project-serum/anchor/dist/cjs/utils/token";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { RENT_PROGRAM_ID, SYSTEM_PROGRAM_ID } from "@zero_one/client";
 import { BN } from "bn.js";
-import { NodeWallet } from "@mrgnlabs/marginfi-client/dist/nodeWallet";
+import { ID, MangoV3ReimbursementClient } from "../../mango-v3-reimbursement/dist";
 
 const connection = new Connection(process.env.RPC_ENDPOINT!, {
   commitment: "confirmed",
@@ -26,87 +25,89 @@ const connection = new Connection(process.env.RPC_ENDPOINT!, {
 const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));
 // const MARGIN_ACCOUNT_PK = new PublicKey("81azzBQ2X17CXUzCGgQHVUGajwTCEvyMsfaiZmzxsYqy");
 
-// async function reimburse(client: MarginfiClient, mfiAccountAddress: PublicKey) {
-//   const config = client.config;
-//   const mfiAccount = await client.getMarginfiAccount(mfiAccountAddress);
-//   const mangoV3ReimbursementClient = new MangoV3ReimbursementClient(client.provider);
+async function reimburse(client: MarginfiClient, mfiAccountAddress: PublicKey) {
+  const config = client.config;
+  const mfiAccount = await client.getMarginfiAccount(mfiAccountAddress);
+  const mangoV3ReimbursementClient = new MangoV3ReimbursementClient(client.provider);
 
-//   console.log("Loaded marginfi account: %s", mfiAccount.publicKey);
+  console.log("Loaded marginfi account: %s", mfiAccount.publicKey);
 
-//   const GROUP = 1;
+  const GROUP = 1;
 
-//   const groups = await mangoV3ReimbursementClient.program.account.group.all();
+  const groups = await mangoV3ReimbursementClient.program.account.group.all();
 
-//   console.log("Found %s groups", groups.length);
+  console.log("Found %s groups", groups.length);
 
-//   const group = groups.find((group) => group.account.groupNum === GROUP);
+  const group = groups.find((group) => group.account.groupNum === GROUP);
 
-//   console.log("Loaded group: %s", group?.publicKey.toString());
+  console.log("Loaded group: %s", group?.publicKey.toString());
 
-//   const [mangoAccountOwner, _mangoAccountOwnerBump] = await mfiAccount.mango.authority();
+  const [mangoAccountOwner, _mangoAccountOwnerBump] = await mfiAccount.mango.authority();
 
-//   console.log("mango account owner: %s", mangoAccountOwner.toString());
+  console.log("mango account owner: %s", mangoAccountOwner.toString());
 
-//   const [reimbursementAccount, _reimbursementAccountBump] = await PublicKey.findProgramAddress(
-//     [Buffer.from("ReimbursementAccount"), group?.publicKey.toBuffer()!, mangoAccountOwner.toBuffer()],
-//     mangoV3ReimbursementClient.program.programId
-//   );
+  const [reimbursementAccount, _reimbursementAccountBump] = await PublicKey.findProgramAddress(
+    [Buffer.from("ReimbursementAccount"), group?.publicKey.toBuffer()!, mangoAccountOwner.toBuffer()],
+    mangoV3ReimbursementClient.program.programId
+  );
 
-//   const vault = group?.account.vaults[QUOTE_INDEX];
+  const vault = group?.account.vaults[QUOTE_INDEX];
 
-//   const table = await mangoV3ReimbursementClient.decodeTable(group?.account);
-//   const tableIndex = table.findIndex((row) => row.owner.equals(mangoAccountOwner));
+  const table = await mangoV3ReimbursementClient.decodeTable(group?.account);
+  const tableIndex = table.findIndex((row) => row.owner.equals(mangoAccountOwner));
 
-//   if (tableIndex === -1) {
-//     console.log("No table entry found for mango account owner %s", mangoAccountOwner);
-//     return;
-//   }
+  if (tableIndex === -1) {
+    console.log("No table entry found for mango account owner %s", mangoAccountOwner);
+    return;
+  }
 
-//   console.log("tableIndex: %s", tableIndex);
+  console.log("tableIndex: %s", tableIndex);
 
-//   const [tokenAccount, _tokenAccountBump] = await PublicKey.findProgramAddress(
-//     [Buffer.from("mrta"), mfiAccount.publicKey.toBuffer()],
-//     config.programId
-//   );
+  const [tokenAccount, _tokenAccountBump] = await PublicKey.findProgramAddress(
+    [Buffer.from("mrta"), mfiAccount.publicKey.toBuffer()],
+    config.programId
+  );
 
-//   let bU64 = Buffer.alloc(8);
-//   bU64.writeBigUInt64LE(BigInt(QUOTE_INDEX));
-//   const claimMint = (
-//     await PublicKey.findProgramAddress(
-//       [Buffer.from("Mint"), group?.publicKey.toBuffer()!, bU64],
-//       mangoV3ReimbursementClient.program.programId
-//     )
-//   )[0];
-//   const claimTransferTokenAccount = await associatedAddress({
-//     mint: claimMint,
-//     owner: group!.account.claimTransferDestination,
-//   });
+  let bU64 = Buffer.alloc(8);
+  bU64.writeBigUInt64LE(BigInt(QUOTE_INDEX));
+  const claimMint = (
+    await PublicKey.findProgramAddress(
+      [Buffer.from("Mint"), group?.publicKey.toBuffer()!, bU64],
+      mangoV3ReimbursementClient.program.programId
+    )
+  )[0];
+  const claimTransferTokenAccount = await associatedAddress({
+    mint: claimMint,
+    owner: group!.account.claimTransferDestination,
+  });
 
-//   client.program.methods
-//     .reimburse(new BN(tableIndex))
-//     .accounts(
-//       logAccounts({
-//         marginfiGroup: config.groupPk,
-//         marginfiAccount: mfiAccount.publicKey,
-//         admin: wallet.publicKey,
-//         collateralMint: client.group.bank.mint,
-//         liquidityVault: client.group.bank.vault,
-//         mangoReimbursementProgram: ID,
-//         group: group!.publicKey,
-//         reimbursementAccount,
-//         mangoAccountOwner,
-//         vault,
-//         tokenAccount,
-//         claimMintTokenAccount: claimTransferTokenAccount,
-//         claimMint,
-//         table: new PublicKey("45F9oyj2Jr5pfz1bLoupLGujXkamZEy3RXeKBZudKmJw"),
-//         tokenProgram: TOKEN_PROGRAM_ID,
-//         systemProgram: SYSTEM_PROGRAM_ID,
-//         rent: RENT_PROGRAM_ID,
-//       })
-//     )
-//     .rpc({ skipPreflight: true });
-// }
+  const sig = await client.program.methods
+    .reimburse(new BN(tableIndex))
+    .accounts(
+      logAccounts({
+        marginfiGroup: config.groupPk,
+        marginfiAccount: mfiAccount.publicKey,
+        admin: wallet.publicKey,
+        collateralMint: client.group.bank.mint,
+        liquidityVault: client.group.bank.vault,
+        mangoReimbursementProgram: ID,
+        group: group!.publicKey,
+        reimbursementAccount,
+        mangoAccountOwner,
+        vault,
+        tokenAccount,
+        claimMintTokenAccount: claimTransferTokenAccount,
+        claimMint,
+        table: new PublicKey("45F9oyj2Jr5pfz1bLoupLGujXkamZEy3RXeKBZudKmJw"),
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: SYSTEM_PROGRAM_ID,
+        rent: RENT_PROGRAM_ID,
+      })
+    )
+    .rpc({ skipPreflight: true });
+
+  console.log("Reimbursement tx: %s", sig);
+}
 
 (async () => {
   const config = await getConfig(Environment.MAINNET);
@@ -167,12 +168,12 @@ const wallet = new NodeWallet(loadKeypair(process.env.WALLET!));
     console.error("ERROR: Some mango accounts owners are shared by multiple marginfi accounts");
   }
 
-  // const mfiAccountAddress = new PublicKey("9r6EYV7KuZ6F1V7pDZ6cPz7t4CgT1vJp9T9bGz7Y1F4J");
+  // const mfiAccountAddress = new PublicKey("EzgAAcUZ4oL42PcHeUsPBidWjRSv6hDmqGSedCo1HEfE");
   // await reimburse(client, mfiAccountAddress);
 
-  //   for (let account of marginfiAccountsWithMango) {
-  //     await reimburse(client, account.publicKey);
-  //   }
+  for (let account of marginfiAccountsWithMango) {
+    await reimburse(client, account.publicKey);
+  }
 })();
 
 function logAccounts<T>(accounts: T): T {
