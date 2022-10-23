@@ -19,7 +19,6 @@ export async function getAccounts(options: OptionValues) {
 export async function getAccount(accountPk: string, options: OptionValues) {
   const client = await getClientFromOptions(options);
   try {
-    const connection = client.program.provider.connection;
     const account = await MarginfiAccount.fetch(
       new PublicKey(accountPk || new PublicKey(process.env.MARGINFI_ACCOUNT!)),
       client
@@ -31,37 +30,8 @@ export async function getAccount(accountPk: string, options: OptionValues) {
     }
 
     if (account.mango.isActive) {
-      const mangoGroup = await account.mango.getMangoGroup();
-      const mangoAccount = await account.mango.getMangoAccount(mangoGroup);
-      const mangoGroupConfig = account.mango.config.groupConfig;
-      const mangoCache = await mangoGroup.loadCache(connection);
-
       console.log("> Mango Markets");
-      console.log("  Perp markets:");
-      for (let perpMarketIndex = 0; perpMarketIndex < mangoCache.perpMarketCache.length; perpMarketIndex++) {
-        try {
-          if (!mangoGroupConfig.perpMarkets[perpMarketIndex]) {
-            continue;
-          }
-          const perpMarket = await mangoGroup.loadPerpMarket(
-            connection,
-            perpMarketIndex,
-            mangoGroupConfig.perpMarkets[perpMarketIndex].baseDecimals,
-            mangoGroupConfig.perpMarkets[perpMarketIndex].quoteDecimals
-          );
-          const position = await mangoAccount.getPerpPositionUi(perpMarketIndex, perpMarket);
-          if (position != 0) {
-            console.log("    %s - position: %s", mangoGroupConfig.perpMarkets[perpMarketIndex].name, position);
-          }
-        } catch (e) {
-          console.log("    Could not load the perp market %s", mangoGroupConfig.perpMarkets[perpMarketIndex].name);
-        }
-
-        const oo = await mangoAccount.getPerpOpenOrders().filter((a) => a.marketIndex === perpMarketIndex);
-        for (let o of oo) {
-          console.log("      Open order: side %s price %s", o.side, o.price.toNumber());
-        }
-      }
+      console.log("Mango markets is no longer supported, please deactivate it.");
     }
 
     if (account.zo.isActive) {

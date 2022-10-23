@@ -95,7 +95,9 @@
     },
     {
       "name": "configureMarginfiGroup",
-      "docs": ["Updates configurations for an existing marginfi group."],
+      "docs": [
+        "Updates configurations for an existing marginfi group."
+      ],
       "accounts": [
         {
           "name": "marginfiGroup",
@@ -148,7 +150,10 @@
           "name": "recipientTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": ["- an honest admin will provide the correct one", "- incorrect mints will fail tx"]
+          "docs": [
+            "- an honest admin will provide the correct one",
+            "- incorrect mints will fail tx"
+          ]
         },
         {
           "name": "tokenProgram",
@@ -165,7 +170,9 @@
     },
     {
       "name": "initMarginfiAccount",
-      "docs": ["Creates a new marginfi account with a given authority."],
+      "docs": [
+        "Creates a new marginfi account with a given authority."
+      ],
       "accounts": [
         {
           "name": "authority",
@@ -204,7 +211,9 @@
     },
     {
       "name": "initMarginfiAccountWithType",
-      "docs": ["Creates a new marginfi account with a given authority and account flags."],
+      "docs": [
+        "Creates a new marginfi account with a given authority and account flags."
+      ],
       "accounts": [
         {
           "name": "authority",
@@ -282,7 +291,10 @@
           "name": "recipientTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": ["- an honest admin will provide the correct one", "- incorrect mints will fail tx"]
+          "docs": [
+            "- an honest admin will provide the correct one",
+            "- incorrect mints will fail tx"
+          ]
         },
         {
           "name": "tokenProgram",
@@ -299,7 +311,9 @@
     },
     {
       "name": "marginDepositCollateral",
-      "docs": ["Allows the owner of a marginfi account to deposit collateral into it."],
+      "docs": [
+        "Allows the owner of a marginfi account to deposit collateral into it."
+      ],
       "accounts": [
         {
           "name": "marginfiAccount",
@@ -320,7 +334,9 @@
           "name": "fundingAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": ["#[soteria(ignore)]"]
+          "docs": [
+            "#[soteria(ignore)]"
+          ]
         },
         {
           "name": "tokenVault",
@@ -376,7 +392,9 @@
           "name": "receivingTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": ["#[soteria(ignore)]"]
+          "docs": [
+            "#[soteria(ignore)]"
+          ]
         },
         {
           "name": "tokenProgram",
@@ -596,395 +614,12 @@
       "args": []
     },
     {
-      "name": "utpMangoActivate",
-      "docs": [
-        "Mango instructions",
-        "Activate a UTP account on Mango for a given marginfi account and pay",
-        "related rent fees. marginfi supports only one UTP account per UTP per",
-        "marginfi account. Rent fees are determined by UTPs and marginfi passes",
-        "those up to UTP account activators, i.e. marginfi account owners.",
-        "This action can only be taken by the owner of the marginfi account for",
-        "which this UTP account is activated."
-      ],
-      "accounts": [
-        {
-          "name": "marginfiAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "marginfiGroup",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "mangoAuthority",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoAccount",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "TODO: What would happen if we used `zero` or if someone sent an already existing account (assuming init would fail on Mango?)"
-          ]
-        },
-        {
-          "name": "mangoProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoGroup",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
+      "name": "utpMangoReimburse",
+      "accounts": [],
       "args": [
         {
-          "name": "authoritySeed",
-          "type": "publicKey"
-        },
-        {
-          "name": "authorityBump",
-          "type": "u8"
-        }
-      ]
-    },
-    {
-      "name": "utpMangoDeposit",
-      "docs": [
-        "Deposits funds into a Mango UTP account, which may be done by the owner",
-        "of the marginfi account the UTP account is related to, or by the",
-        "rebalancing mechanism of the marginfi protocol if rebalancing conditions",
-        "are satisfied, which is ultimately an action enforced by crankers."
-      ],
-      "accounts": [
-        {
-          "name": "marginfiAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "marginfiGroup",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "signer",
-          "isMut": true,
-          "isSigner": true,
-          "docs": ["Authority is verified in `check_rebalance_deposit_conditions`"]
-        },
-        {
-          "name": "marginCollateralVault",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "bankAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tempCollateralAccount",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "We are assuming that the ix will fail if the owner is anyone but the UTP pda.",
-            "",
-            "Because multiple marginfi accounts might share the same UTP PDA, there a possibility that an attacker might expose",
-            "the token account of another marginfi account.",
-            "I am not sure what they could do with it, as the collateral only enters these token accounts atomically in this ix and is later closed.",
-            "But because I am superstitious, we are making sure here that the temp token account is empty."
-          ]
-        },
-        {
-          "name": "mangoAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoGroup",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoCache",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoRootBank",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoNodeBank",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoVault",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
+          "name": "indexIntoTable",
           "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "utpMangoWithdraw",
-      "accounts": [
-        {
-          "name": "marginfiAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "marginfiGroup",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "signer",
-          "isMut": false,
-          "isSigner": true,
-          "docs": ["Partially permission-less"]
-        },
-        {
-          "name": "marginCollateralVault",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoGroup",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoCache",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoRootBank",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoNodeBank",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoVault",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoVaultAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "emptyMangoOpenOrdersAccount",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "utpMangoUsePlacePerpOrder",
-      "accounts": [
-        {
-          "name": "marginfiAccount",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "marginfiGroup",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "signer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "mangoAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoGroup",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoCache",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoPerpMarket",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoBids",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoAsks",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoEventQueue",
-          "isMut": true,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "args",
-          "type": {
-            "defined": "UtpMangoPlacePerpOrderArgs"
-          }
-        }
-      ]
-    },
-    {
-      "name": "utpMangoUseCancelPerpOrder",
-      "accounts": [
-        {
-          "name": "marginfiAccount",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "marginfiGroup",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "signer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "mangoAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoGroup",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mangoPerpMarket",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoBids",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mangoAsks",
-          "isMut": true,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "orderId",
-          "type": "i128"
-        },
-        {
-          "name": "invalidIdOk",
-          "type": "bool"
         }
       ]
     },
@@ -1074,7 +709,9 @@
           "name": "signer",
           "isMut": true,
           "isSigner": true,
-          "docs": ["Authority is verified in `check_rebalance_deposit_conditions`"]
+          "docs": [
+            "Authority is verified in `check_rebalance_deposit_conditions`"
+          ]
         },
         {
           "name": "marginCollateralVault",
@@ -1174,7 +811,9 @@
           "name": "signer",
           "isMut": false,
           "isSigner": true,
-          "docs": ["Partially permission-less"]
+          "docs": [
+            "Partially permission-less"
+          ]
         },
         {
           "name": "marginCollateralVault",
@@ -1639,7 +1278,10 @@
           {
             "name": "activeUtps",
             "type": {
-              "array": ["bool", 32]
+              "array": [
+                "bool",
+                32
+              ]
             }
           },
           {
@@ -1667,15 +1309,24 @@
           },
           {
             "name": "reservedSpace",
-            "docs": ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct"],
+            "docs": [
+              "Reserved space for future fields.",
+              "Reduce accordingly when adding new fields to the struct"
+            ],
             "type": {
-              "array": ["u128", 254]
+              "array": [
+                "u128",
+                254
+              ]
             }
           },
           {
             "name": "reservedSpace2",
             "type": {
-              "array": ["u8", 14]
+              "array": [
+                "u8",
+                14
+              ]
             }
           }
         ]
@@ -1698,14 +1349,22 @@
           },
           {
             "name": "paused",
-            "docs": ["Group operations paused flag."],
+            "docs": [
+              "Group operations paused flag."
+            ],
             "type": "bool"
           },
           {
             "name": "reservedSpace",
-            "docs": ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct."],
+            "docs": [
+              "Reserved space for future fields.",
+              "Reduce accordingly when adding new fields to the struct."
+            ],
             "type": {
-              "array": ["u128", 384]
+              "array": [
+                "u128",
+                384
+              ]
             }
           }
         ]
@@ -1733,62 +1392,6 @@
     }
   ],
   "types": [
-    {
-      "name": "UtpMangoPlacePerpOrderArgs",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "side",
-            "type": {
-              "defined": "MangoSide"
-            }
-          },
-          {
-            "name": "price",
-            "type": "i64"
-          },
-          {
-            "name": "maxBaseQuantity",
-            "type": "i64"
-          },
-          {
-            "name": "maxQuoteQuantity",
-            "type": "i64"
-          },
-          {
-            "name": "clientOrderId",
-            "type": "u64"
-          },
-          {
-            "name": "orderType",
-            "type": {
-              "defined": "MangoOrderType"
-            }
-          },
-          {
-            "name": "reduceOnly",
-            "type": "bool"
-          },
-          {
-            "name": "expiryTimestamp",
-            "type": {
-              "option": "u64"
-            }
-          },
-          {
-            "name": "limit",
-            "type": "u8"
-          },
-          {
-            "name": "expiryType",
-            "type": {
-              "defined": "MangoExpiryType"
-            }
-          }
-        ]
-      }
-    },
     {
       "name": "UtpZoPlacePerpOrderIxArgs",
       "type": {
@@ -1924,15 +1527,23 @@
           },
           {
             "name": "utpAddressBook",
-            "docs": ["A cache of UTP addresses used for local security verification"],
+            "docs": [
+              "A cache of UTP addresses used for local security verification"
+            ],
             "type": {
-              "array": ["publicKey", 4]
+              "array": [
+                "publicKey",
+                4
+              ]
             }
           },
           {
             "name": "reservedSpace",
             "type": {
-              "array": ["u32", 32]
+              "array": [
+                "u32",
+                32
+              ]
             }
           }
         ]
@@ -2108,22 +1719,31 @@
           },
           {
             "name": "mint",
-            "docs": ["The mint denotes the collateral type."],
+            "docs": [
+              "The mint denotes the collateral type."
+            ],
             "type": "publicKey"
           },
           {
             "name": "vault",
-            "docs": ["The vault pubkey denotes the bank's vault,", "where liquidity is actually stored."],
+            "docs": [
+              "The vault pubkey denotes the bank's vault,",
+              "where liquidity is actually stored."
+            ],
             "type": "publicKey"
           },
           {
             "name": "vaultAuthorityPdaBump",
-            "docs": ["Bank authority pda bump seed"],
+            "docs": [
+              "Bank authority pda bump seed"
+            ],
             "type": "u8"
           },
           {
             "name": "insuranceVault",
-            "docs": ["Insurance vault address"],
+            "docs": [
+              "Insurance vault address"
+            ],
             "type": "publicKey"
           },
           {
@@ -2132,14 +1752,18 @@
           },
           {
             "name": "insuranceVaultOutstandingTransfers",
-            "docs": ["Outstanding balance to be transferred to the fee vault from the main liquidity vault."],
+            "docs": [
+              "Outstanding balance to be transferred to the fee vault from the main liquidity vault."
+            ],
             "type": {
               "defined": "WrappedI80F48"
             }
           },
           {
             "name": "feeVault",
-            "docs": ["Protocol fee vault address"],
+            "docs": [
+              "Protocol fee vault address"
+            ],
             "type": "publicKey"
           },
           {
@@ -2148,7 +1772,9 @@
           },
           {
             "name": "feeVaultOutstandingTransfers",
-            "docs": ["Outstanding balance to be transferred to the fee vault from the main liquidity vault."],
+            "docs": [
+              "Outstanding balance to be transferred to the fee vault from the main liquidity vault."
+            ],
             "type": {
               "defined": "WrappedI80F48"
             }
@@ -2172,7 +1798,10 @@
           },
           {
             "name": "accountDepositLimit",
-            "docs": ["Account equity above which deposits are not allowed.", "If Decimal::ZERO, no limit is applied."],
+            "docs": [
+              "Account equity above which deposits are not allowed.",
+              "If Decimal::ZERO, no limit is applied."
+            ],
             "type": {
               "defined": "WrappedI80F48"
             }
@@ -2189,68 +1818,26 @@
           },
           {
             "name": "reservedSpace",
-            "docs": ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct."],
+            "docs": [
+              "Reserved space for future fields.",
+              "Reduce accordingly when adding new fields to the struct."
+            ],
             "type": {
-              "array": ["u128", 31]
+              "array": [
+                "u128",
+                31
+              ]
             }
           }
         ]
       }
     },
     {
-      "name": "MangoOrderType",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Limit"
-          },
-          {
-            "name": "ImmediateOrCancel"
-          },
-          {
-            "name": "PostOnly"
-          },
-          {
-            "name": "Market"
-          },
-          {
-            "name": "PostOnlySlide"
-          }
-        ]
-      }
-    },
-    {
-      "name": "MangoSide",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Bid"
-          },
-          {
-            "name": "Ask"
-          }
-        ]
-      }
-    },
-    {
-      "name": "MangoExpiryType",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Absolute"
-          },
-          {
-            "name": "Relative"
-          }
-        ]
-      }
-    },
-    {
       "name": "AccountType",
-      "docs": ["Type use when initializing a margin account.", "Type maps to specific account flags."],
+      "docs": [
+        "Type use when initializing a margin account.",
+        "Type maps to specific account flags."
+      ],
       "type": {
         "kind": "enum",
         "variants": [
@@ -2605,6 +2192,11 @@
       "code": 6025,
       "name": "MangoError",
       "msg": "Mango error"
+    },
+    {
+      "code": 6026,
+      "name": "OperationDisabled",
+      "msg": "Operation no longer supported"
     }
   ]
 }

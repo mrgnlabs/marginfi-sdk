@@ -4,8 +4,6 @@ import { captureException } from "./sentry";
 
 import {
   EquityType,
-  MangoOrderSide,
-  MangoPerpOrderType,
   MarginfiAccount,
   MarginfiAccountData,
   MarginfiClient,
@@ -76,7 +74,6 @@ async function checkPartialLiqClosePositions(mfiAccount: MarginfiAccount) {
     return;
   }
   const debug = require("debug")("crank-bot:partial-liquidation");
-  const connection = mfiAccount.client.program.provider.connection;
 
   const marginRequirement = await mfiAccount.computeMarginRequirement(MarginRequirementType.PartialLiquidation);
   const { equity } = await mfiAccount.computeBalances(EquityType.InitReqAdjusted);
@@ -85,34 +82,6 @@ async function checkPartialLiqClosePositions(mfiAccount: MarginfiAccount) {
 
   // Find biggest position;
   const positions: { utpIndex: number; value: number; market: any }[] = [];
-
-  if (mfiAccount.mango.isActive) {
-    debug("Checking Mango Markets positions");
-    const mangoGroup = await mfiAccount.mango.getMangoGroup();
-    const mangoAccount = await mfiAccount.mango.getMangoAccount(mangoGroup);
-    const mangoCache = await mangoGroup.loadCache(connection);
-
-    for (let i = 0; i < mfiAccount.mango.config.groupConfig.perpMarkets.length; i++) {
-      const perpMarketConfig = mfiAccount.mango.config.groupConfig.perpMarkets[i];
-      const marketPrice = await mangoGroup.getPriceUi(perpMarketConfig.marketIndex, mangoCache);
-      const perpMarket = await mangoGroup.loadPerpMarket(
-        connection,
-        perpMarketConfig.marketIndex,
-        perpMarketConfig.baseDecimals,
-        perpMarketConfig.quoteDecimals
-      );
-      const positionSize = await mangoAccount.getPerpPositionUi(i, perpMarket);
-      const positionNotionalValue = Math.abs(positionSize * marketPrice);
-
-      debug("Adding position $%s on %s", positionNotionalValue, perpMarketConfig.name);
-
-      positions.push({
-        utpIndex: mfiAccount.mango.config.utpIndex,
-        value: positionNotionalValue,
-        market: i,
-      });
-    }
-  }
 
   if (mfiAccount.zo.isActive) {
     debug("Checking 01 Protocol positions");
@@ -143,37 +112,7 @@ async function checkPartialLiqClosePositions(mfiAccount: MarginfiAccount) {
   if (!biggestPosition) {
     debug("No position found!");
     return;
-  }
-
-  if (biggestPosition.utpIndex === mfiAccount.mango.config.utpIndex) {
-    const mangoGroup = await mfiAccount.mango.getMangoGroup();
-    const mangoAccount = await mfiAccount.mango.getMangoAccount(mangoGroup);
-    const mangoCache = await mangoGroup.loadCache(connection);
-
-    const perpMarketConfig = mfiAccount.mango.config.groupConfig.perpMarkets[biggestPosition.market];
-    const perpMarket = await mangoGroup.loadPerpMarket(
-      connection,
-      biggestPosition.market,
-      perpMarketConfig.baseDecimals,
-      perpMarketConfig.quoteDecimals
-    );
-    const marketPrice = await mangoGroup.getPriceUi(perpMarketConfig.marketIndex, mangoCache);
-    const positionSize = mangoAccount.getPerpPositionUi(biggestPosition.market, perpMarket);
-    const size = BigNumber.min(new BigNumber(positionSize).abs(), maxLiqAmountUsd.div(marketPrice));
-    const side = positionSize > 0 ? MangoOrderSide.Ask : MangoOrderSide.Bid;
-
-    if (size.times(marketPrice).abs().lte(1)) {
-      debug("Size %s under dust threshold, skipping...", size.times(marketPrice).abs());
-      return;
-    }
-
-    debug("Placing a %s order for %s @ $%s for %s on Mango Markets", side, size, marketPrice, perpMarketConfig.name);
-
-    await mfiAccount.mango.placePerpOrder(perpMarket, side, marketPrice, size, {
-      orderType: MangoPerpOrderType.Market,
-      reduceOnly: true,
-    });
-  }
+  } 
 
   if (biggestPosition.utpIndex === mfiAccount.zo.config.utpIndex) {
     const zoState = await mfiAccount.zo.getZoState();
@@ -214,41 +153,6 @@ async function checkPartialLiqClosePositions(mfiAccount: MarginfiAccount) {
 async function checkPartialLiqCloseOpenOrders(marginfiAccount: MarginfiAccount) {
   if (marginfiAccount.meetsMarginRequirement(MarginRequirementType.PartialLiquidation)) {
     return;
-  }
-
-  const debug = require("debug")("crank-bot:partial-liquidation");
-
-  if (marginfiAccount.mango.isActive) {
-    const mangoUtp = marginfiAccount.mango;
-    const mangoGroup = await mangoUtp.getMangoGroup();
-    const mangoAccount = await mangoUtp.getMangoAccount(mangoGroup);
-
-    const connection = marginfiAccount.client.program.provider.connection;
-
-    const perpMarkets = await Promise.all(
-      mangoUtp.config.groupConfig.perpMarkets.map((perpMarket) => {
-        return mangoGroup.loadPerpMarket(
-          connection,
-          perpMarket.marketIndex,
-          perpMarket.baseDecimals,
-          perpMarket.quoteDecimals
-        );
-      })
-    );
-
-    for (let i = 0; i < perpMarkets.length; i++) {
-      const perpMarket = perpMarkets[i];
-      const index = mangoGroup.getPerpMarketIndex(perpMarket.publicKey);
-      const perpAccount = mangoAccount.perpAccounts[index];
-      if (perpMarket && perpAccount) {
-        const openOrders = await perpMarket.loadOrdersForAccount(connection, mangoAccount);
-
-        for (const oo of openOrders) {
-          debug("Canceling Perp Order %s", oo.orderId);
-          await mangoUtp.cancelPerpOrder(perpMarket, oo.orderId, false);
-        }
-      }
-    }
   }
 
   if (marginfiAccount.zo.isActive) {

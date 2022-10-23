@@ -10,9 +10,6 @@ import { writeFileSync } from "fs";
 import { createAccount } from "./src/account/create";
 import { deposit } from "./src/account/deposit";
 import { getAccount, getAccounts as listAccounts } from "./src/account/get";
-import { activateMango } from "./src/account/mango/activate";
-import { depositMango } from "./src/account/mango/deposit";
-import { withdrawMango } from "./src/account/mango/withdraw";
 import { withdraw } from "./src/account/withdraw";
 import { activateZo } from "./src/account/zo/activate";
 import { depositZo } from "./src/account/zo/deposit";
@@ -60,12 +57,6 @@ attachDefaultOptions(accountProgram.command("list")).action(listAccounts);
 
 attachDefaultOptions(accountProgram.command("deposit")).arguments("<amount>").action(deposit);
 attachDefaultOptions(accountProgram.command("withdraw")).arguments("<amount>").action(withdraw);
-
-const mangoProgram = accountProgram.command("mango");
-
-attachDefaultOptions(mangoProgram.command("activate")).action(activateMango);
-attachDefaultOptions(mangoProgram.command("deposit")).arguments("<amount>").action(depositMango);
-attachDefaultOptions(mangoProgram.command("withdraw")).arguments("<amount>").action(withdrawMango);
 
 const zoProgram = accountProgram.command("zo");
 
