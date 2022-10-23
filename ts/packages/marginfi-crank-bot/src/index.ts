@@ -112,7 +112,7 @@ async function checkPartialLiqClosePositions(mfiAccount: MarginfiAccount) {
   if (!biggestPosition) {
     debug("No position found!");
     return;
-  } 
+  }
 
   if (biggestPosition.utpIndex === mfiAccount.zo.config.utpIndex) {
     const zoState = await mfiAccount.zo.getZoState();

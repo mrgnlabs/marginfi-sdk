@@ -95,9 +95,7 @@
     },
     {
       "name": "configureMarginfiGroup",
-      "docs": [
-        "Updates configurations for an existing marginfi group."
-      ],
+      "docs": ["Updates configurations for an existing marginfi group."],
       "accounts": [
         {
           "name": "marginfiGroup",
@@ -150,10 +148,7 @@
           "name": "recipientTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "- an honest admin will provide the correct one",
-            "- incorrect mints will fail tx"
-          ]
+          "docs": ["- an honest admin will provide the correct one", "- incorrect mints will fail tx"]
         },
         {
           "name": "tokenProgram",
@@ -170,9 +165,7 @@
     },
     {
       "name": "initMarginfiAccount",
-      "docs": [
-        "Creates a new marginfi account with a given authority."
-      ],
+      "docs": ["Creates a new marginfi account with a given authority."],
       "accounts": [
         {
           "name": "authority",
@@ -211,9 +204,7 @@
     },
     {
       "name": "initMarginfiAccountWithType",
-      "docs": [
-        "Creates a new marginfi account with a given authority and account flags."
-      ],
+      "docs": ["Creates a new marginfi account with a given authority and account flags."],
       "accounts": [
         {
           "name": "authority",
@@ -291,10 +282,7 @@
           "name": "recipientTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "- an honest admin will provide the correct one",
-            "- incorrect mints will fail tx"
-          ]
+          "docs": ["- an honest admin will provide the correct one", "- incorrect mints will fail tx"]
         },
         {
           "name": "tokenProgram",
@@ -311,9 +299,7 @@
     },
     {
       "name": "marginDepositCollateral",
-      "docs": [
-        "Allows the owner of a marginfi account to deposit collateral into it."
-      ],
+      "docs": ["Allows the owner of a marginfi account to deposit collateral into it."],
       "accounts": [
         {
           "name": "marginfiAccount",
@@ -334,9 +320,7 @@
           "name": "fundingAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "#[soteria(ignore)]"
-          ]
+          "docs": ["#[soteria(ignore)]"]
         },
         {
           "name": "tokenVault",
@@ -392,9 +376,7 @@
           "name": "receivingTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "#[soteria(ignore)]"
-          ]
+          "docs": ["#[soteria(ignore)]"]
         },
         {
           "name": "tokenProgram",
@@ -709,9 +691,7 @@
           "name": "signer",
           "isMut": true,
           "isSigner": true,
-          "docs": [
-            "Authority is verified in `check_rebalance_deposit_conditions`"
-          ]
+          "docs": ["Authority is verified in `check_rebalance_deposit_conditions`"]
         },
         {
           "name": "marginCollateralVault",
@@ -811,9 +791,7 @@
           "name": "signer",
           "isMut": false,
           "isSigner": true,
-          "docs": [
-            "Partially permission-less"
-          ]
+          "docs": ["Partially permission-less"]
         },
         {
           "name": "marginCollateralVault",
@@ -1278,10 +1256,7 @@
           {
             "name": "activeUtps",
             "type": {
-              "array": [
-                "bool",
-                32
-              ]
+              "array": ["bool", 32]
             }
           },
           {
@@ -1309,24 +1284,15 @@
           },
           {
             "name": "reservedSpace",
-            "docs": [
-              "Reserved space for future fields.",
-              "Reduce accordingly when adding new fields to the struct"
-            ],
+            "docs": ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct"],
             "type": {
-              "array": [
-                "u128",
-                254
-              ]
+              "array": ["u128", 254]
             }
           },
           {
             "name": "reservedSpace2",
             "type": {
-              "array": [
-                "u8",
-                14
-              ]
+              "array": ["u8", 14]
             }
           }
         ]
@@ -1349,22 +1315,14 @@
           },
           {
             "name": "paused",
-            "docs": [
-              "Group operations paused flag."
-            ],
+            "docs": ["Group operations paused flag."],
             "type": "bool"
           },
           {
             "name": "reservedSpace",
-            "docs": [
-              "Reserved space for future fields.",
-              "Reduce accordingly when adding new fields to the struct."
-            ],
+            "docs": ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct."],
             "type": {
-              "array": [
-                "u128",
-                384
-              ]
+              "array": ["u128", 384]
             }
           }
         ]
@@ -1527,23 +1485,15 @@
           },
           {
             "name": "utpAddressBook",
-            "docs": [
-              "A cache of UTP addresses used for local security verification"
-            ],
+            "docs": ["A cache of UTP addresses used for local security verification"],
             "type": {
-              "array": [
-                "publicKey",
-                4
-              ]
+              "array": ["publicKey", 4]
             }
           },
           {
             "name": "reservedSpace",
             "type": {
-              "array": [
-                "u32",
-                32
-              ]
+              "array": ["u32", 32]
             }
           }
         ]
@@ -1719,31 +1669,22 @@
           },
           {
             "name": "mint",
-            "docs": [
-              "The mint denotes the collateral type."
-            ],
+            "docs": ["The mint denotes the collateral type."],
             "type": "publicKey"
           },
           {
             "name": "vault",
-            "docs": [
-              "The vault pubkey denotes the bank's vault,",
-              "where liquidity is actually stored."
-            ],
+            "docs": ["The vault pubkey denotes the bank's vault,", "where liquidity is actually stored."],
             "type": "publicKey"
           },
           {
             "name": "vaultAuthorityPdaBump",
-            "docs": [
-              "Bank authority pda bump seed"
-            ],
+            "docs": ["Bank authority pda bump seed"],
             "type": "u8"
           },
           {
             "name": "insuranceVault",
-            "docs": [
-              "Insurance vault address"
-            ],
+            "docs": ["Insurance vault address"],
             "type": "publicKey"
           },
           {
@@ -1752,18 +1693,14 @@
           },
           {
             "name": "insuranceVaultOutstandingTransfers",
-            "docs": [
-              "Outstanding balance to be transferred to the fee vault from the main liquidity vault."
-            ],
+            "docs": ["Outstanding balance to be transferred to the fee vault from the main liquidity vault."],
             "type": {
               "defined": "WrappedI80F48"
             }
           },
           {
             "name": "feeVault",
-            "docs": [
-              "Protocol fee vault address"
-            ],
+            "docs": ["Protocol fee vault address"],
             "type": "publicKey"
           },
           {
@@ -1772,9 +1709,7 @@
           },
           {
             "name": "feeVaultOutstandingTransfers",
-            "docs": [
-              "Outstanding balance to be transferred to the fee vault from the main liquidity vault."
-            ],
+            "docs": ["Outstanding balance to be transferred to the fee vault from the main liquidity vault."],
             "type": {
               "defined": "WrappedI80F48"
             }
@@ -1798,10 +1733,7 @@
           },
           {
             "name": "accountDepositLimit",
-            "docs": [
-              "Account equity above which deposits are not allowed.",
-              "If Decimal::ZERO, no limit is applied."
-            ],
+            "docs": ["Account equity above which deposits are not allowed.", "If Decimal::ZERO, no limit is applied."],
             "type": {
               "defined": "WrappedI80F48"
             }
@@ -1818,15 +1750,9 @@
           },
           {
             "name": "reservedSpace",
-            "docs": [
-              "Reserved space for future fields.",
-              "Reduce accordingly when adding new fields to the struct."
-            ],
+            "docs": ["Reserved space for future fields.", "Reduce accordingly when adding new fields to the struct."],
             "type": {
-              "array": [
-                "u128",
-                31
-              ]
+              "array": ["u128", 31]
             }
           }
         ]
@@ -1834,10 +1760,7 @@
     },
     {
       "name": "AccountType",
-      "docs": [
-        "Type use when initializing a margin account.",
-        "Type maps to specific account flags."
-      ],
+      "docs": ["Type use when initializing a margin account.", "Type maps to specific account flags."],
       "type": {
         "kind": "enum",
         "variants": [
