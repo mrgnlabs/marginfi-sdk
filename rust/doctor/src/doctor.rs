@@ -487,6 +487,7 @@ impl<'a> MarginAccountHandler<'a> {
             .enumerate()
             .filter(|(_, a)| **a)
             .for_each(|(index, _)| match index {
+                MANGO_UTP_INDEX => println!("Mango rebalance not supported"),
                 ZO_UTP_INDEX => {
                     setup_sentry_if_enabled!();
 
