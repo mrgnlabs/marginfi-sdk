@@ -1286,7 +1286,7 @@
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "only if we want to prevent access to a specific asset"
+            "only if we want to prevent access to specific assets"
           ]
         },
         {
@@ -1947,6 +1947,52 @@
     }
   ],
   "types": [
+    {
+      "name": "UtpZetaPlaceOrderIxArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "size",
+            "type": "u64"
+          },
+          {
+            "name": "side",
+            "type": {
+              "defined": "ZetaSide"
+            }
+          },
+          {
+            "name": "clientOrderId",
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UtpZetaCancelOrderIxArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "side",
+            "type": {
+              "defined": "ZetaSide"
+            }
+          },
+          {
+            "name": "orderId",
+            "type": "u128"
+          }
+        ]
+      }
+    },
     {
       "name": "UtpZoPlacePerpOrderIxArgs",
       "type": {

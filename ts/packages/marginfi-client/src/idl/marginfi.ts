@@ -1260,7 +1260,7 @@ export type Marginfi = {
           name: "zetaGroup";
           isMut: false;
           isSigner: false;
-          docs: ["only if we want to prevent access to a specific asset"];
+          docs: ["only if we want to prevent access to specific assets"];
         },
         {
           name: "systemProgram";
@@ -1898,6 +1898,52 @@ export type Marginfi = {
     }
   ];
   types: [
+    {
+      name: "UtpZetaPlaceOrderIxArgs";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "price";
+            type: "u64";
+          },
+          {
+            name: "size";
+            type: "u64";
+          },
+          {
+            name: "side";
+            type: {
+              defined: "ZetaSide";
+            };
+          },
+          {
+            name: "clientOrderId";
+            type: {
+              option: "u64";
+            };
+          }
+        ];
+      };
+    },
+    {
+      name: "UtpZetaCancelOrderIxArgs";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "side";
+            type: {
+              defined: "ZetaSide";
+            };
+          },
+          {
+            name: "orderId";
+            type: "u128";
+          }
+        ];
+      };
+    },
     {
       name: "UtpZoPlacePerpOrderIxArgs";
       type: {
@@ -3951,7 +3997,7 @@ export const IDL: Marginfi = {
           name: "zetaGroup",
           isMut: false,
           isSigner: false,
-          docs: ["only if we want to prevent access to a specific asset"],
+          docs: ["only if we want to prevent access to specific assets"],
         },
         {
           name: "systemProgram",
@@ -4589,6 +4635,52 @@ export const IDL: Marginfi = {
     },
   ],
   types: [
+    {
+      name: "UtpZetaPlaceOrderIxArgs",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "price",
+            type: "u64",
+          },
+          {
+            name: "size",
+            type: "u64",
+          },
+          {
+            name: "side",
+            type: {
+              defined: "ZetaSide",
+            },
+          },
+          {
+            name: "clientOrderId",
+            type: {
+              option: "u64",
+            },
+          },
+        ],
+      },
+    },
+    {
+      name: "UtpZetaCancelOrderIxArgs",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "side",
+            type: {
+              defined: "ZetaSide",
+            },
+          },
+          {
+            name: "orderId",
+            type: "u128",
+          },
+        ],
+      },
+    },
     {
       name: "UtpZoPlacePerpOrderIxArgs",
       type: {
