@@ -22,7 +22,7 @@ export async function getZetaConfig(environment: Environment, overrides?: Partia
   switch (environment) {
     case Environment.MAINNET: {
       const programId = new PublicKey("ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD");
-      const [groupPk] = await zetaUtils.getZetaGroup(programId, zetaConstants.MINTS[Asset.SOL]);
+      const [groupPk] = await zetaUtils.getZetaGroup(programId, zetaConstants.MINTS[Asset.SOL]); // TODO: need to find asset from group associated with UTP account
       const [vaultPk] = await zetaUtils.getVault(programId, groupPk);
       const [socializedLossAccountPk] = await zetaUtils.getSocializedLossAccount(programId, groupPk);
       const [statePk] = await zetaUtils.getState(programId);

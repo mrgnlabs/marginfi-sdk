@@ -1,11 +1,11 @@
 import { BN, Idl, Program } from "@project-serum/anchor";
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
-import { idl, Market, types as zetaTypes, utils as zetaUtils } from "@zetamarkets/sdk";
+import { assets, idl, Market, types as zetaTypes, utils as zetaUtils } from "@zetamarkets/sdk";
 import BigNumber from "bignumber.js";
 import { MarginfiAccount, MarginfiClient, UtpObservation } from "../..";
 import { InstructionsWrapper, UiAmount, UtpData } from "../../types";
-import { getBankAuthority, getUtpAuthority, processTransaction, uiToNative } from "../../utils";
+import { getBankAuthority, getUtpAuthority, processTransaction, toBigNumber, uiToNative } from "../../utils";
 import UtpAccount from "../account";
 import instructions from "./instructions";
 
@@ -121,6 +121,7 @@ export class UtpZetaAccount extends UtpAccount {
       proxyTokenAccountKey.publicKey,
       utpAuthority
     );
+    const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     return {
       instructions: [
@@ -144,7 +145,8 @@ export class UtpZetaAccount extends UtpAccount {
             zetaStatePk: this._config.zeta.statePk,
             zetaGreeksPk: this._config.zeta.greeksPk,
           },
-          { amount: uiToNative(amount) }
+          { amount: uiToNative(amount) },
+          remainingAccounts
         ),
       ],
       keys: [proxyTokenAccountKey],
@@ -166,7 +168,8 @@ export class UtpZetaAccount extends UtpAccount {
 
   async makeWithdrawIx(amount: UiAmount): Promise<InstructionsWrapper> {
     const [zetaAuthorityPk] = await await this.authority();
-    const pythOracle = this._config.zeta.priceFeeds["SOL/USD"];
+    const pythOracle = this._config.zeta.priceFeeds[assets.Asset.SOL]; // TODO: need to find asset from group associated with UTP account
+    const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
     return {
       instructions: [
@@ -187,7 +190,8 @@ export class UtpZetaAccount extends UtpAccount {
             zetaSocializedLossAccount: this._config.zeta.socializedLossAccountPk,
             zetaStatePk: this._config.zeta.statePk,
           },
-          { amount: uiToNative(amount) }
+          { amount: uiToNative(amount) },
+          remainingAccounts
         ),
       ],
       keys: [],
@@ -270,7 +274,7 @@ export class UtpZetaAccount extends UtpAccount {
       this._program.programId
     );
     const [openOrders] = await zetaUtils.getOpenOrders(this._config.zeta.programId, market.address, utpAuthority);
-    const pythOracle = this._config.zeta.priceFeeds["SOL/USD"];
+    const pythOracle = this._config.zeta.priceFeeds[assets.Asset.SOL];
 
     const remainingAccounts = await this._marginfiAccount.getObservationAccounts();
 
@@ -307,7 +311,11 @@ export class UtpZetaAccount extends UtpAccount {
               side == zetaTypes.Side.BID ? market.serumMarket.quoteMintAddress : market.serumMarket.baseMintAddress,
             zetaMintAuthorityPk: this._config.zeta.mintAuthorityPk,
           },
-          { price: uiToNative(price), size: uiToNative(size), side },
+          {
+            price: new BN(zetaUtils.convertDecimalToNativeInteger(toBigNumber(price).toNumber())),
+            size: new BN(zetaUtils.convertDecimalToNativeLotSize(toBigNumber(size).toNumber())),
+            side,
+          },
           remainingAccounts
         ),
       ],
@@ -317,7 +325,13 @@ export class UtpZetaAccount extends UtpAccount {
 
   async placeOrder(market: Market, price: UiAmount, size: UiAmount, side: zetaTypes.Side) {
     const debug = require("debug")(`mfi:utp:${this.address}:zeta:place-perp-order2`);
-    debug("Placing a %s order for %s @ %s of %s", side, size, price, market.marketIndex);
+    debug(
+      "Placing a %s order for %s @ %s on SOL market %s",
+      side === zetaTypes.Side.BID ? "BID" : "ASK",
+      size,
+      price,
+      market.marketIndex
+    );
     this.verifyActive();
 
     const placeOrderIx = await this.makePlaceOrderIx(market, price, size, side);

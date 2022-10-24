@@ -50,7 +50,8 @@ async function makeDepositIx(
     zetaGreeksPk: PublicKey;
     zetaProgramId: PublicKey;
   },
-  args: { amount: BN }
+  args: { amount: BN },
+  remainingAccounts: AccountMeta[] = []
 ) {
   return mfProgram.methods
     .utpZetaDeposit(args.amount)
@@ -71,6 +72,7 @@ async function makeDepositIx(
       tokenProgram: TOKEN_PROGRAM_ID,
       zetaProgram: accounts.zetaProgramId,
     })
+    .remainingAccounts(remainingAccounts)
     .instruction();
 }
 
@@ -91,7 +93,8 @@ async function makeWithdrawIx(
     zetaStatePk: PublicKey;
     zetaProgramId: PublicKey;
   },
-  args: { amount: BN }
+  args: { amount: BN },
+  remainingAccounts: AccountMeta[] = []
 ) {
   return mfProgram.methods
     .utpZetaWithdraw(args.amount)
@@ -111,6 +114,7 @@ async function makeWithdrawIx(
       zetaProgram: accounts.zetaProgramId,
       tokenProgram: TOKEN_PROGRAM_ID,
     })
+    .remainingAccounts(remainingAccounts)
     .instruction();
 }
 
