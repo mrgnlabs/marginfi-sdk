@@ -1,6 +1,6 @@
 {
   "name": "@mrgnlabs/marginfi-client",
-  "version": "0.7.9",
+  "version": "0.8.0",
   "description": "marginfi protocol SDK",
   "main": "dist/index.js",
   "repository": "https://github.com/mrgnlabs/marginfi-sdk",
